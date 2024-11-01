@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "identifier": "transcendRuins:cube"
+    },
+    "components": {
+        "model": {
+            "identifier": "transcendRuins:unitCube",
+            "rotationOffset": [0, 45, 0]
+        },
+        "renderMaterial": "transcendRuins:opaqueCulling"
+    }
+}

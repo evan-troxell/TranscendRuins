@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "identifier": "transcendRuins:opaqueCulling"
+    },
+    "components": {
+        "opaque" : true,
+        "antiAliasing" : true,
+        "backfaceCulling" : true,
+        "faceDimmingFactor" : 0.3,
+        "fresnelEffect" : false
+    }
+}

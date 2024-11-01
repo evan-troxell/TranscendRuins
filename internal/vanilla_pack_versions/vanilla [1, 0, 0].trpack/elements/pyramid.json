@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "identifier": "transcendRuins:pyramid"
+    },
+    "components": {
+        "model": {
+            "identifier": "transcendRuins:pyramid",
+            "rotationOffset": [0, 0, 0]
+        },
+        "renderMaterial": "transcendRuins:transparent"
+    }
+}
