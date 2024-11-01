@@ -32,7 +32,7 @@ public final class FileOperator {
      */
     public static void writeTo(TracedPath path, String contents) throws IOException {
 
-        createFile(path);
+        createFile(path, false);
         Files.write(path.getPath(), contents.getBytes());
     }
 
@@ -44,7 +44,7 @@ public final class FileOperator {
      */
     public static void writeTo(TracedPath path, ByteBuffer contents) throws IOException {
 
-        createFile(path);
+        createFile(path, false);
         Files.write(path.getPath(), contents.array());
     }
 
@@ -111,28 +111,25 @@ public final class FileOperator {
     /**
      * Creates a new file from a <code>TracedPath</code> directory.
      * @param path <code>TracedPath</code>: The directory to create from.
+     * @param isDirectory <code>boolean</code>: Whether or not to create a directory instead.
      * @return <code>boolean</code>: Whether or not the file already existed.
      * @throws IOException Thrown if the designated directory cannot be created for any reason.
      */
-    public static boolean createFile(TracedPath path) throws IOException {
+    public static boolean createFile(TracedPath path, boolean isDirectory) throws IOException {
 
         if (exists(path)) {
 
             return true;
         }
+        
+        if (isDirectory) {
+            
+            Files.createFile(path.getPath());
+        } else {
 
-        Files.createFile(path.getPath());
+            Files.createDirectory(path.getPath());
+        }
         return false;
-    }
-
-    /**
-     * Creates a new directory from the project root directory.
-     * @param path <code>TracedPath</code>: The directory to create from.
-     * @throws IOException Thrown if the designated directory cannot be created for any reason.
-     */
-    public static void createDirectory(TracedPath path) throws IOException {
-
-        Files.createDirectories(path.getPath());
     }
 
     /**

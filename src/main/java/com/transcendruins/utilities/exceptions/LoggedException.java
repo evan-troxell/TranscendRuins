@@ -74,7 +74,7 @@ public class LoggedException extends Exception {
         String logs = FileOperator.exists(LOGS_DIRECTORY.extend(file)) ? FileOperator.retrieve(LOGS_DIRECTORY.extend(file)) + "\n\n\n" + message : message;
         try {
 
-            if (!FileOperator.exists(LOGS_DIRECTORY)) FileOperator.createDirectory(LOGS_DIRECTORY);
+            if (!FileOperator.exists(LOGS_DIRECTORY)) FileOperator.createFile(LOGS_DIRECTORY, true);
             FileOperator.writeTo(LOGS_DIRECTORY.extend(file), logs);
             System.out.println(message);
         } catch (IOException e) {

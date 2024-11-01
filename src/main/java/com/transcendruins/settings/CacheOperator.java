@@ -45,7 +45,7 @@ public final class CacheOperator {
 
         try {
 
-            FileOperator.createDirectory(cacheRoot);
+            FileOperator.createFile(cacheRoot, true);
         } catch (IOException e) {}
 
         return cacheRoot;
@@ -61,7 +61,7 @@ public final class CacheOperator {
 
         try {
 
-            FileOperator.createDirectory(worldRoot);
+            FileOperator.createFile(worldRoot, true);
         } catch (IOException e) {}
 
         return worldRoot;
@@ -97,7 +97,7 @@ public final class CacheOperator {
 
         for (TracedPath cacheElementDirectory : elementDirectories.values()) {
 
-            FileOperator.createDirectory(cacheElementDirectory);
+            FileOperator.createFile(cacheElementDirectory, true);
         }
     }
 
