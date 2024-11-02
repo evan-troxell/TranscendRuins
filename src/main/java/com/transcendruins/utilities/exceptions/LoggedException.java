@@ -61,7 +61,7 @@ public class LoggedException extends Exception {
         errorMessage += message;
 
         String dateString = new SimpleDateFormat("MM-dd-yyyy").format(date);
-        saveErrorMessage(errorMessage, "Log " + dateString + ".txt");
+        saveErrorMessage(errorMessage, "Log " + dateString + ".log");
     }
 
     /**
