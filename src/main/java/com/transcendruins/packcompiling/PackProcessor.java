@@ -12,7 +12,6 @@ import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.DuplicateIdentifierException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.dependencyexceptions.InvalidDependencyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.dependencyexceptions.MissingDependencyException;
-import com.transcendruins.utilities.files.FileOperator;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
@@ -71,7 +70,7 @@ public final class PackProcessor {
      */
     public void addRoot(TracedPath root, boolean isVanilla) {
 
-        ArrayList<TracedPath> packPaths = FileOperator.compileDirectoryArray(root, ".trpack");
+        ArrayList<TracedPath> packPaths = root.compileDirectoryArray(".trpack");
 
         for (TracedPath path : packPaths) {
 

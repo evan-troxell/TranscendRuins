@@ -61,10 +61,7 @@ public abstract class TRButton extends JButton implements TRComponent {
 
         setMaximumSize(size);
         setPreferredSize(size);
-        addActionListener((ActionEvent e) -> {
-
-            onClick();
-        });
+        addActionListener((@SuppressWarnings("unused") ActionEvent e) -> onClick());
 
         addMouseListener(new MouseAdapter() {
 

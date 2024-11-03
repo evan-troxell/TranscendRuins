@@ -21,7 +21,6 @@ import com.transcendruins.utilities.exceptions.propertyexceptions.DuplicateIdent
 import com.transcendruins.utilities.exceptions.propertyexceptions.IdentifierFormatException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.StringLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.dependencyexceptions.InvalidDependencyException;
-import com.transcendruins.utilities.files.FileOperator;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.json.JSONOperator;
 import com.transcendruins.utilities.json.TracedArray;
@@ -185,9 +184,9 @@ public final class Pack {
         }
 
         TracedPath displayIconPath = root.extend("displayIcon.png");
-        if (FileOperator.exists(displayIconPath)) {
+        if (displayIconPath.exists()) {
 
-            displayIcon = FileOperator.retrieveImage(displayIconPath);
+            displayIcon = displayIconPath.retrieveImage();
         } else {
 
             displayIcon = null;
@@ -239,12 +238,12 @@ public final class Pack {
 
         // Build all animations in the pack.
         TracedPath animationcontrollersPath = root.extend("animation_controllers");
-        if (FileOperator.exists(animationcontrollersPath)) {
+        if (animationcontrollersPath.exists()) {
 
             HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ANIMATION_CONTROLLER);
 
             // Compiles a list of paths and iterates through them.
-            ArrayList<TracedPath> assetPaths = FileOperator.compileFileArray(animationcontrollersPath, ".json", true);
+            ArrayList<TracedPath> assetPaths = animationcontrollersPath.compileFileArray(".json", true);
             for (TracedPath assetPath : assetPaths) {
 
                 try {
@@ -268,12 +267,12 @@ public final class Pack {
 
         // Build all animations in the pack.
         TracedPath animationsPath = root.extend("animations");
-        if (FileOperator.exists(animationsPath)) {
+        if (animationsPath.exists()) {
 
             HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ANIMATION);
 
             // Compiles a list of paths and iterates through them.
-            ArrayList<TracedPath> assetPaths = FileOperator.compileFileArray(animationsPath, ".json", true);
+            ArrayList<TracedPath> assetPaths = animationsPath.compileFileArray(".json", true);
             for (TracedPath assetPath : assetPaths) {
 
                 try {
@@ -297,12 +296,12 @@ public final class Pack {
 
         // Build all elements in the pack.
         TracedPath elementsPath = root.extend("elements");
-        if (FileOperator.exists(elementsPath)) {
+        if (elementsPath.exists()) {
 
             HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ELEMENT);
 
             // Compiles a list of paths and iterates through them.
-            ArrayList<TracedPath> assetPaths = FileOperator.compileFileArray(elementsPath, ".json", true);
+            ArrayList<TracedPath> assetPaths = elementsPath.compileFileArray(".json", true);
             for (TracedPath assetPath : assetPaths) {
 
                 try {
@@ -326,12 +325,12 @@ public final class Pack {
 
         // Build all entities in the pack.
         TracedPath entitiesPath = root.extend("entities");
-        if (FileOperator.exists(entitiesPath)) {
+        if (entitiesPath.exists()) {
 
             HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ENTITY);
 
             // Compiles a list of paths and iterates through them.
-            ArrayList<TracedPath> assetPaths = FileOperator.compileFileArray(entitiesPath, ".json", true);
+            ArrayList<TracedPath> assetPaths = entitiesPath.compileFileArray(".json", true);
             for (TracedPath assetPath : assetPaths) {
 
                 try {
@@ -355,12 +354,12 @@ public final class Pack {
 
         // Build all items in the pack.
         TracedPath itemsPath = root.extend("items");
-        if (FileOperator.exists(itemsPath)) {
+        if (itemsPath.exists()) {
 
         HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ITEM);
 
         // Compiles a list of paths and iterates through them.
-        ArrayList<TracedPath> assetPaths = FileOperator.compileFileArray(itemsPath, ".json", true);
+        ArrayList<TracedPath> assetPaths = itemsPath.compileFileArray(".json", true);
         for (TracedPath assetPath : assetPaths) {
 
                 try {
@@ -384,12 +383,12 @@ public final class Pack {
 
         // Build all models in the pack.
         TracedPath modelsPath = root.extend("models");
-        if (FileOperator.exists(modelsPath)) {
+        if (modelsPath.exists()) {
 
             HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.MODEL);
 
             // Compiles a list of paths and iterates through them.
-            ArrayList<TracedPath> assetPaths = FileOperator.compileFileArray(modelsPath, ".json", true);
+            ArrayList<TracedPath> assetPaths = modelsPath.compileFileArray(".json", true);
             for (TracedPath assetPath : assetPaths) {
 
                 try {
@@ -413,12 +412,12 @@ public final class Pack {
 
         // Build all render materials in the pack.
         TracedPath renderMaterialsPath = root.extend("render_materials");
-        if (FileOperator.exists(renderMaterialsPath)) {
+        if (renderMaterialsPath.exists()) {
 
             HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.RENDER_MATERIAL);
 
             // Compiles a list of paths and iterates through them.
-            ArrayList<TracedPath> assetPaths = FileOperator.compileFileArray(renderMaterialsPath, ".json", true);
+            ArrayList<TracedPath> assetPaths = renderMaterialsPath.compileFileArray(".json", true);
             for (TracedPath assetPath : assetPaths) {
 
                 try {
@@ -442,12 +441,12 @@ public final class Pack {
 
         // Build all structures in the pack.
         TracedPath structuresPath = root.extend("structures");
-        if (FileOperator.exists(structuresPath)) {
+        if (structuresPath.exists()) {
 
             HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.STRUCTURE);
 
             // Compiles a list of paths and iterates through them.
-            ArrayList<TracedPath> assetPaths = FileOperator.compileFileArray(structuresPath, ".json", true);
+            ArrayList<TracedPath> assetPaths = structuresPath.compileFileArray(".json", true);
             for (TracedPath assetPath: assetPaths) {
 
                 try {

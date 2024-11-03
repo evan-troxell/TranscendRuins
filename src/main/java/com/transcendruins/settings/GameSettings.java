@@ -8,7 +8,6 @@ import org.json.simple.JSONObject;
 
 import com.transcendruins.utilities.exceptions.fileexceptions.FileFormatException;
 import com.transcendruins.utilities.exceptions.fileexceptions.MissingFileException;
-import com.transcendruins.utilities.files.FileOperator;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.json.JSONOperator;
 
@@ -111,7 +110,7 @@ public final class GameSettings {
 
         HashMap<String, HashMap<String, Object>> settings = defaultSettings();
 
-        if (!FileOperator.exists(SETTINGS_DIRECTORY)) {
+        if (!SETTINGS_DIRECTORY.exists()) {
 
             save(settings);
             return settings;

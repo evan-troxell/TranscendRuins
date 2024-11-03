@@ -24,7 +24,7 @@ import com.transcendruins.ui.mappedcomponents.containers.TRFrame;
 import com.transcendruins.ui.mappedcomponents.containers.TRLayeredPanel;
 import com.transcendruins.ui.mappedcomponents.containers.TRPanel;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
-import com.transcendruins.utilities.files.FileOperator;
+import com.transcendruins.utilities.files.TracedPath;
 
 /**
  * <code>DisplayFrame</code>: A class representing the display frame used throughout the project.
@@ -77,7 +77,7 @@ public final class DisplayFrame extends TRFrame {
     public DisplayFrame() {
 
         super("displayFrame", ComponentSettings.BACKGROUND_PANEL_SETTINGS);
-        ImageIcon icon = FileOperator.retrieveImage(FileOperator.LOCAL_ROOT_DIRECTORY.extend("internal", "frameIcon.png"));
+        ImageIcon icon = TracedPath.LOCAL_ROOT_DIRECTORY.extend("internal", "frameIcon.png").retrieveImage();
         if (icon != null) setIconImage(icon.getImage());
         setName("Transcend Ruins V2");
         //setUndecorated(true);

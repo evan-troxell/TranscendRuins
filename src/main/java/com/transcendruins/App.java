@@ -11,7 +11,6 @@ import com.transcendruins.packcompiling.assetschemas.elements.ElementSchema;
 import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.ui.DisplayFrame;
 import com.transcendruins.ui.Render3D;
-import com.transcendruins.utilities.files.FileOperator;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
@@ -28,7 +27,7 @@ public final class App {
      */
     public static void main(String[] args) throws Exception {
 
-        TracedPath internalPath = FileOperator.LOCAL_ROOT_DIRECTORY.extend("internal");
+        TracedPath internalPath = TracedPath.LOCAL_ROOT_DIRECTORY.extend("internal");
 
         PackProcessor packProcessor = PackProcessor.getProcessor();
 

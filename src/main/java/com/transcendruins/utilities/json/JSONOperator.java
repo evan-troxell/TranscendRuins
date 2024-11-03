@@ -16,7 +16,6 @@ import com.transcendruins.utilities.exceptions.fileexceptions.FileFormatExceptio
 import com.transcendruins.utilities.exceptions.fileexceptions.MissingFileException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeException;
-import com.transcendruins.utilities.files.FileOperator;
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
@@ -33,9 +32,9 @@ public final class JSONOperator {
     public static JSONObject parseJSON(String jsonString) throws ParseException {
 
         Object val = new JSONParser().parse(jsonString);
-        if (val instanceof JSONObject) {
+        if (val instanceof JSONObject jSONObject) {
 
-            return (JSONObject) val;
+            return jSONObject;
         }
         throw new ParseException(ParseException.ERROR_UNEXPECTED_EXCEPTION);
     }
@@ -49,7 +48,7 @@ public final class JSONOperator {
      */
     public static TracedDictionary retrieveJSON(TracedPath path) throws FileFormatException, MissingFileException {
 
-        String jsonString = FileOperator.retrieve(path);
+        String jsonString = path.retrieve();
 
         // Raise an error if the string could not be retrieved.
         if (jsonString == null) {
@@ -129,11 +128,11 @@ public final class JSONOperator {
 
             Object value = map.get(key);
 
-            if (value instanceof Map<?, ?>) {
+            if (value instanceof Map<?, ?> map1) {
 
                 // Safely convert the new value to a perameterized map.
                 HashMap<String, Object> valueMap = new HashMap<>();
-                for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                for (Map.Entry<?, ?> entry : map1.entrySet()) {
 
                     valueMap.put((String) entry.getKey(), entry.getValue());
                 }
@@ -149,9 +148,9 @@ public final class JSONOperator {
                 }
 
                 recursionMap.put(key, toJSONArray(valueList));
-            } else if (value instanceof Object[]) {
+            } else if (value instanceof Object[] objects) {
 
-                recursionMap.put(key, toJSONArray(Arrays.asList((Object[]) value)));
+                recursionMap.put(key, toJSONArray(Arrays.asList(objects)));
             } else {
 
                 recursionMap.put(key, value);
@@ -173,11 +172,11 @@ public final class JSONOperator {
 
         for (Object value : list) {
 
-            if (value instanceof Map<?, ?>) {
+            if (value instanceof Map<?, ?> map) {
 
                 // Safely convert the new value to a perameterized map.
                 HashMap<String, Object> valueMap = new HashMap<>();
-                for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
 
                     valueMap.put((String) entry.getKey(), entry.getValue());
                 }
@@ -193,9 +192,9 @@ public final class JSONOperator {
                 }
 
                 recursionList.add(toJSONArray(valueList));
-            } else if (value instanceof Object[]) {
+            } else if (value instanceof Object[] objects) {
 
-                recursionList.add(toJSONArray(Arrays.asList((Object[]) value)));
+                recursionList.add(toJSONArray(Arrays.asList(objects)));
             } else {
 
                 recursionList.add(value);
@@ -213,7 +212,7 @@ public final class JSONOperator {
     public static void writeTo(TracedPath path, JSONObject json) throws IOException {
 
         String outputString = json.toJSONString();
-        FileOperator.writeTo(path, outputString);
+        path.writeTo(outputString);
     }
 
     /**
@@ -227,7 +226,7 @@ public final class JSONOperator {
         JSONObject json = toJSONObject(values);
 
         String outputString = json.toJSONString();
-        FileOperator.writeTo(path, outputString);
+        path.writeTo(outputString);
     }
 
     /**

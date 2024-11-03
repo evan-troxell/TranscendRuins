@@ -5,7 +5,6 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 
 import com.transcendruins.settings.CacheOperator;
-import com.transcendruins.utilities.files.FileOperator;
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
@@ -67,15 +66,16 @@ public class LoggedException extends Exception {
     /**
      * Records an error message to the logs directory.
      * @param message <code>String</code>: The message to record to the file.
-     * @param file <code>String</code>: The name of the log file, specifically in the format of "Log MMMM dd, yyyy + [MESSAGE]".
+     * @param name <code>String</code>: The name of the log file, specifically in the format of "Log MMMM dd, yyyy + [MESSAGE]".
      */
-    private static void saveErrorMessage(String message, String file) {
+    private static void saveErrorMessage(String message, String name) {
 
-        String logs = FileOperator.exists(LOGS_DIRECTORY.extend(file)) ? FileOperator.retrieve(LOGS_DIRECTORY.extend(file)) + "\n\n\n" + message : message;
+        TracedPath path = LOGS_DIRECTORY.extend(name);
+        String logs = path.exists() ? path.retrieve() + "\n\n\n" + message : message;
         try {
 
-            if (!FileOperator.exists(LOGS_DIRECTORY)) FileOperator.createFile(LOGS_DIRECTORY, true);
-            FileOperator.writeTo(LOGS_DIRECTORY.extend(file), logs);
+            if (!LOGS_DIRECTORY.exists()) LOGS_DIRECTORY.createFile(true);
+            path.writeTo(logs);
             System.out.println(message);
         } catch (IOException e) {
 

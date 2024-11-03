@@ -3,7 +3,6 @@ package com.transcendruins.settings;
 import java.io.IOException;
 import java.util.HashMap;
 
-import com.transcendruins.utilities.files.FileOperator;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.world.World;
 
@@ -41,11 +40,11 @@ public final class CacheOperator {
      */
     private static TracedPath buildCacheDirectory() {
 
-        TracedPath cacheRoot = FileOperator.HOME_DIRECTORY.extend("transcendRuinsCache");
+        TracedPath cacheRoot = TracedPath.HOME_DIRECTORY.extend("transcendRuinsCache");
 
         try {
 
-            FileOperator.createFile(cacheRoot, true);
+            cacheRoot.createFile(true);
         } catch (IOException e) {}
 
         return cacheRoot;
@@ -61,7 +60,7 @@ public final class CacheOperator {
 
         try {
 
-            FileOperator.createFile(worldRoot, true);
+            worldRoot.createFile(true);
         } catch (IOException e) {}
 
         return worldRoot;
@@ -97,7 +96,7 @@ public final class CacheOperator {
 
         for (TracedPath cacheElementDirectory : elementDirectories.values()) {
 
-            FileOperator.createFile(cacheElementDirectory, true);
+            cacheElementDirectory.createFile(true);
         }
     }
 
@@ -116,7 +115,7 @@ public final class CacheOperator {
      */
     public static boolean cacheExists() {
 
-        return FileOperator.exists(CACHE_DIRECTORY) && FileOperator.isFile(CACHE_DIRECTORY, true);
+        return CACHE_DIRECTORY.exists() && CACHE_DIRECTORY.isFile(true);
     }
 
     /**
