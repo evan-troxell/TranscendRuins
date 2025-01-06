@@ -31,7 +31,7 @@ public final class ModelSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the model of this <code>ModelSchemaComponents</code> instance.
-     * @return <code>Identifier</code>: The <code>model</code> property of this <code>ModelSchemaComponents</code> instance.
+     * @return <code>Identifier</code>: The <code>model</code> field of this <code>ModelSchemaComponents</code> instance.
      */
     public Model getModel() {
 

@@ -48,7 +48,7 @@ public final class JSONOperator {
      */
     public static TracedDictionary retrieveJSON(TracedPath path) throws FileFormatException, MissingFileException {
 
-        String jsonString = path.retrieve();
+        String jsonString = path.retrieveContents();
 
         // Raise an error if the string could not be retrieved.
         if (jsonString == null) {

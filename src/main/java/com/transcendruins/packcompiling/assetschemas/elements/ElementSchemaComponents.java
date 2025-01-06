@@ -32,7 +32,7 @@ public final class ElementSchemaComponents extends ModelAssetSchemaComponents {
 
     /**
      * Retrieves whether or not the rotation of this <code>ElementSchemaComponents</code> instance should snap to the four cardinal directions.
-     * @return <code>Boolean</code>: The <code>gridRotationSnap</code> property of this <code>ElementSchemaComponents</code> instance.
+     * @return <code>Boolean</code>: The <code>gridRotationSnap</code> field of this <code>ElementSchemaComponents</code> instance.
      */
     public Boolean getGridRotationSnap() {
 

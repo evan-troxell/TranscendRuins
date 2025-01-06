@@ -54,7 +54,7 @@ public final class World {
     }
 
     /**
-     * Creates a new instance of the <code>World</code> class and assigns it to the <code>world</code> property.
+     * Creates a new instance of the <code>World</code> class and assigns it to the <code>world</code> field
      * @param packs <code>ArrayList&lt;Pack&gt;</code>: The packs used to create the new <code>World</code> instance.
      * @return <code>World</code>: The generated world.
      */
@@ -66,7 +66,7 @@ public final class World {
 
     /**
      * Retrieves the current environment state of this <code>World</code> instance.
-     * @return <code>EnvironmentState</code>: The <code>environment</code> property of this <code>World</code> instance.
+     * @return <code>EnvironmentState</code>: The <code>environment</code> field of this <code>World</code> instance.
      */
     public EnvironmentState getEnvironment() {
 
@@ -75,7 +75,7 @@ public final class World {
 
     /**
      * Retrieves the current world of the program.
-     * @return <code>World</code>: The <code>world</code> property.
+     * @return <code>World</code>: The <code>world</code> field
      */
     public static World getWorld() {
 

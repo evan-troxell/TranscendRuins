@@ -13,7 +13,7 @@ public class Position3D {
     private Vector position;
 
     /**
-     * <code>Vector[2]</code>: The positional bounds representing the maximum and minimum X, Y, and Z values allowed in the <code>position</code> property of this <code>Position3D</code> instance.
+     * <code>Vector[2]</code>: The positional bounds representing the maximum and minimum X, Y, and Z values allowed in the <code>position</code> field of this <code>Position3D</code> instance.
      */
     private Vector[] positionBounds = new Vector[] {new Vector(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY), new Vector(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)};
 
@@ -23,7 +23,7 @@ public class Position3D {
     private double heading;
 
     /**
-     * <code>Double[2]</code>: The rotation bounds representing the maximum and minimum heading value allowed in the <code>heading</code> property of this <code>Position3D</code> instance, specified in radians.
+     * <code>Double[2]</code>: The rotation bounds representing the maximum and minimum heading value allowed in the <code>heading</code> field of this <code>Position3D</code> instance, specified in radians.
      */
     private Double[] headingBounds = new Double[] {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY};
 
@@ -33,7 +33,7 @@ public class Position3D {
     private double pitch;
 
     /**
-     * <code>Double[2]</code>: The rotation bounds representing the maximum and minimum pitch value allowed in the <code>pitch</code> property of this <code>Position3D</code> instance, specified in radians.
+     * <code>Double[2]</code>: The rotation bounds representing the maximum and minimum pitch value allowed in the <code>pitch</code> field of this <code>Position3D</code> instance, specified in radians.
      */
     private Double[] pitchBounds = new Double[] {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY};
 
@@ -64,7 +64,7 @@ public class Position3D {
     }
 
     /**
-     * Transforms the <code>position</code> property of this <code>Position3D</code> instance by the vector values of the <code>transform</code> perameter.
+     * Transforms the <code>position</code> field of this <code>Position3D</code> instance by the vector values of the <code>transform</code> perameter.
      * @param positionTransform <code>Vector</code>: The <code>Vector</code> instance to transform by.
      * @return <code>Vector</code>: The resulting transformed vector.
      */
@@ -74,11 +74,11 @@ public class Position3D {
     }
 
     /**
-     * Rotates the <code>heading</code> and <code>pitch</code> properties of this <code>Position3D</code> instance by the values of the <code>heading</code> perameter <code>pitch</code> perameter.
-     * @param headingTransform <code>double</code>: The amount to transform the <code>heading</code> property of this <code>Position3D</code> instance by.
-     * @param pitchTransform <code>double</code>: The amount to transform the <code>pitch</code> property of this <code>Position3D</code> instance by.
+     * Rotates the <code>heading</code> and <code>pitch</code> fields of this <code>Position3D</code> instance by the values of the <code>heading</code> perameter <code>pitch</code> perameter.
+     * @param headingTransform <code>double</code>: The amount to transform the <code>heading</code> field of this <code>Position3D</code> instance by.
+     * @param pitchTransform <code>double</code>: The amount to transform the <code>pitch</code> field of this <code>Position3D</code> instance by.
      * @param isRadians <code>boolean</code>: Whether or not the <code>heading</code> and <code>pitch</code> perameters are specified in radians.
-     * @return <code>double[2]</code>: An array containing the values of the <code>heading</code> property and the <code>pitch</code> property of this <code>Position3D</code> instance, in radians.
+     * @return <code>double[2]</code>: An array containing the values of the <code>heading</code> field and the <code>pitch</code> field of this <code>Position3D</code> instance, in radians.
      */
     public final double[] rotateBy(double headingTransform, double pitchTransform, boolean isRadians) {
 
@@ -93,8 +93,8 @@ public class Position3D {
     }
 
     /**
-     * Sets the <code>position</code> property of this <code>Position3D</code> instance to the vector values of the <code>position</code> perameter.
-     * @param positionValue <code>Vector</code>: The <code>Vector</code> instance to assign to the <code>position</code> property ofthis <code>Position3D</code> instance.
+     * Sets the <code>position</code> field of this <code>Position3D</code> instance to the vector values of the <code>position</code> perameter.
+     * @param positionValue <code>Vector</code>: The <code>Vector</code> instance to assign to the <code>position</code> field ofthis <code>Position3D</code> instance.
      * @return <code>Vector</code>: The resulting position vector.
      */
     public final Vector setPosition(Vector positionValue) {
@@ -110,8 +110,8 @@ public class Position3D {
     }
 
     /**
-     * Sets the <code>heading</code> property of this <code>Position3D</code> instance to the value of the <code>heading</code> perameter.
-     * @param headingValue <code>double</code>: The value to assign to the <code>heading</code> property ofthis <code>Position3D</code> instance.
+     * Sets the <code>heading</code> field of this <code>Position3D</code> instance to the value of the <code>heading</code> perameter.
+     * @param headingValue <code>double</code>: The value to assign to the <code>heading</code> field ofthis <code>Position3D</code> instance.
      * @param newHeading <code>boolean</code>: Whether or not the <code>heading</code> perameter is specified in radians.
      * @return <code>double</code>: The resulting heading value, in radians.
      */
@@ -129,8 +129,8 @@ public class Position3D {
     }
 
     /**
-     * Sets the <code>pitch</code> property of this <code>Position3D</code> instance to the value of the <code>pitch</code> perameter.
-     * @param newPitch <code>double</code>: The value to assign to the <code>pitch</code> property ofthis <code>Position3D</code> instance.
+     * Sets the <code>pitch</code> field of this <code>Position3D</code> instance to the value of the <code>pitch</code> perameter.
+     * @param newPitch <code>double</code>: The value to assign to the <code>pitch</code> field ofthis <code>Position3D</code> instance.
      * @param isRadians <code>boolean</code>: Whether or not the <code>pitch</code> perameter is specified in radians.
      * @return <code>double</code>: The resulting pitch value, in radians.
      */
@@ -147,11 +147,11 @@ public class Position3D {
     }
 
     /**
-     * Sets the <code>heading</code> property and the <code>pitch</code> property of this <code>Position3D</code> instance to the values of the <code>heading</code> perameter and the <code>pitch</code> perameter.
-     * @param newHeading <code>double</code>: The value to assign to the <code>heading</code> property ofthis <code>Position3D</code> instance.
-     * @param newPitch <code>double</code>: The value to assign to the <code>pitch</code> property ofthis <code>Position3D</code> instance.
+     * Sets the <code>heading</code> field and the <code>pitch</code> field of this <code>Position3D</code> instance to the values of the <code>heading</code> perameter and the <code>pitch</code> perameter.
+     * @param newHeading <code>double</code>: The value to assign to the <code>heading</code> field ofthis <code>Position3D</code> instance.
+     * @param newPitch <code>double</code>: The value to assign to the <code>pitch</code> field ofthis <code>Position3D</code> instance.
      * @param isRadians <code>boolean</code>: Whether or not the <code>heading</code> and <code>pitch</code> perameters are specified in radians.
-     * @return <code>double[2]</code>: An array containing the values of the <code>heading</code> property and the <code>pitch</code> property of this <code>Position3D</code> instance, in radians.
+     * @return <code>double[2]</code>: An array containing the values of the <code>heading</code> field and the <code>pitch</code> field of this <code>Position3D</code> instance, in radians.
      */
     public final double[] setRotation(double newHeading, double newPitch, boolean isRadians) {
 
@@ -159,7 +159,7 @@ public class Position3D {
     }
 
     /**
-     * Sets the maximum and minimum bounds of the <code>position</code> property of this <code>Position3D</code> instance.
+     * Sets the maximum and minimum bounds of the <code>position</code> field of this <code>Position3D</code> instance.
      * @param min <code>Vector</code>: The minimum positional boundary of this <code>Position3D</code> instance. A null value represents no boundary being assigned.
      * @param max <code>Vector</code>: The maximum positional boundary of this <code>Position3D</code> instance. A null value represents no boundary being assigned.
      * @return <code>boolean</code>: Whether or not the boundaries were successfully applied to this <code>Position3D</code> instance.
@@ -187,7 +187,7 @@ public class Position3D {
     }
 
     /**
-     * Sets the maximum and minimum bounds of the <code>heading</code> property of this <code>Position3D</code> instance.
+     * Sets the maximum and minimum bounds of the <code>heading</code> field of this <code>Position3D</code> instance.
      * @param min <code>Double</code>: The minimum heading boundary of this <code>Position3D</code> instance. A null value represents no boundary being assigned.
      * @param max <code>Double</code>: The maximum heading boundary of this <code>Position3D</code> instance. A null value represents no boundary being assigned.
      * @param isRadians <code>boolean</code>: Whether or not the <code>pitch</code> perameter is specified in radians.
@@ -222,7 +222,7 @@ public class Position3D {
     }
 
     /**
-     * Sets the maximum and minimum bounds of the <code>pitch</code> property of this <code>Position3D</code> instance.
+     * Sets the maximum and minimum bounds of the <code>pitch</code> field of this <code>Position3D</code> instance.
      * @param min <code>Double</code>: The minimum pitch boundary of this <code>Position3D</code> instance. A null value represents no boundary being assigned.
      * @param max <code>Double</code>: The maximum pitch boundary of this <code>Position3D</code> instance. A null value represents no boundary being assigned.
      * @param isRadians <code>boolean</code>: Whether or not the <code>pitch</code> perameter is specified in radians.
@@ -257,7 +257,7 @@ public class Position3D {
     }
 
     /**
-     * Sets the maximum and minimum bounds of the <code>heading</code> property and the <code>pitch</code> property of this <code>Position3D</code> instance.
+     * Sets the maximum and minimum bounds of the <code>heading</code> field and the <code>pitch</code> field of this <code>Position3D</code> instance.
      * @param minHeading <code>Double</code>: The minimum heading boundary of this <code>Position3D</code> instance. A null value represents no boundary being assigned.
      * @param maxHeading <code>Double</code>: The maximum heading boundary of this <code>Position3D</code> instance. A null value represents no boundary being assigned.
      * @param minPitch <code>Double</code>: The minimum pitch boundary of this <code>Position3D</code> instance. A null value represents no boundary being assigned.
@@ -272,8 +272,8 @@ public class Position3D {
     }
 
     /**
-     * Retrieves the value of the <code>position</code> property of this <code>Position3D</code> instance.
-     * @return <code>Vector</code>: The <code>position</code> property of this <code>Position3D</code> instance.
+     * Retrieves the value of the <code>position</code> field of this <code>Position3D</code> instance.
+     * @return <code>Vector</code>: The <code>position</code> field of this <code>Position3D</code> instance.
      */
     public final Vector getPosition() {
 
@@ -281,8 +281,8 @@ public class Position3D {
     }
 
     /**
-     * Retrieves the value of the <code>heading</code> property of this <code>Position3D</code> instance.
-     * @return <code>double</code>: The <code>heading</code> property of this <code>Position3D</code> instance, in radians.
+     * Retrieves the value of the <code>heading</code> field of this <code>Position3D</code> instance.
+     * @return <code>double</code>: The <code>heading</code> field of this <code>Position3D</code> instance, in radians.
      */
     public final double getHeading() {
 
@@ -290,8 +290,8 @@ public class Position3D {
     }
 
     /**
-     * Retrieves the value of the <code>pitch</code> property of this <code>Position3D</code> instance.
-     * @return <code>double</code>: The <code>pitch</code> property of this <code>Position3D</code> instance, in radians.
+     * Retrieves the value of the <code>pitch</code> field of this <code>Position3D</code> instance.
+     * @return <code>double</code>: The <code>pitch</code> field of this <code>Position3D</code> instance, in radians.
      */
     public final double getPitch() {
 
@@ -299,7 +299,7 @@ public class Position3D {
     }
 
     /**
-     * Updates the <code>renderTransform</code> property after any change to the position or orientation of this <code>Position3D</code> instance.
+     * Updates the <code>renderTransform</code> field after any change to the position or orientation of this <code>Position3D</code> instance.
      */
     protected void update() {
 
@@ -315,12 +315,12 @@ public class Position3D {
         Matrix rotationalTransform = headingTransform.multiplyMatrix(pitchTransform);
 
         renderTransform = new MatrixOperations().addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, Render3D.DISPLAY_TRANSFORM)
-                                                 .addOperation(MatrixOperations.Operations.SUBTRACT_MATRIX, getPosition())
-                                                 .addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, rotationalTransform);
+                                                .addOperation(MatrixOperations.Operations.SUBTRACT_MATRIX, getPosition())
+                                                .addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, rotationalTransform);
     }
 
     /**
-     * Retrieves the <code>renderTransform</code> property of this <code>Position3D</code> instance, adjusted to be in the center of the frame.
+     * Retrieves the <code>renderTransform</code> field of this <code>Position3D</code> instance, adjusted to be in the center of the frame.
      * @return <code>MatrixOperations</code>: The operations used to normalize and center a polygon onto the frame.
      */
     public final MatrixOperations getRenderTransform() {

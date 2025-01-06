@@ -205,7 +205,7 @@ public final class Triangle3D {
     }
 
     /**
-     * Sets the <code>renderMaterial</code> property of this <code>Triangle3D</code> instance.
+     * Sets the <code>renderMaterial</code> field of this <code>Triangle3D</code> instance.
      * @param renderMaterial <code>RenderMaterialInstance</code>: The render material used to render this <code>Triangle3D</code> instance.
      */
     public void setRenderMaterial(RenderMaterialInstance renderMaterial) {
@@ -215,7 +215,7 @@ public final class Triangle3D {
 
     /**
      * Retrieves the render material used to render this <code>Triangle3D</code> instance.
-     * @return <code>RenderMaterialInstance</code>: The <code>renderMaterial</code> property of this <code>Triangle3D</code> instance.
+     * @return <code>RenderMaterialInstance</code>: The <code>renderMaterial</code> field of this <code>Triangle3D</code> instance.
      */
     public RenderMaterialInstance getRenderMaterial() {
 

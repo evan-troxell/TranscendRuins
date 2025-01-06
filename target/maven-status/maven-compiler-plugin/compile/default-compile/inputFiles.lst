@@ -3,6 +3,7 @@
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/MatrixOperations.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/PolyGroup.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/Position3D.java
+/Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/Quaternion.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/Triangle3D.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/Vector.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/interpolation/AlignedVector.java
@@ -74,7 +75,6 @@
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/utilities/exceptions/propertyexceptions/dependencyexceptions/DependencyException.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/utilities/exceptions/propertyexceptions/dependencyexceptions/InvalidDependencyException.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/utilities/exceptions/propertyexceptions/dependencyexceptions/MissingDependencyException.java
-/Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/utilities/files/FileOperator.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/utilities/files/TracedPath.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/utilities/json/JSONOperator.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/utilities/json/TracedArray.java

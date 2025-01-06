@@ -86,7 +86,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>backfaceCulling</code> property of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>backfaceCulling</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
      * @return <code>boolean</code>: Whether or not backface culling should be implemented.
      */
     public boolean backfaceCulling() {
@@ -95,7 +95,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>fresnelEffect</code> property of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>fresnelEffect</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
      * @return <code>boolean</code>: Whether or not the Fresnel effect should be implemented.
      */
     public boolean fresnelEffect() {
@@ -104,7 +104,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>faceDimming</code> property of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>faceDimming</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
      * @return <code>boolean</code>: Whether or not face dimming should be implemented.
      */
     public boolean faceDimming() {
@@ -113,7 +113,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>faceDimmingFactor</code> property of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>faceDimmingFactor</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
      * @return <code>double</code>: The retrieved face dimming factor.
      */
     public double faceDimmingFactor() {
@@ -122,7 +122,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>antiAliasing</code> property of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>antiAliasing</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
      * @return <code>boolean</code>: Whether or not anti aliasing should be implemented.
      */
     public boolean antiAliasing() {
@@ -131,7 +131,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>opaque</code> property of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>opaque</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
      * @return <code>boolean</code>: Whether or not alpha cancelling should be implemented.
      */
     public boolean opaque() {

@@ -38,7 +38,7 @@ public final class ModelInstance extends AssetInstance {
 
     /**
      * Retrieves the current model of this <code>ModelInstance</code> instance.
-     * @return <code>Model</code>: The <code>model</code> property of this <code>ModelInstance</code> instance.
+     * @return <code>Model</code>: The <code>model</code> field of this <code>ModelInstance</code> instance.
      */
     public Model getModel() {
 

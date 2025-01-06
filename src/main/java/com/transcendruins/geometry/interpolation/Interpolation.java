@@ -136,22 +136,18 @@ public final class Interpolation {
      */
     private double interpolate(double x1, double y1, double x2, double y2, double x) {
 
-        switch (type) {
+        return switch (type) {
 
-            case JUMP_INTERPOLATION -> {
-                return y1;
-            }
-            case LINEAR_INTERPOLATION -> {
-                return (y2 - y1) / (x2 - x1) * (x - x1) + y1;
-            }
+            case JUMP_INTERPOLATION -> y1;
+
+            case LINEAR_INTERPOLATION -> (y2 - y1) / (x2 - x1) * (x - x1) + y1;
+            
             case LOGISTIC_INTERPOLATION -> {
                 double a = (Math.log(1 / (-c + 1d) - 1d) * (x2 - x1)) / (x1 - (x1 + x2) / 2);
                 double v = 1 / (1 + Math.exp(a * (x - (x1 + x2) / 2) / (x2 - x1)));
-                return ((v - 0.5) / (0.5 - c) * (y1 - y2) + y1 + y2) / 2;
+                yield ((v - 0.5) / (0.5 - c) * (y1 - y2) + y1 + y2) / 2;
             }
-            default -> {
-                return 0;
-            }
-        }
+            default -> 0;
+        };
     }
 }

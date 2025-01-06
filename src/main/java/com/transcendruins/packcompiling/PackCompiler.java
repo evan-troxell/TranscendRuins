@@ -69,7 +69,7 @@ public final class PackCompiler {
      * Checks whether or not a specific asset is contained within this <code>PackCompiler</code> instance.
      * @param type <code>AssetType</code>: The type of asset to check for.
      * @param identifier <code>Identifier</code>: The identifier of the asset to check for.
-     * @return <code>boolean</code>: Whether the asset was present in the <code>dependencyAssets</code> property of this <code>PackCompiler</code> instance.
+     * @return <code>boolean</code>: Whether the asset was present in the <code>dependencyAssets</code> field of this <code>PackCompiler</code> instance.
      */
     public boolean containsAsset(AssetType type, Identifier identifier) {
 

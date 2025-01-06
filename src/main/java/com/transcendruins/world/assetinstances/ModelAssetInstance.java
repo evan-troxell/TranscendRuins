@@ -67,12 +67,12 @@ public abstract class ModelAssetInstance extends AssetInstance {
     }
 
     /**
-     * Sets the <code>position</code> property of this <code>ModelAssetInstance</code> instance.
+     * Sets the <code>position</code> field of this <code>ModelAssetInstance</code> instance.
      * @param tileX <code>long</code>: The X coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
      * @param tileZ <code>long</code>: The Z coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
      * @param cardinalDirection <code>int</code>: The cardinal direction to combine with the heading, represented by the cardinal direction enums of the <code>World</code> class.
      * @param tileOffset <code>Position3D</code>: The tile offset to assign to this <code>ModelAssetInstance</code> instance.
-     * @return <code>Position3D</code>: The adjusted <code>position</code> property of this <code>ModelAssetInstance</code> instance.
+     * @return <code>Position3D</code>: The adjusted <code>position</code> field of this <code>ModelAssetInstance</code> instance.
      */
     private void setPosition(long tileX, long tileZ, int cardinalDirection, Position3D tileOffset) {
 
@@ -98,7 +98,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
 
     /**
      * Retrieves the position of this <code>ModelAssetInstance</code> instance.
-     * @return <code>Position3D</code>: The <code>position</code> property of this <code>ModelAssetInstance</code> instance.
+     * @return <code>Position3D</code>: The <code>position</code> field of this <code>ModelAssetInstance</code> instance.
      */
     public final Position3D getPosition() {
 
@@ -107,7 +107,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
 
     /**
      * Retrieves whether or not the position of this <code>ModelAssetInstance</code> instance has been initialized.
-     * @return <code>boolean</code>: The <code>positionInitialized</code> property of this <code>ModelAssetInstance</code> instance.
+     * @return <code>boolean</code>: The <code>positionInitialized</code> field of this <code>ModelAssetInstance</code> instance.
      */
     public final boolean getPositionInitialized() {
 

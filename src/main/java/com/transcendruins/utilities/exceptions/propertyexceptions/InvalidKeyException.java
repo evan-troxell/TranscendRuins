@@ -4,7 +4,7 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>InvalidKeyException</code>: An exception thrown to indicate an invalid JSON property type.
+ * <code>InvalidKeyException</code>: An exception thrown to indicate an invalid JSON field type.
  */
 public final class InvalidKeyException extends PropertyException {
 

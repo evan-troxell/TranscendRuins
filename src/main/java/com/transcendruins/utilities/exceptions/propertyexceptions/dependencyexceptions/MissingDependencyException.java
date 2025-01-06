@@ -11,7 +11,7 @@ public final class MissingDependencyException extends DependencyException {
 
     /**
      * Creates a new instance of the <code>MissingDependencyException</code> exception.
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> property of the <code>Pack</code> instance from which the new <code>InvalidDependencyException</code> instance originated.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> field of the <code>Pack</code> instance from which the new <code>InvalidDependencyException</code> instance originated.
      * @param dependency <code>TracedEntry&lt;Metadata&gt;</code>: The missing dependency which caused the exception.
      */
     public MissingDependencyException(TracedEntry<TracedArray> entry, TracedEntry<Metadata> dependency) {

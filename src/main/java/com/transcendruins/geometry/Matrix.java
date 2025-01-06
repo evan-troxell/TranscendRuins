@@ -59,34 +59,30 @@ public class Matrix {
     public static final Matrix getRotationalMatrix3X3(double radians, int axis) {
 
         // Create a different rotational matrix for each of the 3 axes.
-        switch (axis) {
-            case X_AXIS:
-                return new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
+        return switch (axis) {
+            case X_AXIS -> new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
                     
                     1, 0, 0,
                     0, Math.cos(radians), Math.sin(radians),
                     0, -Math.sin(radians), Math.cos(radians)
                 });
 
-            case Y_AXIS:
-                return new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
+            case Y_AXIS -> new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
 
                     Math.cos(radians), 0, -Math.sin(radians),
                     0, 1, 0,
                     Math.sin(radians), 0, Math.cos(radians)
                 });
 
-            case Z_AXIS:
-                return new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
+            case Z_AXIS -> new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
 
                     Math.cos(radians), -Math.sin(radians), 0,
                     Math.sin(radians), Math.cos(radians), 0,
                     0, 0, 1
                 });
 
-            default:
-                return null;
-        }
+            default -> null;
+        };
     }
 
     /**
@@ -174,7 +170,7 @@ public class Matrix {
     }
 
     /**
-     * Transforms this <code>Matrix</code> instance by adding the values of another <code>Matrix</code> instance. If this <code>Matrix</code> instance is incompatible with the <code>Matrix</code> instance being transformed by (the <code>cols</code> property of this <code>Matrix</code> instance does not equal the <code>cols</code> property of the <code>matrix</code> perameter or the <code>rows</code> property of this <code>Matrix</code> instance does not equal the <code>rows</code> property of the <code>matrix</code> perameter), then <code>null</code> will be returned.
+     * Transforms this <code>Matrix</code> instance by adding the values of another <code>Matrix</code> instance. If this <code>Matrix</code> instance is incompatible with the <code>Matrix</code> instance being transformed by (the <code>cols</code> field of this <code>Matrix</code> instance does not equal the <code>cols</code> field of the <code>matrix</code> perameter or the <code>rows</code> field of this <code>Matrix</code> instance does not equal the <code>rows</code> field of the <code>matrix</code> perameter), then <code>null</code> will be returned.
      * @param matrix <code>Matrix</code>: The matrix values to add to this <code>Matrix</code> instance.
      * @return <code>Matrix</code>: The generated <code>Matrix</code> instance.
      */
@@ -200,7 +196,7 @@ public class Matrix {
     }
 
     /**
-     * Transforms this <code>Matrix</code> instance by subtracting the values of another <code>Matrix</code> instance. If this <code>Matrix</code> instance is incompatible with the <code>Matrix</code> instance being transformed by (the <code>cols</code> property of this <code>Matrix</code> instance does not equal the <code>cols</code> property of the <code>matrix</code> perameter or the <code>rows</code> property of this <code>Matrix</code> instance does not equal the <code>rows</code> property of the <code>matrix</code> perameter), then <code>null</code> will be returned.
+     * Transforms this <code>Matrix</code> instance by subtracting the values of another <code>Matrix</code> instance. If this <code>Matrix</code> instance is incompatible with the <code>Matrix</code> instance being transformed by (the <code>cols</code> field of this <code>Matrix</code> instance does not equal the <code>cols</code> field of the <code>matrix</code> perameter or the <code>rows</code> field of this <code>Matrix</code> instance does not equal the <code>rows</code> field of the <code>matrix</code> perameter), then <code>null</code> will be returned.
      * @param matrix <code>Matrix</code>: The matrix values to subtract from this <code>Matrix</code> instance.
      * @return <code>Matrix</code>: The generated <code>Matrix</code> instance.
      */
@@ -247,7 +243,7 @@ public class Matrix {
     }
 
     /**
-     * Transforms this <code>Matrix</code> instance by multiplying by another together to produce a third. If this <code>Matrix</code> instance is incompatible with the <code>Matrix</code> instance being transformed by (the <code>cols</code> property of this <code>Matrix</code> instance does not equal the <code>rows</code> property of the <code>matrix</code> perameter), then <code>null</code> will be returned.
+     * Transforms this <code>Matrix</code> instance by multiplying by another together to produce a third. If this <code>Matrix</code> instance is incompatible with the <code>Matrix</code> instance being transformed by (the <code>cols</code> field of this <code>Matrix</code> instance does not equal the <code>rows</code> field of the <code>matrix</code> perameter), then <code>null</code> will be returned.
      * @param matrix <code>Matrix</code>: The <code>Matrix</code> instance to multiply by.
      * @return <code>Matrix</code>: The generated <code>Matrix</code> instance.
      */
@@ -349,7 +345,7 @@ public class Matrix {
 
     /**
      * Retrieves the number of columns of this <code>Matrix</code> instance.
-     * @return <code>int</code>: The <code>cols</code> property of this <code>Matrix</code> instance.
+     * @return <code>int</code>: The <code>cols</code> field of this <code>Matrix</code> instance.
      */
     public final int getCols() {
 
@@ -358,7 +354,7 @@ public class Matrix {
 
     /**
      * Retrieves the number of rows of this <code>Matrix</code> instance.
-     * @return <code>int</code>: The <code>rows</code> property of this <code>Matrix</code> instance.
+     * @return <code>int</code>: The <code>rows</code> field of this <code>Matrix</code> instance.
      */
     public final int getRows() {
 

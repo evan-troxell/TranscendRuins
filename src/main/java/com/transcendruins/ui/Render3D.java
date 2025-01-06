@@ -34,7 +34,7 @@ import com.transcendruins.world.assetinstances.rendermaterials.RenderMaterialIns
 public abstract class Render3D extends GraphicsPanel implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
     /**
-     * <code>Matrix</code>: A matrix transform used to standardize ƒƒhe X, Y, and Z coordinates.
+     * <code>Matrix</code>: A matrix transform used to standardize the X, Y, and Z coordinates.
      * Current status: X axis: regular, Y axis: inverted, Z axis: regular.
      */
     public static final Matrix DISPLAY_TRANSFORM = new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
@@ -60,12 +60,12 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
     private boolean active = false;
 
     /**
-     * <code>long</code>: The next time (in milliseconds) when the FPS counter will be assigned to the <code>fps</code> property of this <code>Render3D</code> instance.
+     * <code>long</code>: The next time (in milliseconds) when the FPS counter will be assigned to the <code>fps</code> field of this <code>Render3D</code> instance.
      */
     private long nextTime;
 
     /**
-     * <code>int</code>: The number of elapsed frames since the <code>fps</code> property of this <code>Render3D</code> instance was last assigned.
+     * <code>int</code>: The number of elapsed frames since the <code>fps</code> field of this <code>Render3D</code> instance was last assigned.
      */
     private int framesCounter = 0;
 
@@ -75,7 +75,7 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
     private int fps = -1;
 
     /**
-     * <code>Object</code>: The synchronized lock used to ensure all access to ths <code>renderInstance</code> property of this <code>Render3D</code> instance is synchronized for thread safety.
+     * <code>Object</code>: The synchronized lock used to ensure all access to ths <code>renderInstance</code> field of this <code>Render3D</code> instance is synchronized for thread safety.
      */
     private final Object renderLock = new Object();
 

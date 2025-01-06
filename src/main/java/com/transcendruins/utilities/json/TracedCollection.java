@@ -87,17 +87,17 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance,
+     * Retrieves a field from this <code>TracedCollection</code> instance,
      * optionally checking for a <code>null</code> case or an invalid class.
      * Returns the value of the <code>ifNull</code>
      * perameter if the retrieved value in this collection is <code>null</code>.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param ifNull <code>Object</code>: The value to return if the value retrieved from this <code>TracedCollection</code> instance is <code>null</code>.
-     * @param classes <code>Class...</code>: All classes which the retrieved property can be an instance of.
-     * @return <code>TracedEntry&lt;Object&g;</code>: The property retrieved from this <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
-     * @throws PropertyTypeException Thrown if the retrieved property is of an invalid type.
+     * @param classes <code>Class...</code>: All classes which the retrieved field can be an instance of.
+     * @return <code>TracedEntry&lt;Object&g;</code>: The field retrieved from this <code>TracedCollection</code> instance.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is of an invalid type.
      */
     public final TracedEntry<Object> get(Object key, boolean nullCaseAllowed, Object ifNull, Class<?>... classes) throws MissingPropertyException, PropertyTypeException {
 
@@ -138,12 +138,12 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a <code>TracedDictionary</code> value.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a <code>TracedDictionary</code> value.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @return <code>TracedEntry&lt;TracedDictionary&gt;</code>: The dictionary retrieved from this <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>JSONObject</code> class.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>JSONObject</code> class.
      */
     public final TracedEntry<TracedDictionary> getAsDictionary(Object key, boolean nullCaseAllowed) throws MissingPropertyException, PropertyTypeException {
 
@@ -154,12 +154,12 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a <code>TracedArray</code> value.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a <code>TracedArray</code> value.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @return <code>TracedEntry&lt;TracedArray&gt;</code>: The array retrieved from this <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>JSONArray</code> class.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>JSONArray</code> class.
      */
     public final TracedEntry<TracedArray> getAsArray(Object key, boolean nullCaseAllowed) throws MissingPropertyException, PropertyTypeException {
 
@@ -170,13 +170,13 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a <code>Vector</code> value.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a <code>Vector</code> value.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param dimensions <code>int</code>: The dimensions of the vector to retrieve.
      * @return <code>TracedEntry&lt;TracedArray&gt;</code>: The vector retrieved from this <code>TracedCollection</code> instance.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>JSONArray</code> class.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>JSONArray</code> class.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
      * @throws ArrayLengthException Thrown if the retrieved array does not have a length of <code>3</code>.
      */
     public final TracedEntry<Vector> getAsVector(Object key, boolean nullCaseAllowed, int dimensions) throws PropertyTypeException, MissingPropertyException, ArrayLengthException {
@@ -211,13 +211,13 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a <code>Boolean</code> value.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a <code>Boolean</code> value.
      * @param key <code>Object</code>: The key to retrieve from this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param ifNull <code>Boolean</code>: The value to return if the value retrieved from this <code>TracedCollection</code> instance is <code>null</code>.
      * @return <code>TracedEntry&lt;Boolean&gt;</code>: The boolean retrieved from this <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>Boolean</code> class.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>Boolean</code> class.
      */
     public final TracedEntry<Boolean> getAsBoolean(Object key, boolean nullCaseAllowed, Boolean ifNull) throws MissingPropertyException, PropertyTypeException {
 
@@ -234,13 +234,13 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a <code>String</code> value.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a <code>String</code> value.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param ifNull <code>String</code>: The value to return if the value retrieved from this <code>TracedCollection</code> instance is <code>null</code>.
      * @return <code>TracedEntry&lt;String&gt;</code>: The string retrieved from this <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>String</code> class.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>String</code> class.
      */
     public final TracedEntry<String> getAsString(Object key, boolean nullCaseAllowed, String ifNull) throws MissingPropertyException, PropertyTypeException {
 
@@ -257,13 +257,13 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a <code>long</code> value.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a <code>long</code> value.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param ifNull <code>Long</code>: The value to return if the value retrieved from this <code>TracedCollection</code> instance is <code>null</code>.
      * @return <code>TracedEntry&lt;Long&gt;</code>: The long retrieved from this <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>long</code> class.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>long</code> class.
      */
     public final TracedEntry<Long> getAsLong(Object key, boolean nullCaseAllowed, Long ifNull) throws MissingPropertyException, PropertyTypeException {
 
@@ -282,16 +282,16 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a <code>long</code> value.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a <code>long</code> value.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param ifNull <code>Long</code>: The value to return if the value retrieved from this <code>TracedCollection</code> instance is <code>null</code>.
      * @param min <code>Long</code>: The minimum number bound. A <code>null</code> value represents no minimum bounds.
      * @param max <code>Long</code>: The maximum number bound. A <code>null</code> value represents no maximum bounds.
      * @return <code>TracedEntry&lt;Long&gt;</code>: The long retrieved from this <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>long</code> class.
-     * @throws NumberBoundsException Thrown if the retrieved property is less than the <code>min</code> perameter or greater than the <code>max</code> perameter.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>long</code> class.
+     * @throws NumberBoundsException Thrown if the retrieved field is less than the <code>min</code> perameter or greater than the <code>max</code> perameter.
      */
     public final TracedEntry<Long> getAsLong(Object key, boolean nullCaseAllowed, Long ifNull, Long min, Long max) throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
@@ -308,13 +308,13 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a <code>double</code> value.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a <code>double</code> value.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param ifNull <code>Double</code>: The value to return if the value retrieved from this <code>TracedCollection</code> instance is <code>null</code>.
      * @return <code>TracedEntry&lt;Double&gt;</code>: The double retrieved from this <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>double</code> class or the <code>long</code> class.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>double</code> class or the <code>long</code> class.
      */
     public final TracedEntry<Double> getAsDouble(Object key, boolean nullCaseAllowed, Double ifNull) throws MissingPropertyException, PropertyTypeException {
 
@@ -333,16 +333,16 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a <code>double</code> value.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a <code>double</code> value.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param ifNull <code>Double</code>: The value to return if the value retrieved from this <code>TracedCollection</code> instance is <code>null</code>.
      * @param min <code>Double</code>: The minimum number bound. A <code>null</code> value represents no minimum bounds.
      * @param max <code>Double</code>: The maximum number bound. A <code>null</code> value represents no maximum bounds.
      * @return <code>TracedEntry&lt;Double&gt;</code>: The double retrieved from this <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>double</code> class or the <code>long</code> class.
-     * @throws NumberBoundsException Thrown if the retrieved property is less than the <code>min</code> perameter or greater than the <code>max</code> perameter.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>double</code> class or the <code>long</code> class.
+     * @throws NumberBoundsException Thrown if the retrieved field is less than the <code>min</code> perameter or greater than the <code>max</code> perameter.
      */
     public final TracedEntry<Double> getAsDouble(Object key, boolean nullCaseAllowed, Double ifNull, Double min, Double max) throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
@@ -358,13 +358,13 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a new <code>Identifier</code> instance. Note that the retrieved property MUST be of the <code>String</code> class and cannot be null.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a new <code>Identifier</code> instance. Note that the retrieved field MUST be of the <code>String</code> class and cannot be null.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @return <code>TracedEntry&lt;Identifier&gt;</code>: The identifier retrieved from this <code>TracedCollection</code> instance.
-     * @throws IdentifierFormatException Thrown if the retrieved property is in an improper format.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>String</code> class.
+     * @throws IdentifierFormatException Thrown if the retrieved field is in an improper format.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>String</code> class.
      */
     public final TracedEntry<Identifier> getAsIdentifier(Object key, boolean nullCaseAllowed) throws IdentifierFormatException, MissingPropertyException, PropertyTypeException {
 
@@ -382,14 +382,14 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a new <code>Identifier</code> instance. Note that the retrieved property MUST be of the <code>String</code> class and cannot be null.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a new <code>Identifier</code> instance. Note that the retrieved field MUST be of the <code>String</code> class and cannot be null.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param version <code>TracedEntry&lt;Version&gt;</code>: The version used to create the new <code>Identifier</code> instance.
      * @return <code>TracedEntry&lt;Identifier&gt;</code>: The identifier retrieved from this <code>TracedCollection</code> instance.
-     * @throws IdentifierFormatException Thrown if the retrieved property is in an improper format.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>String</code> class.
+     * @throws IdentifierFormatException Thrown if the retrieved field is in an improper format.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>String</code> class.
      */
     public final TracedEntry<Identifier> getAsIdentifier(Object key, boolean nullCaseAllowed, TracedEntry<Version> version) throws IdentifierFormatException, MissingPropertyException, PropertyTypeException {
 
@@ -407,14 +407,14 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a new <code>Version</code> instance. Note that the retrieved property MUST be of the <code>JSONArray</code> class with a length of 3 and cannot be null.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a new <code>Version</code> instance. Note that the retrieved field MUST be of the <code>JSONArray</code> class with a length of 3 and cannot be null.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param negativeVectorValuesAllowed <code>boolean</code>: Whether or not negative version vector values are allowed.
      * @return <code>TracedEntry&lt;Version&gt;</code>: The version retrieved from this <code>TracedCollection</code> instance.
-     * @throws PropertyTypeException Thrown if the retrieved property is not of the <code>JSONArray</code> class.
+     * @throws PropertyTypeException Thrown if the retrieved field is not of the <code>JSONArray</code> class.
      * @throws PropertyTypeException Thrown if an index of the version vector is of the <code>Long</code> class.
-     * @throws MissingPropertyException Thrown if the retrieved property is missing.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing.
      * @throws ArrayLengthException Thrown if the version vector does not have a length of 3.
      * @throws VersionBoundsException Thrown if any vector value in the generated <code>Version</code> instance is negative.
      */
@@ -434,16 +434,16 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a new <code>Metadata</code> instance. Note that the retrieved property MUST be of the <code>JSONObject</code> class and cannot be null. This version WILL retrieve the version.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a new <code>Metadata</code> instance. Note that the retrieved field MUST be of the <code>JSONObject</code> class and cannot be null. This version WILL retrieve the version.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param versionRangeAllowed <code>boolean</code>: Whether or not a range of versions is allowed in this <code>Metadata</code> instance.
      * @return <code>TracedEntry&lt;Metadata&gt;</code>: The metadata retrieved from this <code>TracedCollection</code> instance.
-     * @throws PropertyTypeException Thrown if the type of a property in this <code>Metadata</code> instance is invalid.
+     * @throws PropertyTypeException Thrown if the type of a field in this <code>Metadata</code> instance is invalid.
      * @throws MissingPropertyException Thrown if the <code>key</code> perameter retrieved from this <code>Metadata</code> instance is missing.
-     * @throws MissingPropertyException Thrown if a property is missing from this <code>Metadata</code> instance.
+     * @throws MissingPropertyException Thrown if a field is missing from this <code>Metadata</code> instance.
      * @throws ArrayLengthException Thrown if the version vector does not have a length of 3.
-     * @throws IdentifierFormatException Thrown if the identifier property is in an improper format.
+     * @throws IdentifierFormatException Thrown if the identifier field is in an improper format.
      * @throws VersionBoundsException Thrown if the minimum version bounds is greater than the maximum version bounds in the generated <code>Metadata</code> instance.
      * @throws NumberBoundsException Thrown if any vector value in the generated <code>Metadata</code> instance is negative.
      */
@@ -463,14 +463,14 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from this <code>TracedCollection</code> instance and parses it into a new <code>Metadata</code> instance. Note that the retrieved property MUST be of the <code>JSONObject</code> class and cannot be null. This version WILL NOT retrieve the version.
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses it into a new <code>Metadata</code> instance. Note that the retrieved field MUST be of the <code>JSONObject</code> class and cannot be null. This version WILL NOT retrieve the version.
      * @param key <code>Object</code>: The key whose entry to retrieve in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @return <code>Metadata</code>: The generated <code>Metadata</code> instance.
-     * @throws PropertyTypeException Thrown if the type of a property in this <code>Metadata</code> instance is invalid.
+     * @throws PropertyTypeException Thrown if the type of a field in this <code>Metadata</code> instance is invalid.
      * @throws MissingPropertyException Thrown if the <code>key</code> perameter retrieved from this <code>Metadata</code> instance is missing.
-     * @throws MissingPropertyException Thrown if a property is missing from this <code>Metadata</code> instance.
-     * @throws IdentifierFormatException Thrown if the identifier property is in an improper format.
+     * @throws MissingPropertyException Thrown if a field is missing from this <code>Metadata</code> instance.
+     * @throws IdentifierFormatException Thrown if the identifier field is in an improper format.
      */
     public final TracedEntry<Metadata> getAsMetadata(Object key, boolean nullCaseAllowed) throws MissingPropertyException, PropertyTypeException, IdentifierFormatException {
 
@@ -488,9 +488,9 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Retrieves a property from the storage method of this <code>TracedCollection</code> instance.
+     * Retrieves a field from the storage method of this <code>TracedCollection</code> instance.
      * @param key <code>Object</code>: The key to search using.
-     * @return <code>Object</code>: The retrieved property.
+     * @return <code>Object</code>: The retrieved field
      */
     protected abstract Object getValue(Object key);
 
@@ -507,8 +507,8 @@ public abstract class TracedCollection {
     public abstract boolean containsKey(Object key);
 
     /**
-     * Returns whether or not a property value is present in this <code>TracedCollection</code> instance.
-     * @param key <code>Object</code>: The property to search for.
+     * Returns whether or not a field value is present in this <code>TracedCollection</code> instance.
+     * @param key <code>Object</code>: The field to search for.
      * @return <code>boolean</code>: Whether or not the value is present in this <code>TracedCollection</code> instance.
      */
     public abstract boolean containsValue(Object key);

@@ -7,10 +7,10 @@ import java.util.Set;
 
 import com.transcendruins.settings.GameSettings;
 import com.transcendruins.ui.mappedcomponents.TRComponent;
-import com.transcendruins.ui.mappedcomponents.containers.TRScreenPanel;
 import com.transcendruins.ui.mappedcomponents.components.TRButton;
 import com.transcendruins.ui.mappedcomponents.components.TRLabel;
 import com.transcendruins.ui.mappedcomponents.containers.TRPanel;
+import com.transcendruins.ui.mappedcomponents.containers.TRScreenPanel;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 
 /**
@@ -88,32 +88,37 @@ public abstract class SettingsPanel extends TRPanel {
      */
     private TRPanel createMenu(String name) {
 
-        switch (name) {
+        return switch (name) {
 
-            case GameSettings.VIDEO:
+            case GameSettings.VIDEO -> {
             
                 ArrayList<TRComponent> videoComponents = new ArrayList<>();
                 TRPanel videoPanel = TRPanel.createBoxPanel(name, videoComponents, true, LEFT_ALIGNMENT, 5, ComponentSettings.HIDDEN_COMPONENT_SETTINGS, false);
                 videoPanel.addComponent(new TRLabel("test", "Video", new Dimension(100, 35), ComponentSettings.DEFAULT_LABEL_SETTINGS));
 
-                return videoPanel;
-            case GameSettings.AUDIO:
+                yield videoPanel;
+            }
+
+            case GameSettings.AUDIO -> {
 
                 ArrayList<TRComponent> audioComponents = new ArrayList<>();
                 TRPanel audioPanel = TRPanel.createBoxPanel(name, audioComponents, true, LEFT_ALIGNMENT, 5, ComponentSettings.HIDDEN_COMPONENT_SETTINGS, false);
                 audioPanel.addComponent(new TRLabel("test", "Audio", new Dimension(100, 35), ComponentSettings.DEFAULT_LABEL_SETTINGS));
                 
-                return audioPanel;
-            case GameSettings.UI:
+                yield audioPanel;
+            }
+
+            case GameSettings.UI -> {
 
                 ArrayList<TRComponent> uiComponents = new ArrayList<>();
                 TRPanel uiPanel = TRPanel.createBoxPanel(name, uiComponents, true, LEFT_ALIGNMENT, 5, ComponentSettings.HIDDEN_COMPONENT_SETTINGS, false);
                 uiPanel.addComponent(new TRLabel("test", "UI", new Dimension(100, 35), ComponentSettings.DEFAULT_LABEL_SETTINGS));
 
-                return uiPanel;
-        }
+                yield uiPanel;
+            }
 
-        return null;
+            default -> null;
+        };
     }
 
     public abstract void onExit();

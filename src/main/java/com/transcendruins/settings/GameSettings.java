@@ -67,7 +67,7 @@ public final class GameSettings {
 
     /**
      * Retrieves the set of all menu keys.
-     * @return <code>Set&lt;String&gt;</code>: The key set of the <code>SETTINGS</code> property.
+     * @return <code>Set&lt;String&gt;</code>: The key set of the <code>SETTINGS</code> field
      */
     public static Set<String> getMenuSet() {
 

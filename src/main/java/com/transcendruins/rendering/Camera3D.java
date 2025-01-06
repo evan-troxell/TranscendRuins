@@ -15,7 +15,7 @@ public final class Camera3D extends Position3D {
     private double zoom = 0;
 
     /**
-     * <code>Double[2]</code>: The zoom bounds representing the maximum and minimum zoom value allowed in the <code>zoom</code> property of this <code>Camera3D</code> instance.
+     * <code>Double[2]</code>: The zoom bounds representing the maximum and minimum zoom value allowed in the <code>zoom</code> field of this <code>Camera3D</code> instance.
      */
     private Double[] zoomBounds = new Double[] {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY};
 
@@ -77,8 +77,8 @@ public final class Camera3D extends Position3D {
     }
 
     /**
-     * Sets the <code>zoom</code> property of this <code>Camera3D</code> instance to the value of the <code>zoom</code> perameter.
-     * @param zoomValue <code>double</code>: The value to assign to the <code>zoom</code> property of this <code>Camera3D</code> instance.
+     * Sets the <code>zoom</code> field of this <code>Camera3D</code> instance to the value of the <code>zoom</code> perameter.
+     * @param zoomValue <code>double</code>: The value to assign to the <code>zoom</code> field of this <code>Camera3D</code> instance.
      * @return <code>double</code>: The resulting output zoom value.
      */
     public double setZoom(double zoomValue) {
@@ -90,7 +90,7 @@ public final class Camera3D extends Position3D {
     }
 
     /**
-     * Sets the maximum and minimum bounds of the <code>zoom</code> property of this <code>Camera3D</code> instance.
+     * Sets the maximum and minimum bounds of the <code>zoom</code> field of this <code>Camera3D</code> instance.
      * @param min <code>Double</code>: The minimum zoom boundary of this <code>Camera3D</code> instance. A null value represents no boundary being assigned.
      * @param max <code>Double</code>: The maximum zoom boundary of this <code>Camera3D</code> instance. A null value represents no boundary being assigned.
      * @return <code>boolean</code>: Whether or not the boundaries were successfully applied to this <code>Camera3D</code> instance.
@@ -127,7 +127,7 @@ public final class Camera3D extends Position3D {
     }
 
     /**
-     * Updates the <code>renderTransform</code> property after any change to the position, orientation, or zoom of this <code>Camera3D</code> instance.
+     * Updates the <code>renderTransform</code> field after any change to the position, orientation, or zoom of this <code>Camera3D</code> instance.
      */
     @Override
     protected void update() {

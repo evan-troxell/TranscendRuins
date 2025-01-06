@@ -34,7 +34,7 @@ public final class RenderedPixel {
     public final int y;
 
     /**
-     * <code>double</code>: The maximum depth of this <code>RenderedPixel</code> instance. This is only applicable if the <code>isSolid</code> property is <code>true</code>.
+     * <code>double</code>: The maximum depth of this <code>RenderedPixel</code> instance. This is only applicable if the <code>isSolid</code> field is <code>true</code>.
      */
     private double minDepth = Double.NEGATIVE_INFINITY;
 

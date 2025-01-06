@@ -102,7 +102,7 @@ public final class CacheOperator {
 
     /**
      * Retrieves the cache directory.
-     * @return <code>TracedPath</code>: The <code>CACHE_DIRECTORY</code> property.
+     * @return <code>TracedPath</code>: The <code>CACHE_DIRECTORY</code> field
      */
     public static TracedPath getCacheDirectory() {
 
@@ -111,7 +111,7 @@ public final class CacheOperator {
 
     /**
      * Determines whether or not the cache directory exists.
-     * @return <code>boolean</code>: If a directory exists at the <code>CACHE_DIRECTORY</code> property.
+     * @return <code>boolean</code>: If a directory exists at the <code>CACHE_DIRECTORY</code> field
      */
     public static boolean cacheExists() {
 

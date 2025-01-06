@@ -72,7 +72,7 @@ public final class ElementInstance extends ModelAssetInstance {
 
     /**
      * Retrieves the X coordinate of this <code>ElementInstance</code> instance.
-     * @return <code>long</code>: The <code>tileX</code> property of this <code>ElementInstance</code> instance.
+     * @return <code>long</code>: The <code>tileX</code> field of this <code>ElementInstance</code> instance.
      */
     public long getTileX() {
 
@@ -81,7 +81,7 @@ public final class ElementInstance extends ModelAssetInstance {
 
     /**
      * Retrieves the Z coordinate of this <code>ElementInstance</code> instance.
-     * @return <code>long</code>: The <code>tileZ</code> property of this <code>ElementInstance</code> instance.
+     * @return <code>long</code>: The <code>tileZ</code> field of this <code>ElementInstance</code> instance.
      */
     public long getTileZ() {
 
@@ -90,7 +90,7 @@ public final class ElementInstance extends ModelAssetInstance {
 
     /**
      * Retrieves the cardinal direction og this <code>ElementInstance</code> instance.
-     * @return <code>int</code>: The <code>cardinalDirection</code> property of this <code>ElementInstance</code> instance, represented by the cardinal direction enums of the <code>World</code> class.
+     * @return <code>int</code>: The <code>cardinalDirection</code> field of this <code>ElementInstance</code> instance, represented by the cardinal direction enums of the <code>World</code> class.
      */
     public int getCardinalDirection() {
 
@@ -99,7 +99,7 @@ public final class ElementInstance extends ModelAssetInstance {
 
     /**
      * Retrieves the tile offset of this <code>ElementInstance</code> instance.
-     * @return <code>Position3D</code>: The <code>tileOffset</code> property of this <code>ElementInstance</code> instance.
+     * @return <code>Position3D</code>: The <code>tileOffset</code> field of this <code>ElementInstance</code> instance.
      */
     public Position3D getTileOffset() {
 

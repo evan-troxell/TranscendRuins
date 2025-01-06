@@ -87,7 +87,7 @@ public final class Model {
                     vertexIndices[i] = vertexIndexEntry.getValue();
                 }
 
-                // Retrieve the color property of the polygon.
+                // Retrieve the color field of the polygon.
                 TracedEntry<TracedArray> colorEntry = polygonJson.getAsArray("color", false);
                 TracedArray colorJson = colorEntry.getValue();
 

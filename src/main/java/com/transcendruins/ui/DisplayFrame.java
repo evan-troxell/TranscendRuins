@@ -69,7 +69,7 @@ public final class DisplayFrame extends TRFrame {
     /**
      * <code>Camera3D</code>: The camera used to display 3D graphics.
      */
-    public final Camera3D camera = new Camera3D(new Vector(0, 0, 0), 45, 45, false, 0);
+    public final Camera3D camera = new Camera3D(new Vector(0, 0, 0), 0, 0, false, 0);
 
     /**
      * Creates a new instance of the <code>DisplayFrame</code> class.

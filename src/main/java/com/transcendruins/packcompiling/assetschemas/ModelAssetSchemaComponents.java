@@ -79,7 +79,7 @@ public abstract class ModelAssetSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the model identifier of this <code>ModelAssetSchemaComponents</code> instance.
-     * @return <code>Identifier</code>: The <code>modelIdentifier</code> property of this <code>ModelAssetSchemaComponents</code> instance.
+     * @return <code>Identifier</code>: The <code>modelIdentifier</code> field of this <code>ModelAssetSchemaComponents</code> instance.
      */
     public final Identifier getModelIdentifier() {
 
@@ -88,7 +88,7 @@ public abstract class ModelAssetSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the rotation offset of this <code>ModelAssetSchemaComponents</code> instance.
-     * @return <code>Vector</code>: The <code>rotationOffset</code> property of this <code>ModelAssetSchemaComponents</code> instance.
+     * @return <code>Vector</code>: The <code>rotationOffset</code> field of this <code>ModelAssetSchemaComponents</code> instance.
      */
     public final Vector getRotationOffset() {
 
@@ -97,7 +97,7 @@ public abstract class ModelAssetSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the render material identifier of this <code>ModelAssetSchemaComponents</code> instance.
-     * @return <code>Identifier</code>: The <code>renderMaterialIdentifier</code> property of this <code>ModelAssetSchemaComponents</code> instance.
+     * @return <code>Identifier</code>: The <code>renderMaterialIdentifier</code> field of this <code>ModelAssetSchemaComponents</code> instance.
      */
     public final Identifier getRenderMaterialIdentifier() {
 
@@ -106,7 +106,7 @@ public abstract class ModelAssetSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the animation controller identifier of this <code>ModelAssetSchemaComponents</code> instance.
-     * @return <code>Identifier</code>: The <code>animationControllerIdentifier</code> property of this <code>ModelAssetSchemaComponents</code> instance.
+     * @return <code>Identifier</code>: The <code>animationControllerIdentifier</code> field of this <code>ModelAssetSchemaComponents</code> instance.
      */
     public final Identifier getAnimationControllerIdentifier() {
 

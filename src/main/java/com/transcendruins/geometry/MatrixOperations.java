@@ -136,58 +136,56 @@ public final class MatrixOperations {
         for (Object[] i : operations) {
 
             Operations operation = (Operations) i[0];
-            switch (operation) {
+            prevVal = switch (operation) {
 
                 case ADD_MATRIX -> {
                     if (!(i[1] instanceof Matrix) && !(i[1] instanceof Vector)) {
 
-                        return null;
+                        yield null;
                     }
-                    prevVal = ((Vector) prevVal).addMatrix((Matrix) i[1]);
+                    yield ((Vector) prevVal).addMatrix((Matrix) i[1]);
                 }
                     case SUBTRACT_MATRIX -> {
                         if (!(i[1] instanceof Matrix) && !(i[1] instanceof Vector)) {
                             
-                            return null;
+                            yield null;
                         }
-                        prevVal =  ((Vector) prevVal).subtractMatrix(((Matrix) i[1]));
+                        yield ((Vector) prevVal).subtractMatrix(((Matrix) i[1]));
                 }
 
                 case MULTIPLY_SCALAR -> {
                     if (!(i[1] instanceof Double)) {
 
-                        return null;
+                        yield null;
                     }
-                    prevVal =  ((Vector) prevVal).multiplyScalar((double) i[1]);
+                    yield ((Vector) prevVal).multiplyScalar((double) i[1]);
                 }
 
                 case MULTIPLY_MATRIX -> {
                     if (!(i[1] instanceof Matrix)) {
 
-                        return null;
+                        yield null;
                     }
-                    prevVal =  ((Vector) prevVal).multiplyMatrix((Matrix) i[1]);
+                    yield ((Vector) prevVal).multiplyMatrix((Matrix) i[1]);
                 }
 
                 case DOT_PRODUCT -> {
                     if (!(i[1] instanceof Vector)) {
                         
-                        return null;
+                        yield null;
                     }
-                    prevVal =  ((Vector) prevVal).dot((Vector) i[1]);
+                    yield ((Vector) prevVal).dot((Vector) i[1]);
                 }
                     case CROSS_PRODUCT -> {
                         if (!(i[1] instanceof Vector)) {
 
-                            return null;
+                            yield null;
                         }
-                        prevVal =  ((Vector) prevVal).cross3D((Vector) i[1]);
+                        yield ((Vector) prevVal).cross3D((Vector) i[1]);
                 }
 
-                default -> {
-                    return null;
-                }
-            }
+                default -> null;
+            };
 
             if (prevVal == null) {
 

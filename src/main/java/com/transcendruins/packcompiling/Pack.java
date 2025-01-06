@@ -224,7 +224,7 @@ public final class Pack {
 
     /**
      * Sets the compiler used to assist with the compiling of this <code>Pack</code> instance.
-     * @param compiler <code>PackCompiler</code>: The <code>PackCompiler</code> instance to assign to the <code>compiler</code> property of this <code>Pack</code> instance.
+     * @param compiler <code>PackCompiler</code>: The <code>PackCompiler</code> instance to assign to the <code>compiler</code> field of this <code>Pack</code> instance.
      */
     public void setCompiler(PackCompiler compiler) {
 
@@ -496,7 +496,7 @@ public final class Pack {
 
     /**
      * Retrieves the asset map of this <code>Pack</code> instance.
-     * @return <code>HashMap&lt;AssetType, HashMap&lt;Identifier, AssetSchema&gt;&gt;</code>: The <code>assetMap</code> property of this <code>Pack</code> instance.
+     * @return <code>HashMap&lt;AssetType, HashMap&lt;Identifier, AssetSchema&gt;&gt;</code>: The <code>assetMap</code> field of this <code>Pack</code> instance.
      */
     public HashMap<AssetType, HashMap<Identifier, AssetSchema>> getAssetMap() {
 
@@ -507,7 +507,7 @@ public final class Pack {
      * Retrieves a value from the asset map of this <code>Pack</code> instance.
      * @param type <code>AssetType</code>: The type of asset to retrieve.
      * @param identifier <code>Identifier</code>: The identifier of the asset to retrieve.
-     * @return <code>AssetSchema</code>: The asset retrieved from the <code>assetMap</code> property of this <code>Pack</code> instance.
+     * @return <code>AssetSchema</code>: The asset retrieved from the <code>assetMap</code> field of this <code>Pack</code> instance.
      */
     public AssetSchema getAsset(AssetType type, Identifier identifier) {
 
@@ -516,7 +516,7 @@ public final class Pack {
 
     /**
      * Retrieves the root of this <code>Pack</code> instance.
-     * @return <code>TracedPath</code>: The <code>root</code> property of this <code>Pack</code> instance.
+     * @return <code>TracedPath</code>: The <code>root</code> field of this <code>Pack</code> instance.
      */
     public TracedPath getRoot() {
 
@@ -525,7 +525,7 @@ public final class Pack {
 
     /**
      * Retrieves the compiler used to compiler this <code>Pack</code> instance.
-     * @return <code>PackCompiler</code>: The <code>compiler</code> property of this <code>Pack</code> instance.
+     * @return <code>PackCompiler</code>: The <code>compiler</code> field of this <code>Pack</code> instance.
      */
     public PackCompiler getCompiler() {
 
@@ -534,7 +534,7 @@ public final class Pack {
 
     /**
      * Sets the total dependencies count of this <code>Pack</code> instance.
-     * @param totalDependenciesCount <code>long</code>: The value to assign to the <code>totalDependenciesCount</code> property of this <code>Pack</code> instance.
+     * @param totalDependenciesCount <code>long</code>: The value to assign to the <code>totalDependenciesCount</code> field of this <code>Pack</code> instance.
      */
     public void setTotalDependenciesCount(long totalDependenciesCount) {
 
@@ -543,7 +543,7 @@ public final class Pack {
 
     /**
      * Retrieves the total dependencies count of this <code>Pack</code> instance.
-     * @return <code>long</code>: The <code>totalDependenciesCount</code> property of this <code>Pack</code> instance.
+     * @return <code>long</code>: The <code>totalDependenciesCount</code> field of this <code>Pack</code> instance.
      */
     public long getTotalDependenciesCount() {
 
@@ -552,7 +552,7 @@ public final class Pack {
 
     /**
      * Retrieves the <code>Metadata</code> of this <code>Pack</code> instance.
-     * @return <code>Metadata</code>: The value of the <code>metadataEntry</code> property of this <code>Pack</code> instance.
+     * @return <code>Metadata</code>: The value of the <code>metadataEntry</code> field of this <code>Pack</code> instance.
      */
     public Metadata getMetadata() {
 

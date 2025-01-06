@@ -15,7 +15,7 @@ public final class InvalidDependencyException extends DependencyException {
     /**
      * Creates a new instance of the <code>InvalidDependencyException</code> exception.
      * @param message <code>String</code>: The generated error message to save to the logs file.
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> property of the <code>Pack</code> instance from which this <code>InvalidDependencyException</code> instance originated.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> field of the <code>Pack</code> instance from which this <code>InvalidDependencyException</code> instance originated.
      */
     private InvalidDependencyException(String message, TracedEntry<TracedArray> entry) {
 
@@ -24,7 +24,7 @@ public final class InvalidDependencyException extends DependencyException {
 
     /**
      * Creates a new instance of the <code>InvalidDependencyException</code> exception which represents a set of identical, overlapping dependencies.
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> property of the <code>Pack</code> instance from which this <code>InvalidDependencyException</code> instance originated.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> field of the <code>Pack</code> instance from which this <code>InvalidDependencyException</code> instance originated.
      * @param dependency <code>TracedEntry&lt;Metadata&gt;</code>: The overlapping dependency.
      * @param overlappingDependencies <code>HashSet&lt;TracedEntry&lt;Metadata&gt;&gt;</code>: The set of all overlapping dependencies.
      * @return <code>InvalidDependencyException</code>: The generated <code>InvalidDependencyException</code> exception.
@@ -40,7 +40,7 @@ public final class InvalidDependencyException extends DependencyException {
 
     /**
      * Creates a new instance of the <code>InvalidDependencyException</code> exception which represents a dependency that overlaps the its own pack identifier.
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> property of the <code>Pack</code> instance from which this <code>InvalidDependencyException</code> instance originated.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> field of the <code>Pack</code> instance from which this <code>InvalidDependencyException</code> instance originated.
      * @param dependency <code>TracedEntry&lt;Metadata&gt;</code>: The overlapping dependency.
      * @return <code>InvalidDependencyException</code>: The generated <code>InvalidDependencyException</code> exception.
      */
@@ -54,7 +54,7 @@ public final class InvalidDependencyException extends DependencyException {
 
     /**
      * Creates a new instance of the <code>InvalidDependencyException</code> exception which represents two dependencies with referencing the same identifier with incompatible versions.
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> property of the <code>Pack</code> instance from which the new <code>InvalidDependencyException</code> instance originated.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> field of the <code>Pack</code> instance from which the new <code>InvalidDependencyException</code> instance originated.
      * @param dependency <code>TracedEntry&lt;Metadata&gt;</code>: The first incompatible dependency.
      * @param incompatibleDependency <code>TracedEntry&lt;Metadata&gt;</code>: The second incompatible dependency.
      * @return <code>InvalidDependencyException</code>: The generated <code>InvalidDependencyException</code> exception.
@@ -69,7 +69,7 @@ public final class InvalidDependencyException extends DependencyException {
 
     /**
      * Creates a new instance of the <code>InvalidDependencyException</code> exception which represent a dependency whose set of allowed packs diverge (contain different dependencies).
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> property of the <code>Pack</code> instance from which the new <code>InvalidDependencyException</code> instance originated.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> field of the <code>Pack</code> instance from which the new <code>InvalidDependencyException</code> instance originated.
      * @param dependency <code>TracedEntry&lt;Metadata&gt;</code>: The dependency referencing multiple diverging dependencies.
      * @return <code>InvalidDependencyException</code>: The generated <code>InvalidDependencyException</code> exception.
      */
@@ -83,7 +83,7 @@ public final class InvalidDependencyException extends DependencyException {
 
     /**
      * Creates a new instance of the <code>InvalidDependencyException</code> exception which represent two dependencies whose set of allowed packs diverge (contain different dependencies).
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> property of the <code>Pack</code> instance from which the new <code>InvalidDependencyException</code> instance originated.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> field of the <code>Pack</code> instance from which the new <code>InvalidDependencyException</code> instance originated.
      * @param dependency <code>TracedEntry&lt;Metadata&gt;</code>: The first diverging dependency.
      * @param incompatibleDependency <code>TracedEntry&lt;Metadata&gt;</code>: The second diverging dependency.
      * @return <code>InvalidDependencyException</code>: The generated <code>InvalidDependencyException</code> exception.

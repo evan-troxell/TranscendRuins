@@ -53,7 +53,7 @@ public final class AnimationControllerSchemaComponents extends AssetSchemaCompon
 
     /**
      * Retrieves the animations of this <code>AnimationSchemaComponents</code> instance.
-     * @return <code>HashMap&lt;Identifier&gt;</code>: A copy of the <code>timestampsSorted</code> property of this <code>AnimationSchemaComponents</code> instance.
+     * @return <code>HashMap&lt;Identifier&gt;</code>: A copy of the <code>timestampsSorted</code> field of this <code>AnimationSchemaComponents</code> instance.
      */
     public HashSet<Identifier> getAnimations() {
 

@@ -138,7 +138,7 @@ public final class PolyGroup {
 
     /**
      * Retrieves the polygons of this <code>PolyGroup</code> instance for the purposes of being rendered.
-     * @return <code>ArrayList&lt;Triangle3D&gt;</code>: The <code>polygons</code> property of this <code>PolyGroup</code> instance.
+     * @return <code>ArrayList&lt;Triangle3D&gt;</code>: The <code>polygons</code> field of this <code>PolyGroup</code> instance.
      */
     public ArrayList<Triangle3D> getPolygons() {
 

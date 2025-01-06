@@ -25,9 +25,9 @@ public final class TracedPath {
     public static final TracedPath HOME_DIRECTORY = new TracedPath(Path.of(System.getProperty("user.home")));
 
     /**
-     * <code>String</code>: The directory from this path is inherited from.
+     * <code>Path</code>: The directory this path is inherited from.
      */
-    public final String path;
+    public final Path path;
 
     /**
      * Creates a new instance of the <code>TracedPath</code> class.
@@ -35,7 +35,7 @@ public final class TracedPath {
      */
     public TracedPath(Path root) {
 
-        path = root.toAbsolutePath().toString();
+        path = root.toAbsolutePath();
     }
 
     /**
@@ -45,7 +45,7 @@ public final class TracedPath {
      */
     private TracedPath(TracedPath root, String... pathString) {
 
-        this.path = Path.of(root.path, pathString).toString();
+        this.path = Path.of(root.path.toString(), pathString);
     }
 
     /**
@@ -64,7 +64,7 @@ public final class TracedPath {
      */
     public Path getPath() {
 
-        return Path.of(path);
+        return path;
     }
 
     /**
@@ -93,7 +93,7 @@ public final class TracedPath {
      * Retrieves the file contents from the file pointed to by this <code>TracedPath</code> instance.
      * @return <code>String</code>: The retrieved file information.
      */
-    public String retrieve() {
+    public String retrieveContents() {
 
         if (!exists()) {
 
@@ -160,10 +160,10 @@ public final class TracedPath {
         
         if (isDirectory) {
             
-            Files.createFile(getPath());
+            Files.createDirectory(getPath());
         } else {
 
-            Files.createDirectory(getPath());
+            Files.createFile(getPath());
         }
         return false;
     }

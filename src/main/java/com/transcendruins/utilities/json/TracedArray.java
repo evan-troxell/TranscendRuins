@@ -76,7 +76,7 @@ public final class TracedArray extends TracedCollection {
 
     /**
      * Determines whether or not this <code>TracedArray</code> instance is empty.
-     * @return <code>boolean</code>: If the <code>array</code> property of this <code>TracedArray</code> instance is empty.
+     * @return <code>boolean</code>: If the <code>array</code> field of this <code>TracedArray</code> instance is empty.
      */
     public boolean isEmpty() {
 

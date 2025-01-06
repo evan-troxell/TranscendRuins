@@ -68,7 +68,7 @@ public final class AnimationInstance extends AssetInstance {
 
     /**
      * Retrieves the length of this <code>AnimationInstance</code> instance.
-     * @return <code>double</code>: The <code>length</code> property of this <code>AnimationInstance</code> instance.
+     * @return <code>double</code>: The <code>length</code> field of this <code>AnimationInstance</code> instance.
      */
     public double getLength() {
 
@@ -114,7 +114,7 @@ public final class AnimationInstance extends AssetInstance {
     /**
      * Finds the first timestamp higher than the input timestamp in this <code>AnimationInstance</code> instance.
      * @param timestamp <code>double</code>: The timestamp to search for.
-     * @return <code>int</code>: The index of the first timestamp greater than the <code>timestamp</code> property. If the index is the length of the timestamps list, then there are no timestamps greater than the <code>timestamp</code> perameter.
+     * @return <code>int</code>: The index of the first timestamp greater than the <code>timestamp</code> field If the index is the length of the timestamps list, then there are no timestamps greater than the <code>timestamp</code> perameter.
      */
     private Integer findTimestampIndex(double timestamp) {
 

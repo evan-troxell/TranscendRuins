@@ -46,35 +46,18 @@ public final class App {
         Identifier pyramidId = Identifier.createTestIdentifier("transcendRuins:pyramid", null);
         ElementSchema pyramidSchema = (ElementSchema) vanillaPack.getAsset(AssetType.ELEMENT, pyramidId);
 
-        Identifier cubeId = Identifier.createTestIdentifier("transcendRuins:cube", null);
-        ElementSchema cubeSchema = (ElementSchema) vanillaPack.getAsset(AssetType.ELEMENT, cubeId);
+        Identifier axesId = Identifier.createTestIdentifier("transcendRuins:axes", null);
+        ElementSchema axesSchema = (ElementSchema) vanillaPack.getAsset(AssetType.ELEMENT, axesId);
 
         ElementInstance pyramidInstance = new ElementInstance(pyramidSchema, 0, 0, World.EAST, new Position3D());
-        ArrayList<ElementInstance> cubeInstances = new ArrayList<>();
-
-        int width = 10;
-        int length = 10;
-
-        for (int x = 0; x < width; x++) {
-
-            for (int z = 0; z < length; z++) {
-
-                Position3D cubePosition = new Position3D(Vector.DEFAULT_VECTOR, 45, 0, false);
-
-                cubeInstances.add(new ElementInstance(cubeSchema, x, z, 0, cubePosition));
-            }
-        }
+        ElementInstance axesInstance = new ElementInstance(axesSchema, 0, 0, World.EAST, new Position3D());
 
         DisplayFrame frame = new DisplayFrame();
 
         ArrayList<RenderInstance> models = new ArrayList<>();
-        models.add(pyramidInstance.getRenderInstance());
-
-        for (ElementInstance cubeInstance : cubeInstances) {
-
-            cubeInstance.getPosition().rotateBy(0, 90, false);
-            models.add(cubeInstance.getRenderInstance());
-        }
+        //models.add(pyramidInstance.getRenderInstance());
+        models.add(axesInstance.getRenderInstance());
+        
 
         Render3D renderer = (Render3D) frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
         renderer.render(models);

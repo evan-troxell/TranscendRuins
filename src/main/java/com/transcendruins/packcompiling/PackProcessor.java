@@ -28,7 +28,7 @@ public final class PackProcessor {
     private static final PackProcessor PACK_PROCESSOR = new PackProcessor();
 
     /**
-     * <code>Sorter&lt;Identifier&gt;</code>: A sorter which takes an input of any <code>Collection&lt;Pack&gt;</code> composed of validated packs and outputs an <code>ArrayList&lt;Pack&gt;</code> of packs, sorted by the <code>totalDependencyCount</code> properties of the sorted packs from lowest to highest.
+     * <code>Sorter&lt;Identifier&gt;</code>: A sorter which takes an input of any <code>Collection&lt;Pack&gt;</code> composed of validated packs and outputs an <code>ArrayList&lt;Pack&gt;</code> of packs, sorted by the <code>totalDependencyCount</code> fields of the sorted packs from lowest to highest.
      */
     public static final Sorter<Pack> DEPENDENCY_COUNT_SORTER = new Sorter<Pack>() {
 
@@ -56,7 +56,7 @@ public final class PackProcessor {
 
     /**
      * Retrieves the pack processor, for use in processing and compiling pack directories into completed packs.
-     * @return <code>PackProcessor</code>: The <code>PACK_PROCESSOR</code> property.
+     * @return <code>PackProcessor</code>: The <code>PACK_PROCESSOR</code> field
      */
     public static PackProcessor getProcessor() {
 
@@ -105,7 +105,7 @@ public final class PackProcessor {
     }
 
     /**
-     * Validates all packs in the <code>packsUnvalidated</code> property of this <code>PackProcessor</code> instance.
+     * Validates all packs in the <code>packsUnvalidated</code> field of this <code>PackProcessor</code> instance.
      */
     public void validate() {
 
@@ -125,7 +125,7 @@ public final class PackProcessor {
     }
 
     /**
-     * Finalizes all validated <code>Pack</code> instances in the <code>packsValidated</code> property of this <code>PackProcessor</code> instance.
+     * Finalizes all validated <code>Pack</code> instances in the <code>packsValidated</code> field of this <code>PackProcessor</code> instance.
      */
     public void compile() {
 
@@ -230,7 +230,7 @@ public final class PackProcessor {
 
             String packIdentifierString = pack.getMetadata().getIdentifier().getFull();
 
-            // A pack should never have itself or another version of itself as a dependency of itself. If the pack contains its own identifier as a key in its 'mappedDependencies' property, throw an exception stating as such.
+            // A pack should never have itself or another version of itself as a dependency of itself. If the pack contains its own identifier as a key in its 'mappedDependencies' field, throw an exception stating as such.
             if (pack.mappedDependencies.containsKey(packIdentifierString)) {
 
                 throw InvalidDependencyException.overlapsPackIdentifier(pack.dependenciesEntry, pack.mappedDependencies.get(packIdentifierString).keySet().iterator().next());
@@ -269,8 +269,8 @@ public final class PackProcessor {
     }
 
     /**
-     * Filters the <code>mappedDependencies</code> property of the <code>pack</code> perameter into a map of compatible packs to their dependency identifier string and reassigns it to the <code>filteredDependencies</code> property of the pack.
-     * @param pack <code>Pack</code>: The pack whose <code>mappedDependencies</code> property to filter.
+     * Filters the <code>mappedDependencies</code> field of the <code>pack</code> perameter into a map of compatible packs to their dependency identifier string and reassigns it to the <code>filteredDependencies</code> field of the pack.
+     * @param pack <code>Pack</code>: The pack whose <code>mappedDependencies</code> field to filter.
      * @throws InvalidDependencyException Thrown if any dependency of the input pack is invalid.
      */
     private void filterDependencies(Pack pack) throws InvalidDependencyException {
@@ -375,7 +375,7 @@ public final class PackProcessor {
     }
 
     /**
-     * Retrieves a validated pack from either the <code>packs</code> property of the <code>Pack</code> class, or the <code>packsValidated</code> property of this <code>PackProcessor</code> instance.
+     * Retrieves a validated pack from either the <code>packs</code> field of the <code>Pack</code> class, or the <code>packsValidated</code> field of this <code>PackProcessor</code> instance.
      * @param identifier <code>Identifier</code>: The pack identifier to retrieve.
      * @return <code>Pack</code>: The retrieved <code>Pack</code> instance.
      */

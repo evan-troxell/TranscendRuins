@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "identifier": "transcendRuins:axes"
+    },
+    "components": {
+        "model": {
+            "identifier": "transcendRuins:axes",
+            "rotationOffset": [0, 0, 0]
+        },
+        "renderMaterial": "transcendRuins:opaque"
+    }
+}

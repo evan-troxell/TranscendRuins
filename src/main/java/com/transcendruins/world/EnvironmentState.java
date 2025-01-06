@@ -42,7 +42,7 @@ public final class EnvironmentState {
      * Retrieves an asset schema from this <code>EnvironmentState</code> instance.
      * @param type <code>AssetType</code>: The type of asset schema to retrieve.
      * @param identifier <code>Identifier</code>: The identifier of the asset schema to retrieve.
-     * @return <code>AssetSchema</code>: The asset schema retrieved from the <code>mergedAssets</code> property of this <code>EnvironmentState</code> instance.
+     * @return <code>AssetSchema</code>: The asset schema retrieved from the <code>mergedAssets</code> field of this <code>EnvironmentState</code> instance.
      */
     public AssetSchema getSchema(AssetType type, Identifier identifier) {
 
@@ -56,7 +56,7 @@ public final class EnvironmentState {
 
     /**
      * Retrieves the environment state of the current world.
-     * @return <code>EnvironmentState</code>: The <code>environment</code> property of the <code>world</code> property of the <code>World</code> class.
+     * @return <code>EnvironmentState</code>: The <code>environment</code> field of the <code>world</code> field of the <code>World</code> class.
      */
     public static EnvironmentState getEnvironment() {
 

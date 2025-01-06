@@ -13,7 +13,7 @@ public class DependencyException extends PropertyException {
     /**
      * Creates a new instance of the <code>PropertyException</code> exception.
      * @param message <code>String</code>: The message to record in the log.
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> property of the <code>Pack</code> instance which caused the exception.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> field of the <code>Pack</code> instance which caused the exception.
      * @param errorCode <code>String</code>: The error type to record in the log.
      */
     public DependencyException(String message, TracedEntry<TracedArray> entry, String errorCode) {

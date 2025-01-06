@@ -61,7 +61,7 @@ public final class TracedEntry<K> {
 
     /**
      * Returns the string representation of this <code>TracedEntry</code> instance.
-     * @return <code>String</code>: The string representation of the <code>value</code> property of this <code>TracedEntry</code> instance.
+     * @return <code>String</code>: The string representation of the <code>value</code> field of this <code>TracedEntry</code> instance.
      */
     @Override
     public String toString() {

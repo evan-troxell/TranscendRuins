@@ -48,7 +48,7 @@ public final class RenderInstance {
 
     /**
      * Retrieves the polygon groups of this <code>RenderInstance</code> instance.
-     * @return <code>ArrayList&lt;PolyGroup&gt;</code>: The <code>polygonGroups</code> property of this <code>RenderInstance</code> instance.
+     * @return <code>ArrayList&lt;PolyGroup&gt;</code>: The <code>polygonGroups</code> field of this <code>RenderInstance</code> instance.
      */
     public ArrayList<PolyGroup> getPolygonGroups() {
 

@@ -134,7 +134,7 @@ public final class Identifier {
      */
     public Identifier lowestVersion(Identifier identifier) {
 
-        // Checks for null version property value.
+        // Checks for null version field value.
         if (identifier == null || identifier.version == null) {
 
             return this;
@@ -181,7 +181,7 @@ public final class Identifier {
      */
     public Identifier highestVersion(Identifier identifier) {
 
-        // Checks for null version property values.
+        // Checks for null version field values.
         if (identifier == null || identifier.version == null) {
 
             return this;
@@ -234,7 +234,7 @@ public final class Identifier {
 
     /**
      * Retrieves the full identifier of this <code>Identifier</code> instance.
-     * @return <code>String</code>: The <code>full</code> property of this <code>Identifier</code> instance.
+     * @return <code>String</code>: The <code>full</code> field of this <code>Identifier</code> instance.
      */
     public String getFull() {
 
@@ -243,7 +243,7 @@ public final class Identifier {
 
     /**
      * Retrieves the namespace of this <code>Identifier</code> instance.
-     * @return <code>String</code>: The <code>nameSpace</code> property of this <code>Identifier</code> instance.
+     * @return <code>String</code>: The <code>nameSpace</code> field of this <code>Identifier</code> instance.
      */
     public String getNameSpace() {
 

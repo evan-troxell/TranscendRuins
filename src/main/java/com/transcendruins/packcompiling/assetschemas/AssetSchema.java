@@ -138,7 +138,7 @@ public abstract class AssetSchema {
 
     /**
      * Retrieves the base component set of this <code>AssetSchema</code> instance.
-     * @return <code>AssetSchemaComponents</code>: The <code>components</code> property of this <code>AssetSchema</code> instance.
+     * @return <code>AssetSchemaComponents</code>: The <code>components</code> field of this <code>AssetSchema</code> instance.
      */
     public AssetSchemaComponents getComponentSet() {
 
@@ -271,7 +271,7 @@ public abstract class AssetSchema {
 
     /**
      * Retrieves whether or not this <code>AssetSchema</code> instances has been processed.
-     * @return <code>boolean</code>: The <code>processed</code> property of this <code>AssetSchema</code> instance.
+     * @return <code>boolean</code>: The <code>processed</code> field of this <code>AssetSchema</code> instance.
      */
     public final boolean processed() {
 
@@ -280,7 +280,7 @@ public abstract class AssetSchema {
 
     /**
      * Retrieves whether or not the validation of this <code>AssetSchema</code> instances has failed.
-     * @return <code>boolean</code>: The <code>validationFailed</code> property of this <code>AssetSchema</code> instance.
+     * @return <code>boolean</code>: The <code>validationFailed</code> field of this <code>AssetSchema</code> instance.
      */
     public final boolean validationFailed() {
 

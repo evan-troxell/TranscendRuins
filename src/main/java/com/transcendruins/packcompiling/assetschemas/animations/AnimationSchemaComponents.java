@@ -135,7 +135,7 @@ public final class AnimationSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the length of this <code>AnimationSchemaComponents</code> instance.
-     * @return <code>Double</code>: The <code>length</code> property of this <code>AnimationSchemaComponents</code> instance.
+     * @return <code>Double</code>: The <code>length</code> field of this <code>AnimationSchemaComponents</code> instance.
      */
     public Double getLength() {
 
@@ -144,7 +144,7 @@ public final class AnimationSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the keyframes of this <code>AnimationSchemaComponents</code> instance.
-     * @return <code>HashMpa&ltDouble, HashMap&lt;String, KeyFrame&gt;&gt;</code>: A copy of the <code>keyFrames</code> property of this <code>AnimationSchemaComponents</code> instance.
+     * @return <code>HashMpa&ltDouble, HashMap&lt;String, KeyFrame&gt;&gt;</code>: A copy of the <code>keyFrames</code> field of this <code>AnimationSchemaComponents</code> instance.
      */
     public HashMap<Double, HashMap<String, KeyFrame>> getKeyFrames() {
 
@@ -159,7 +159,7 @@ public final class AnimationSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the sorted timestamps of this <code>AnimationSchemaComponents</code> instance.
-     * @return <code>ArrayList&ltDouble&gt;</code>: A copy of the <code>timestampsSorted</code> property of this <code>AnimationSchemaComponents</code> instance.
+     * @return <code>ArrayList&ltDouble&gt;</code>: A copy of the <code>timestampsSorted</code> field of this <code>AnimationSchemaComponents</code> instance.
      */
     public ArrayList<Double> getTimeStampsSorted() {
 
@@ -168,7 +168,7 @@ public final class AnimationSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the bones of this <code>AnimationSchemaComponents</code> instance.
-     * @return <code>HashSet&String&gt;</code>: A copy of the <code>bones</code> property of this <code>AnimationSchemaComponents</code> instance.
+     * @return <code>HashSet&String&gt;</code>: A copy of the <code>bones</code> field of this <code>AnimationSchemaComponents</code> instance.
      */
     public HashSet<String> getBones() {
 
@@ -177,7 +177,7 @@ public final class AnimationSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves whether or not this <code>AnimationSchemaComponents</code> instance is an animation definition.
-     * @return <code>boolean</code>: The <code>animationDefinition</code> property of this <code>AnimationSchemaComponents</code> instance.
+     * @return <code>boolean</code>: The <code>animationDefinition</code> field of this <code>AnimationSchemaComponents</code> instance.
      */
     public boolean getAnimationDefinition() {
 

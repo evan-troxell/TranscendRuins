@@ -207,7 +207,7 @@ public final class ComponentSettings {
 
     /**
      * Retrieves the background of this <code>ComponentSettings</code> instance.
-     * @return <code>Color</code>: The <code>background</code> property of this <code>ComponentSettings</code> instance.
+     * @return <code>Color</code>: The <code>background</code> field of this <code>ComponentSettings</code> instance.
      */
     public Color getBackground() {
 
@@ -216,7 +216,7 @@ public final class ComponentSettings {
 
     /**
      * Retrieves the border of this <code>ComponentSettings</code> instance.
-     * @return <code>Color</code>: The <code>border</code> property of this <code>ComponentSettings</code> instance.
+     * @return <code>Color</code>: The <code>border</code> field of this <code>ComponentSettings</code> instance.
      */
     public Border getBorder() {
 
@@ -225,7 +225,7 @@ public final class ComponentSettings {
 
     /**
      * Retrieves the foregound of this <code>ComponentSettings</code> instance.
-     * @return <code>Color</code>: The <code>foreground</code> property of this <code>ComponentSettings</code> instance.
+     * @return <code>Color</code>: The <code>foreground</code> field of this <code>ComponentSettings</code> instance.
      */
     public Color getForeground() {
 
@@ -234,7 +234,7 @@ public final class ComponentSettings {
 
     /**
      * Retrieves the font of this <code>ComponentSettings</code> instance.
-     * @return <code>Font</code>: The <code>font</code> property of this <code>ComponentSettings</code> instance.
+     * @return <code>Font</code>: The <code>font</code> field of this <code>ComponentSettings</code> instance.
      */
     public Font getFont() {
 
@@ -243,7 +243,7 @@ public final class ComponentSettings {
 
     /**
      * Retrieves whether or not this <code>ComponentSettings</code> instance is opaque.
-     * @return <code>Color</code>: The <code>opaque</code> property of this <code>ComponentSettings</code> instance.
+     * @return <code>Color</code>: The <code>opaque</code> field of this <code>ComponentSettings</code> instance.
      */
     public boolean getOpaque() {
 

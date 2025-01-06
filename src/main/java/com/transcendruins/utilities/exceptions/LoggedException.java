@@ -71,7 +71,7 @@ public class LoggedException extends Exception {
     private static void saveErrorMessage(String message, String name) {
 
         TracedPath path = LOGS_DIRECTORY.extend(name);
-        String logs = path.exists() ? path.retrieve() + "\n\n\n" + message : message;
+        String logs = path.exists() ? path.retrieveContents() + "\n\n\n" + message : message;
         try {
 
             if (!LOGS_DIRECTORY.exists()) LOGS_DIRECTORY.createFile(true);

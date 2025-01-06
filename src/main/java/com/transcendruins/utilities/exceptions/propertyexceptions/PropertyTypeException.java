@@ -3,7 +3,7 @@ package com.transcendruins.utilities.exceptions.propertyexceptions;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>PropertyTypeException</code>: An exception thrown to indicate an invalid JSON property type.
+ * <code>PropertyTypeException</code>: An exception thrown to indicate an invalid JSON field type.
  */
 public final class PropertyTypeException extends PropertyException {
 

@@ -41,17 +41,17 @@ public final class Metadata {
     public final boolean versionRange;
 
     /**
-     * <code>Identifier[2]</code>: The version bounds to check between, if the <code>versionRange</code> property is <code>true</code>.
+     * <code>Identifier[2]</code>: The version bounds to check between, if the <code>versionRange</code> field is <code>true</code>.
      */
     public final Identifier[] versionBounds = new Identifier[2];
 
     /**
-     * Creates a new instance of the <code>Metadata</code> class using a property from a <code>TracedCollection</code> instance. This version WILL retrieve the version.
+     * Creates a new instance of the <code>Metadata</code> class using a field from a <code>TracedCollection</code> instance. This version WILL retrieve the version.
      * @param entry <code>TracedEntry&lt;TracedDictionary&gt;</code>: The entry from which to create this <code>Metadata</code> instance.
      * @param versionRangeAllowed <code>boolean</code>: Whether or not a range of versions is allowed in this <code>Metadata</code> instance.
      * @throws ArrayLengthException Thrown if an array in this <code>Metadata</code> instance is of an invalid length.
-     * @throws PropertyTypeException Thrown if the type of a property in this <code>Metadata</code> instance is invalid.
-     * @throws MissingPropertyException Thrown if a property is missing from this <code>Metadata</code> instance.
+     * @throws PropertyTypeException Thrown if the type of a field in this <code>Metadata</code> instance is invalid.
+     * @throws MissingPropertyException Thrown if a field is missing from this <code>Metadata</code> instance.
      * @throws IdentifierFormatException Thrown if this <code>Metadata</code> instance identifier is in an invalid format.
      * @throws VersionBoundsException Thrown if the minimum version bounds is greater than the maximum version bounds in this <code>Metadata</code> instance.
      * @throws VersionBoundsException Thrown if any vector value in the <code>Version</code> vector or any vector value in the minimum allowed version vector is negative.
@@ -129,10 +129,10 @@ public final class Metadata {
     }
 
     /**
-     * Creates a new instance of the <code>Metadata</code> class using a property from a <code>TracedCollection</code> instance. This version WILL NOT retrieve the version.
+     * Creates a new instance of the <code>Metadata</code> class using a field from a <code>TracedCollection</code> instance. This version WILL NOT retrieve the version.
      * @param entry <code>TracedEntry&lt;TracedDictionary&gt;</code>: The entry from which to create the new <code>Metadata</code> instance.
-     * @throws PropertyTypeException Thrown if the type of a property in this <code>Metadata</code> instance is invalid.
-     * @throws MissingPropertyException Thrown if a property is missing from this <code>Metadata</code> instance.
+     * @throws PropertyTypeException Thrown if the type of a field in this <code>Metadata</code> instance is invalid.
+     * @throws MissingPropertyException Thrown if a field is missing from this <code>Metadata</code> instance.
      * @throws IdentifierFormatException Thrown if this <code>Metadata</code> instance identifier is in an invalid format.
      */
     public Metadata(TracedEntry<TracedDictionary> entry) throws IdentifierFormatException, MissingPropertyException, PropertyTypeException {

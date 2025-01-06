@@ -11,7 +11,7 @@ public final class VersionBoundsException extends PropertyException {
     /**
      * Creates a new instance of the <code>VersionBoundsException</code> exception.
      * @param message <code>String</code>: The generated error message to save to the logs file.
-     * @param entry <code>TracedEntry&lt;?&gt;</code>: The property pathway to record.
+     * @param entry <code>TracedEntry&lt;?&gt;</code>: The field pathway to record.
      */
     private VersionBoundsException(String message, TracedEntry<?> entry) {
 
