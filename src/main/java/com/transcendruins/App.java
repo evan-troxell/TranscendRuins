@@ -3,7 +3,6 @@ package com.transcendruins;
 import java.util.ArrayList;
 
 import com.transcendruins.geometry.Position3D;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.packcompiling.Pack;
 import com.transcendruins.packcompiling.PackProcessor;
 import com.transcendruins.packcompiling.assetschemas.AssetType;

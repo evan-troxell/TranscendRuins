@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import com.transcendruins.geometry.interpolation.Interpolation;
+import com.transcendruins.geometry.interpolation.PositionFrame;
+import com.transcendruins.geometry.interpolation.RotationFrame;
+import com.transcendruins.geometry.interpolation.ScaleFrame;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
 import com.transcendruins.utilities.Sorter;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -116,7 +118,7 @@ public final class AnimationSchemaComponents extends AssetSchemaComponents {
                 // Iterate through each bone and process its key frame.
                 for (String bone : keyframeBoneMapJson.getKeys()) {
 
-                    TracedEntry<TracedDictionary> keyframeEntry = keyframesJson.getAsDictionary(keyframe, false);
+                    TracedEntry<TracedDictionary> keyframeEntry = keyframeBoneMapJson.getAsDictionary(bone, false);
                     TracedDictionary keyframeJson = keyframeEntry.getValue();
                     boneMap.put(bone, new KeyFrame(keyframeJson, keyframeTimestamp));
                 }
@@ -168,7 +170,7 @@ public final class AnimationSchemaComponents extends AssetSchemaComponents {
 
     /**
      * Retrieves the bones of this <code>AnimationSchemaComponents</code> instance.
-     * @return <code>HashSet&String&gt;</code>: A copy of the <code>bones</code> field of this <code>AnimationSchemaComponents</code> instance.
+     * @return <code>HashSet&lt;String&gt;</code>: A copy of the <code>bones</code> field of this <code>AnimationSchemaComponents</code> instance.
      */
     public HashSet<String> getBones() {
 
@@ -190,19 +192,19 @@ public final class AnimationSchemaComponents extends AssetSchemaComponents {
     public final class KeyFrame {
 
         /**
-         * <code>Interpolation</code>: The rotation interpolation of this <code>AnimationSchemaComponents.KeyFrame</code> instance.
+         * <code>RotationFrame</code>: The rotation frame of this <code>AnimationSchemaComponents.KeyFrame</code> instance.
          */
-        public final Interpolation rotation;
+        public final RotationFrame rotation;
 
         /**
-         * <code>Interpolation</code>: The position interpolation of this <code>AnimationSchemaComponents.KeyFrame</code> instance.
+         * <code>PositionFrame</code>: The position frame of this <code>AnimationSchemaComponents.KeyFrame</code> instance.
          */
-        public final Interpolation position;
+        public final PositionFrame position;
 
         /**
-         * <code>Interpolation</code>: The scale interpolation of this <code>AnimationSchemaComponents.KeyFrame</code> instance.
+         * <code>ScaleFrame</code>: The scale frame of this <code>AnimationSchemaComponents.KeyFrame</code> instance.
          */
-        public final Interpolation scale;
+        public final ScaleFrame scale;
 
         /**
          * Creates a new instance of the <code>AnimationSchemaComponents.KeyFrame</code> class.
@@ -214,15 +216,15 @@ public final class AnimationSchemaComponents extends AssetSchemaComponents {
 
             TracedEntry<TracedDictionary> rotationEntry = keyframeJson.getAsDictionary("rotation", true);
             TracedDictionary rotationJson = rotationEntry.getValue();
-            rotation = (rotationJson != null) ? new Interpolation(rotationJson, "rotation", timestamp) : null;
+            rotation = (rotationJson != null) ? new RotationFrame(rotationJson, timestamp) : null;
 
             TracedEntry<TracedDictionary> positionEntry = keyframeJson.getAsDictionary("position", true);
             TracedDictionary positionJson = positionEntry.getValue();
-            position = (positionJson != null) ? new Interpolation(positionJson, "position", timestamp) : null;
+            position = (positionJson != null) ? new PositionFrame(positionJson, timestamp) : null;
 
             TracedEntry<TracedDictionary> scaleEntry = keyframeJson.getAsDictionary("scale", true);
             TracedDictionary scaleJson = scaleEntry.getValue();
-            scale = (scaleJson != null) ? new Interpolation(scaleJson, "scale", timestamp) : null;
+            scale = (scaleJson != null) ? new ScaleFrame(scaleJson, timestamp) : null;
         }
     }
 }

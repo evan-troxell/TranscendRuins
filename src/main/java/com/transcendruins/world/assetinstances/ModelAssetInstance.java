@@ -37,10 +37,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
      */
     private ModelInstance model;
 
-    /**
-     * <code>Vector</code>: The rotation offset of the model of this <code>ModelAssetInstance</code> instance.
-     */
-    private Vector rotationOffset;
+    private double rotationOffset, axisHeading, axisPitch;
 
     /**
      * <code>RenderMaterialInstance</code>: The render material of this <code>ModelAssetInstance</code> instance.
@@ -120,7 +117,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
      */
     public final RenderInstance getRenderInstance() {
 
-        return new RenderInstance(model, renderMaterial, (animationController == null) ? new HashMap<>() : animationController.getBoneActors(), position, rotationOffset);
+        return new RenderInstance(model, renderMaterial, (animationController == null) ? new HashMap<>() : animationController.getBoneActors(), position, rotationOffset, axisHeading, axisPitch);
     }
 
     /**
@@ -147,10 +144,9 @@ public abstract class ModelAssetInstance extends AssetInstance {
             animationController = new AnimationControllerInstance((AnimationControllerSchema) getSchema(AssetType.ANIMATION_CONTROLLER, components.getAnimationControllerIdentifier()));
         }
 
-        if (components.getRotationOffset() != null) {
-
-            rotationOffset = components.getRotationOffset();
-        }
+        rotationOffset = components.getRotationOffset();
+        axisHeading = components.getAxisHeading();
+        axisPitch = components.getAxisPitch();
 
         applyComponentSet(componentSet);
     }

@@ -5,7 +5,9 @@
     "components": {
         "model": {
             "identifier": "transcendRuins:pyramid",
-            "rotationOffset": [0, 0, 0]
+            "rotationOffset": 0,
+            "axisHeading": 0,
+            "axisPitch": 0
         },
         "renderMaterial": "transcendRuins:transparent"
     }

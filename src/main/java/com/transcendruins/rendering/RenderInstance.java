@@ -6,7 +6,6 @@ import java.util.HashMap;
 import com.transcendruins.geometry.PolyGroup;
 import com.transcendruins.geometry.Position3D;
 import com.transcendruins.geometry.Triangle3D;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.Model.BoneActor;
 import com.transcendruins.world.assetinstances.models.ModelInstance;
 import com.transcendruins.world.assetinstances.rendermaterials.RenderMaterialInstance;
@@ -29,9 +28,9 @@ public final class RenderInstance {
      * @param position <code>Position3D</code>: The position and orientation to render the <code>model</code> perameter from.
      * @param rotationOffset <code>Vector</code>: The rotation offset of the model, represented by a vector.
      */
-    public RenderInstance(ModelInstance model, RenderMaterialInstance renderMaterial, HashMap<String, BoneActor> boneActors, Position3D position, Vector rotationOffset) {
+    public RenderInstance(ModelInstance model, RenderMaterialInstance renderMaterial, HashMap<String, BoneActor> boneActors, Position3D position, double angle, double heading, double pitch) {
 
-        ArrayList<Triangle3D> polygonsAdjusted = model.getModel().getPolygons(boneActors, position, rotationOffset);
+        ArrayList<Triangle3D> polygonsAdjusted = model.getModel().getPolygons(boneActors, position, angle, heading, pitch);
 
         // Adjust every polygon in the retrieved polygons.
         for (Triangle3D polygonAdjusted : polygonsAdjusted) {

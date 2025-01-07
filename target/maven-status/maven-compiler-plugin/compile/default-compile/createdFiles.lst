@@ -27,7 +27,6 @@ com/transcendruins/rendering/Model.class
 com/transcendruins/geometry/Matrix.class
 com/transcendruins/settings/CacheOperator.class
 com/transcendruins/utilities/exceptions/propertyexceptions/MissingPropertyException.class
-com/transcendruins/utilities/files/FileOperator.class
 com/transcendruins/packcompiling/PackCompiler.class
 com/transcendruins/utilities/Sorter.class
 com/transcendruins/utilities/exceptions/propertyexceptions/MissingIdentifierException.class
@@ -76,14 +75,12 @@ com/transcendruins/utilities/json/TracedDictionary.class
 com/transcendruins/world/assetinstances/animationcontrollers/AnimationControllerInstance.class
 com/transcendruins/utilities/exceptions/propertyexceptions/MissingComponentSetException.class
 com/transcendruins/utilities/exceptions/fileexceptions/MissingFileException.class
-com/transcendruins/geometry/interpolation/AlignedVector.class
 com/transcendruins/utilities/exceptions/propertyexceptions/dependencyexceptions/DependencyException.class
 com/transcendruins/utilities/metadata/Version.class
 com/transcendruins/ui/DisplayFrame$6.class
 com/transcendruins/rendering/RenderedPixel$1.class
 com/transcendruins/packcompiling/assetschemas/items/ItemSchemaComponents.class
 com/transcendruins/ui/DisplayFrame$3.class
-com/transcendruins/world/assetinstances/animations/AnimationInstance$1.class
 com/transcendruins/utilities/exceptions/propertyexceptions/IdentifierFormatException.class
 com/transcendruins/geometry/MatrixOperations.class
 com/transcendruins/world/assetinstances/items/ItemInstance.class
@@ -105,8 +102,6 @@ com/transcendruins/world/assetinstances/models/ModelInstance.class
 com/transcendruins/rendering/Model$WeightedVertex.class
 com/transcendruins/packcompiling/assetschemas/animations/AnimationSchemaComponents$KeyFrame.class
 com/transcendruins/geometry/PolyGroup$3.class
-com/transcendruins/rendering/Model$1.class
-com/transcendruins/geometry/MatrixOperations$1.class
 com/transcendruins/packcompiling/Pack.class
 com/transcendruins/packcompiling/assetschemas/animations/AnimationSchemaComponents$1.class
 com/transcendruins/utilities/json/JSONOperator.class

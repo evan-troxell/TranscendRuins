@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.transcendruins.geometry.Matrix;
-import com.transcendruins.geometry.MatrixOperations;
 import com.transcendruins.geometry.Position3D;
 import com.transcendruins.geometry.Triangle3D;
 import com.transcendruins.geometry.Vector;
-import com.transcendruins.geometry.interpolation.AlignedVector;
+import com.transcendruins.geometry.interpolation.PositionModifier;
+import com.transcendruins.geometry.interpolation.RotationModifier;
+import com.transcendruins.geometry.interpolation.ScaleModifier;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.InvalidKeyException;
@@ -118,31 +118,28 @@ public final class Model {
      * @param rotationOffset <code>Vector</code>: The rotation offset of the model, represented as a vector.
      * @return <code>ArrayList&lt;Triangle3D&gt;</code>: The retrieved polygons of this <code>ModelSchema</code> instance.
      */
-    public ArrayList<Triangle3D> getPolygons(HashMap<String, BoneActor> boneActors, Position3D position, Vector rotationOffset) {
+    public ArrayList<Triangle3D> getPolygons(HashMap<String, BoneActor> boneActors, Position3D position, double angle, double heading, double pitch) {
 
-        BoneActor boneActor = new BoneActor();
-
-        // Adjust the bone actor to the rotation offset of the model.
-        boneActor.addRotationOperator(new AlignedVector(new Vector(Math.toRadians(rotationOffset.getX()), Math.toRadians(rotationOffset.getY()), Math.toRadians(rotationOffset.getZ())), Vector.DEFAULT_VECTOR));
-
-        // Adjust the bone actor to the position and orientation of the model.
-        boneActor.addRotationOperator(new AlignedVector(new Vector(position.getPitch(), position.getHeading(), 0), Vector.DEFAULT_VECTOR));
-        boneActor.addPositionOperator(new AlignedVector(position.getPosition(), Vector.DEFAULT_VECTOR));
-
-        MatrixOperations operations = boneActor.getOperator(bone.pivotPoint);
+        PositionModifier positionModifier = new PositionModifier(position.getPosition(), new RotationModifier(0, Vector.DEFAULT_VECTOR));
+        RotationModifier rotationModifier = new RotationModifier(angle, Vector.fromUnitSphere(heading, pitch));
+        BoneActor boneActor = new BoneActor(positionModifier, rotationModifier, null);
 
         HashMap<Long, HashMap<String, Vector>> boneWeights = bone.getVertexWeights(boneActors);
         ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
 
         for (int i = 0; i < vertices.size(); i++) {
 
-            verticesModified.add(vertices.get(i).getWeightedVertex(boneWeights.get((long) i)));
+            verticesModified.add(
+                boneActor.apply(
+                    vertices.get(i).getWeightedVertex(boneWeights.get((long) i)), bone.pivotPoint
+                )
+            );
         }
 
         ArrayList<Triangle3D> finalizedPolygons = new ArrayList<>(polygons.size());
         for (IndexedPolygon polygon : polygons) {
 
-            finalizedPolygons.add(polygon.getPolygon(verticesModified).getAdjustedInstance(operations));
+            finalizedPolygons.add(polygon.getPolygon(verticesModified));
         }
 
         return finalizedPolygons;
@@ -191,7 +188,7 @@ public final class Model {
         /**
          * Retrieves the weighted vertex of this <code>Model.WeightedVertex</code> instance.
          * @param boneVertices <code>HashMap&lt;String, Vector&gt;</code>: The map of bones to their respective vertex which should be applied.
-         * @return <code>Vector/code>: The generated vertex.
+         * @return <code>Vector<d/code>: The generated vertex.
          */
         private Vector getWeightedVertex(HashMap<String, Vector> boneVertices) {
 
@@ -349,7 +346,7 @@ public final class Model {
             // Retrieve all bones in this model and apply bone actors.
             for (Map.Entry<String, Bone> boneEntry : bones.entrySet()) {
 
-                BoneActor boneActor = boneActors.containsKey(boneEntry.getKey()) ? boneActors.get(boneEntry.getKey()) : new BoneActor();
+                BoneActor boneActor = boneActors.containsKey(boneEntry.getKey()) ? boneActors.get(boneEntry.getKey()) : null;
                 Bone newBone = boneEntry.getValue();
 
                 for (Map.Entry<Long, HashMap<String, Vector>> boneVertexBoneWeights : newBone.getVertexWeights(boneActors).entrySet()) {
@@ -357,7 +354,7 @@ public final class Model {
                     HashMap<String, Vector> boneWeights = new HashMap<>();
                     for (Map.Entry<String, Vector> boneWeightsEntry : boneVertexBoneWeights.getValue().entrySet()) {
 
-                        boneWeights.put(boneWeightsEntry.getKey(), (Vector) boneActor.getOperator(newBone.pivotPoint).runOperations(boneWeightsEntry.getValue()));
+                        boneWeights.put(boneWeightsEntry.getKey(), boneActor == null ? boneWeightsEntry.getValue() : boneActor.apply(boneWeightsEntry.getValue(), newBone.pivotPoint));
                     }
 
                     vertexBoneWeights.get(boneVertexBoneWeights.getKey()).putAll(boneWeights);
@@ -374,93 +371,49 @@ public final class Model {
     public static final class BoneActor {
 
         /**
-         * <code>MatrixOperations</code>: The operator used to perform all matrix adding on the polygons of a <code>Model</code> instance.
+         * <code>PositionModifier</code>: The operator used to perform all matrix adding on the polygons of a <code>Model</code> instance.
          */
-        private final MatrixOperations positionOperator = new MatrixOperations();
+        private final PositionModifier positionOperator;
 
         /**
-         * <code>MatrixOperations</code>: The operator used to perform all matrix rotations on the polygons of a <code>Model</code> instance.
+         * <code>RotationModifier</code>: The operator used to perform all matrix rotations on the polygons of a <code>Model</code> instance.
          */
-        private final MatrixOperations rotationOperator = new MatrixOperations();
+        private final RotationModifier rotationOperator;
 
         /**
-         * <code>MatrixOperations</code>: The operator used to perform all matrix scaling on the polygons of a <code>Model</code> instance.
+         * <code>ScaleModifier</code>: The operator used to perform all matrix scaling on the polygons of a <code>Model</code> instance.
          */
-        private final MatrixOperations scaleOperator = new MatrixOperations();
+        private final ScaleModifier scaleOperator;
 
-        /**
-         * Retrieves the operator used to perform all matrix operations on the polygons of a <code>Model</code> instance.
-         * @param pivotPoint <code>Vector</code>: The point to pivot and scale about.
-         * @return <code>MatrixOperations</code>: The resulting <code>MatrixOperations</code> instance.
-         */
-        public MatrixOperations getOperator(Vector pivotPoint) {
+        public BoneActor(PositionModifier positionOperator, RotationModifier rotationOperator, ScaleModifier scaleOperator) {
 
-            MatrixOperations operations = new MatrixOperations();
-
-            // Center around the pivot point by subtracting its vector at the beginning.
-            operations.addOperation(MatrixOperations.Operations.SUBTRACT_MATRIX, pivotPoint);
-
-            operations.addOperations(scaleOperator);
-
-            operations.addOperations(rotationOperator);
-
-            operations.addOperations(positionOperator);
-
-            // Readjust for the position of the pivot point.
-            operations.addOperation(MatrixOperations.Operations.ADD_MATRIX, pivotPoint);
-
-            return operations;
+            this.positionOperator = positionOperator;
+            this.rotationOperator = rotationOperator;
+            this.scaleOperator = scaleOperator;
         }
 
-        /**
-         * Adds a position operator to this <code>Model.BoneActor</code> instance.
-         * @param position <code>AlignedVector</code>: The position operator to add. All angles should be specified in radians.
-         */
-        public void addPositionOperator(AlignedVector positionAligned) {
+        public Vector apply(Vector vector, Vector pivotPoint) {
 
-            // Adjust the model to the positional perameters layed out.
-            Vector position = positionAligned.transformation;
+            vector = vector.subtractVector(pivotPoint);
 
-            // Adjust the position vector to the rotation perameters layed out.
-            Matrix adjustRotation = Matrix.getRotationalMatrix3X3(positionAligned.axisAlignment.getX(), positionAligned.axisAlignment.getY(), positionAligned.axisAlignment.getZ());
-            position = position.multiplyMatrix(adjustRotation);
-            positionOperator.addOperation(MatrixOperations.Operations.ADD_MATRIX, position);
-        }
+            if (scaleOperator != null) {
 
-        /**
-         * Adds a rotation operator to this <code>Model.BoneActor</code> instance.
-         * @param rotation <code>AlignedVector</code>: The rotation operator to add. All angles should be specified in radians.
-         */
-        public void addRotationOperator(AlignedVector rotationAligned) {
+                vector = scaleOperator.apply(vector);
+            }
 
-            Matrix normalizeRotation = Matrix.getRotationalMatrix3X3(-rotationAligned.axisAlignment.getX(), -rotationAligned.axisAlignment.getY(), -rotationAligned.axisAlignment.getZ());
-            rotationOperator.addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, normalizeRotation);
+            if (rotationOperator != null) {
 
-            // Adjust the model to the rotation perameters layed out.
-            Matrix rotation = Matrix.getRotationalMatrix3X3(rotationAligned.transformation.getX(), rotationAligned.transformation.getY(), rotationAligned.transformation.getZ());
-            rotationOperator.addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, rotation);
+                vector = rotationOperator.apply(vector);
+            }
 
-            Matrix adjustRotation = Matrix.getRotationalMatrix3X3(rotationAligned.axisAlignment.getX(), rotationAligned.axisAlignment.getY(), rotationAligned.axisAlignment.getZ());
-            rotationOperator.addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, adjustRotation);
-        }
+            if (positionOperator != null) {
 
-        /**
-         * Adds a scale operator to this <code>Model.BoneActor</code> instance.
-         * @param scale <code>AlignedVector</code>: The scale operator to add. All angles should be specified in radians.
-         */
-        public void addScaleOperator(AlignedVector scaleAligned) {
+                vector = positionOperator.apply(vector);
+            }
 
-            // Begin by normalizing the model to the rotation perameters layed out.
-            Matrix normalizeRotation = Matrix.getRotationalMatrix3X3(-scaleAligned.axisAlignment.getX(), -scaleAligned.axisAlignment.getY(), -scaleAligned.axisAlignment.getZ());
-            scaleOperator.addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, normalizeRotation);
+            vector = vector.addVector(pivotPoint);
 
-            // Adjust the scale of the model to the scale bounds layed out.
-            Matrix scale = Matrix.getScaledMatrix3X3(scaleAligned.transformation.getX(), scaleAligned.transformation.getY(), scaleAligned.transformation.getZ());
-            scaleOperator.addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, scale);
-
-            // Finish by adjusting the model to the rotation perameters layed out.
-            Matrix adjustRotation = Matrix.getRotationalMatrix3X3(scaleAligned.axisAlignment.getX(), scaleAligned.axisAlignment.getY(), scaleAligned.axisAlignment.getZ());
-            scaleOperator.addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, adjustRotation);
+            return vector;
         }
     }
 }

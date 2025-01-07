@@ -1,6 +1,5 @@
 package com.transcendruins.packcompiling.assetschemas;
 
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
@@ -17,9 +16,19 @@ public abstract class ModelAssetSchemaComponents extends AssetSchemaComponents {
     private final Identifier modelIdentifier;
 
     /**
-     * <code>Vector</code>: The rotation offset of the model of this <code>ModelAssetSchemaComponents</code> instance.
+     * <code>double</code>: The rotational offset of this <code>ModelAssetSchemaComponents</code> instance.
      */
-    private final Vector rotationOffset;
+    private final double rotationOffset;
+
+    /**
+     * <code>double</code>: The heading of the axis of rotation of this <code>ModelAssetSchemaComponents</code> instance.
+     */
+    private final double axisHeading;
+
+    /**
+     * <code>double</code>: The pitch of the axis of rotation of this <code>ModelAssetSchemaComponents</code> instance.
+     */
+    private final double axisPitch;
 
     /**
      * <code>Identifier</code>: The render material of this <code>ModelAssetSchemaComponents</code> instance.
@@ -54,12 +63,20 @@ public abstract class ModelAssetSchemaComponents extends AssetSchemaComponents {
                 addElementDependency(AssetType.MODEL, modelIdentifierEntry);
             }
 
-            TracedEntry<Vector> modelRotationOffset = modelJson.getAsVector("rotationOffset", true, Vector.DIMENSION_3D);
-            rotationOffset = modelRotationOffset.getValue();
+            TracedEntry<Double> modelRotationOffset = modelJson.getAsDouble("rotationOffset", true, 0d);
+            rotationOffset = Math.toRadians(modelRotationOffset.getValue());
+
+            TracedEntry<Double> modelAxisHeading = modelJson.getAsDouble("axisHeading", true, 0d);
+            axisHeading = Math.toRadians(modelAxisHeading.getValue());
+
+            TracedEntry<Double> modelAxisPitch = modelJson.getAsDouble("axisPitch", true, 0d);
+            axisPitch = Math.toRadians(modelAxisPitch.getValue());
         } else {
 
             modelIdentifier = null;
-            rotationOffset = null;
+            rotationOffset = 0;
+            axisHeading = 0;
+            axisPitch = 0;
         }
 
         TracedEntry<Identifier> renderMaterialEntry = schemaJson.getAsIdentifier("renderMaterial", !isBase);
@@ -87,12 +104,30 @@ public abstract class ModelAssetSchemaComponents extends AssetSchemaComponents {
     }
 
     /**
-     * Retrieves the rotation offset of this <code>ModelAssetSchemaComponents</code> instance.
-     * @return <code>Vector</code>: The <code>rotationOffset</code> field of this <code>ModelAssetSchemaComponents</code> instance.
+     * Retrieves the rotational offset of this <code>ModelAssetSchemaComponents</code> instance.
+     * @return <code>double</code>: The <code>rotationOffset</code> field of this <code>ModelAssetSchemaComponents</code> instance.
      */
-    public final Vector getRotationOffset() {
+    public final double getRotationOffset() {
 
         return rotationOffset;
+    }
+
+    /**
+     * Retrieves the heading of the axis of rotation of this <code>ModelAssetSchemaComponents</code> instance.
+     * @return <code>double</code>: The <code>axisHeading</code> field of this <code>ModelAssetSchemaComponents</code> instance.
+     */
+    public final double getAxisHeading() {
+
+        return axisHeading;
+    }
+
+    /**
+     * Retrieves the pitch of the axis of rotation of this <code>ModelAssetSchemaComponents</code> instance.
+     * @return <code>double</code>: The <code>axisPitch</code> field of this <code>ModelAssetSchemaComponents</code> instance.
+     */
+    public final double getAxisPitch() {
+
+        return axisPitch;
     }
 
     /**

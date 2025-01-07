@@ -6,8 +6,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import com.transcendruins.geometry.interpolation.AlignedVector;
-import com.transcendruins.geometry.interpolation.Interpolation;
+import com.transcendruins.geometry.interpolation.PositionFrame;
+import com.transcendruins.geometry.interpolation.PositionModifier;
+import com.transcendruins.geometry.interpolation.RotationFrame;
+import com.transcendruins.geometry.interpolation.RotationModifier;
+import com.transcendruins.geometry.interpolation.ScaleFrame;
+import com.transcendruins.geometry.interpolation.ScaleModifier;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaComponents;
@@ -177,18 +181,14 @@ public final class AnimationInstance extends AssetInstance {
      */
     private BoneActor buildBoneActor(BoneKeyFrame prevFrame, BoneKeyFrame nextFrame, double timestamp) {
 
-        BoneActor boneActor = new BoneActor();
 
-        AlignedVector position = prevFrame.position.interpolate(nextFrame.position, timestamp);
-        boneActor.addPositionOperator(position);
+        PositionModifier position = prevFrame.position.interpolate(nextFrame.position, timestamp);
 
-        AlignedVector rotation = prevFrame.rotation.interpolate(nextFrame.rotation, timestamp);
-        boneActor.addRotationOperator(rotation);
+        RotationModifier rotation = prevFrame.rotation.interpolate(nextFrame.rotation, timestamp);
 
-        AlignedVector scale = prevFrame.scale.interpolate(nextFrame.scale, timestamp);
-        boneActor.addScaleOperator(scale);
+        ScaleModifier scale = prevFrame.scale.interpolate(nextFrame.scale, timestamp);
 
-        return boneActor;
+        return new BoneActor(position, rotation, scale);
     }
 
     /**
@@ -197,19 +197,19 @@ public final class AnimationInstance extends AssetInstance {
     private class BoneKeyFrame {
 
         /**
-         * <code>Interpolation</code>: The nearest position keyframe of a bone to a specified timestamp.
+         * <code>PositionFrame</code>: The nearest position keyframe of a bone to a specified timestamp.
          */
-        private Interpolation position = null;
+        private PositionFrame position = null;
 
         /**
-         * <code>Interpolation</code>: The nearest rotation keyframe of a bone to a specified timestamp.
+         * <code>RotationFrame</code>: The nearest rotation keyframe of a bone to a specified timestamp.
          */
-        private Interpolation rotation = null;
+        private RotationFrame rotation = null;
 
         /**
-         * <code>Interpolation</code>: The nearest scale keyframe of a bone to a specified timestamp.
+         * <code>ScaleFrame</code>: The nearest scale keyframe of a bone to a specified timestamp.
          */
-        private Interpolation scale = null;
+        private ScaleFrame scale = null;
 
         /**
          * Updates this <code>AnimationInstance.BoneKeyFrame</code> instance to a new keyframe.

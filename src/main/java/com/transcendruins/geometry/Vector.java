@@ -66,7 +66,7 @@ Vector extends Matrix {
         double sinV = Math.sin(pitch);
         double cosV = Math.cos(pitch);
 
-        return new Vector(sinV * cosH, sinV * sinH, cosV);
+        return new Vector(sinV * cosH, cosV, sinV * sinH);
     }
 
     /**

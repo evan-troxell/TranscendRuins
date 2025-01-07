@@ -5,7 +5,9 @@
     "components": {
         "model": {
             "identifier": "transcendRuins:axes",
-            "rotationOffset": [0, 0, 0]
+            "rotationOffset": 45,
+            "axisHeading": 0,
+            "axisPitch": 90
         },
         "renderMaterial": "transcendRuins:opaque"
     }

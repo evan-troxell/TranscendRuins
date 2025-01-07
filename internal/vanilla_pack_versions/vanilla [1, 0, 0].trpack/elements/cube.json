@@ -5,7 +5,9 @@
     "components": {
         "model": {
             "identifier": "transcendRuins:unitCube",
-            "rotationOffset": [0, 45, 0]
+            "rotationOffset": 0,
+            "axisHeading": 0,
+            "axisPitch": 0
         },
         "renderMaterial": "transcendRuins:opaqueCulling"
     }

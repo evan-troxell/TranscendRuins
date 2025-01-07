@@ -6,8 +6,13 @@
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/Quaternion.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/Triangle3D.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/Vector.java
-/Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/interpolation/AlignedVector.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/interpolation/Interpolation.java
+/Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/interpolation/PositionFrame.java
+/Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/interpolation/PositionModifier.java
+/Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/interpolation/RotationFrame.java
+/Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/interpolation/RotationModifier.java
+/Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/interpolation/ScaleFrame.java
+/Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/geometry/interpolation/ScaleModifier.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/packcompiling/Pack.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/packcompiling/PackCompiler.java
 /Users/evantroxell/Desktop/TranscendRuinsV2/src/main/java/com/transcendruins/packcompiling/PackProcessor.java
