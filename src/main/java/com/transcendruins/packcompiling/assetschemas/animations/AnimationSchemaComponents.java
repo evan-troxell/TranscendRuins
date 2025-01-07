@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import com.transcendruins.geometry.interpolation.PositionFrame;
-import com.transcendruins.geometry.interpolation.RotationFrame;
-import com.transcendruins.geometry.interpolation.ScaleFrame;
+import com.transcendruins.graphics3d.interpolation.PositionFrame;
+import com.transcendruins.graphics3d.interpolation.RotationFrame;
+import com.transcendruins.graphics3d.interpolation.ScaleFrame;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
 import com.transcendruins.utilities.Sorter;
 import com.transcendruins.utilities.exceptions.LoggedException;

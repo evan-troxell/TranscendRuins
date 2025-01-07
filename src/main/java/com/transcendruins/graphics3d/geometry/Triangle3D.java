@@ -1,4 +1,4 @@
-package com.transcendruins.geometry;
+package com.transcendruins.graphics3d.geometry;
 
 import java.awt.Color;
 

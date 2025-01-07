@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.transcendruins.geometry.Position3D;
-import com.transcendruins.geometry.Triangle3D;
-import com.transcendruins.geometry.Vector;
-import com.transcendruins.geometry.interpolation.PositionModifier;
-import com.transcendruins.geometry.interpolation.RotationModifier;
-import com.transcendruins.geometry.interpolation.ScaleModifier;
+import com.transcendruins.graphics3d.Position3D;
+import com.transcendruins.graphics3d.geometry.Matrix;
+import com.transcendruins.graphics3d.geometry.Triangle3D;
+import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.graphics3d.interpolation.PositionModifier;
+import com.transcendruins.graphics3d.interpolation.RotationModifier;
+import com.transcendruins.graphics3d.interpolation.ScaleModifier;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.InvalidKeyException;
@@ -114,25 +115,27 @@ public final class Model {
     /**
      * Retrieves the polygons of this <code>Model</code> instance.
      * @param boneActors <code>HashMap&lt;String, Model.BoneActor&gt;</code>: The bone actors used to model the bones of this <code>Model</code> instance.
-     * @param position <code>Position3D</code>: The position and orientation to render this <code>Model</code> instance from.
+     * @param offset <code>Position3D</code>: The offset at which to render this <code>Model</code> instance from.
      * @param rotationOffset <code>Vector</code>: The rotation offset of the model, represented as a vector.
      * @return <code>ArrayList&lt;Triangle3D&gt;</code>: The retrieved polygons of this <code>ModelSchema</code> instance.
      */
-    public ArrayList<Triangle3D> getPolygons(HashMap<String, BoneActor> boneActors, Position3D position, double angle, double heading, double pitch) {
+    public ArrayList<Triangle3D> getPolygons(HashMap<String, BoneActor> boneActors, Position3D offset, double angle, double heading, double pitch) {
 
-        PositionModifier positionModifier = new PositionModifier(position.getPosition(), new RotationModifier(0, Vector.DEFAULT_VECTOR));
+        PositionModifier positionModifier = new PositionModifier(offset.getPosition(), new RotationModifier(0, Vector.DEFAULT_VECTOR));
         RotationModifier rotationModifier = new RotationModifier(angle, Vector.fromUnitSphere(heading, pitch));
         BoneActor boneActor = new BoneActor(positionModifier, rotationModifier, null);
 
         HashMap<Long, HashMap<String, Vector>> boneWeights = bone.getVertexWeights(boneActors);
         ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
 
+        Matrix cardinalDirection = Matrix.getRotationalMatrix3X3(offset.getHeading(), Matrix.Y_AXIS);
+
         for (int i = 0; i < vertices.size(); i++) {
 
             verticesModified.add(
                 boneActor.apply(
                     vertices.get(i).getWeightedVertex(boneWeights.get((long) i)), bone.pivotPoint
-                )
+                ).multiplyMatrix(cardinalDirection)
             );
         }
 

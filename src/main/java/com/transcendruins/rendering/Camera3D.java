@@ -1,8 +1,8 @@
 package com.transcendruins.rendering;
 
-import com.transcendruins.geometry.MatrixOperations;
-import com.transcendruins.geometry.Position3D;
-import com.transcendruins.geometry.Vector;
+import com.transcendruins.graphics3d.Position3D;
+import com.transcendruins.graphics3d.geometry.MatrixOperations;
+import com.transcendruins.graphics3d.geometry.Vector;
 
 /**
  * <code>Camera3D</code>: A class representing the position, orientation, and zoom of a camera in space.

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JLayeredPane;
 
-import com.transcendruins.geometry.Vector;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.rendering.Camera3D;
 import com.transcendruins.settings.GameSettings;
 import com.transcendruins.ui.mappedcomponents.TRComponent;

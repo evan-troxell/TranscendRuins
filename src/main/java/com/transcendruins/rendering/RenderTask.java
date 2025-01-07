@@ -2,8 +2,8 @@ package com.transcendruins.rendering;
 
 import java.util.concurrent.Callable;
 
-import com.transcendruins.geometry.MatrixOperations;
-import com.transcendruins.geometry.PolyGroup;
+import com.transcendruins.graphics3d.PolyGroup;
+import com.transcendruins.graphics3d.geometry.MatrixOperations;
 import com.transcendruins.ui.Render3D;
 
 /**

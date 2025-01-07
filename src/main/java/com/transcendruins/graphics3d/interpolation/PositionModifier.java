@@ -1,6 +1,6 @@
-package com.transcendruins.geometry.interpolation;
+package com.transcendruins.graphics3d.interpolation;
 
-import com.transcendruins.geometry.Vector;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;

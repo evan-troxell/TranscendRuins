@@ -1,5 +1,8 @@
-package com.transcendruins.geometry;
+package com.transcendruins.graphics3d;
 
+import com.transcendruins.graphics3d.geometry.Matrix;
+import com.transcendruins.graphics3d.geometry.MatrixOperations;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.ui.Render3D;
 
 /**

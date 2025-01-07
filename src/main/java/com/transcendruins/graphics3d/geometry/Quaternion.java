@@ -1,4 +1,4 @@
-package com.transcendruins.geometry;
+package com.transcendruins.graphics3d.geometry;
 
 /**
  * <code>Quaternion</code>: A class representing a mathematical quaternion.

@@ -2,8 +2,8 @@ package com.transcendruins.world.assetinstances;
 
 import java.util.HashMap;
 
-import com.transcendruins.geometry.Position3D;
-import com.transcendruins.geometry.Vector;
+import com.transcendruins.graphics3d.Position3D;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.packcompiling.assetschemas.AssetSchema;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
@@ -25,7 +25,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
     /**
      * <code>Position3D</code>: The position of this <code>ModelAssetInstance</code> instance.
      */
-    private final Position3D position = new Position3D();
+    private final Position3D offset = new Position3D();
 
     /**
      * <code>boolean</code>: Whether or not the position of this <code>ModelAssetInstance</code> has been initialized.
@@ -54,52 +54,49 @@ public abstract class ModelAssetInstance extends AssetInstance {
      * @param schema <code>AssetSchema</code>: The schema used to generate this <code>ModelAssetInstance</code> instance.
      * @param tileX <code>long</code>: The X coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
      * @param tileZ <code>long</code>: The Z coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
-     * @param cardinalDirection <code>int</code>: The cardinal direction to combine with the heading, represented by the cardinal direction enums of the <code>World</code> class.
-     * @param tileOffset <code>Position3D</code>: The tile offset to assign to this <code>ModelAssetInstance</code> instance.
+     * @param cardinalDirection <code>int</code>: The cardinal direction to assign to this <code>ModelAssetInstance</code> instance, represented by the cardinal direction enums of the <code>World</code> class.
+     * @param tileOffset <code>Vector</code>: The tile offset to assign to this <code>ModelAssetInstance</code> instance.
      */
-    public ModelAssetInstance(AssetSchema schema, long tileX, long tileZ, int cardinalDirection, Position3D tileOffset) {
+    public ModelAssetInstance(AssetSchema schema, long tileX, long tileZ, int cardinalDirection, Vector tileOffset) {
 
         super(schema);
-        setPosition(tileX, tileZ, cardinalDirection, tileOffset);
+        setOffset(tileX, tileZ, cardinalDirection, tileOffset);
     }
 
     /**
-     * Sets the <code>position</code> field of this <code>ModelAssetInstance</code> instance.
+     * Sets the offset of this <code>ModelAssetInstance</code> instance.
      * @param tileX <code>long</code>: The X coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
      * @param tileZ <code>long</code>: The Z coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
-     * @param cardinalDirection <code>int</code>: The cardinal direction to combine with the heading, represented by the cardinal direction enums of the <code>World</code> class.
-     * @param tileOffset <code>Position3D</code>: The tile offset to assign to this <code>ModelAssetInstance</code> instance.
-     * @return <code>Position3D</code>: The adjusted <code>position</code> field of this <code>ModelAssetInstance</code> instance.
+     * @param cardinalDirection <code>int</code>: The cardinal direction to assign to this <code>ModelAssetInstance</code> instance, represented by the cardinal direction enums of the <code>World</code> class.
+     * @param tileOffset <code>Vector</code>: The tile offset to assign to this <code>ModelAssetInstance</code> instance.
      */
-    private void setPosition(long tileX, long tileZ, int cardinalDirection, Position3D tileOffset) {
+    private void setOffset(long tileX, long tileZ, int cardinalDirection, Vector tileOffset) {
 
         positionInitialized = true;
-        applyPosition(tileX, tileZ, cardinalDirection, tileOffset);
+        applyOffset(tileX, tileZ, cardinalDirection, tileOffset);
     }
 
     /**
-     * Applies a position to this <code>ModelAssetInstance</code> instance.
+     * Applies an offset to this <code>ModelAssetInstance</code> instance.
      * @param tileX <code>long</code>: The X coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
      * @param tileZ <code>long</code>: The Z coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
-     * @param cardinalDirection <code>int</code>: The cardinal direction to combine with the heading, represented by the cardinal direction enums of the <code>World</code> class.
-     * @param tileOffset <code>Position3D</code>: The tile offset to assign to this <code>ModelAssetInstance</code> instance.
+     * @param cardinalDirection <code>int</code>: The cardinal direction to assign to this <code>ModelAssetInstance</code> instance, represented by the cardinal direction enums of the <code>World</code> class.
+     * @param tileOffset <code>Vector</code>: The tile offset to assign to this <code>ModelAssetInstance</code> instance.
      */
-    protected void applyPosition(long tileX, long tileZ, int cardinalDirection, Position3D tileOffset) {
+    protected void applyOffset(long tileX, long tileZ, int cardinalDirection, Vector tileOffset) {
 
         Vector tileVector = new Vector(tileX * World.UNIT_TILE, 0, tileZ * World.UNIT_TILE);
-        Vector tilePosition = tileVector.addVector(tileOffset.getPosition());
-
-        position.setPosition(tilePosition);
-        position.setRotation(tileOffset.getHeading() + Math.PI / 2 * cardinalDirection, tileOffset.getPitch(), true);
+        offset.setPosition(tileVector.addVector(tileOffset));
+        offset.setRotation(Math.PI / 2 * cardinalDirection, 0, true);
     }
 
     /**
-     * Retrieves the position of this <code>ModelAssetInstance</code> instance.
-     * @return <code>Position3D</code>: The <code>position</code> field of this <code>ModelAssetInstance</code> instance.
+     * Retrieves the offset of this <code>ModelAssetInstance</code> instance.
+     * @return <code>Position3D</code>: The <code>offset</code> field of this <code>ModelAssetInstance</code> instance.
      */
-    public final Position3D getPosition() {
+    public final Position3D getOffset() {
 
-        return position;
+        return offset;
     }
 
     /**
@@ -117,7 +114,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
      */
     public final RenderInstance getRenderInstance() {
 
-        return new RenderInstance(model, renderMaterial, (animationController == null) ? new HashMap<>() : animationController.getBoneActors(), position, rotationOffset, axisHeading, axisPitch);
+        return new RenderInstance(model, renderMaterial, (animationController == null) ? new HashMap<>() : animationController.getBoneActors(), offset, rotationOffset, axisHeading, axisPitch);
     }
 
     /**

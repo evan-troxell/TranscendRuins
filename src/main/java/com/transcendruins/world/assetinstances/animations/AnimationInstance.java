@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import com.transcendruins.geometry.interpolation.PositionFrame;
-import com.transcendruins.geometry.interpolation.PositionModifier;
-import com.transcendruins.geometry.interpolation.RotationFrame;
-import com.transcendruins.geometry.interpolation.RotationModifier;
-import com.transcendruins.geometry.interpolation.ScaleFrame;
-import com.transcendruins.geometry.interpolation.ScaleModifier;
+import com.transcendruins.graphics3d.interpolation.PositionFrame;
+import com.transcendruins.graphics3d.interpolation.PositionModifier;
+import com.transcendruins.graphics3d.interpolation.RotationFrame;
+import com.transcendruins.graphics3d.interpolation.RotationModifier;
+import com.transcendruins.graphics3d.interpolation.ScaleFrame;
+import com.transcendruins.graphics3d.interpolation.ScaleModifier;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaComponents;

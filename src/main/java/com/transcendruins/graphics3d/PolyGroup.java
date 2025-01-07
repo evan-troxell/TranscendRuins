@@ -1,9 +1,10 @@
-package com.transcendruins.geometry;
+package com.transcendruins.graphics3d;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.transcendruins.graphics3d.geometry.Triangle3D;
 import com.transcendruins.utilities.Sorter;
 
 /**

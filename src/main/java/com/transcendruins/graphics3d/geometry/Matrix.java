@@ -1,4 +1,4 @@
-package com.transcendruins.geometry;
+package com.transcendruins.graphics3d.geometry;
 
 /**
  * <code>Matrix</code>: A class representing a matrix of variable dimensions with assignable values.

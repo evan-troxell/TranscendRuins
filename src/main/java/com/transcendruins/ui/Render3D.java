@@ -16,11 +16,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.ImageIcon;
 
-import com.transcendruins.geometry.Matrix;
-import com.transcendruins.geometry.MatrixOperations;
-import com.transcendruins.geometry.PolyGroup;
-import com.transcendruins.geometry.Triangle3D;
-import com.transcendruins.geometry.Vector;
+import com.transcendruins.graphics3d.PolyGroup;
+import com.transcendruins.graphics3d.geometry.Matrix;
+import com.transcendruins.graphics3d.geometry.MatrixOperations;
+import com.transcendruins.graphics3d.geometry.Triangle3D;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.rendering.Camera3D;
 import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.rendering.RenderTask;

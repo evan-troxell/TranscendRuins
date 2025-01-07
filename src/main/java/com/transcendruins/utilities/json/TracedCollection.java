@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.transcendruins.geometry.Vector;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.IdentifierFormatException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;

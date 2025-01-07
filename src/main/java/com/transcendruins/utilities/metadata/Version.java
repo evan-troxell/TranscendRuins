@@ -2,7 +2,7 @@ package com.transcendruins.utilities.metadata;
 
 import java.util.HashMap;
 
-import com.transcendruins.geometry.Vector;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;

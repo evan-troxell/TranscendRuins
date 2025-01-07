@@ -1,4 +1,4 @@
-package com.transcendruins.geometry;
+package com.transcendruins.graphics3d.geometry;
 
 /**
  * <code>Vector</code>: A class representing a point in a variable-dimensional space.

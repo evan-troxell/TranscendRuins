@@ -1,6 +1,6 @@
 package com.transcendruins.world.assetinstances.elements;
 
-import com.transcendruins.geometry.Position3D;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
 import com.transcendruins.packcompiling.assetschemas.elements.ElementSchema;
 import com.transcendruins.packcompiling.assetschemas.elements.ElementSchemaComponents;
@@ -22,9 +22,9 @@ public final class ElementInstance extends ModelAssetInstance {
     private long tileZ;
 
     /**
-     * <code>Position3D</code>: The tile offset of this <code>ElementInstance</code> instance.
+     * <code>Vector</code>: The tile offset of this <code>ElementInstance</code> instance.
      */
-    private Position3D tileOffset;
+    private Vector tileOffset;
 
     /**
      * <code>int</code>: The cardinal direction of this <code>ElementInstance</code> instance, represented by the cardinal direction enums of the <code>World</code> class.
@@ -32,42 +32,26 @@ public final class ElementInstance extends ModelAssetInstance {
     private int cardinalDirection;
 
     /**
-     * <code>boolean</code>: Whether or not the rotation of this <code>ElementInstance</code> instance should snap to the four cardinal directions.
-     */
-    private boolean gridRotationSnap;
-
-    /**
      * Creates a new instance of the <code>ElementInstance</code> class.
      * @param schema <code>ElementSchema</code>: The schema used to generate this <code>ElementInstance</code> instance.
      * @param tileX <code>long</code>: The X coordinate of the tile to assign to this <code>ElementInstance</code> instance.
      * @param tileZ <code>long</code>: The Z coordinate of the tile to assign to this <code>ElementInstance</code> instance.
      * @param cardinalDirection <code>int</code>: The cardinal direction to combine with the heading, represented by the cardinal direction enums of the <code>World</code> class.
-     * @param tileOffset <code>Position3D</code>: The tile offset to assign to this <code>ElementInstance</code> instance.
+     * @param tileOffset <code>Vector</code>: The tile offset to assign to this <code>ElementInstance</code> instance.
      */
-    public ElementInstance(ElementSchema schema, long tileX, long tileZ, int cardinalDirection, Position3D tileOffset) {
+    public ElementInstance(ElementSchema schema, long tileX, long tileZ, int cardinalDirection, Vector tileOffset) {
 
         super(schema, tileX, tileZ, cardinalDirection, tileOffset);
     }
 
-    /**
-     * Applies a position to this <code>ElementInstance</code> instance.
-     * @param newTileX <code>long</code>: The X coordinate of the tile to assign to this <code>ElementInstance</code> instance.
-     * @param newTileZ <code>long</code>: The Z coordinate of the tile to assign to this <code>ElementInstance</code> instance.
-     * @param cardinalDirection <code>int</code>: The cardinal direction to combine with the heading, represented by the cardinal direction enums of the <code>World</code> class.
-     * @param tileOffset <code>Position3D</code>: The tile offset to assign to this <code>ElementInstance</code> instance.
-     */
     @Override
-    protected void applyPosition(long newTileX, long newTileZ, int newCardinalDirection, Position3D newTileOffset) {
+    protected void applyOffset(long newTileX, long newTileZ, int newCardinalDirection, Vector tileOffset) {
 
         this.tileX = newTileX;
         this.tileZ = newTileZ;
         this.cardinalDirection = newCardinalDirection;
 
-        double heading = gridRotationSnap ? 0 : newTileOffset.getHeading();
-
-        tileOffset = new Position3D(newTileOffset.getPosition(), heading, newTileOffset.getPitch(), true);
-
-        super.applyPosition(tileX, tileZ, cardinalDirection, tileOffset);
+        super.applyOffset(tileX, tileZ, cardinalDirection, tileOffset);
     }
 
     /**
@@ -99,9 +83,9 @@ public final class ElementInstance extends ModelAssetInstance {
 
     /**
      * Retrieves the tile offset of this <code>ElementInstance</code> instance.
-     * @return <code>Position3D</code>: The <code>tileOffset</code> field of this <code>ElementInstance</code> instance.
+     * @return <code>Vector</code>: The <code>tileOffset</code> field of this <code>ElementInstance</code> instance.
      */
-    public Position3D getTileOffset() {
+    public Vector getTileOffset() {
 
         return tileOffset;
     }
@@ -115,11 +99,6 @@ public final class ElementInstance extends ModelAssetInstance {
 
         ElementSchemaComponents components = (ElementSchemaComponents) componentSet;
 
-        if (components.getGridRotationSnap() != null) {
-
-            gridRotationSnap = components.getGridRotationSnap();
-        }
-
-        if (getPositionInitialized()) applyPosition(tileX, tileZ, cardinalDirection, tileOffset);
+        if (getPositionInitialized()) applyOffset(tileX, tileZ, cardinalDirection, tileOffset);
     }
 }

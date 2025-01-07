@@ -237,7 +237,7 @@ public final class Pack {
     public void compile() {
 
         // Build all animations in the pack.
-        TracedPath animationcontrollersPath = root.extend("animation_controllers");
+        TracedPath animationcontrollersPath = root.extend("animationControllers");
         if (animationcontrollersPath.exists()) {
 
             HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ANIMATION_CONTROLLER);
@@ -411,7 +411,7 @@ public final class Pack {
         }
 
         // Build all render materials in the pack.
-        TracedPath renderMaterialsPath = root.extend("render_materials");
+        TracedPath renderMaterialsPath = root.extend("renderMaterials");
         if (renderMaterialsPath.exists()) {
 
             HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.RENDER_MATERIAL);

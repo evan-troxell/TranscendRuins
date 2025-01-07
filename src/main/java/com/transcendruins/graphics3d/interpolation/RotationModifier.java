@@ -1,7 +1,7 @@
-package com.transcendruins.geometry.interpolation;
+package com.transcendruins.graphics3d.interpolation;
 
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
+import com.transcendruins.graphics3d.geometry.Quaternion;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeException;
 import com.transcendruins.utilities.json.TracedDictionary;

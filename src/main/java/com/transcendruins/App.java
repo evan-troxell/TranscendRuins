@@ -2,7 +2,7 @@ package com.transcendruins;
 
 import java.util.ArrayList;
 
-import com.transcendruins.geometry.Position3D;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.packcompiling.Pack;
 import com.transcendruins.packcompiling.PackProcessor;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
@@ -48,8 +48,8 @@ public final class App {
         Identifier axesId = Identifier.createTestIdentifier("transcendRuins:axes", null);
         ElementSchema axesSchema = (ElementSchema) vanillaPack.getAsset(AssetType.ELEMENT, axesId);
 
-        ElementInstance pyramidInstance = new ElementInstance(pyramidSchema, 0, 0, World.EAST, new Position3D());
-        ElementInstance axesInstance = new ElementInstance(axesSchema, 0, 0, World.EAST, new Position3D());
+        ElementInstance pyramidInstance = new ElementInstance(pyramidSchema, 0, 0, World.EAST, Vector.DEFAULT_VECTOR);
+        ElementInstance axesInstance = new ElementInstance(axesSchema, 0, 0, World.EAST, Vector.DEFAULT_VECTOR);
 
         DisplayFrame frame = new DisplayFrame();
 

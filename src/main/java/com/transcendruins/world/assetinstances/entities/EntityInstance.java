@@ -1,6 +1,6 @@
 package com.transcendruins.world.assetinstances.entities;
 
-import com.transcendruins.geometry.Position3D;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
 import com.transcendruins.packcompiling.assetschemas.entities.EntitySchema;
 import com.transcendruins.packcompiling.assetschemas.entities.EntitySchemaComponents;
@@ -17,9 +17,9 @@ public final class EntityInstance extends ModelAssetInstance {
      * @param tileX <code>long</code>: The X coordinate of the tile to assign to this <code>EntityInstance</code> instance.
      * @param tileZ <code>long</code>: The Z coordinate of the tile to assign to this <code>EntityInstance</code> instance.
      * @param cardinalDirection <code>int</code>: The cardinal direction to combine with the heading, represented by the cardinal direction enums of the <code>World</code> class.
-     * @param tileOffset <code>Position3D</code>: The tile offset to assign to this <code>EntityInstance</code> instance.
+     * @param tileOffset <code>Vector</code>: The tile offset to assign to this <code>EntityInstance</code> instance.
      */
-    public EntityInstance(EntitySchema schema, long tileX, long tileZ, int cardinalDirection, Position3D tileOffset) {
+    public EntityInstance(EntitySchema schema, long tileX, long tileZ, int cardinalDirection, Vector tileOffset) {
 
         super(schema, tileX, tileZ, cardinalDirection, tileOffset);
     }
