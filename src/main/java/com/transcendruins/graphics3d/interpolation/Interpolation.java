@@ -83,9 +83,14 @@ public final class Interpolation {
 
     protected double getInter(double nextTimestamp, double t) {
 
-        if (nextTimestamp == timestamp) {
+        if (nextTimestamp == timestamp || t == timestamp) {
             
             return 0;
+        }
+
+        if (t == nextTimestamp) {
+
+            return 1;
         }
 
         return switch (type) {
@@ -103,17 +108,17 @@ public final class Interpolation {
         };
     }
     
-    public static double interpolate(double start, double end, double inter) {
+    public static double lerp(double start, double end, double inter) {
         
         return (1 - inter) * start + inter * end;
     }
 
-    public static Vector interpolate(Vector start, Vector end, double inter) {
+    public static Vector lerp(Vector start, Vector end, double inter) {
         
         return start.multiplyScalar(1 - inter).addVector(end.multiplyScalar(inter));
     }
 
-    public static Vector sphericalInterpolate(Vector v1, Vector v2, double inter) {
+    public static Vector slerp(Vector v1, Vector v2, double inter) {
 
         v1 = v1.multiplyScalar(1.0 / v1.magnitude());
         v2 = v2.multiplyScalar(1.0 / v2.magnitude());

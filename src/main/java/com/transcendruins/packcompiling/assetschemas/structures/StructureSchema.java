@@ -22,26 +22,26 @@ public final class StructureSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base component set of this <code>StructureSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>StructureSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds the base module set of this <code>StructureSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>StructureSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public StructureSchemaComponents buildBaseComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public StructureSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new StructureSchemaComponents(this, jsonSchema, true);
+        return new StructureSchemaModules(this, jsonSchema, true);
     }
 
     /**
-     * Builds a component set of this <code>StructureSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>StructureSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds a module set of this <code>StructureSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>StructureSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public StructureSchemaComponents buildComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public StructureSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new StructureSchemaComponents(this, jsonSchema, false);
+        return new StructureSchemaModules(this, jsonSchema, false);
     }
 }

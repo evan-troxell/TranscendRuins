@@ -17,10 +17,10 @@ public final class PositionFrame extends PositionModifier {
 
         double inter = interpolation.getInter(next.interpolation.getTimestamp(), t);
 
-        com.transcendruins.graphics3d.geometry.Vector position = Interpolation.interpolate(getPosition(), next.getPosition(), inter);
+        com.transcendruins.graphics3d.geometry.Vector position = Interpolation.lerp(getPosition(), next.getPosition(), inter);
         
-        double rotationAngle = Interpolation.interpolate(getRotation().getAngle(), next.getRotation().getAngle(), inter);
-        com.transcendruins.graphics3d.geometry.Vector rotationAxis = Interpolation.sphericalInterpolate(getRotation().getAxis(), next.getRotation().getAxis(), inter);
+        double rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
+        com.transcendruins.graphics3d.geometry.Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(), next.getRotation().getAxis(), inter);
 
         return new PositionModifier(position, new RotationModifier(rotationAngle, rotationAxis));
     }

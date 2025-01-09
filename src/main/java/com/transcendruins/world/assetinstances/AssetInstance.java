@@ -3,9 +3,9 @@ package com.transcendruins.world.assetinstances;
 import java.util.ArrayList;
 
 import com.transcendruins.packcompiling.assetschemas.AssetSchema;
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
-import com.transcendruins.utilities.exceptions.propertyexceptions.MissingComponentSetException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.MissingModuleSetException;
 import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
@@ -21,9 +21,9 @@ public abstract class AssetInstance {
     private final AssetSchema assetSchema;
 
     /**
-     * <code>ArrayList&lt;String&gt;</code>: The list of currently applied component sets.
+     * <code>ArrayList&lt;String&gt;</code>: The list of currently applied module sets.
      */
-    private final ArrayList<String> appliedComponentSets = new ArrayList<>();
+    private final ArrayList<String> appliedModuleSets = new ArrayList<>();
 
     /**
      * Creates a new instance of the <code>AssetInstance</code> class.
@@ -32,41 +32,41 @@ public abstract class AssetInstance {
     public AssetInstance(AssetSchema schema) {
 
         this.assetSchema = schema;
-        updateComponents();
+        updateModules();
     }
 
     /**
-     * Updates the components of this <code>AssetInstance</code> instance.
+     * Updates the modules of this <code>AssetInstance</code> instance.
      */
-    public final void updateComponents() {
+    public final void updateModules() {
 
-        componentSetApplier(assetSchema.getComponentSet());
+        moduleSetApplier(assetSchema.getModuleSet());
 
-        for (String componentSetKey : appliedComponentSets) {
+        for (String moduleSetKey : appliedModuleSets) {
 
-            AssetSchemaComponents componentSet = assetSchema.getComponentSet(componentSetKey);
-            componentSetApplier(componentSet);
+            AssetSchemaModules moduleSet = assetSchema.getModuleSet(moduleSetKey);
+            moduleSetApplier(moduleSet);
         }
     }
 
     /**
-     * Determines whether a component set is present in the schema of this <code>AssetInstance</code> instance.
-     * @param entry <code>TracedEntry&lt;String&gt;</code>: The component set to check for.
-     * @throws MissingComponentSetException Thrown to indicate a reference to a component group missing from the schema.
+     * Determines whether a module set is present in the schema of this <code>AssetInstance</code> instance.
+     * @param entry <code>TracedEntry&lt;String&gt;</code>: The module set to check for.
+     * @throws MissingModuleSetException Thrown to indicate a reference to a module group missing from the schema.
      */
-    public final void containsComponentSet(TracedEntry<String> entry) throws MissingComponentSetException {
+    public final void containsModuleSet(TracedEntry<String> entry) throws MissingModuleSetException {
 
-        assetSchema.containsComponentSet(entry);
+        assetSchema.containsModuleSet(entry);
     }
 
     /**
-     * Applies a component set to this <code>AssetInstance</code> instance.
-     * This method allows a first order child of the <code>AssetInstance</code> class to safely apply its own component set before its own child attempts to apply its component set.
-     * @param componentSet <code>AssetSchemaComponents</code>: The component set to apply.
+     * Applies a module set to this <code>AssetInstance</code> instance.
+     * This method allows a first order child of the <code>AssetInstance</code> class to safely apply its own module set before its own child attempts to apply its module set.
+     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
      */
-    protected void componentSetApplier(AssetSchemaComponents componentSet) {
+    protected void moduleSetApplier(AssetSchemaModules moduleSet) {
 
-        applyComponentSet(componentSet);
+        applyModuleSet(moduleSet);
     }
 
     /**
@@ -81,8 +81,8 @@ public abstract class AssetInstance {
     }
 
     /**
-     * Applies a component set to this <code>AssetInstance</code> instance.
-     * @param componentSet <code>AssetSchemaComponents</code>: The component set to apply.
+     * Applies a module set to this <code>AssetInstance</code> instance.
+     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
      */
-    protected abstract void applyComponentSet(AssetSchemaComponents componentSet);
+    protected abstract void applyModuleSet(AssetSchemaModules moduleSet);
 }

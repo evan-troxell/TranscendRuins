@@ -20,6 +20,11 @@ public final class TracedPath {
     public static final TracedPath LOCAL_ROOT_DIRECTORY = new TracedPath(Path.of(System.getProperty("user.dir")));
 
     /**
+     * <code>TracedPath</code>: The filepath of the internal directory.
+     */
+    public static final TracedPath INTERNAL_DIRECTORY = LOCAL_ROOT_DIRECTORY.extend("internal");
+
+    /**
      * <code>TracedPath</code>: The filepath of the home directory.
      */
     public static final TracedPath HOME_DIRECTORY = new TracedPath(Path.of(System.getProperty("user.home")));

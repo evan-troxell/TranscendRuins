@@ -17,8 +17,8 @@ public final class RotationFrame extends RotationModifier {
 
         double inter = interpolation.getInter(next.interpolation.getTimestamp(), t);
         
-        double angle = Interpolation.interpolate(getAngle(), next.getAngle(), inter);
-        com.transcendruins.graphics3d.geometry.Vector axis = Interpolation.sphericalInterpolate(getAxis(), next.getAxis(), inter);
+        double angle = Interpolation.lerp(getAngle(), next.getAngle(), inter);
+        com.transcendruins.graphics3d.geometry.Vector axis = Interpolation.slerp(getAxis(), next.getAxis(), inter);
 
         return new RotationModifier(angle, axis);
     }

@@ -19,7 +19,7 @@ import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeEx
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
- * A set of operation methods to parse and process JSON information.
+ * <code>JSONOperator</code>: A set of operation methods to parse and process JSON information.
  */
 public final class JSONOperator {
 

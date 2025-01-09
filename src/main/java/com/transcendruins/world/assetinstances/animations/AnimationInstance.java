@@ -12,9 +12,9 @@ import com.transcendruins.graphics3d.interpolation.RotationFrame;
 import com.transcendruins.graphics3d.interpolation.RotationModifier;
 import com.transcendruins.graphics3d.interpolation.ScaleFrame;
 import com.transcendruins.graphics3d.interpolation.ScaleModifier;
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
-import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaModules;
 import com.transcendruins.rendering.Model.BoneActor;
 import com.transcendruins.world.assetinstances.AssetInstance;
 
@@ -29,9 +29,9 @@ public final class AnimationInstance extends AssetInstance {
     private double length;
 
     /**
-     * <code>HashMap&lt;Double, HashMap&lt;String, AnimationSchemaComponents.KeyFrame&gt;&gt;</code>: The key frames of this <code>AnimationInstance</code> instance.
+     * <code>HashMap&lt;Double, HashMap&lt;String, AnimationSchemaModules.KeyFrame&gt;&gt;</code>: The key frames of this <code>AnimationInstance</code> instance.
      */
-    private HashMap<Double, HashMap<String, AnimationSchemaComponents.KeyFrame>> keyFrames;
+    private HashMap<Double, HashMap<String, AnimationSchemaModules.KeyFrame>> keyFrames;
 
     /**
      * <code>HashSet&lt;String&gt;</code>: The set of all bones in this <code>AnimationInstance</code> instance.
@@ -53,20 +53,20 @@ public final class AnimationInstance extends AssetInstance {
     }
 
     /**
-     * Applies a component set to this <code>AnimationInstance</code> instance.
-     * @param componentSet <code>AssetSchemaComponents</code>: The component set to apply.
+     * Applies a module set to this <code>AnimationInstance</code> instance.
+     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
      */
     @Override
-    protected void applyComponentSet(AssetSchemaComponents componentSet) {
+    protected void applyModuleSet(AssetSchemaModules moduleSet) {
 
-        AnimationSchemaComponents components = (AnimationSchemaComponents) componentSet;
+        AnimationSchemaModules modules = (AnimationSchemaModules) moduleSet;
 
-        if (components.getAnimationDefinition()) {
+        if (modules.getAnimationDefinition()) {
 
-            length = components.getLength();
-            keyFrames = components.getKeyFrames();
-            bones = components.getBones();
-            timestampsSorted = components.getTimeStampsSorted();
+            length = modules.getLength();
+            keyFrames = modules.getKeyFrames();
+            bones = modules.getBones();
+            timestampsSorted = modules.getTimeStampsSorted();
         }
     }
 
@@ -149,9 +149,9 @@ public final class AnimationInstance extends AssetInstance {
 
         for (double newTimestamp : timestamps) {
 
-            HashMap<String, AnimationSchemaComponents.KeyFrame> bonesTimestampMap = keyFrames.get(newTimestamp);
+            HashMap<String, AnimationSchemaModules.KeyFrame> bonesTimestampMap = keyFrames.get(newTimestamp);
 
-            for (Map.Entry<String, AnimationSchemaComponents.KeyFrame> boneEntry : bonesTimestampMap.entrySet()) {
+            for (Map.Entry<String, AnimationSchemaModules.KeyFrame> boneEntry : bonesTimestampMap.entrySet()) {
 
                 String bone = boneEntry.getKey();
 
@@ -213,9 +213,9 @@ public final class AnimationInstance extends AssetInstance {
 
         /**
          * Updates this <code>AnimationInstance.BoneKeyFrame</code> instance to a new keyframe.
-         * @param keyframe <code>AnimationSchemaComponents.KeyFrame</code>: The keyframe to assign.
+         * @param keyframe <code>AnimationSchemaModules.KeyFrame</code>: The keyframe to assign.
          */
-        private void update(AnimationSchemaComponents.KeyFrame keyframe) {
+        private void update(AnimationSchemaModules.KeyFrame keyframe) {
 
             if (rotation == null && keyframe.rotation != null) {
 

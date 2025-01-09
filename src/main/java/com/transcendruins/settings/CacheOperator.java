@@ -6,6 +6,9 @@ import java.util.HashMap;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.world.World;
 
+/**
+ * <code>CacheOperator</code>: A set of operations for accessing and manipulating the data cache.
+ */
 public final class CacheOperator {
 
     /**

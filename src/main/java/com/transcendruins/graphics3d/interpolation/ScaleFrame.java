@@ -17,10 +17,10 @@ public final class ScaleFrame extends ScaleModifier {
 
         double inter = interpolation.getInter(next.interpolation.getTimestamp(), t);
 
-        com.transcendruins.graphics3d.geometry.Vector scale = Interpolation.interpolate(getScale(), next.getScale(), inter);
+        com.transcendruins.graphics3d.geometry.Vector scale = Interpolation.lerp(getScale(), next.getScale(), inter);
         
-        double rotationAngle = Interpolation.interpolate(getRotation().getAngle(), next.getRotation().getAngle(), inter);
-        com.transcendruins.graphics3d.geometry.Vector rotationAxis = Interpolation.sphericalInterpolate(getRotation().getAxis(), next.getRotation().getAxis(), inter);
+        double rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
+        com.transcendruins.graphics3d.geometry.Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(), next.getRotation().getAxis(), inter);
 
         return new ScaleModifier(scale, new RotationModifier(rotationAngle, rotationAxis));
     }

@@ -1,0 +1,46 @@
+{
+    "metadata": {
+        "identifier": "transcendRuins:example"
+    },
+    "modules": {
+        "length": 10.0,
+        "keyframes": {
+            "0.0": {
+                "armDown": {
+                    "rotation": {
+                        "interpolation": "logistic",
+                        "angle": 0,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                },
+                "armUp": {
+                    "rotation": {
+                        "interpolation": "logistic",
+                        "angle": 0,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                }
+            },
+            "1.0": {
+                "armDown": {
+                    "rotation": {
+                        "interpolation": "logistic",
+                        "angle": 90,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                },
+                "armUp": {
+                    "rotation": {
+                        "interpolation": "logistic",
+                        "angle": -90,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                }
+            }
+        }
+    }
+}

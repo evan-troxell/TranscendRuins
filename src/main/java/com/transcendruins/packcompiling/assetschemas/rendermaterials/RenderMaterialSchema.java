@@ -22,26 +22,26 @@ public final class RenderMaterialSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base component set of this <code>RenderMaterialSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>RenderMaterialSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds the base module set of this <code>RenderMaterialSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>RenderMaterialSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public RenderMaterialSchemaComponents buildBaseComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public RenderMaterialSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new RenderMaterialSchemaComponents(this, jsonSchema, true);
+        return new RenderMaterialSchemaModules(this, jsonSchema, true);
     }
 
     /**
-     * Builds a component set of this <code>RenderMaterialSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>RenderMaterialSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds a module set of this <code>RenderMaterialSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>RenderMaterialSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public RenderMaterialSchemaComponents buildComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public RenderMaterialSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new RenderMaterialSchemaComponents(this, jsonSchema, false);
+        return new RenderMaterialSchemaModules(this, jsonSchema, false);
     }
 }

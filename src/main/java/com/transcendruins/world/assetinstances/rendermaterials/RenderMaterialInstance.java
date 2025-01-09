@@ -1,8 +1,8 @@
 package com.transcendruins.world.assetinstances.rendermaterials;
 
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
 import com.transcendruins.packcompiling.assetschemas.rendermaterials.RenderMaterialSchema;
-import com.transcendruins.packcompiling.assetschemas.rendermaterials.RenderMaterialSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.rendermaterials.RenderMaterialSchemaModules;
 import com.transcendruins.world.assetinstances.AssetInstance;
 
 /**
@@ -50,43 +50,43 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Applies a component set to this <code>RenderMaterialInstance</code> instance.
-     * @param componentSet <code>AssetSchemaComponents</code>: The component set to apply.
+     * Applies a module set to this <code>RenderMaterialInstance</code> instance.
+     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
      */
     @Override
-    protected void applyComponentSet(AssetSchemaComponents componentSet) {
+    protected void applyModuleSet(AssetSchemaModules moduleSet) {
 
-        RenderMaterialSchemaComponents components = (RenderMaterialSchemaComponents) componentSet;
+        RenderMaterialSchemaModules modules = (RenderMaterialSchemaModules) moduleSet;
 
-        if (components.getBackfaceCulling() != null) {
+        if (modules.getBackfaceCulling() != null) {
 
-            backfaceCulling = components.getBackfaceCulling();
+            backfaceCulling = modules.getBackfaceCulling();
         }
 
-        if (components.getFresnelEffect() != null) {
+        if (modules.getFresnelEffect() != null) {
 
-            fresnelEffect = components.getFresnelEffect();
+            fresnelEffect = modules.getFresnelEffect();
         }
 
-        if (components.getFaceDimmingFactor() != null) {
+        if (modules.getFaceDimmingFactor() != null) {
 
-            faceDimmingFactor = components.getFaceDimmingFactor();
+            faceDimmingFactor = modules.getFaceDimmingFactor();
         }
         faceDimming = faceDimmingFactor != 0.0;
 
-        if (components.getAntiAliasing() != null) {
+        if (modules.getAntiAliasing() != null) {
 
-            antiAliasing = components.getAntiAliasing();
+            antiAliasing = modules.getAntiAliasing();
         }
 
-        if (components.getOpaque() != null) {
+        if (modules.getOpaque() != null) {
 
-            opaque = components.getOpaque();
+            opaque = modules.getOpaque();
         }
     }
 
     /**
-     * Retrieves the <code>backfaceCulling</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>backfaceCulling</code> field of this <code>RenderMaterialSchemaModules</code> instance.
      * @return <code>boolean</code>: Whether or not backface culling should be implemented.
      */
     public boolean backfaceCulling() {
@@ -95,7 +95,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>fresnelEffect</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>fresnelEffect</code> field of this <code>RenderMaterialSchemaModules</code> instance.
      * @return <code>boolean</code>: Whether or not the Fresnel effect should be implemented.
      */
     public boolean fresnelEffect() {
@@ -104,7 +104,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>faceDimming</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>faceDimming</code> field of this <code>RenderMaterialSchemaModules</code> instance.
      * @return <code>boolean</code>: Whether or not face dimming should be implemented.
      */
     public boolean faceDimming() {
@@ -113,7 +113,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>faceDimmingFactor</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>faceDimmingFactor</code> field of this <code>RenderMaterialSchemaModules</code> instance.
      * @return <code>double</code>: The retrieved face dimming factor.
      */
     public double faceDimmingFactor() {
@@ -122,7 +122,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>antiAliasing</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>antiAliasing</code> field of this <code>RenderMaterialSchemaModules</code> instance.
      * @return <code>boolean</code>: Whether or not anti aliasing should be implemented.
      */
     public boolean antiAliasing() {
@@ -131,7 +131,7 @@ public final class RenderMaterialInstance extends AssetInstance {
     }
 
     /**
-     * Retrieves the <code>opaque</code> field of this <code>RenderMaterialSchemaComponents</code> instance.
+     * Retrieves the <code>opaque</code> field of this <code>RenderMaterialSchemaModules</code> instance.
      * @return <code>boolean</code>: Whether or not alpha cancelling should be implemented.
      */
     public boolean opaque() {

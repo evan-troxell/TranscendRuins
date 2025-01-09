@@ -1,0 +1,10 @@
+{
+
+    "metadata": {
+
+        "identifier": "transcendRuins:entity1"
+    },
+    "modules": {
+        "model": "transcendRuins:example"
+    }
+}

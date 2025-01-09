@@ -1,9 +1,9 @@
 package com.transcendruins.world.assetinstances.entities;
 
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
 import com.transcendruins.packcompiling.assetschemas.entities.EntitySchema;
-import com.transcendruins.packcompiling.assetschemas.entities.EntitySchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.entities.EntitySchemaModules;
 import com.transcendruins.world.assetinstances.ModelAssetInstance;
 
 /**
@@ -25,13 +25,13 @@ public final class EntityInstance extends ModelAssetInstance {
     }
 
     /**
-     * Applies a component set to this <code>EntityInstance</code> instance.
-     * @param componentSet <code>AssetSchemaComponents</code>: The component set to apply.
+     * Applies a module set to this <code>EntityInstance</code> instance.
+     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
      */
     @Override
-    protected void applyComponentSet(AssetSchemaComponents componentSet) {
+    protected void applyModuleSet(AssetSchemaModules moduleSet) {
 
-        EntitySchemaComponents components = (EntitySchemaComponents) componentSet;
+        EntitySchemaModules modules = (EntitySchemaModules) moduleSet;
 
     }
 }

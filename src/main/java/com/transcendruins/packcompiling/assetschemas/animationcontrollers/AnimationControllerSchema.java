@@ -22,26 +22,26 @@ public final class AnimationControllerSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base component set of this <code>AnimationControllerSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>AnimationControllerSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds the base module set of this <code>AnimationControllerSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>AnimationControllerSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public AnimationControllerSchemaComponents buildBaseComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public AnimationControllerSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new AnimationControllerSchemaComponents(this, jsonSchema, true);
+        return new AnimationControllerSchemaModules(this, jsonSchema, true);
     }
 
     /**
-     * Builds a component set of this <code>AnimationControllerSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>AnimationControllerSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds a module set of this <code>AnimationControllerSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>AnimationControllerSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public AnimationControllerSchemaComponents buildComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public AnimationControllerSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new AnimationControllerSchemaComponents(this, jsonSchema, false);
+        return new AnimationControllerSchemaModules(this, jsonSchema, false);
     }
 }

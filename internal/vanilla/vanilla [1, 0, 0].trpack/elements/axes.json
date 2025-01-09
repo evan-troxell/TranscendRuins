@@ -1,0 +1,14 @@
+{
+    "metadata": {
+        "identifier": "transcendRuins:axes"
+    },
+    "modules": {
+        "model": {
+            "identifier": "transcendRuins:axes",
+            "rotationOffset": 45,
+            "axisHeading": 0,
+            "axisPitch": 90
+        },
+        "renderMaterial": "transcendRuins:opaque"
+    }
+}

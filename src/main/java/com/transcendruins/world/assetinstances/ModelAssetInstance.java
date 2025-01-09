@@ -5,9 +5,9 @@ import java.util.HashMap;
 import com.transcendruins.graphics3d.Position3D;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.packcompiling.assetschemas.AssetSchema;
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
-import com.transcendruins.packcompiling.assetschemas.ModelAssetSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.ModelAssetSchemaModules;
 import com.transcendruins.packcompiling.assetschemas.animationcontrollers.AnimationControllerSchema;
 import com.transcendruins.packcompiling.assetschemas.models.ModelSchema;
 import com.transcendruins.packcompiling.assetschemas.rendermaterials.RenderMaterialSchema;
@@ -118,33 +118,33 @@ public abstract class ModelAssetInstance extends AssetInstance {
     }
 
     /**
-     * Applies a component set to this <code>ModelAssetInstance</code> instance.
-     * @param componentSet <code>AssetSchemaComponents</code>: The component set to apply.
+     * Applies a module set to this <code>ModelAssetInstance</code> instance.
+     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
      */
     @Override
-    protected final void componentSetApplier(AssetSchemaComponents componentSet) {
+    protected final void moduleSetApplier(AssetSchemaModules moduleSet) {
 
-        ModelAssetSchemaComponents components = (ModelAssetSchemaComponents) componentSet;
+        ModelAssetSchemaModules modules = (ModelAssetSchemaModules) moduleSet;
 
-        if (components.getModelIdentifier() != null) {
+        if (modules.getModelIdentifier() != null) {
 
-            model = new ModelInstance((ModelSchema) getSchema(AssetType.MODEL, components.getModelIdentifier()));
+            model = new ModelInstance((ModelSchema) getSchema(AssetType.MODEL, modules.getModelIdentifier()));
         }
 
-        if (components.getRenderMaterialIdentifier() != null) {
+        if (modules.getRenderMaterialIdentifier() != null) {
 
-            renderMaterial = new RenderMaterialInstance((RenderMaterialSchema) getSchema(AssetType.RENDER_MATERIAL, components.getRenderMaterialIdentifier()));
+            renderMaterial = new RenderMaterialInstance((RenderMaterialSchema) getSchema(AssetType.RENDER_MATERIAL, modules.getRenderMaterialIdentifier()));
         }
 
-        if (components.getAnimationControllerIdentifier() != null) {
+        if (modules.getAnimationControllerIdentifier() != null) {
 
-            animationController = new AnimationControllerInstance((AnimationControllerSchema) getSchema(AssetType.ANIMATION_CONTROLLER, components.getAnimationControllerIdentifier()));
+            animationController = new AnimationControllerInstance((AnimationControllerSchema) getSchema(AssetType.ANIMATION_CONTROLLER, modules.getAnimationControllerIdentifier()));
         }
 
-        rotationOffset = components.getRotationOffset();
-        axisHeading = components.getAxisHeading();
-        axisPitch = components.getAxisPitch();
+        rotationOffset = modules.getRotationOffset();
+        axisHeading = modules.getAxisHeading();
+        axisPitch = modules.getAxisPitch();
 
-        applyComponentSet(componentSet);
+        applyModuleSet(moduleSet);
     }
 }

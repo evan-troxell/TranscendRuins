@@ -1,8 +1,8 @@
 package com.transcendruins.world.assetinstances.models;
 
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
 import com.transcendruins.packcompiling.assetschemas.models.ModelSchema;
-import com.transcendruins.packcompiling.assetschemas.models.ModelSchemaComponents;
+import com.transcendruins.packcompiling.assetschemas.models.ModelSchemaModules;
 import com.transcendruins.rendering.Model;
 import com.transcendruins.world.assetinstances.AssetInstance;
 
@@ -26,14 +26,14 @@ public final class ModelInstance extends AssetInstance {
     }
 
     /**
-     * Applies a component set to this <code>ModelInstance</code> instance.
-     * @param componentSet <code>AssetSchemaComponents</code>: The component set to apply.
+     * Applies a module set to this <code>ModelInstance</code> instance.
+     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
      */
     @Override
-    protected void applyComponentSet(AssetSchemaComponents componentSet) {
+    protected void applyModuleSet(AssetSchemaModules moduleSet) {
 
-        ModelSchemaComponents components = (ModelSchemaComponents) componentSet;
-        model = components.getModel();
+        ModelSchemaModules modules = (ModelSchemaModules) moduleSet;
+        model = modules.getModel();
     }
 
     /**

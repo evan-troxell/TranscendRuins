@@ -12,8 +12,8 @@ import com.transcendruins.utilities.exceptions.fileexceptions.FileFormatExceptio
 import com.transcendruins.utilities.exceptions.fileexceptions.MissingFileException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.IdentifierFormatException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.MissingComponentSetException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingIdentifierException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.MissingModuleSetException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeException;
 import com.transcendruins.utilities.files.TracedPath;
@@ -64,14 +64,14 @@ public abstract class AssetSchema {
     private boolean validationFailed = false;
 
     /**
-     * <code>AssetSchemaComponents</code>: The base component set of this <code>AssetSchema</code> instance.
+     * <code>AssetSchemaModules</code>: The base module set of this <code>AssetSchema</code> instance.
      */
-    private final AssetSchemaComponents componentSet;
+    private final AssetSchemaModules moduleSet;
 
     /**
-     * <code>HashMap&lt;String, AssetSchemaComponents&gt;</code>: The component sets of this <code>AssetSchema</code> instance.
+     * <code>HashMap&lt;String, AssetSchemaModules&gt;</code>: The module sets of this <code>AssetSchema</code> instance.
      */
-    private final HashMap<String, AssetSchemaComponents> componentSets = new HashMap<>();
+    private final HashMap<String, AssetSchemaModules> moduleSets = new HashMap<>();
 
     /**
      * <code>HashMap&lt;AssetType, Collection&lt;TracedEntry&lt;Identifier&gt;&gt;&gt;</code>: The collection of element dependencies in this <code>AssetSchema</code> instance.
@@ -90,83 +90,83 @@ public abstract class AssetSchema {
         json = JSONOperator.retrieveJSON(path);
         metadata = json.getAsMetadata("metadata", false).getValue();
 
-        TracedEntry<TracedDictionary> schemaEntry = json.getAsDictionary("components", false);
+        TracedEntry<TracedDictionary> schemaEntry = json.getAsDictionary("modules", false);
         schemaJson = schemaEntry.getValue();
-        componentSet = getComponent(schemaJson, true);
+        moduleSet = getModule(schemaJson, true);
 
-        TracedEntry<TracedDictionary> componentSetsEntry = json.getAsDictionary("componentSets", true);
-        TracedDictionary componentSetsJson = componentSetsEntry.getValue();
+        TracedEntry<TracedDictionary> moduleSetsEntry = json.getAsDictionary("moduleSets", true);
+        TracedDictionary moduleSetsJson = moduleSetsEntry.getValue();
 
-        if (componentSetsJson != null) {
+        if (moduleSetsJson != null) {
 
-            for (String componentSetKey : componentSetsJson.getKeys()) {
+            for (String moduleSetKey : moduleSetsJson.getKeys()) {
 
-                TracedEntry<TracedDictionary> componentSetEntry = componentSetsJson.getAsDictionary(componentSetKey, false);
-                TracedDictionary componentSetJson = componentSetEntry.getValue();
-                componentSets.put(componentSetKey, getComponent(componentSetJson, true));
+                TracedEntry<TracedDictionary> moduleSetEntry = moduleSetsJson.getAsDictionary(moduleSetKey, false);
+                TracedDictionary moduleSetJson = moduleSetEntry.getValue();
+                moduleSets.put(moduleSetKey, getModule(moduleSetJson, true));
             }
         }
     }
 
     /**
-     * Builds a component set of this <code>AssetSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @param isBase <code>boolean</code>: Whether or not the components being built are
-     * @return <code>AssetSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds a module set of this <code>AssetSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @param isBase <code>boolean</code>: Whether or not the modules being built are
+     * @return <code>AssetSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
-    private AssetSchemaComponents getComponent(TracedDictionary jsonSchema, boolean isBase) throws LoggedException{
+    private AssetSchemaModules getModule(TracedDictionary jsonSchema, boolean isBase) throws LoggedException{
 
-        return (isBase) ? buildBaseComponentSet(jsonSchema) : buildComponentSet(jsonSchema);
+        return (isBase) ? buildBaseModuleSet(jsonSchema) : buildModuleSet(jsonSchema);
     }
 
     /**
-     * Builds the base component set of this <code>AssetSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>AssetSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds the base module set of this <code>AssetSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>AssetSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
-    public abstract AssetSchemaComponents buildBaseComponentSet(TracedDictionary jsonSchema) throws LoggedException;
+    public abstract AssetSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException;
 
     /**
-     * Builds a component set of this <code>AssetSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>AssetSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds a module set of this <code>AssetSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>AssetSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
-    public abstract AssetSchemaComponents buildComponentSet(TracedDictionary jsonSchema) throws LoggedException;
+    public abstract AssetSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException;
 
     /**
-     * Retrieves the base component set of this <code>AssetSchema</code> instance.
-     * @return <code>AssetSchemaComponents</code>: The <code>components</code> field of this <code>AssetSchema</code> instance.
+     * Retrieves the base module set of this <code>AssetSchema</code> instance.
+     * @return <code>AssetSchemaModules</code>: The <code>modules</code> field of this <code>AssetSchema</code> instance.
      */
-    public AssetSchemaComponents getComponentSet() {
+    public AssetSchemaModules getModuleSet() {
 
-        return componentSet;
+        return moduleSet;
     }
 
     /**
-     * Determines whether a component set is present in this <code>AssetSchema</code> instance.
-     * @param entry <code>TracedEntry&lt;String&gt;</code>: The component set to check for.
-     * @throws MissingComponentSetException Thrown to indicate a reference to a component group missing from this <code>AssetSchema</code> instance.
+     * Determines whether a module set is present in this <code>AssetSchema</code> instance.
+     * @param entry <code>TracedEntry&lt;String&gt;</code>: The module set to check for.
+     * @throws MissingModuleSetException Thrown to indicate a reference to a module group missing from this <code>AssetSchema</code> instance.
      */
-    public void containsComponentSet(TracedEntry<String> entry) throws MissingComponentSetException {
+    public void containsModuleSet(TracedEntry<String> entry) throws MissingModuleSetException {
 
-        String componentSetKey = entry.getValue();
-        if (!componentSets.containsKey(componentSetKey)) {
+        String moduleSetKey = entry.getValue();
+        if (!moduleSets.containsKey(moduleSetKey)) {
 
-            throw new MissingComponentSetException(entry);
+            throw new MissingModuleSetException(entry);
         }
     }
 
     /**
-     * Retrieves a component set from this <code>AssetSchema</code> instance.
-     * @param entry <code>String</code>: The component set to retrieve.
-     * @return <code>AssetSchemaComponents</code>: The retrieved component set of this <code>AssetSchema</code> instance.
+     * Retrieves a module set from this <code>AssetSchema</code> instance.
+     * @param entry <code>String</code>: The module set to retrieve.
+     * @return <code>AssetSchemaModules</code>: The retrieved module set of this <code>AssetSchema</code> instance.
      */
-    public AssetSchemaComponents getComponentSet(String entry)  {
+    public AssetSchemaModules getModuleSet(String entry)  {
 
-        return componentSets.get(entry);
+        return moduleSets.get(entry);
     }
 
     /**

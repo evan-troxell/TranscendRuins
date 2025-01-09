@@ -79,13 +79,13 @@ public final class Model {
 
                     throw new ArrayLengthException(polygonVerticesEntry);
                 }
-                long[] vertexIndices = new long[Vector.DIMENSION_3D];
+                int[] vertexIndices = new int[Vector.DIMENSION_3D];
 
                 // For each vertex of the triangle, retrieve the appropriate vertex from the vertices perameter.
                 for (int i = 0; i < vertexIndices.length; i++) {
 
                     TracedEntry<Long> vertexIndexEntry = polygonVerticesJson.getAsLong(i, false, null, 0l, vertices.size() - 1l);
-                    vertexIndices[i] = vertexIndexEntry.getValue();
+                    vertexIndices[i] = vertexIndexEntry.getValue().intValue();
                 }
 
                 // Retrieve the color field of the polygon.
@@ -125,7 +125,7 @@ public final class Model {
         RotationModifier rotationModifier = new RotationModifier(angle, Vector.fromUnitSphere(heading, pitch));
         BoneActor boneActor = new BoneActor(positionModifier, rotationModifier, null);
 
-        HashMap<Long, HashMap<String, Vector>> boneWeights = bone.getVertexWeights(boneActors);
+        HashMap<Integer, HashMap<String, Vector>> boneWeights = bone.getVertexWeights(boneActors);
         ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
 
         Matrix cardinalDirection = Matrix.getRotationalMatrix3X3(offset.getHeading(), Matrix.Y_AXIS);
@@ -134,7 +134,7 @@ public final class Model {
 
             verticesModified.add(
                 boneActor.apply(
-                    vertices.get(i).getWeightedVertex(boneWeights.get((long) i)), bone.pivotPoint
+                    vertices.get(i).getWeightedVertex(boneWeights.get(i)), bone.pivotPoint
                 ).multiplyMatrix(cardinalDirection)
             );
         }
@@ -154,23 +154,23 @@ public final class Model {
     private final class WeightedVertex {
 
         /**
-         * <code>Vector</code>: The initial position of this <code>WeightedVertex</code> instance.
+         * <code>Vector</code>: The initial position of this <code>Model.WeightedVertex</code> instance.
          */
         private final Vector baseVertex;
 
         /**
-         * <code>HashMap&lt;String, Double&gt;</code>: The map of all bones to their specific weights in this <code>WeightedVertex</code> instance.
+         * <code>HashMap&lt;String, Double&gt;</code>: The map of all bones to their specific weights in this <code>Model.WeightedVertex</code> instance.
          */
         private final HashMap<String, Double> weights = new HashMap<>();
 
         /**
-         * <code>double</code>: The total weight of this <code>WeightedVertex</code> instance.
+         * <code>double</code>: The total weight of this <code>Model.WeightedVertex</code> instance.
          */
         private double weight;
 
         /**
-         * Creates a new instance of the <code>WeightedVertex</code> class.
-         * @param baseVertex <code>Vector</code>: The initial position of this <code>WeightedVertex</code> instance, and the vertex which will be returned if no weights are added.
+         * Creates a new instance of the <code>Model.WeightedVertex</code> class.
+         * @param baseVertex <code>Vector</code>: The initial position of this <code>Model.WeightedVertex</code> instance, and the vertex which will be returned if no weights are added.
          */
         private WeightedVertex(Vector baseVertex) {
 
@@ -191,7 +191,7 @@ public final class Model {
         /**
          * Retrieves the weighted vertex of this <code>Model.WeightedVertex</code> instance.
          * @param boneVertices <code>HashMap&lt;String, Vector&gt;</code>: The map of bones to their respective vertex which should be applied.
-         * @return <code>Vector<d/code>: The generated vertex.
+         * @return <code>Vector</code>: The generated vertex.
          */
         private Vector getWeightedVertex(HashMap<String, Vector> boneVertices) {
 
@@ -199,7 +199,7 @@ public final class Model {
 
                 return baseVertex;
             }
-            Vector returnVertex = new Vector(0, 0, 0);
+            Vector returnVertex = Vector.DEFAULT_VECTOR;
 
             for (Map.Entry<String, Vector> vertexEntry : boneVertices.entrySet()) {
 
@@ -216,9 +216,9 @@ public final class Model {
     private final class IndexedPolygon {
 
         /**
-         * <code>long[3]</code>: The vertex indices of this <code>Model.IndexedPolygon</code> instance.
+         * <code>int[3]</code>: The vertex indices of this <code>Model.IndexedPolygon</code> instance.
          */
-        private final long[] vertexIndices;
+        private final int[] vertexIndices;
 
         /**
          * <code>Color</code>: The color of this <code>Model.IndexedPolygon</code> instance.
@@ -227,10 +227,10 @@ public final class Model {
 
         /**
          * Creates a new instance of the <code>Model.IndexedPolygon</code> class.
-         * @param vertexIndices <code>long[3]</code>: The vertex indices to assign to this <code>Model.IndexedPolygon</code> instance.
+         * @param vertexIndices <code>int[3]</code>: The vertex indices to assign to this <code>Model.IndexedPolygon</code> instance.
          * @param color <code>Color</code>: The color to assign to this <code>Model.IndexedPolygon</code> instance.
          */
-        private IndexedPolygon(long[] vertexIndices, Color color) {
+        private IndexedPolygon(int[] vertexIndices, Color color) {
 
             this.vertexIndices = vertexIndices;
             this.color = color;
@@ -258,9 +258,9 @@ public final class Model {
         private static final String INDEX_PATTERN = "[+]?\\d+";
 
         /**
-         * <code>HashMap&lt;Long, Double&gt;</code>: The vertex weights of this <code>Model.Bone</code> instance.
+         * <code>HashMap&lt;Integer, Double&gt;</code>: The vertex weights of this <code>Model.Bone</code> instance.
          */
-        private final HashMap<Long, Double> vertexWeights = new HashMap<>();
+        private final HashMap<Integer, Double> vertexWeights = new HashMap<>();
 
          /**
          * <code>HashMap&lgt;String, Bone&gt;</code>: The bones of this <code>Model.Bone</code> instance.
@@ -288,14 +288,15 @@ public final class Model {
 
                 for (String vertexKey : vertexWeightsJson.getKeys()) {
 
-                    if (vertexKey.matches(INDEX_PATTERN)) {
+                    if (!vertexKey.matches(INDEX_PATTERN)) {
 
                         throw new InvalidKeyException(vertexWeightsEntry, vertexKey);
                     }
-                    long vertexIndex = Long.parseLong(vertexKey);
+                    int vertexIndex = Integer.parseInt(vertexKey);
 
                     if (vertexWeights.containsKey(vertexIndex) || vertexIndex >= vertices.size()) {
 
+                        System.out.println(vertices.size());
                         throw new InvalidKeyException(vertexWeightsEntry, vertexKey);
                     }
 
@@ -324,9 +325,9 @@ public final class Model {
                     TracedDictionary boneJson = boneEntry.getValue();
                     Bone newBone = new Bone(boneJson, boneKeys);
 
-                    for (Map.Entry<Long, Double> vertexWeightEntry : newBone.vertexWeights.entrySet()) {
+                    for (Map.Entry<Integer, Double> vertexWeightEntry : newBone.vertexWeights.entrySet()) {
 
-                        vertices.get(vertexWeightEntry.getKey().intValue()).addWeight(boneKey, vertexWeightEntry.getValue());
+                        vertices.get(vertexWeightEntry.getKey()).addWeight(boneKey, vertexWeightEntry.getValue());
                     }
 
                     bones.put(boneKey, newBone);
@@ -340,19 +341,32 @@ public final class Model {
         /**
          * Retrieves the vertex weights of this <code>Model.Bone</code> instance.
          * @param boneActors <code>HashMap&lt;String, Model.BoneActor&gt;</code>: The bone actors used to model the bones of this <code>Model.Bone</code> instance.
-         * @return <code>HashMap&lt;Long, HashMap&lt;String, Vector&gt;&gt;</code>: The retrieved vertex weights of this <code>Model.Bone</code> instance.
+         * @return <code>HashMap&lt;Integer, HashMap&lt;String, Vector&gt;&gt;</code>: The retrieved vertex weights of this <code>Model.Bone</code> instance.
          */
-        private HashMap<Long, HashMap<String, Vector>> getVertexWeights(HashMap<String, BoneActor> boneActors) {
+        private HashMap<Integer, HashMap<String, Vector>> getVertexWeights(HashMap<String, BoneActor> boneActors) {
 
-            HashMap<Long, HashMap<String, Vector>> vertexBoneWeights = new HashMap<>();
+            HashMap<Integer, HashMap<String, Vector>> vertexBoneWeights = new HashMap<>();
 
             // Retrieve all bones in this model and apply bone actors.
             for (Map.Entry<String, Bone> boneEntry : bones.entrySet()) {
 
-                BoneActor boneActor = boneActors.containsKey(boneEntry.getKey()) ? boneActors.get(boneEntry.getKey()) : null;
+                String boneName = boneEntry.getKey();
+                BoneActor boneActor = boneActors.get(boneName);
                 Bone newBone = boneEntry.getValue();
 
-                for (Map.Entry<Long, HashMap<String, Vector>> boneVertexBoneWeights : newBone.getVertexWeights(boneActors).entrySet()) {
+                for (Map.Entry<Integer, Double> vertexWeight : newBone.vertexWeights.entrySet()) {
+
+                    int vertex = vertexWeight.getKey();
+                    if (!vertexBoneWeights.containsKey(vertex)) {
+
+                        vertexBoneWeights.put(vertex, new HashMap<>());
+                    }
+
+                    Vector vertexVector = vertices.get(vertex).baseVertex;
+                    vertexBoneWeights.get(vertex).put(boneName, boneActor == null ? vertexVector : boneActor.apply(vertexVector, newBone.pivotPoint));
+                }
+
+                for (Map.Entry<Integer, HashMap<String, Vector>> boneVertexBoneWeights : newBone.getVertexWeights(boneActors).entrySet()) {
 
                     HashMap<String, Vector> boneWeights = new HashMap<>();
                     for (Map.Entry<String, Vector> boneWeightsEntry : boneVertexBoneWeights.getValue().entrySet()) {
@@ -360,7 +374,13 @@ public final class Model {
                         boneWeights.put(boneWeightsEntry.getKey(), boneActor == null ? boneWeightsEntry.getValue() : boneActor.apply(boneWeightsEntry.getValue(), newBone.pivotPoint));
                     }
 
-                    vertexBoneWeights.get(boneVertexBoneWeights.getKey()).putAll(boneWeights);
+                    if (!vertexBoneWeights.containsKey(boneVertexBoneWeights.getKey())) {
+
+                        vertexBoneWeights.put(boneVertexBoneWeights.getKey(), boneWeights);
+                    } else {
+                        
+                        vertexBoneWeights.get(boneVertexBoneWeights.getKey()).putAll(boneWeights);
+                    }
                 }
             }
 

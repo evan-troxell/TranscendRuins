@@ -10,7 +10,6 @@ import com.transcendruins.packcompiling.assetschemas.elements.ElementSchema;
 import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.ui.DisplayFrame;
 import com.transcendruins.ui.Render3D;
-import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.elements.ElementInstance;
@@ -26,14 +25,7 @@ public final class App {
      */
     public static void main(String[] args) throws Exception {
 
-        TracedPath internalPath = TracedPath.LOCAL_ROOT_DIRECTORY.extend("internal");
-
         PackProcessor packProcessor = PackProcessor.getProcessor();
-
-        packProcessor.addRoot(internalPath.extend("vanilla_pack_versions"), true);
-
-        packProcessor.validate();
-        packProcessor.compile();
 
         Identifier vanillaId = Identifier.createTestIdentifier("transcendRuins:vanilla", new long[] {1, 0, 0});
         Pack vanillaPack = Pack.PACKS.get(vanillaId);

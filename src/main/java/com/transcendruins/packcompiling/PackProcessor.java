@@ -23,6 +23,11 @@ import com.transcendruins.utilities.metadata.Metadata;
 public final class PackProcessor {
 
     /**
+     * <code>TracedPath</code>: The filepath of the directory containing all vanilla pack versions.
+     */
+    public static final TracedPath VANILLA_DIRECTORY = TracedPath.INTERNAL_DIRECTORY.extend("vanilla");
+
+    /**
      * The static <code>PackProcessor</code> instance which is used to compile and validate all packs.
      */
     private static final PackProcessor PACK_PROCESSOR = new PackProcessor();
@@ -50,9 +55,15 @@ public final class PackProcessor {
     private final HashMap<Identifier, Pack> packsUnvalidated = new HashMap<>();
 
     /**
-     * Creates a new instance of the <code>PackProcessor</code> class.
+     * Creates a new instance of the <code>PackProcessor</code> class and automatically compiles all vanilla versions.
      */
-    private PackProcessor() {}
+    private PackProcessor() {
+
+        addRoot(VANILLA_DIRECTORY, true);
+
+        validate();
+        compile();
+    }
 
     /**
      * Retrieves the pack processor, for use in processing and compiling pack directories into completed packs.

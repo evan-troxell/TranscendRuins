@@ -22,26 +22,26 @@ public final class AnimationSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base component set of this <code>AnimationSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>AnimationSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds the base module set of this <code>AnimationSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>AnimationSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public AnimationSchemaComponents buildBaseComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public AnimationSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new AnimationSchemaComponents(this, jsonSchema, true);
+        return new AnimationSchemaModules(this, jsonSchema, true);
     }
 
     /**
-     * Builds a component set of this <code>AnimationSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>AnimationSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds a module set of this <code>AnimationSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>AnimationSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public AnimationSchemaComponents buildComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public AnimationSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new AnimationSchemaComponents(this, jsonSchema, false);
+        return new AnimationSchemaModules(this, jsonSchema, false);
     }
 }

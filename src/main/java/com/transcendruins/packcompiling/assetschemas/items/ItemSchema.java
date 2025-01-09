@@ -22,26 +22,26 @@ public final class ItemSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base component set of this <code>ItemSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>ItemSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds the base module set of this <code>ItemSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>ItemSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public ItemSchemaComponents buildBaseComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public ItemSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new ItemSchemaComponents(this, jsonSchema, true);
+        return new ItemSchemaModules(this, jsonSchema, true);
     }
 
     /**
-     * Builds a component set of this <code>ItemSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>ItemSchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds a module set of this <code>ItemSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>ItemSchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public ItemSchemaComponents buildComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public ItemSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new ItemSchemaComponents(this, jsonSchema, false);
+        return new ItemSchemaModules(this, jsonSchema, false);
     }
 }

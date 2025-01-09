@@ -22,26 +22,26 @@ public final class EntitySchema extends AssetSchema {
     }
 
     /**
-     * Builds the base component set of this <code>EntitySchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>EntitySchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds the base module set of this <code>EntitySchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>EntitySchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public EntitySchemaComponents buildBaseComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public EntitySchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new EntitySchemaComponents(this, jsonSchema, true);
+        return new EntitySchemaModules(this, jsonSchema, true);
     }
 
     /**
-     * Builds a component set of this <code>EntitySchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the component set.
-     * @return <code>EntitySchemaComponents</code>: The generated component set.
-     * @throws LoggedException Thrown if any exception is raised while building the component set.
+     * Builds a module set of this <code>EntitySchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
+     * @return <code>EntitySchemaModules</code>: The generated module set.
+     * @throws LoggedException Thrown if any exception is raised while building the module set.
      */
     @Override
-    public EntitySchemaComponents buildComponentSet(TracedDictionary jsonSchema) throws LoggedException {
+    public EntitySchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new EntitySchemaComponents(this, jsonSchema, false);
+        return new EntitySchemaModules(this, jsonSchema, false);
     }
 }
