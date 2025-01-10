@@ -1,9 +1,9 @@
 package com.transcendruins.world.assetinstances.elements;
 
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.elements.ElementSchema;
-import com.transcendruins.packcompiling.assetschemas.elements.ElementSchemaModules;
+import com.transcendruins.packcompiling.assetschemas.elements.ElementSchemaAttributes;
 import com.transcendruins.world.assetinstances.ModelAssetInstance;
 
 /**
@@ -91,13 +91,13 @@ public final class ElementInstance extends ModelAssetInstance {
     }
 
     /**
-     * Applies a module set to this <code>ElementInstance</code> instance.
-     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
+     * Applies a attribute set to this <code>ElementInstance</code> instance.
+     * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to apply.
      */
     @Override
-    protected void applyModuleSet(AssetSchemaModules moduleSet) {
+    protected void applyAttributeSet(AssetSchemaAttributes attributeSet) {
 
-        ElementSchemaModules modules = (ElementSchemaModules) moduleSet;
+        ElementSchemaAttributes attributes = (ElementSchemaAttributes) attributeSet;
 
         if (getPositionInitialized()) applyOffset(tileX, tileZ, cardinalDirection, tileOffset);
     }

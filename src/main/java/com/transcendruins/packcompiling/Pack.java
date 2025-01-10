@@ -167,7 +167,7 @@ public final class Pack {
 
                 throw new ArrayLengthException(authorsEntry);
             }
-            for (int i = 0; i < authorsJson.size(); i++) {
+            for (int i : authorsJson.getIndices()) {
 
                 TracedEntry<String> authorsIndexEntry = authorsJson.getAsString(i, false, null);
                 String authorsIndex = authorsIndexEntry.getValue();
@@ -194,11 +194,11 @@ public final class Pack {
 
         dependenciesEntry = manifestJson.getAsArray("dependencies", true);
 
-        if (dependenciesEntry.getValue() != null) {
-
+        if (dependenciesEntry.containsValue()) {
+            
             TracedArray dependenciesJson = (TracedArray) dependenciesEntry.getValue();
 
-            for (int i = 0; i < dependenciesJson.size(); i++) {
+            for (int i : dependenciesJson.getIndices()) {
 
                 TracedEntry<Metadata> dependenciesIndexEntry = dependenciesJson.getAsMetadata(i, false, true);
                 Metadata dependencyIndex = dependenciesIndexEntry.getValue();
@@ -512,6 +512,17 @@ public final class Pack {
     public AssetSchema getAsset(AssetType type, Identifier identifier) {
 
         return assetMap.get(type).get(identifier);
+    }
+
+    /**
+     * Retrieves whether or not an asset is contained in the asset map of this <code>Pack</code> instance.
+     * @param type <code>AssetType</code>: The type of asset to search for.
+     * @param identifier <code>Identifier</code>: The identifier to the asset to search for.
+     * @return <code>boolean</code>: Whether or not the <code>assetMap</code> field of this <code>Pack<>/code> instance contains the asset.
+     */
+    public boolean containsAsset(AssetType type, Identifier identifier) {
+
+        return assetMap.get(type).containsKey(identifier);
     }
 
     /**

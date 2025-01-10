@@ -61,7 +61,7 @@ public class Matrix {
         // Create a different rotational matrix for each of the 3 axes.
         return switch (axis) {
             case X_AXIS -> new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
-                    
+
                     1, 0, 0,
                     0, Math.cos(radians), Math.sin(radians),
                     0, -Math.sin(radians), Math.cos(radians)

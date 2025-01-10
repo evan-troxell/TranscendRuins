@@ -22,26 +22,26 @@ public final class ItemSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base module set of this <code>ItemSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>ItemSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds the base attribute set of this <code>ItemSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>ItemSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public ItemSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public ItemSchemaAttributes buildBaseAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new ItemSchemaModules(this, jsonSchema, true);
+        return new ItemSchemaAttributes(this, jsonSchema, true);
     }
 
     /**
-     * Builds a module set of this <code>ItemSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>ItemSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds a attribute set of this <code>ItemSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>ItemSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public ItemSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public ItemSchemaAttributes buildAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new ItemSchemaModules(this, jsonSchema, false);
+        return new ItemSchemaAttributes(this, jsonSchema, false);
     }
 }

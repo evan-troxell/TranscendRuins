@@ -79,7 +79,7 @@ public abstract class TracedCollection {
         // Retrieve the pathway and value which will be used to parse into a new entry.
         PropertyExceptionPathway pathway = new PropertyExceptionPathway(path.path, this, key);
         Object value = getValue(key);
-        TracedEntry<Object> entry = new TracedEntry<>(pathway, value);
+        TracedEntry<?> entry = new TracedEntry<>(pathway, value);
 
         JSONOperator.isRequiredClass(entry, nullCaseAllowed, classes);
 
@@ -95,11 +95,11 @@ public abstract class TracedCollection {
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a <code>null</code> case should cause an exception.
      * @param ifNull <code>Object</code>: The value to return if the value retrieved from this <code>TracedCollection</code> instance is <code>null</code>.
      * @param classes <code>Class...</code>: All classes which the retrieved field can be an instance of.
-     * @return <code>TracedEntry&lt;Object&g;</code>: The field retrieved from this <code>TracedCollection</code> instance.
+     * @return <code>TracedEntry&lt;?&gt;</code>: The field retrieved from this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and the <code>nullCaseAllowed</code> perameter is <code>false</code>.
      * @throws PropertyTypeException Thrown if the retrieved field is of an invalid type.
      */
-    public final TracedEntry<Object> get(Object key, boolean nullCaseAllowed, Object ifNull, Class<?>... classes) throws MissingPropertyException, PropertyTypeException {
+    public final TracedEntry<?> get(Object key, boolean nullCaseAllowed, Object ifNull, Class<?>... classes) throws MissingPropertyException, PropertyTypeException {
 
         // Retrieve the pathway and value which will be used to parse into a new entry.
         PropertyExceptionPathway pathway = new PropertyExceptionPathway(path.path, this, key);
@@ -111,7 +111,7 @@ public abstract class TracedCollection {
             return new TracedEntry<>(pathway, ifNull);
         }
 
-        TracedEntry<Object> entry = new TracedEntry<>(pathway, value);
+        TracedEntry<?> entry = new TracedEntry<>(pathway, value);
 
         // An argument of no classes represents that any class is allowed, while an argument of one or more classes indicates that the retrieved entry must be one of them.
         if (classes.length > 0) {
@@ -148,7 +148,7 @@ public abstract class TracedCollection {
     public final TracedEntry<TracedDictionary> getAsDictionary(Object key, boolean nullCaseAllowed) throws MissingPropertyException, PropertyTypeException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<Object> retrievedVal = get(key, nullCaseAllowed, null, JSONObject.class);
+        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, null, JSONObject.class);
 
         return new TracedEntry<>(retrievedVal.getPathway(), (TracedDictionary) retrievedVal.getValue());
     }
@@ -164,7 +164,7 @@ public abstract class TracedCollection {
     public final TracedEntry<TracedArray> getAsArray(Object key, boolean nullCaseAllowed) throws MissingPropertyException, PropertyTypeException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<Object> retrievedVal = get(key, nullCaseAllowed, null, JSONArray.class);
+        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, null, JSONArray.class);
 
         return new TracedEntry<>(retrievedVal.getPathway(), (TracedArray) retrievedVal.getValue());
     }
@@ -222,7 +222,7 @@ public abstract class TracedCollection {
     public final TracedEntry<Boolean> getAsBoolean(Object key, boolean nullCaseAllowed, Boolean ifNull) throws MissingPropertyException, PropertyTypeException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<Object> retrievedVal = get(key, nullCaseAllowed, ifNull, Boolean.class);
+        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, ifNull, Boolean.class);
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true, and thus a null entry may be returned.
         if (retrievedVal.getValue() == null) {
@@ -245,7 +245,7 @@ public abstract class TracedCollection {
     public final TracedEntry<String> getAsString(Object key, boolean nullCaseAllowed, String ifNull) throws MissingPropertyException, PropertyTypeException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<Object> retrievedVal = get(key, nullCaseAllowed, ifNull, String.class);
+        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, ifNull, String.class);
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true, and thus a null entry may be returned.
         if (retrievedVal.getValue() == null) {
@@ -268,7 +268,7 @@ public abstract class TracedCollection {
     public final TracedEntry<Long> getAsLong(Object key, boolean nullCaseAllowed, Long ifNull) throws MissingPropertyException, PropertyTypeException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<Object> retrievedVal = get(key, nullCaseAllowed, ifNull, Long.class);
+        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, ifNull, Long.class);
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true, and thus a null entry may be returned.
         if (retrievedVal.getValue() == null) {
@@ -300,7 +300,7 @@ public abstract class TracedCollection {
         Long num = retrievedVal.getValue();
 
         // If the number is outside of the expected bounds (if any), throw an exception stating such.
-        if (num != null && min != null && (double) num < min || max != null && (double) num > max) {
+        if (num != null && (min != null && (double) num < min || max != null && (double) num > max)) {
 
             throw new NumberBoundsException(retrievedVal, min, max);
         }
@@ -319,7 +319,7 @@ public abstract class TracedCollection {
     public final TracedEntry<Double> getAsDouble(Object key, boolean nullCaseAllowed, Double ifNull) throws MissingPropertyException, PropertyTypeException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<Object> retrievedVal = get(key, nullCaseAllowed, ifNull, Double.class, Long.class);
+        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, ifNull, Double.class, Long.class);
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true, and thus a null entry may be returned.
         if (retrievedVal.getValue() == null) {
@@ -350,7 +350,7 @@ public abstract class TracedCollection {
         Double num = retrievedVal.getValue();
 
         // If the number is outside of the expected bounds (if any), throw an exception stating such.
-        if (num != null && min != null && (double) num < min || max != null && (double) num > max) {
+        if (num != null && (min != null && (double) num < min || max != null && (double) num > max)) {
 
             throw new NumberBoundsException(retrievedVal, min, max);
         }

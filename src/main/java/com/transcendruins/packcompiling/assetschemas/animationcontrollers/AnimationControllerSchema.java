@@ -22,26 +22,26 @@ public final class AnimationControllerSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base module set of this <code>AnimationControllerSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>AnimationControllerSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds the base attribute set of this <code>AnimationControllerSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>AnimationControllerSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public AnimationControllerSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public AnimationControllerSchemaAttributes buildBaseAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new AnimationControllerSchemaModules(this, jsonSchema, true);
+        return new AnimationControllerSchemaAttributes(this, jsonSchema, true);
     }
 
     /**
-     * Builds a module set of this <code>AnimationControllerSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>AnimationControllerSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds a attribute set of this <code>AnimationControllerSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>AnimationControllerSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public AnimationControllerSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public AnimationControllerSchemaAttributes buildAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new AnimationControllerSchemaModules(this, jsonSchema, false);
+        return new AnimationControllerSchemaAttributes(this, jsonSchema, false);
     }
 }

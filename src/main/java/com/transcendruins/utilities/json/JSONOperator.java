@@ -73,7 +73,7 @@ public final class JSONOperator {
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a null case will be permitted, or if an exception should be thrown.
      * @param classes <code>Class...</code>: A list of classes which the input value should be checked against.
      * @return <code>boolean</code>: Whether or not the input value is NOT null (note that this will always return true if nullCaseAllowed is <code>false</code>, as otherwise an exception will be thrown).
-     * @throws MissingPropertyException Thrown if the parameter <code>nullCaseAllowed</code> is set to false and the input value is null.
+     * @throws MissingPropertyException Thrown if the argument <code>nullCaseAllowed</code> is set to false and the input value is null.
      * @throws PropertyTypeException Thrown if the input value is not an instance of any of the classes in the perameter <code>classes</code>.
      */
     public static boolean isRequiredClass(TracedEntry<?> entry, boolean nullCaseAllowed, Class<?>... classes) throws MissingPropertyException, PropertyTypeException {

@@ -14,9 +14,9 @@ public final class TracedArray extends TracedCollection {
 
     /**
      * Creates a new instance of the <code>TracedArray</code> class.
-     * @param array <code>TracedEntry&lt;Object&gt;</code>: The array to assign to this value.
+     * @param array <code>TracedEntry&lt;?&gt;</code>: The array to assign to this value.
      */
-    public TracedArray(TracedEntry<Object> array) {
+    public TracedArray(TracedEntry<?> array) {
 
         super(array.getPathway());
         this.array = (JSONArray) array.getValue();
@@ -30,6 +30,22 @@ public final class TracedArray extends TracedCollection {
     public JSONArray getCollection() {
 
         return array;
+    }
+
+    /**
+     * Retrieves an array containing all numerical indices stored in this <code>TracedArray</code> instance.
+     * @return <code>int[]</code>: All indices in this <code>TracedArray</code> instance.
+     */
+    public int[] getIndices() {
+
+        int n = size();
+        int[] indicesArray = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            indicesArray[i] = i;
+        }
+
+        return indicesArray;
     }
 
     /**

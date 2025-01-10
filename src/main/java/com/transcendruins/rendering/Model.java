@@ -56,7 +56,7 @@ public final class Model {
             throw new ArrayLengthException(verticesEntry);
         }
 
-        for (int i = 0; i < verticesJson.size(); i++) {
+        for (int i : verticesJson.getIndices()) {
 
             TracedEntry<Vector> vertexIndexEntry = verticesJson.getAsVector(i, false, Vector.DIMENSION_3D);
             vertices.add(new WeightedVertex(vertexIndexEntry.getValue()));
@@ -64,11 +64,12 @@ public final class Model {
 
         // Create the polygons to be rendered and assign them with their individual vertices.
         TracedEntry<TracedArray> polygonsEntry = modelJson.getAsArray("polygons", false);
-        TracedArray polygonsJson = polygonsEntry.getValue();
+        
+        if (polygonsEntry.containsValue()) {
+            
+            TracedArray polygonsJson = polygonsEntry.getValue();
 
-        if (polygonsJson != null) {
-
-            for (int polygonIndex = 0; polygonIndex < polygonsJson.size(); polygonIndex ++) {
+            for (int polygonIndex : polygonsJson.getIndices()) {
 
                 TracedEntry<TracedDictionary> polygonEntry = polygonsJson.getAsDictionary(polygonIndex, false);
                 TracedDictionary polygonJson = polygonEntry.getValue();
@@ -282,9 +283,10 @@ public final class Model {
         private Bone(TracedDictionary modelJson, ArrayList<String> boneKeys) throws LoggedException {
 
             TracedEntry<TracedDictionary> vertexWeightsEntry = modelJson.getAsDictionary("vertexWeights", true);
-            TracedDictionary vertexWeightsJson = vertexWeightsEntry.getValue();
 
-            if (vertexWeightsJson != null) {
+            if (vertexWeightsEntry.containsValue()) {
+                
+                TracedDictionary vertexWeightsJson = vertexWeightsEntry.getValue();
 
                 for (String vertexKey : vertexWeightsJson.getKeys()) {
 
@@ -308,9 +310,10 @@ public final class Model {
             }
 
             TracedEntry<TracedDictionary> bonesEntry = modelJson.getAsDictionary("bones", true);
-            TracedDictionary bonesJson = bonesEntry.getValue();
 
-            if (bonesJson != null) {
+            if (bonesEntry.containsValue()) {
+                
+                TracedDictionary bonesJson = bonesEntry.getValue();
 
                 for (String boneKey : bonesJson.getKeys()) {
 

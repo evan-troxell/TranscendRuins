@@ -2,7 +2,7 @@
     "metadata": {
         "identifier": "transcendRuins:axes"
     },
-    "modules": {
+    "attributes": {
         "model": {
             "identifier": "transcendRuins:axes",
             "rotationOffset": 45,

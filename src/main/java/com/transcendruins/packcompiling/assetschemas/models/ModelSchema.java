@@ -22,26 +22,26 @@ public final class ModelSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base module set of this <code>ModelSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>ModelSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds the base attribute set of this <code>ModelSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>ModelSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public ModelSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public ModelSchemaAttributes buildBaseAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new ModelSchemaModules(this, jsonSchema, true);
+        return new ModelSchemaAttributes(this, jsonSchema, true);
     }
 
     /**
-     * Builds a module set of this <code>ModelSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>ModelSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds a attribute set of this <code>ModelSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>ModelSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public ModelSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public ModelSchemaAttributes buildAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new ModelSchemaModules(this, jsonSchema, false);
+        return new ModelSchemaAttributes(this, jsonSchema, false);
     }
 }

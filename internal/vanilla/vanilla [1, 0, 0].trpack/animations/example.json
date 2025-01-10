@@ -2,7 +2,7 @@
     "metadata": {
         "identifier": "transcendRuins:example"
     },
-    "modules": {
+    "attributes": {
         "length": 10.0,
         "keyframes": {
             "0.0": {

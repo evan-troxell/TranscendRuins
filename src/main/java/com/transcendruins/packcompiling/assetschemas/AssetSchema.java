@@ -12,8 +12,8 @@ import com.transcendruins.utilities.exceptions.fileexceptions.FileFormatExceptio
 import com.transcendruins.utilities.exceptions.fileexceptions.MissingFileException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.IdentifierFormatException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.MissingAttributeSetException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingIdentifierException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.MissingModuleSetException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeException;
 import com.transcendruins.utilities.files.TracedPath;
@@ -64,14 +64,14 @@ public abstract class AssetSchema {
     private boolean validationFailed = false;
 
     /**
-     * <code>AssetSchemaModules</code>: The base module set of this <code>AssetSchema</code> instance.
+     * <code>AssetSchemaAttributes</code>: The base attribute set of this <code>AssetSchema</code> instance.
      */
-    private final AssetSchemaModules moduleSet;
+    private final AssetSchemaAttributes attributeSet;
 
     /**
-     * <code>HashMap&lt;String, AssetSchemaModules&gt;</code>: The module sets of this <code>AssetSchema</code> instance.
+     * <code>HashMap&lt;String, AssetSchemaAttributes&gt;</code>: The attribute sets of this <code>AssetSchema</code> instance.
      */
-    private final HashMap<String, AssetSchemaModules> moduleSets = new HashMap<>();
+    private final HashMap<String, AssetSchemaAttributes> attributeSets = new HashMap<>();
 
     /**
      * <code>HashMap&lt;AssetType, Collection&lt;TracedEntry&lt;Identifier&gt;&gt;&gt;</code>: The collection of element dependencies in this <code>AssetSchema</code> instance.
@@ -90,83 +90,83 @@ public abstract class AssetSchema {
         json = JSONOperator.retrieveJSON(path);
         metadata = json.getAsMetadata("metadata", false).getValue();
 
-        TracedEntry<TracedDictionary> schemaEntry = json.getAsDictionary("modules", false);
+        TracedEntry<TracedDictionary> schemaEntry = json.getAsDictionary("attributes", false);
         schemaJson = schemaEntry.getValue();
-        moduleSet = getModule(schemaJson, true);
+        attributeSet = getAttribute(schemaJson, true);
 
-        TracedEntry<TracedDictionary> moduleSetsEntry = json.getAsDictionary("moduleSets", true);
-        TracedDictionary moduleSetsJson = moduleSetsEntry.getValue();
+        TracedEntry<TracedDictionary> attributeSetsEntry = json.getAsDictionary("attributeSets", true);
 
-        if (moduleSetsJson != null) {
+        if (attributeSetsEntry.containsValue()) {
 
-            for (String moduleSetKey : moduleSetsJson.getKeys()) {
+            TracedDictionary attributeSetsJson = attributeSetsEntry.getValue();
+            for (String attributeSetKey : attributeSetsJson.getKeys()) {
 
-                TracedEntry<TracedDictionary> moduleSetEntry = moduleSetsJson.getAsDictionary(moduleSetKey, false);
-                TracedDictionary moduleSetJson = moduleSetEntry.getValue();
-                moduleSets.put(moduleSetKey, getModule(moduleSetJson, true));
+                TracedEntry<TracedDictionary> attributeSetEntry = attributeSetsJson.getAsDictionary(attributeSetKey, false);
+                TracedDictionary attributeSetJson = attributeSetEntry.getValue();
+                attributeSets.put(attributeSetKey, getAttribute(attributeSetJson, true));
             }
         }
     }
 
     /**
-     * Builds a module set of this <code>AssetSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @param isBase <code>boolean</code>: Whether or not the modules being built are
-     * @return <code>AssetSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds a attribute set of this <code>AssetSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @param isBase <code>boolean</code>: Whether or not the attributes being built are
+     * @return <code>AssetSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
-    private AssetSchemaModules getModule(TracedDictionary jsonSchema, boolean isBase) throws LoggedException{
+    private AssetSchemaAttributes getAttribute(TracedDictionary jsonSchema, boolean isBase) throws LoggedException{
 
-        return (isBase) ? buildBaseModuleSet(jsonSchema) : buildModuleSet(jsonSchema);
+        return (isBase) ? buildBaseAttributeSet(jsonSchema) : buildAttributeSet(jsonSchema);
     }
 
     /**
-     * Builds the base module set of this <code>AssetSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>AssetSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds the base attribute set of this <code>AssetSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>AssetSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
-    public abstract AssetSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException;
+    public abstract AssetSchemaAttributes buildBaseAttributeSet(TracedDictionary jsonSchema) throws LoggedException;
 
     /**
-     * Builds a module set of this <code>AssetSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>AssetSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds a attribute set of this <code>AssetSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>AssetSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
-    public abstract AssetSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException;
+    public abstract AssetSchemaAttributes buildAttributeSet(TracedDictionary jsonSchema) throws LoggedException;
 
     /**
-     * Retrieves the base module set of this <code>AssetSchema</code> instance.
-     * @return <code>AssetSchemaModules</code>: The <code>modules</code> field of this <code>AssetSchema</code> instance.
+     * Retrieves the base attribute set of this <code>AssetSchema</code> instance.
+     * @return <code>AssetSchemaAttributes</code>: The <code>attributeSet</code> field of this <code>AssetSchema</code> instance.
      */
-    public AssetSchemaModules getModuleSet() {
+    public AssetSchemaAttributes getAttributeSet() {
 
-        return moduleSet;
+        return attributeSet;
     }
 
     /**
-     * Determines whether a module set is present in this <code>AssetSchema</code> instance.
-     * @param entry <code>TracedEntry&lt;String&gt;</code>: The module set to check for.
-     * @throws MissingModuleSetException Thrown to indicate a reference to a module group missing from this <code>AssetSchema</code> instance.
+     * Determines whether a attribute set is present in this <code>AssetSchema</code> instance.
+     * @param entry <code>TracedEntry&lt;String&gt;</code>: The attribute set to check for.
+     * @throws MissingAttributeSetException Thrown to indicate a reference to a attribute group missing from this <code>AssetSchema</code> instance.
      */
-    public void containsModuleSet(TracedEntry<String> entry) throws MissingModuleSetException {
+    public void containsAttributeSet(TracedEntry<String> entry) throws MissingAttributeSetException {
 
-        String moduleSetKey = entry.getValue();
-        if (!moduleSets.containsKey(moduleSetKey)) {
+        String attributeSetKey = entry.getValue();
+        if (!attributeSets.containsKey(attributeSetKey)) {
 
-            throw new MissingModuleSetException(entry);
+            throw new MissingAttributeSetException(entry);
         }
     }
 
     /**
-     * Retrieves a module set from this <code>AssetSchema</code> instance.
-     * @param entry <code>String</code>: The module set to retrieve.
-     * @return <code>AssetSchemaModules</code>: The retrieved module set of this <code>AssetSchema</code> instance.
+     * Retrieves a attribute set from this <code>AssetSchema</code> instance.
+     * @param entry <code>String</code>: The attribute set to retrieve.
+     * @return <code>AssetSchemaAttributes</code>: The retrieved attribute set of this <code>AssetSchema</code> instance.
      */
-    public AssetSchemaModules getModuleSet(String entry)  {
+    public AssetSchemaAttributes getAttributeSet(String entry)  {
 
-        return moduleSets.get(entry);
+        return attributeSets.get(entry);
     }
 
     /**
@@ -218,7 +218,7 @@ public abstract class AssetSchema {
                     boolean assetError = false;
 
                     // If the asset cannot be found, assert as such.
-                    if (asset != null) {
+                    if (pack.containsAsset(assetType, assetId)) {
 
                         // Attempt to validate the asset dependency.
                         asset.validate(pack);

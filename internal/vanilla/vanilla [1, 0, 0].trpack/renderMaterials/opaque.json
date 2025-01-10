@@ -2,7 +2,7 @@
     "metadata": {
         "identifier": "transcendRuins:opaque"
     },
-    "modules": {
+    "attributes": {
         "opaque" : true,
         "antiAliasing" : true,
         "backfaceCulling" : false,

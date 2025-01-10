@@ -3,9 +3,9 @@ package com.transcendruins.world.assetinstances;
 import java.util.ArrayList;
 
 import com.transcendruins.packcompiling.assetschemas.AssetSchema;
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
-import com.transcendruins.utilities.exceptions.propertyexceptions.MissingModuleSetException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.MissingAttributeSetException;
 import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
@@ -21,9 +21,9 @@ public abstract class AssetInstance {
     private final AssetSchema assetSchema;
 
     /**
-     * <code>ArrayList&lt;String&gt;</code>: The list of currently applied module sets.
+     * <code>ArrayList&lt;String&gt;</code>: The list of currently applied attribute sets.
      */
-    private final ArrayList<String> appliedModuleSets = new ArrayList<>();
+    private final ArrayList<String> appliedAttributeSets = new ArrayList<>();
 
     /**
      * Creates a new instance of the <code>AssetInstance</code> class.
@@ -32,41 +32,41 @@ public abstract class AssetInstance {
     public AssetInstance(AssetSchema schema) {
 
         this.assetSchema = schema;
-        updateModules();
+        updateAttributes();
     }
 
     /**
-     * Updates the modules of this <code>AssetInstance</code> instance.
+     * Updates the attributes of this <code>AssetInstance</code> instance.
      */
-    public final void updateModules() {
+    public final void updateAttributes() {
 
-        moduleSetApplier(assetSchema.getModuleSet());
+        attributeSetApplier(assetSchema.getAttributeSet());
 
-        for (String moduleSetKey : appliedModuleSets) {
+        for (String attributeSetKey : appliedAttributeSets) {
 
-            AssetSchemaModules moduleSet = assetSchema.getModuleSet(moduleSetKey);
-            moduleSetApplier(moduleSet);
+            AssetSchemaAttributes attributeSet = assetSchema.getAttributeSet(attributeSetKey);
+            attributeSetApplier(attributeSet);
         }
     }
 
     /**
-     * Determines whether a module set is present in the schema of this <code>AssetInstance</code> instance.
-     * @param entry <code>TracedEntry&lt;String&gt;</code>: The module set to check for.
-     * @throws MissingModuleSetException Thrown to indicate a reference to a module group missing from the schema.
+     * Determines whether a attribute set is present in the schema of this <code>AssetInstance</code> instance.
+     * @param entry <code>TracedEntry&lt;String&gt;</code>: The attribute set to check for.
+     * @throws MissingAttributeSetException Thrown to indicate a reference to a attribute group missing from the schema.
      */
-    public final void containsModuleSet(TracedEntry<String> entry) throws MissingModuleSetException {
+    public final void containsAttributeSet(TracedEntry<String> entry) throws MissingAttributeSetException {
 
-        assetSchema.containsModuleSet(entry);
+        assetSchema.containsAttributeSet(entry);
     }
 
     /**
-     * Applies a module set to this <code>AssetInstance</code> instance.
-     * This method allows a first order child of the <code>AssetInstance</code> class to safely apply its own module set before its own child attempts to apply its module set.
-     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
+     * Applies a attribute set to this <code>AssetInstance</code> instance.
+     * This method allows a first order child of the <code>AssetInstance</code> class to safely apply its own attribute set before its own child attempts to apply its attribute set.
+     * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to apply.
      */
-    protected void moduleSetApplier(AssetSchemaModules moduleSet) {
+    protected void attributeSetApplier(AssetSchemaAttributes attributeSet) {
 
-        applyModuleSet(moduleSet);
+        applyAttributeSet(attributeSet);
     }
 
     /**
@@ -81,8 +81,8 @@ public abstract class AssetInstance {
     }
 
     /**
-     * Applies a module set to this <code>AssetInstance</code> instance.
-     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
+     * Applies a attribute set to this <code>AssetInstance</code> instance.
+     * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to apply.
      */
-    protected abstract void applyModuleSet(AssetSchemaModules moduleSet);
+    protected abstract void applyAttributeSet(AssetSchemaAttributes attributeSet);
 }

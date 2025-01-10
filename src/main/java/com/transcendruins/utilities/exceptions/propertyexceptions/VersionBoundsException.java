@@ -20,8 +20,8 @@ public final class VersionBoundsException extends PropertyException {
 
     /**
      * Creates a new instance of the <code>VersionBoundsException</code> exception which represents a set of version bounds whose maximum bounds is less than its minimum bounds..
-     * @param maxVersion <code>TracedEntry&lt;Object&gt;</code>: The <code>Identifier</code> instance representing the maximum version in the version bounds.
-     * @param minVersion <code>TracedEntry&lt;Object&gt;</code>: The <code>Identifier</code> instance representing the minimum version in the version bounds.
+     * @param maxVersion <code>TracedEntry&lt;?&gt;</code>: The <code>Identifier</code> instance representing the maximum version in the version bounds.
+     * @param minVersion <code>TracedEntry&lt;?&gt;</code>: The <code>Identifier</code> instance representing the minimum version in the version bounds.
      * @return <code>VersionBoundsException</code>: The generated <code>VersionBoundsException</code> exception.
      */
     public static VersionBoundsException inverseMaxAndMinBounds(TracedEntry<Identifier> maxVersion, TracedEntry<Identifier> minVersion) {

@@ -43,7 +43,7 @@ public final class Version {
             throw new ArrayLengthException(entry);
         }
 
-        for (int i = 0; i < list.size(); i++) {
+        for (int i : list.getIndices()) {
 
             TracedEntry<Long> numEntry = list.getAsLong(i, false, null, negativeVectorValuesAllowed ? null : 0l, null);
             vector[i] = (long) numEntry.getValue();

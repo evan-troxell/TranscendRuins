@@ -3,10 +3,10 @@ package com.transcendruins.world.assetinstances.animationcontrollers;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
 import com.transcendruins.packcompiling.assetschemas.animationcontrollers.AnimationControllerSchema;
-import com.transcendruins.packcompiling.assetschemas.animationcontrollers.AnimationControllerSchemaModules;
+import com.transcendruins.packcompiling.assetschemas.animationcontrollers.AnimationControllerSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
 import com.transcendruins.rendering.Model.BoneActor;
 import com.transcendruins.utilities.metadata.Identifier;
@@ -32,19 +32,19 @@ public final class AnimationControllerInstance extends AssetInstance {
     }
 
     /**
-     * Applies a module set to this <code>AnimationControllerInstance</code> instance.
-     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
+     * Applies a attribute set to this <code>AnimationControllerInstance</code> instance.
+     * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to apply.
      */
     @Override
-    protected void applyModuleSet(AssetSchemaModules moduleSet) {
+    protected void applyAttributeSet(AssetSchemaAttributes attributeSet) {
 
-        AnimationControllerSchemaModules modules = (AnimationControllerSchemaModules) moduleSet;
+        AnimationControllerSchemaAttributes attributes = (AnimationControllerSchemaAttributes) attributeSet;
 
-        HashSet<Identifier> moduleAnimations = modules.getAnimations();
-        if (moduleAnimations != null) {
+        HashSet<Identifier> attributeAnimations = attributes.getAnimations();
+        if (attributeAnimations != null) {
 
             animations = new HashMap<>();
-            for (Identifier animationIdentifier : moduleAnimations) {
+            for (Identifier animationIdentifier : attributeAnimations) {
 
                 animations.put(animationIdentifier, (AnimationSchema) getSchema(AssetType.ANIMATION, animationIdentifier));
             }

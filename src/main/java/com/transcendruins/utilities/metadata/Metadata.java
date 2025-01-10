@@ -64,12 +64,10 @@ public final class Metadata {
         // Whether or not a version may be defined as a single version, or a range between a minimum and maximum version value.
         if (versionRangeAllowed) {
 
-            TracedEntry<Object> retrievedVersionEntry = json.get("version", false, null, JSONArray.class, JSONObject.class);
+            TracedEntry<?> retrievedVersionEntry = json.get("version", false, null, JSONArray.class, JSONObject.class);
 
             // If the version key is a regular version vector, treat it as such.
-            if (retrievedVersionEntry.getValue() instanceof TracedDictionary) {
-
-                TracedDictionary versionJson = (TracedDictionary) retrievedVersionEntry.getValue();
+            if (retrievedVersionEntry.getValue() instanceof TracedDictionary versionJson) {
 
                 TracedEntry<Identifier> minVersionEntry = json.getAsIdentifier("identifier", false, versionJson.getAsVersion("min", false, false));
                 Identifier minVersion = minVersionEntry.getValue();

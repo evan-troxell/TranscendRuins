@@ -12,9 +12,9 @@ import com.transcendruins.graphics3d.interpolation.RotationFrame;
 import com.transcendruins.graphics3d.interpolation.RotationModifier;
 import com.transcendruins.graphics3d.interpolation.ScaleFrame;
 import com.transcendruins.graphics3d.interpolation.ScaleModifier;
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
-import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaModules;
+import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaAttributes;
 import com.transcendruins.rendering.Model.BoneActor;
 import com.transcendruins.world.assetinstances.AssetInstance;
 
@@ -29,9 +29,14 @@ public final class AnimationInstance extends AssetInstance {
     private double length;
 
     /**
-     * <code>HashMap&lt;Double, HashMap&lt;String, AnimationSchemaModules.KeyFrame&gt;&gt;</code>: The key frames of this <code>AnimationInstance</code> instance.
+     * <code>boolean</code>: Whether or not this <code>AnimationInstance</code> is looping.
      */
-    private HashMap<Double, HashMap<String, AnimationSchemaModules.KeyFrame>> keyFrames;
+    private boolean looping = false;
+
+    /**
+     * <code>HashMap&lt;Double, HashMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>: The key frames of this <code>AnimationInstance</code> instance.
+     */
+    private HashMap<Double, HashMap<String, AnimationSchemaAttributes.KeyFrame>> keyFrames;
 
     /**
      * <code>HashSet&lt;String&gt;</code>: The set of all bones in this <code>AnimationInstance</code> instance.
@@ -53,20 +58,25 @@ public final class AnimationInstance extends AssetInstance {
     }
 
     /**
-     * Applies a module set to this <code>AnimationInstance</code> instance.
-     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
+     * Applies a attribute set to this <code>AnimationInstance</code> instance.
+     * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to apply.
      */
     @Override
-    protected void applyModuleSet(AssetSchemaModules moduleSet) {
+    protected void applyAttributeSet(AssetSchemaAttributes attributeSet) {
 
-        AnimationSchemaModules modules = (AnimationSchemaModules) moduleSet;
+        AnimationSchemaAttributes attributes = (AnimationSchemaAttributes) attributeSet;
 
-        if (modules.getAnimationDefinition()) {
+        if (attributes.getLooping() != null) {
 
-            length = modules.getLength();
-            keyFrames = modules.getKeyFrames();
-            bones = modules.getBones();
-            timestampsSorted = modules.getTimeStampsSorted();
+            looping = attributes.getLooping();
+        }
+
+        if (attributes.getAnimationDefinition()) {
+
+            length = attributes.getLength();
+            keyFrames = attributes.getKeyFrames();
+            bones = attributes.getBones();
+            timestampsSorted = attributes.getTimeStampsSorted();
         }
     }
 
@@ -77,6 +87,15 @@ public final class AnimationInstance extends AssetInstance {
     public double getLength() {
 
         return length;
+    }
+
+    /**
+     * Retrieves whether or not this <code>AnimationInstance</code> instance is looping.
+     * @return <code>boolean</code>: The <code>looping</code> field of this <code>AnimationInstance</code> instance.
+     */
+    public boolean getLooping() {
+
+        return looping;
     }
 
     /**
@@ -149,9 +168,9 @@ public final class AnimationInstance extends AssetInstance {
 
         for (double newTimestamp : timestamps) {
 
-            HashMap<String, AnimationSchemaModules.KeyFrame> bonesTimestampMap = keyFrames.get(newTimestamp);
+            HashMap<String, AnimationSchemaAttributes.KeyFrame> bonesTimestampMap = keyFrames.get(newTimestamp);
 
-            for (Map.Entry<String, AnimationSchemaModules.KeyFrame> boneEntry : bonesTimestampMap.entrySet()) {
+            for (Map.Entry<String, AnimationSchemaAttributes.KeyFrame> boneEntry : bonesTimestampMap.entrySet()) {
 
                 String bone = boneEntry.getKey();
 
@@ -213,9 +232,9 @@ public final class AnimationInstance extends AssetInstance {
 
         /**
          * Updates this <code>AnimationInstance.BoneKeyFrame</code> instance to a new keyframe.
-         * @param keyframe <code>AnimationSchemaModules.KeyFrame</code>: The keyframe to assign.
+         * @param keyframe <code>AnimationSchemaAttributes.KeyFrame</code>: The keyframe to assign.
          */
-        private void update(AnimationSchemaModules.KeyFrame keyframe) {
+        private void update(AnimationSchemaAttributes.KeyFrame keyframe) {
 
             if (rotation == null && keyframe.rotation != null) {
 

@@ -1,5 +1,41 @@
 {
     "metadata": {
         "identifier": "transcendRuins:example"
+    },
+    "attributes": {
+        "defaultState": "default",
+        "states": {
+            "default": {
+                "animations": [
+                    "example"
+                ],
+                "soundEffects": [],
+                "particleEffects": [],
+                "transitions": {
+                    "freaky": [
+                        {
+                            "operator": "<",
+                            "args": [
+                                "random()",
+                                1
+                            ]
+                        }
+                    ]
+                }
+            },
+            "freaky": {
+                "animations": [],
+                "soundEffects": [],
+                "particleEffects": [],
+                "transitions": {
+                    "default": [
+                        {
+                            "operator": "!",
+                            "args": "isStanding()"
+                        }
+                    ]
+                }
+            }
+        }
     }
 }

@@ -60,6 +60,15 @@ public final class TracedEntry<K> {
     }
 
     /**
+     * Returns whether or not this <code>TracedEntry</code> instance contains a value.
+     * @return <code>boolean</code>: Whether or not the <code>value</code> field of this <code>TracedEntry</code> instance is not equal to null.
+     */
+    public boolean containsValue() {
+
+        return value != null;
+    }
+
+    /**
      * Returns the string representation of this <code>TracedEntry</code> instance.
      * @return <code>String</code>: The string representation of the <code>value</code> field of this <code>TracedEntry</code> instance.
      */

@@ -22,26 +22,26 @@ public final class ElementSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base module set of this <code>ElementSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>ElementSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds the base attribute set of this <code>ElementSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>ElementSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public ElementSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public ElementSchemaAttributes buildBaseAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new ElementSchemaModules(this, jsonSchema, true);
+        return new ElementSchemaAttributes(this, jsonSchema, true);
     }
 
     /**
-     * Builds a module set of this <code>ElementSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>ElementSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds a attribute set of this <code>ElementSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>ElementSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public ElementSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public ElementSchemaAttributes buildAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new ElementSchemaModules(this, jsonSchema, false);
+        return new ElementSchemaAttributes(this, jsonSchema, false);
     }
 }

@@ -2,7 +2,7 @@
     "metadata": {
         "identifier": "transcendRuins:axes"
     },
-    "modules": {
+    "attributes": {
         "vertices": [
             [0, 0, 0],
             [10, 0, 0],

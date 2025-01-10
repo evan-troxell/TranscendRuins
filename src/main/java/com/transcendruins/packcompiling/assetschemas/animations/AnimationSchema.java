@@ -22,26 +22,26 @@ public final class AnimationSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base module set of this <code>AnimationSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>AnimationSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds the base attribute set of this <code>AnimationSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>AnimationSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public AnimationSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public AnimationSchemaAttributes buildBaseAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new AnimationSchemaModules(this, jsonSchema, true);
+        return new AnimationSchemaAttributes(this, jsonSchema, true);
     }
 
     /**
-     * Builds a module set of this <code>AnimationSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>AnimationSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds a attribute set of this <code>AnimationSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>AnimationSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public AnimationSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public AnimationSchemaAttributes buildAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new AnimationSchemaModules(this, jsonSchema, false);
+        return new AnimationSchemaAttributes(this, jsonSchema, false);
     }
 }

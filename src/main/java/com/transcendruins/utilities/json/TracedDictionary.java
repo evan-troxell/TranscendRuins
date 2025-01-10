@@ -1,6 +1,7 @@
 package com.transcendruins.utilities.json;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.simple.JSONObject;
 
@@ -18,9 +19,9 @@ public final class TracedDictionary extends TracedCollection {
 
     /**
      * Creates a new instance of the <code>TracedDictionary</code> class.
-     * @param dictionary <code>TracedEntry&lt;Object&gt;</code>: The dictionary to assign to this value.
+     * @param dictionary <code>TracedEntry&lt;?&gt;</code>: The dictionary to assign to this value.
      */
-    public TracedDictionary(TracedEntry<Object> dictionary) {
+    public TracedDictionary(TracedEntry<?> dictionary) {
 
         super(dictionary.getPathway());
         this.dictionary = (JSONObject) dictionary.getValue();
@@ -39,10 +40,10 @@ public final class TracedDictionary extends TracedCollection {
 
     /**
      * Retrieves a list containing all keys stored in this <code>TracedDictionary</code> instance.
-     * @return <code>ArrayList&lt;String&gt;</code>: All keys in this <code>TracedDictionary</code> instance.
+     * @return <code>List&lt;String&gt;</code>: All keys in this <code>TracedDictionary</code> instance.
      */
     @SuppressWarnings("unchecked")
-    public ArrayList<String> getKeys() {
+    public List<String> getKeys() {
 
         return new ArrayList<>(dictionary.keySet());
     }

@@ -1,8 +1,8 @@
 package com.transcendruins.world.assetinstances.structures;
 
-import com.transcendruins.packcompiling.assetschemas.AssetSchemaModules;
+import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.structures.StructureSchema;
-import com.transcendruins.packcompiling.assetschemas.structures.StructureSchemaModules;
+import com.transcendruins.packcompiling.assetschemas.structures.StructureSchemaAttributes;
 import com.transcendruins.world.assetinstances.AssetInstance;
 
 /**
@@ -20,12 +20,12 @@ public final class StructureInstance extends AssetInstance {
     }
 
     /**
-     * Applies a module set to this <code>StructureInstance</code> instance.
-     * @param moduleSet <code>AssetSchemaModules</code>: The module set to apply.
+     * Applies a attribute set to this <code>StructureInstance</code> instance.
+     * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to apply.
      */
     @Override
-    protected void applyModuleSet(AssetSchemaModules moduleSet) {
+    protected void applyAttributeSet(AssetSchemaAttributes attributeSet) {
 
-        StructureSchemaModules modules = (StructureSchemaModules) moduleSet;
+        StructureSchemaAttributes attributes = (StructureSchemaAttributes) attributeSet;
     }
 }

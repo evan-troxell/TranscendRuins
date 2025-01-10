@@ -22,26 +22,26 @@ public final class StructureSchema extends AssetSchema {
     }
 
     /**
-     * Builds the base module set of this <code>StructureSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>StructureSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds the base attribute set of this <code>StructureSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>StructureSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public StructureSchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public StructureSchemaAttributes buildBaseAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new StructureSchemaModules(this, jsonSchema, true);
+        return new StructureSchemaAttributes(this, jsonSchema, true);
     }
 
     /**
-     * Builds a module set of this <code>StructureSchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>StructureSchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds a attribute set of this <code>StructureSchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>StructureSchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public StructureSchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public StructureSchemaAttributes buildAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new StructureSchemaModules(this, jsonSchema, false);
+        return new StructureSchemaAttributes(this, jsonSchema, false);
     }
 }

@@ -22,26 +22,26 @@ public final class EntitySchema extends AssetSchema {
     }
 
     /**
-     * Builds the base module set of this <code>EntitySchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>EntitySchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds the base attribute set of this <code>EntitySchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>EntitySchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public EntitySchemaModules buildBaseModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public EntitySchemaAttributes buildBaseAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new EntitySchemaModules(this, jsonSchema, true);
+        return new EntitySchemaAttributes(this, jsonSchema, true);
     }
 
     /**
-     * Builds a module set of this <code>EntitySchema</code> instance.
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the module set.
-     * @return <code>EntitySchemaModules</code>: The generated module set.
-     * @throws LoggedException Thrown if any exception is raised while building the module set.
+     * Builds a attribute set of this <code>EntitySchema</code> instance.
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build the attribute set.
+     * @return <code>EntitySchemaAttributes</code>: The generated attribute set.
+     * @throws LoggedException Thrown if any exception is raised while building the attribute set.
      */
     @Override
-    public EntitySchemaModules buildModuleSet(TracedDictionary jsonSchema) throws LoggedException {
+    public EntitySchemaAttributes buildAttributeSet(TracedDictionary jsonSchema) throws LoggedException {
 
-        return new EntitySchemaModules(this, jsonSchema, false);
+        return new EntitySchemaAttributes(this, jsonSchema, false);
     }
 }
