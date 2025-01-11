@@ -1,7 +1,6 @@
 package com.transcendruins.utilities.json;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,9 +31,9 @@ public final class JSONOperator {
     public static JSONObject parseJSON(String jsonString) throws ParseException {
 
         Object val = new JSONParser().parse(jsonString);
-        if (val instanceof JSONObject jSONObject) {
+        if (val instanceof JSONObject jsonObject) {
 
-            return jSONObject;
+            return jsonObject;
         }
         throw new ParseException(ParseException.ERROR_UNEXPECTED_EXCEPTION);
     }
@@ -128,33 +127,24 @@ public final class JSONOperator {
 
             Object value = map.get(key);
 
-            if (value instanceof Map<?, ?> map1) {
-
-                // Safely convert the new value to a perameterized map.
-                HashMap<String, Object> valueMap = new HashMap<>();
-                for (Map.Entry<?, ?> entry : map1.entrySet()) {
-
-                    valueMap.put((String) entry.getKey(), entry.getValue());
+            recursionMap.put(key, switch (value) {
+                case Map<?, ?> map1 -> {
+                    
+                    // Safely convert the new value to a perameterized map.
+                    HashMap<String, Object> valueMap = new HashMap<>();
+                    for (Map.Entry<?, ?> entry : map1.entrySet()) {
+                        
+                        valueMap.put((String) entry.getKey(), entry.getValue());
+                    }
+                    
+                    yield toJSONObject(valueMap);
                 }
+                case Collection<?> valueList -> toJSONArray(valueList);
+                
+                case Object[] valueList -> toJSONArray(Arrays.asList(valueList));
 
-                recursionMap.put(key, toJSONObject(valueMap));
-            } else if (value instanceof Collection) {
-
-                // Safely convert the new value to a perameterized map.
-                ArrayList<Object> valueList = new ArrayList<>();
-                for (Object entry : (Collection<?>) value) {
-
-                    valueList.add(entry);
-                }
-
-                recursionMap.put(key, toJSONArray(valueList));
-            } else if (value instanceof Object[] objects) {
-
-                recursionMap.put(key, toJSONArray(Arrays.asList(objects)));
-            } else {
-
-                recursionMap.put(key, value);
-            }
+                default -> value;
+            });
         }
 
         return new JSONObject(recursionMap);
@@ -172,33 +162,24 @@ public final class JSONOperator {
 
         for (Object value : list) {
 
-            if (value instanceof Map<?, ?> map) {
-
-                // Safely convert the new value to a perameterized map.
-                HashMap<String, Object> valueMap = new HashMap<>();
-                for (Map.Entry<?, ?> entry : map.entrySet()) {
-
-                    valueMap.put((String) entry.getKey(), entry.getValue());
+            recursionList.add(switch (value) {
+                case Map<?, ?> map -> {
+                    
+                    // Safely convert the new value to a perameterized map.
+                    HashMap<String, Object> valueMap = new HashMap<>();
+                    for (Map.Entry<?, ?> entry : map.entrySet()) {
+                        
+                        valueMap.put((String) entry.getKey(), entry.getValue());
+                    }
+                    
+                    yield toJSONObject(valueMap);
                 }
+                case Collection<?> valueList -> toJSONArray(valueList);
 
-                recursionList.add(toJSONObject(valueMap));
-            } else if (value instanceof Collection) {
+                case Object[] objects -> toJSONArray(Arrays.asList(objects));
 
-                // Safely convert the new value to a perameterized map.
-                ArrayList<Object> valueList = new ArrayList<>();
-                for (Object entry : (Collection<?>) value) {
-
-                    valueList.add(entry);
-                }
-
-                recursionList.add(toJSONArray(valueList));
-            } else if (value instanceof Object[] objects) {
-
-                recursionList.add(toJSONArray(Arrays.asList(objects)));
-            } else {
-
-                recursionList.add(value);
-            }
+                default -> value;
+            });
         }
         return recursionList;
     }

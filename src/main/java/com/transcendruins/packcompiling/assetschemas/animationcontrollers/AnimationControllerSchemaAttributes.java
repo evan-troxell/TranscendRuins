@@ -7,10 +7,12 @@ import java.util.Map;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
 import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.IdentifierFormatException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.InvalidKeyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
@@ -128,7 +130,7 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
          * @param json <code>TracedDictionary</code>: The JSON used to compile this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
          * @throws LoggedException Thrown if an exception is raised while processing this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
          */
-        private AnimationStateSchema(TracedDictionary json) throws MissingPropertyException, PropertyTypeException, IdentifierFormatException {
+        private AnimationStateSchema(TracedDictionary json) throws MissingPropertyException, PropertyTypeException, IdentifierFormatException, ArrayLengthException, UnexpectedValueException {
 
             TracedEntry<TracedArray> animationsEntry = json.getAsArray("animations", true);
 

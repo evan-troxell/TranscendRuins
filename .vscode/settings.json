@@ -5,9 +5,8 @@
   "java.checkstyle.version": "10.21.1",
 
   "editor.formatOnSave": true,
-  "java.format.enabled": true,
-  "java.completion.organizeImports": true,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": "always"
-  }
+  "java.format.enabled": true
+  /*"editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  }*/
 }
