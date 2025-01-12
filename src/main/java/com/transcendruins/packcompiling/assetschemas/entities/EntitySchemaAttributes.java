@@ -19,5 +19,12 @@ public final class EntitySchemaAttributes extends ModelAssetSchemaAttributes {
     public EntitySchemaAttributes(EntitySchema schema, TracedDictionary schemaJson, boolean isBase) throws LoggedException {
 
         super(schema, schemaJson, isBase);
+
+        finalizeData();
+    }
+
+    @Override
+    public void finalizeData() {
+        
     }
 }

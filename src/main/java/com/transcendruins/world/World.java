@@ -45,11 +45,17 @@ public final class World {
     private final EnvironmentState environment;
 
     /**
+     * <code>long</code>: The time of creation of this <code>World</code> instance.
+     */
+    private final long timeOfCreation;
+
+    /**
      * Creates a new instance of the <code>World</code> class.
      * @param packs <code>ArrayList&lt;Pack&gt;</code>: The packs used to create this <code>World</code> instance.
      */
     private World(ArrayList<Pack> packs) {
 
+        timeOfCreation = System.currentTimeMillis();
         environment = new EnvironmentState(packs);
     }
 
@@ -71,6 +77,24 @@ public final class World {
     public EnvironmentState getEnvironment() {
 
         return environment;
+    }
+
+    /**
+     * Retrieve the current time in millis since the time of creation of this <code>World</code> instance.
+     * @return <code>long</code>: The <code>timeOfCreation</code> field subtracted from the current time in milliseconds.
+     */
+    public long getRuntimeMillis() {
+
+        return System.currentTimeMillis() - timeOfCreation;
+    }
+
+    /**
+     * Retrieve the current time in seconds since the time of creation of this <code>World</code> instance.
+     * @return <code>long</code>: The current runtime milliseconds divided by 1000.0.
+     */
+    public double getRuntimeSeconds() {
+
+        return getRuntimeMillis() / 1000.0;
     }
 
     /**

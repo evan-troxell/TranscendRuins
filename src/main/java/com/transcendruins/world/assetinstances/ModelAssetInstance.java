@@ -52,14 +52,15 @@ public abstract class ModelAssetInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>ModelAssetInstance</code> class.
      * @param schema <code>AssetSchema</code>: The schema used to generate this <code>ModelAssetInstance</code> instance.
+     * @param world <code>World</code>: The world copy to assign to this <code>ModelAssetInstance</code> instance.
      * @param tileX <code>long</code>: The X coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
      * @param tileZ <code>long</code>: The Z coordinate of the tile to assign to this <code>ModelAssetInstance</code> instance.
      * @param cardinalDirection <code>int</code>: The cardinal direction to assign to this <code>ModelAssetInstance</code> instance, represented by the cardinal direction enums of the <code>World</code> class.
      * @param tileOffset <code>Vector</code>: The tile offset to assign to this <code>ModelAssetInstance</code> instance.
      */
-    public ModelAssetInstance(AssetSchema schema, long tileX, long tileZ, int cardinalDirection, Vector tileOffset) {
+    public ModelAssetInstance(AssetSchema schema, World world, long tileX, long tileZ, int cardinalDirection, Vector tileOffset) {
 
-        super(schema);
+        super(schema, world);
         setOffset(tileX, tileZ, cardinalDirection, tileOffset);
     }
 
@@ -128,17 +129,17 @@ public abstract class ModelAssetInstance extends AssetInstance {
 
         if (attributes.getModelIdentifier() != null) {
 
-            model = new ModelInstance((ModelSchema) getSchema(AssetType.MODEL, attributes.getModelIdentifier()));
+            model = new ModelInstance((ModelSchema) getSchema(AssetType.MODEL, attributes.getModelIdentifier()), getWorld());
         }
 
         if (attributes.getRenderMaterialIdentifier() != null) {
 
-            renderMaterial = new RenderMaterialInstance((RenderMaterialSchema) getSchema(AssetType.RENDER_MATERIAL, attributes.getRenderMaterialIdentifier()));
+            renderMaterial = new RenderMaterialInstance((RenderMaterialSchema) getSchema(AssetType.RENDER_MATERIAL, attributes.getRenderMaterialIdentifier()), getWorld());
         }
 
         if (attributes.getAnimationControllerIdentifier() != null) {
 
-            animationController = new AnimationControllerInstance((AnimationControllerSchema) getSchema(AssetType.ANIMATION_CONTROLLER, attributes.getAnimationControllerIdentifier()));
+            animationController = new AnimationControllerInstance((AnimationControllerSchema) getSchema(AssetType.ANIMATION_CONTROLLER, attributes.getAnimationControllerIdentifier()), getWorld());
         }
 
         if (attributes.getRotationOffset() != null) {

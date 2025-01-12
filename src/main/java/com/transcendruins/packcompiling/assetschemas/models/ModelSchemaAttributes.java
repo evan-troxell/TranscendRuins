@@ -25,8 +25,10 @@ public final class ModelSchemaAttributes extends AssetSchemaAttributes {
     public ModelSchemaAttributes(ModelSchema schema, TracedDictionary schemaJson, boolean isBase) throws LoggedException {
 
         super(schema, schemaJson, isBase);
-
+        
         model = new Model(schemaJson);
+
+        finalizeData();
     }
 
     /**
@@ -36,5 +38,10 @@ public final class ModelSchemaAttributes extends AssetSchemaAttributes {
     public Model getModel() {
 
         return model;
+    }
+
+    @Override
+    public void finalizeData() {
+        
     }
 }

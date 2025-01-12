@@ -9,8 +9,13 @@ import com.transcendruins.packcompiling.assetschemas.animationcontrollers.Animat
 import com.transcendruins.packcompiling.assetschemas.animationcontrollers.AnimationControllerSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
 import com.transcendruins.rendering.Model.BoneActor;
+import com.transcendruins.utilities.finalize.FinalizedList;
+import com.transcendruins.utilities.finalize.FinalizedMap;
 import com.transcendruins.utilities.metadata.Identifier;
+import com.transcendruins.utilities.scripts.TRScript;
+import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.AssetInstance;
+import com.transcendruins.world.assetinstances.animations.AnimationInstance;
 
 /**
  * <code>AnimationControllerInstance</code>: A class representing a generated animation controller instance.
@@ -18,17 +23,18 @@ import com.transcendruins.world.assetinstances.AssetInstance;
 public final class AnimationControllerInstance extends AssetInstance {
 
     /**
-     * <code>HashMap&lt;Identifier, AnimationSchema&gt;</code>: All animations of this <code>AnimationControllerInstance</code> instance.
+     * <code>FinalizedMap&lt;Identifier, AnimationSchema&gt;</code>: All animations of this <code>AnimationControllerInstance</code> instance.
      */
-    private HashMap<Identifier, AnimationSchema> animations;
+    private FinalizedMap<Identifier, AnimationSchema> animations;
 
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
      * @param schema <code>AnimationControllerSchema</code>: The schema used to generate this <code>AnimationControllerInstance</code> instance.
+     * @param world <code>World</code>: The world copy to assign to this <code>AnimationControllerInstance</code> instance.
      */
-    public AnimationControllerInstance(AnimationControllerSchema schema) {
+    public AnimationControllerInstance(AnimationControllerSchema schema, World world) {
 
-        super(schema);
+        super(schema, world);
     }
 
     /**
@@ -43,10 +49,30 @@ public final class AnimationControllerInstance extends AssetInstance {
         HashSet<Identifier> attributeAnimations = attributes.getAnimations();
         if (attributeAnimations != null) {
 
-            animations = new HashMap<>();
+            animations = new FinalizedMap<>();
+
             for (Identifier animationIdentifier : attributeAnimations) {
 
                 animations.put(animationIdentifier, (AnimationSchema) getSchema(AssetType.ANIMATION, animationIdentifier));
+            }
+
+            animations.finalizeData();
+        }
+    }
+
+    public final class AnimationStateInstance {
+
+        private final double timeOfCreation = getWorld().getRuntimeSeconds();
+
+        private final FinalizedList<AnimationInstance> stateAnimations = new FinalizedList<>();
+
+        private final FinalizedMap<String, FinalizedList<TRScript>> stateTransitions = new FinalizedMap<>();
+
+        private AnimationStateInstance(AnimationControllerSchemaAttributes.AnimationStateSchema schema) {
+
+            for (Identifier animationIdentifier : schema.getStateAnimations()) {
+
+                stateAnimations.add(new AnimationInstance(animations.get(animationIdentifier), getWorld()));
             }
         }
     }

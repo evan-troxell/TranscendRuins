@@ -46,4 +46,9 @@ public abstract class AssetSchemaAttributes {
 
         schema.addElementDependency(type, dependency);
     }
+
+    /**
+     * Finalizes the data of this <code>AssetSchemaAttributes</code> instance.
+     */
+    protected abstract void finalizeData();
 }

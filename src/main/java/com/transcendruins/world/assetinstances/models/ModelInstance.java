@@ -4,6 +4,7 @@ import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.models.ModelSchema;
 import com.transcendruins.packcompiling.assetschemas.models.ModelSchemaAttributes;
 import com.transcendruins.rendering.Model;
+import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.AssetInstance;
 
 /**
@@ -19,10 +20,11 @@ public final class ModelInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>ModelInstance</code> class.
      * @param schema <code>ModelSchema</code>: The schema used to generate this <code>ModelInstance</code> instance.
+     * @param world <code>World</code>: The world copy to assign to this <code>ModelInstance</code> instance.
      */
-    public ModelInstance(ModelSchema schema) {
+    public ModelInstance(ModelSchema schema, World world) {
 
-        super(schema);
+        super(schema, world);
     }
 
     /**

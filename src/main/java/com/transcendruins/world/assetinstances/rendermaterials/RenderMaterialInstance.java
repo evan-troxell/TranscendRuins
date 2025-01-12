@@ -3,6 +3,7 @@ package com.transcendruins.world.assetinstances.rendermaterials;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.rendermaterials.RenderMaterialSchema;
 import com.transcendruins.packcompiling.assetschemas.rendermaterials.RenderMaterialSchemaAttributes;
+import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.AssetInstance;
 
 /**
@@ -43,10 +44,11 @@ public final class RenderMaterialInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>RenderMaterialInstance</code> class.
      * @param schema <code>RenderMaterialSchema</code>: The schema used to generate this <code>RenderMaterialInstance</code> instance.
+     * @param world <code>World</code>: The world copy to assign to this <code>RenderMaterialInstance</code> instance.
      */
-    public RenderMaterialInstance(RenderMaterialSchema schema) {
+    public RenderMaterialInstance(RenderMaterialSchema schema, World world) {
 
-        super(schema);
+        super(schema, world);
     }
 
     /**

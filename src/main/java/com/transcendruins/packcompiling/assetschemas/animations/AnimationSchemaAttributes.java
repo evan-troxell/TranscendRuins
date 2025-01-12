@@ -1,9 +1,6 @@
 package com.transcendruins.packcompiling.assetschemas.animations;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 import com.transcendruins.graphics3d.interpolation.PositionFrame;
 import com.transcendruins.graphics3d.interpolation.RotationFrame;
@@ -12,6 +9,9 @@ import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.utilities.Sorter;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.InvalidKeyException;
+import com.transcendruins.utilities.finalize.FinalizedList;
+import com.transcendruins.utilities.finalize.FinalizedMap;
+import com.transcendruins.utilities.finalize.FinalizedSet;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -48,19 +48,19 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
     private final Boolean looping;
 
     /**
-     * <code>HashMap&lt;Double, HashMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>: The key frame time stamps of this <code>AnimationSchemaAttributes</code> instance paired with the key frames of the bone actors.
+     * <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>: The key frame time stamps of this <code>AnimationSchemaAttributes</code> instance paired with the key frames of the bone actors.
      */
-    private final HashMap<Double, HashMap<String, KeyFrame>> keyFrames = new HashMap<>();
+    private final FinalizedMap<Double, FinalizedMap<String, KeyFrame>> keyframes;
 
     /**
-     * <code>ArrayList&lt;Double&gt;</code>: The sorted list of timestamps of this <code>AnimationSchemaAttributes</code> instance.
+     * <code>FinalizedList&lt;Double&gt;</code>: The sorted list of timestamps of this <code>AnimationSchemaAttributes</code> instance.
      */
-    private final ArrayList<Double> timestampsSorted;
+    private final FinalizedList<Double> timestampsSorted;
 
     /**
-     * <code>HashSet&lt;String&gt</code>: The set of all bones of this <code>AnimationSchemaAttributes</code> instance.
+     * <code>FinalizedSet&lt;String&gt</code>: The set of all bones of this <code>AnimationSchemaAttributes</code> instance.
      */
-    private final HashSet<String> bones;
+    private final FinalizedSet<String> bones;
 
     /**
      * <code>boolean</code>: Whether or not this <code>AnimationSchemaAttributes</code> defines a new animation or only properties of the animation.
@@ -85,9 +85,10 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
         TracedEntry<TracedDictionary> keyframesEntry = schemaJson.getAsDictionary("keyframes", !isBase);
         animationDefinition = keyframesEntry.containsValue();
 
-        bones = new HashSet<>();
-
         if (animationDefinition) {
+
+            keyframes = new FinalizedMap<>();
+            bones = new FinalizedSet<>();
 
             TracedDictionary keyframesJson = keyframesEntry.getValue();
 
@@ -109,7 +110,7 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
                 Double keyframeTimestamp = Double.valueOf(keyframe);
 
                 // If the timestamp of the keyframe is outside of the animation length, raise an exception.
-                if (keyframeTimestamp < 0 || keyframeTimestamp > length || keyFrames.containsKey(keyframeTimestamp)) {
+                if (keyframeTimestamp < 0 || keyframeTimestamp > length || keyframes.containsKey(keyframeTimestamp)) {
 
                     throw new InvalidKeyException(keyframesEntry, keyframe);
                 }
@@ -120,7 +121,7 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
                 // Retrieve the map of bones to their key frames from the key frame.
                 TracedEntry<TracedDictionary> keyframeBoneMapEntry = keyframesJson.getAsDictionary(keyframe, false);
                 TracedDictionary keyframeBoneMapJson = keyframeBoneMapEntry.getValue();
-                HashMap<String, KeyFrame> boneMap = new HashMap<>();
+                FinalizedMap<String, KeyFrame> boneMap = new FinalizedMap<>();
 
                 bones.addAll(keyframeBoneMapJson.getKeys());
 
@@ -132,16 +133,20 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
                     boneMap.put(bone, new KeyFrame(keyframeJson, keyframeTimestamp));
                 }
 
-                keyFrames.put(keyframeTimestamp, boneMap);
+                keyframes.put(keyframeTimestamp, boneMap);
             }
 
             // Sort the list of timestamps and apply it to this attribute set.
-            timestampsSorted = TIMESTAMP_SORTER.sort(timestampsList);
+            timestampsSorted = new FinalizedList<>(TIMESTAMP_SORTER.sort(timestampsList));
         } else {
 
             length = null;
+            keyframes = null;
+            bones = null;
             timestampsSorted = null;
         }
+
+        finalizeData();
     }
 
     /**
@@ -164,35 +169,29 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
 
     /**
      * Retrieves the keyframes of this <code>AnimationSchemaAttributes</code> instance.
-     * @return <code>HashMpa&ltDouble, HashMap&lt;String, KeyFrame&gt;&gt;</code>: A copy of the <code>keyFrames</code> field of this <code>AnimationSchemaAttributes</code> instance.
+     * @return <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, KeyFrame&gt;&gt;</code>: The <code>keyframes</code> field of this <code>AnimationSchemaAttributes</code> instance.
      */
-    public HashMap<Double, HashMap<String, KeyFrame>> getKeyFrames() {
+    public FinalizedMap<Double, FinalizedMap<String, KeyFrame>> getKeyFrames() {
 
-        HashMap<Double, HashMap<String, KeyFrame>> keyFramesCopy = new HashMap<>();
-
-        for (Map.Entry<Double, HashMap<String, KeyFrame>> keyFrameEntry : keyFrames.entrySet()) {
-
-            keyFramesCopy.put(keyFrameEntry.getKey(), new HashMap<>(keyFrameEntry.getValue()));
-        }
-        return keyFramesCopy;
+        return keyframes;
     }
 
     /**
      * Retrieves the sorted timestamps of this <code>AnimationSchemaAttributes</code> instance.
-     * @return <code>ArrayList&ltDouble&gt;</code>: A copy of the <code>timestampsSorted</code> field of this <code>AnimationSchemaAttributes</code> instance.
+     * @return <code>FinalizedList&ltDouble&gt;</code>: The <code>timestampsSorted</code> field of this <code>AnimationSchemaAttributes</code> instance.
      */
-    public ArrayList<Double> getTimeStampsSorted() {
+    public FinalizedList<Double> getTimeStampsSorted() {
 
-       return new ArrayList<>(timestampsSorted);
+       return timestampsSorted;
     }
 
     /**
      * Retrieves the bones of this <code>AnimationSchemaAttributes</code> instance.
-     * @return <code>HashSet&lt;String&gt;</code>: A copy of the <code>bones</code> field of this <code>AnimationSchemaAttributes</code> instance.
+     * @return <code>FinalizedSet&lt;String&gt;</code>: The <code>bones</code> field of this <code>AnimationSchemaAttributes</code> instance.
      */
-    public HashSet<String> getBones() {
+    public FinalizedSet<String> getBones() {
 
-        return new HashSet<>(bones);
+        return bones;
      }
 
     /**
@@ -243,6 +242,25 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
             TracedEntry<TracedDictionary> scaleEntry = keyframeJson.getAsDictionary("scale", true);
             TracedDictionary scaleJson = scaleEntry.getValue();
             scale = scaleEntry.containsValue() ? new ScaleFrame(scaleJson, timestamp) : null;
+        }
+    }
+
+    @Override
+    protected void finalizeData() {
+
+        if (keyframes != null) {
+            
+            keyframes.finalizeData();
+        }
+
+        if (timestampsSorted != null) {
+            
+            timestampsSorted.finalizeData();
+        }
+
+        if (bones != null) {
+            
+            bones.finalizeData();
         }
     }
 }

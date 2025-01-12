@@ -1,6 +1,5 @@
 package com.transcendruins.packcompiling.assetschemas.animationcontrollers;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -13,6 +12,8 @@ import com.transcendruins.utilities.exceptions.propertyexceptions.InvalidKeyExce
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.UnexpectedValueException;
+import com.transcendruins.utilities.finalize.FinalizedMap;
+import com.transcendruins.utilities.finalize.FinalizedSet;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
@@ -25,14 +26,14 @@ import com.transcendruins.utilities.scripts.TRScript;
 public final class AnimationControllerSchemaAttributes extends AssetSchemaAttributes {
 
     /**
-     * <code>HashSet&lt;Identifier&gt;</code>: The set of all animations of this <code>AnimationControllerSchemaAttributes</code> instance.
+     * <code>FinalizedSet&lt;Identifier&gt;</code>: The set of all animations of this <code>AnimationControllerSchemaAttributes</code> instance.
      */
-    private final HashSet<Identifier> animations;
+    private final FinalizedSet<Identifier> animations;
 
     /**
-     * <code>HashMap&lt;String, AnimationStateSchema&gt;</code>: The map of all animation states of this <code>AnimationControllerSchemaAttributes</code> instance.
+     * <code>FinalizedMap&lt;String, AnimationStateSchema&gt;</code>: The map of all animation states of this <code>AnimationControllerSchemaAttributes</code> instance.
      */
-    private final HashMap<String, AnimationStateSchema> states;
+    private final FinalizedMap<String, AnimationStateSchema> states;
 
     /**
      * <code>String</code>: The default state of this <code>AnimationControllerSchemaAttributes</code> instance.
@@ -54,8 +55,8 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
 
         if (statesEntry.containsValue()) {
 
-            animations = new HashSet<>();
-            states = new HashMap<>();
+            animations = new FinalizedSet<>();
+            states = new FinalizedMap<>();
 
             TracedDictionary statesJson = statesEntry.getValue();
 
@@ -94,6 +95,8 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
             animations = null;
             states = null;
         }
+
+        finalizeData();
     }
 
     /**
@@ -116,14 +119,14 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
         private final TracedEntry<TracedDictionary> transitionsEntry;
 
         /**
-         * <code>HashSet&lt;Identifier&gt;</code>: The animations of this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
+         * <code>FinalizedSet&lt;Identifier&gt;</code>: The animations of this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
          */
-        private final HashSet<Identifier> stateAnimations = new HashSet<>();
+        private final FinalizedSet<Identifier> stateAnimations = new FinalizedSet<>();
 
         /**
-         * <code>HashMap&lt;String, HashSet&lt;TRScript&gt;&gt;</code>: The transitions of this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
+         * <code>FinalizedMap&lt;String, FinalizedSet&lt;TRScript&gt;&gt;</code>: The transitions of this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
          */
-        private final HashMap<String, HashSet<TRScript>> stateTransitions = new HashMap<>();
+        private final FinalizedMap<String, FinalizedSet<TRScript>> stateTransitions = new FinalizedMap<>();
 
         /**
          * Creates a new instance of the <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> class.
@@ -156,7 +159,7 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
 
                 for (String stateName : transitionsJson.getKeys()) {
 
-                    HashSet<TRScript> transitions = new HashSet<>();
+                    FinalizedSet<TRScript> transitions = new FinalizedSet<>();
 
                     TracedEntry<TracedArray> stateTransitionsEntry = transitionsJson.getAsArray(stateName, false);
                     TracedArray stateTransitionsJson = stateTransitionsEntry.getValue();
@@ -175,11 +178,40 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
 
         /**
          * Retrieves the animations of this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
-         * @return <code>HashSet&lt;Identifier&gt;</code>: A copy of the <code>stateAnimations</code> field of this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
+         * @return <code>FinalizedSet&lt;Identifier&gt;</code>: The <code>stateAnimations</code> field of this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
          */
-        public HashSet<Identifier> getStateAnimations() {
+        public FinalizedSet<Identifier> getStateAnimations() {
 
-            return new HashSet<>(stateAnimations);
-        } 
+            return stateAnimations;
+        }
+
+        /**
+         * Retrieves the state transitions of this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
+         * @return <code>FinalizedMap&lt;String, FinalizedSet&lt;TRScript&gt;&gt;</code>: The <code>stateTransitions</code> field of this <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code> instance.
+         */
+        public FinalizedMap<String, FinalizedSet<TRScript>> getStateTransitions() {
+
+            return stateTransitions;
+        }
+    }
+
+    @Override
+    protected void finalizeData() {
+
+        if (animations != null) {
+            
+            animations.finalizeData();
+        }
+
+        if (states != null) {
+            
+            states.finalizeData();
+
+            for (AnimationStateSchema state : states.values()) {
+
+                state.stateAnimations.finalizeData();
+                state.stateTransitions.finalizeData();
+            }
+        }
     }
 }

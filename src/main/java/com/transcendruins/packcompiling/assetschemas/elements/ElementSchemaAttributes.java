@@ -28,6 +28,8 @@ public final class ElementSchemaAttributes extends ModelAssetSchemaAttributes {
 
         TracedEntry<Boolean> gridRotationSnapEntry = schemaJson.getAsBoolean("gridRotationSnap", true, isBase ? true : null);
         gridRotationSnap = gridRotationSnapEntry.getValue();
+
+        finalizeData();
     }
 
     /**
@@ -37,5 +39,10 @@ public final class ElementSchemaAttributes extends ModelAssetSchemaAttributes {
     public Boolean getGridRotationSnap() {
 
         return gridRotationSnap;
+    }
+
+    @Override
+    public void finalizeData() {
+        
     }
 }

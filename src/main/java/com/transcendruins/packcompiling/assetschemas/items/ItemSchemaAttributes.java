@@ -19,5 +19,12 @@ public final class ItemSchemaAttributes extends AssetSchemaAttributes {
     public ItemSchemaAttributes(ItemSchema schema, TracedDictionary schemaJson, boolean isBase) throws LoggedException {
 
         super(schema, schemaJson, isBase);
+
+        finalizeData();
+    }
+
+    @Override
+    public void finalizeData() {
+        
     }
 }

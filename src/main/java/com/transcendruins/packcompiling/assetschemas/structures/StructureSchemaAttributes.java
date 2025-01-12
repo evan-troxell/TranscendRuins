@@ -7,7 +7,7 @@ import com.transcendruins.utilities.json.TracedDictionary;
 /**
 * <code>StructureSchemaAttributes</code>: A class which represents the attributes of a <code>StructureSchema</code> instance.
 */
-public class StructureSchemaAttributes extends AssetSchemaAttributes {
+public final class StructureSchemaAttributes extends AssetSchemaAttributes {
 
     /**
      * Compiles this <code>StructureSchemaAttributes</code> instance into a completed instance.
@@ -19,5 +19,12 @@ public class StructureSchemaAttributes extends AssetSchemaAttributes {
     public StructureSchemaAttributes(StructureSchema schema, TracedDictionary schemaJson, boolean isBase) throws LoggedException {
 
         super(schema, schemaJson, isBase);
+
+        finalizeData();
+    }
+
+    @Override
+    public void finalizeData() {
+        
     }
 }

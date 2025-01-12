@@ -175,7 +175,7 @@ public final class PackProcessor {
         packsUnvalidated.remove(packIdentifier);
 
         // Validate all dependencies.
-        for (TracedEntry<Metadata> dependencyMetadataEntry : pack.dependencies.values()) {
+        for (TracedEntry<Metadata> dependencyMetadataEntry : pack.getDependencies().values()) {
 
             Metadata dependencyMetadata = dependencyMetadataEntry.getValue();
             Identifier dependencyIdentifier = dependencyMetadata.getIdentifier();
@@ -220,7 +220,7 @@ public final class PackProcessor {
             // If the dependency has not been validated, throw an exception indicating such.
             if (!validated) {
 
-                throw new MissingDependencyException(pack.dependenciesEntry, dependencyMetadataEntry);
+                throw new MissingDependencyException(pack.getDependenciesEntry(), dependencyMetadataEntry);
             }
 
             // Adds the validated dependencies to the dependencies map.
@@ -244,7 +244,7 @@ public final class PackProcessor {
             // A pack should never have itself or another version of itself as a dependency of itself. If the pack contains its own identifier as a key in its 'mappedDependencies' field, throw an exception stating as such.
             if (pack.mappedDependencies.containsKey(packIdentifierString)) {
 
-                throw InvalidDependencyException.overlapsPackIdentifier(pack.dependenciesEntry, pack.mappedDependencies.get(packIdentifierString).keySet().iterator().next());
+                throw InvalidDependencyException.overlapsPackIdentifier(pack.getDependenciesEntry(), pack.mappedDependencies.get(packIdentifierString).keySet().iterator().next());
             }
         }
 
@@ -305,7 +305,7 @@ public final class PackProcessor {
 
             // Retrieve the first pack of the initial dependency to compare later packs to.
             Pack modelPack = getValidatedPack(condensedPackList.iterator().next());
-            Collection<TracedEntry<Metadata>> modelPackDependencies = modelPack.dependencies.values();
+            Collection<TracedEntry<Metadata>> modelPackDependencies = modelPack.getDependencies().values();
             checkSubDependencies(pack, modelPackDependencies, initMetadata, condensedPackList);
 
             // Increase the total dependency count of the pack by the number of dependencies of the model pack + 1.
@@ -324,7 +324,7 @@ public final class PackProcessor {
 
                 if (condensedPackList.isEmpty()) {
 
-                    throw InvalidDependencyException.incompatibleDependencyVersions(pack.dependenciesEntry, dependencyMetadata, initMetadata);
+                    throw InvalidDependencyException.incompatibleDependencyVersions(pack.getDependenciesEntry(), dependencyMetadata, initMetadata);
                 }
             }
 
@@ -347,13 +347,13 @@ public final class PackProcessor {
 
         // The dependencies of the pack being processed, which is in turn a dependency of the original pack being processed.
         Pack modelDependencyCheck = getValidatedPack(entryList.iterator().next());
-        Collection<TracedEntry<Metadata>> modelDependencyCheckDependencies = modelDependencyCheck.dependencies.values();
+        Collection<TracedEntry<Metadata>> modelDependencyCheckDependencies = modelDependencyCheck.getDependencies().values();
 
         // Retrieves all packs in the 'newDependencies' variables. Checks each pack to ensure they all have identical (save for versions) dependencies.
         for (Identifier dependencyCheckId : entryList) {
 
             Pack dependencyCheck = getValidatedPack(dependencyCheckId);
-            Collection<TracedEntry<Metadata>> dependencyCheckDependencies = dependencyCheck.dependencies.values();
+            Collection<TracedEntry<Metadata>> dependencyCheckDependencies = dependencyCheck.getDependencies().values();
             Collection<TracedEntry<Metadata>> checkModelDependencies = new ArrayList<>(modelPackDependencies);
 
             // Check to ensure there are no unexpected dependencies in the pack.
@@ -365,14 +365,14 @@ public final class PackProcessor {
                 HashSet<TracedEntry<Metadata>> modelDependencyChecks = dependencyCheckDependencyMetadata.retrieveOverslaps(modelDependencyCheckDependencies, true);
                 if (modelDependencyChecks.size() != 1) {
 
-                    throw InvalidDependencyException.divergingDependencies(pack.dependenciesEntry, entry);
+                    throw InvalidDependencyException.divergingDependencies(pack.getDependenciesEntry(), entry);
                 }
 
                 // Checks the dependency against the expected packs from other dependencies.
                 HashSet<TracedEntry<Metadata>> modelChecks = dependencyCheckDependencyMetadata.retrieveOverslaps(checkModelDependencies, true);
                 if (modelChecks.size() != 1) {
 
-                    throw InvalidDependencyException.divergingDependencies(pack.dependenciesEntry, entry, dependencyCheckDependency);
+                    throw InvalidDependencyException.divergingDependencies(pack.getDependenciesEntry(), entry, dependencyCheckDependency);
                 }
                 checkModelDependencies.removeAll(modelChecks);
             }
@@ -380,7 +380,7 @@ public final class PackProcessor {
             // Check to ensure there are no missing dependencies in the pack.
             if (!checkModelDependencies.isEmpty()) {
 
-                throw InvalidDependencyException.missingDependencies(pack.dependenciesEntry, entry, checkModelDependencies);
+                throw InvalidDependencyException.missingDependencies(pack.getDependenciesEntry(), entry, checkModelDependencies);
             }
         }
     }

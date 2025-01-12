@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.transcendruins.packcompiling.assetschemas.AssetSchema;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
+import com.transcendruins.utilities.finalize.FinalizedMap;
 import com.transcendruins.utilities.metadata.Identifier;
 
 /**
@@ -34,10 +35,10 @@ public final class PackCompiler {
             for (Identifier acceptedDependency : dependency) {
 
                 Pack retrievedPack = Pack.PACKS.get(acceptedDependency);
-                HashMap<AssetType, HashMap<Identifier, AssetSchema>> retrievedAssetMap = retrievedPack.getAssetMap();
+                FinalizedMap<AssetType, FinalizedMap<Identifier, AssetSchema>> retrievedAssetMap = retrievedPack.getAssetMap();
 
                 // Iterate through all asset types.
-                for (Map.Entry<AssetType, HashMap<Identifier, AssetSchema>> packAsset : retrievedAssetMap.entrySet()) {
+                for (Map.Entry<AssetType, FinalizedMap<Identifier, AssetSchema>> packAsset : retrievedAssetMap.entrySet()) {
 
                     // If the asset type is not present in the retainer map, set the map to this one.
                     if (!dependencyAssetsMerged.containsKey(packAsset.getKey())) {

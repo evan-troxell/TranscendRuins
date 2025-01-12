@@ -54,6 +54,8 @@ public final class RenderMaterialSchemaAttributes extends AssetSchemaAttributes 
         antiAliasing = schemaJson.getAsBoolean("antiAliasing", true, isBase ? true : null).getValue();
 
         opaque = schemaJson.getAsBoolean("opaque", true, isBase ? true : null).getValue();
+
+        finalizeData();
     }
 
     /**
@@ -99,5 +101,10 @@ public final class RenderMaterialSchemaAttributes extends AssetSchemaAttributes 
     public Boolean getOpaque() {
 
         return opaque;
+    }
+
+    @Override
+    public void finalizeData() {
+        
     }
 }

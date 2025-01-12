@@ -3,6 +3,7 @@ package com.transcendruins.world.assetinstances.structures;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.structures.StructureSchema;
 import com.transcendruins.packcompiling.assetschemas.structures.StructureSchemaAttributes;
+import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.AssetInstance;
 
 /**
@@ -13,10 +14,11 @@ public final class StructureInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>StructureInstance</code> class.
      * @param schema <code>StructureSchema</code>: The schema used to generate this <code>StructureInstance</code> instance.
+     * @param world <code>World</code>: The world copy to assign to this <code>StructureInstance</code> instance.
      */
-    public StructureInstance(StructureSchema schema) {
+    public StructureInstance(StructureSchema schema, World world) {
 
-        super(schema);
+        super(schema, world);
     }
 
     /**

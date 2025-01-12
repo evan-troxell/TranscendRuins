@@ -1,13 +1,13 @@
 package com.transcendruins.world;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import com.transcendruins.packcompiling.Pack;
 import com.transcendruins.packcompiling.assetschemas.AssetSchema;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
+import com.transcendruins.utilities.finalize.FinalizedMap;
 import com.transcendruins.utilities.metadata.Identifier;
 
 /**
@@ -16,9 +16,9 @@ import com.transcendruins.utilities.metadata.Identifier;
 public final class EnvironmentState {
 
     /**
-     * <code>HashMap&lt;AssetType, HashMap&lt;Identifier, AssetSchema&gt;&gt;</code>: The merged asset schemas of this <code>EnvironmentState</code> instance.
+     * <code>FinalizedMap&lt;AssetType, FinalizedMap&lt;Identifier, AssetSchema&gt;&gt;</code>: The merged asset schemas of this <code>EnvironmentState</code> instance.
      */
-    private final HashMap<AssetType, HashMap<Identifier, AssetSchema>> mergedAssets;
+    private final FinalizedMap<AssetType, FinalizedMap<Identifier, AssetSchema>> mergedAssets;
 
     /**
      * Creates a new instance of the <code>EnvironmentState</code> class.
@@ -26,16 +26,17 @@ public final class EnvironmentState {
      */
     EnvironmentState(ArrayList<Pack> packs) {
 
-        Iterator<Pack> iterator = packs.iterator();
+        mergedAssets = Pack.defaultAssetMap();
 
-        mergedAssets = new HashMap<>(iterator.next().getAssetMap());
-        while (iterator.hasNext()) {
+        for (Pack pack : packs) {
 
-            for (Map.Entry<AssetType, HashMap<Identifier, AssetSchema>> assetTypeEntry : iterator.next().getAssetMap().entrySet()) {
+            for (Map.Entry<AssetType, FinalizedMap<Identifier, AssetSchema>> assetTypeEntry : pack.getAssetMap().entrySet()) {
 
                 mergedAssets.get(assetTypeEntry.getKey()).putAll(assetTypeEntry.getValue());
             }
         }
+
+        mergedAssets.finalizeData();
     }
 
     /**

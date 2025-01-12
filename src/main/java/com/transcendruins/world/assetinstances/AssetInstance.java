@@ -21,6 +21,11 @@ public abstract class AssetInstance {
     private final AssetSchema assetSchema;
 
     /**
+     * <code>World</code>: The world copy of this <code>AssetInstance</code> instance.
+     */
+    private final World world;
+
+    /**
      * <code>ArrayList&lt;String&gt;</code>: The list of currently applied attribute sets.
      */
     private final ArrayList<String> appliedAttributeSets = new ArrayList<>();
@@ -28,10 +33,12 @@ public abstract class AssetInstance {
     /**
      * Creates a new instance of the <code>AssetInstance</code> class.
      * @param schema <code>AssetSchema</code>: The schema used to generate this <code>AssetInstance</code> instance.
+     * @param world <code>World</code>: The world copy to assign to this <code>AssetInstance</code> instance.
      */
-    public AssetInstance(AssetSchema schema) {
+    public AssetInstance(AssetSchema schema, World world) {
 
         this.assetSchema = schema;
+        this.world = world;
         updateAttributes();
     }
 
@@ -70,14 +77,23 @@ public abstract class AssetInstance {
     }
 
     /**
-     * Retrieves an asset schema from the current environment of the program.
+     * Retrieves an asset schema from the world copy of this <code>AssetInstance</code> instance.
      * @param type <code>AssetType</code>: The type of asset schema to retrieve.
      * @param identifier <code>Identifier</code>: The identifier of the asset schema to retrieve.
      * @return <code>AssetSchema</code>: The asset schema retrieved from the current environment state.
      */
-    protected static final AssetSchema getSchema(AssetType type, Identifier identifier) {
+    public final AssetSchema getSchema(AssetType type, Identifier identifier) {
 
-        return World.getWorld().getEnvironment().getSchema(type, identifier);
+        return world.getEnvironment().getSchema(type, identifier);
+    }
+
+    /**
+     * Retrieves the world copy of this <code>AssetInstance</code> instance.
+     * @return <code>World</code>: The <code>world</code> field of this <code>AssetInstance</code> instance.
+     */
+    public final World getWorld() {
+
+        return world;
     }
 
     /**

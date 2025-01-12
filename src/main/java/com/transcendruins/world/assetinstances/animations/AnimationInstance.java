@@ -3,7 +3,6 @@ package com.transcendruins.world.assetinstances.animations;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import com.transcendruins.graphics3d.interpolation.PositionFrame;
@@ -16,6 +15,10 @@ import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaAttributes;
 import com.transcendruins.rendering.Model.BoneActor;
+import com.transcendruins.utilities.finalize.FinalizedList;
+import com.transcendruins.utilities.finalize.FinalizedMap;
+import com.transcendruins.utilities.finalize.FinalizedSet;
+import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.AssetInstance;
 
 /**
@@ -34,27 +37,28 @@ public final class AnimationInstance extends AssetInstance {
     private boolean looping = false;
 
     /**
-     * <code>HashMap&lt;Double, HashMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>: The key frames of this <code>AnimationInstance</code> instance.
+     * <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>: The key frames of this <code>AnimationInstance</code> instance.
      */
-    private HashMap<Double, HashMap<String, AnimationSchemaAttributes.KeyFrame>> keyFrames;
+    private FinalizedMap<Double, FinalizedMap<String, AnimationSchemaAttributes.KeyFrame>> keyframes;
 
     /**
-     * <code>HashSet&lt;String&gt;</code>: The set of all bones in this <code>AnimationInstance</code> instance.
+     * <code>FinalizedSet&lt;String&gt;</code>: The set of all bones in this <code>AnimationInstance</code> instance.
      */
-    private HashSet<String> bones;
+    private FinalizedSet<String> bones;
 
     /**
-     * <code>ArrayList&lt;Double&gt;</code>: The list of sorted timestamps of this <code>AnimationInstance</code> instance.
+     * <code>FinalizedList&lt;Double&gt;</code>: The list of sorted timestamps of this <code>AnimationInstance</code> instance.
      */
-    private ArrayList<Double> timestampsSorted;
+    private FinalizedList<Double> timestampsSorted;
 
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
      * @param schema <code>AnimationSchema</code>: The schema used to generate this <code>AnimationInstance</code> instance.
+     * @param world <code>World</code>: The world copy to assign to this <code>AnimationInstance</code> instance.
      */
-    public AnimationInstance(AnimationSchema schema) {
+    public AnimationInstance(AnimationSchema schema, World world) {
 
-        super(schema);
+        super(schema, world);
     }
 
     /**
@@ -74,7 +78,7 @@ public final class AnimationInstance extends AssetInstance {
         if (attributes.getAnimationDefinition()) {
 
             length = attributes.getLength();
-            keyFrames = attributes.getKeyFrames();
+            keyframes = attributes.getKeyFrames();
             bones = attributes.getBones();
             timestampsSorted = attributes.getTimeStampsSorted();
         }
@@ -159,7 +163,7 @@ public final class AnimationInstance extends AssetInstance {
 
     /**
      * Builds the key frames of this <code>AnimationInstance</code> instance.
-     * @param timestamps <code>ArrayList&lt;Double&gt</code>: The timestamps to build using.
+     * @param timestamps <code>ArrayList&lt;Double&gt;</code>: The timestamps to build using.
      * @return <code>HashMap&lt;String, BoneKeyFrame&gt;</code>: The generated map of bones to their key frames.
      */
     private HashMap<String, BoneKeyFrame> buildKeyFrames(ArrayList<Double> timestamps) {
@@ -168,7 +172,7 @@ public final class AnimationInstance extends AssetInstance {
 
         for (double newTimestamp : timestamps) {
 
-            HashMap<String, AnimationSchemaAttributes.KeyFrame> bonesTimestampMap = keyFrames.get(newTimestamp);
+            HashMap<String, AnimationSchemaAttributes.KeyFrame> bonesTimestampMap = keyframes.get(newTimestamp);
 
             for (Map.Entry<String, AnimationSchemaAttributes.KeyFrame> boneEntry : bonesTimestampMap.entrySet()) {
 

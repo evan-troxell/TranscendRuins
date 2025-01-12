@@ -22,6 +22,8 @@ import com.transcendruins.utilities.exceptions.propertyexceptions.IdentifierForm
 import com.transcendruins.utilities.exceptions.propertyexceptions.StringLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.dependencyexceptions.InvalidDependencyException;
 import com.transcendruins.utilities.files.TracedPath;
+import com.transcendruins.utilities.finalize.FinalizedList;
+import com.transcendruins.utilities.finalize.FinalizedMap;
 import com.transcendruins.utilities.json.JSONOperator;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -62,47 +64,47 @@ public final class Pack {
     /**
      * <code>TracedEntry&lt;Metadata&gt;</code>: The metadata of this <code>Pack</code> instance.
      */
-    public final TracedEntry<Metadata> metadataEntry;
+    private final TracedEntry<Metadata> metadataEntry;
 
     /**
      * <code>TracedDictionary</code>: The JSON information of the metadata of this <code>Pack</code> instance.
      */
-    public final TracedDictionary metadataJson;
+    private final TracedDictionary metadataJson;
 
     /**
      * <code>String</code>: The name of this pack.
      */
-    public final String name;
+    private final String name;
 
     /**
      * <code>String</code>: The description of this pack.
      */
-    public final String description;
+    private final String description;
 
     /**
-     * <code>String[]</code>: The authors of this pack.
+     * <code>FinalizedList&lt;String&gt;</code>: The authors of this pack.
      */
-    public final String[] authors;
+    private final FinalizedList<String> authors = new FinalizedList<>();
 
     /**
      * <code>ImageIcon</code>: The display icon of this pack.
      */
-    public final ImageIcon displayIcon;
+    private final ImageIcon displayIcon;
 
     /**
      * <code>TracedArray&lt;TracedArray&gt;</code>: The entry of the dependencies of this pack.
      */
-    public final TracedEntry<TracedArray> dependenciesEntry;
+    private final TracedEntry<TracedArray> dependenciesEntry;
 
     /**
-     * <code>HashMap&lt;Identifier, TracedEntry&lt;Metadata&gt;&gt;</code>: The dependencies of this pack.
+     * <code>FinalizedMap&lt;Identifier, TracedEntry&lt;Metadata&gt;&gt;</code>: The dependencies of this pack.
      */
-    public final HashMap<Identifier, TracedEntry<Metadata>> dependencies = new HashMap<>();
+    private final FinalizedMap<Identifier, TracedEntry<Metadata>> dependencies = new FinalizedMap<>();
 
     /**
-     * <code>HashMap&lt;AssetType, HashMap&lt;Identifier, AssetSchema&gt;&gt;</code>: A map of all asset configurations in this <code>Pack</code> instance.
+     * <code>FinalizedMap&lt;AssetType, FinalizedMap&lt;Identifier, AssetSchema&gt;&gt;</code>: A map of all asset configurations in this <code>Pack</code> instance.
      */
-    private final HashMap<AssetType, HashMap<Identifier, AssetSchema>> assetMap = defaultAssetMap();
+    private final FinalizedMap<AssetType, FinalizedMap<Identifier, AssetSchema>> assetMap = defaultAssetMap();
 
     /**
      * <code>PackCompiler</code>: The compiler used to compile this <code>Pack</code> instance.
@@ -155,13 +157,12 @@ public final class Pack {
 
                 throw new StringLengthException(authorEntry);
             }
-            authors = new String[] {author};
+            authors.add(author);
 
         } else if (metadataJson.containsKey("authors")) {
 
             TracedEntry<TracedArray> authorsEntry = metadataJson.getAsArray("authors", false);
             TracedArray authorsJson = authorsEntry.getValue();
-            authors = new String[authorsJson.size()];
 
             if (authorsJson.isEmpty()) {
 
@@ -169,19 +170,18 @@ public final class Pack {
             }
             for (int i : authorsJson.getIndices()) {
 
-                TracedEntry<String> authorsIndexEntry = authorsJson.getAsString(i, false, null);
-                String authorsIndex = authorsIndexEntry.getValue();
+                TracedEntry<String> authorEntry = authorsJson.getAsString(i, false, null);
+                String author = authorEntry.getValue();
 
-                if (authorsIndex.isEmpty()) {
+                if (author.isEmpty()) {
 
-                    throw new StringLengthException(authorsIndexEntry);
+                    throw new StringLengthException(authorEntry);
                 }
-                authors[i] = authorsIndex;
+                authors.add(author);
             }
-        } else {
-
-            authors = new String[] {"[AUTHOR UNKNOWN]"};
         }
+
+        authors.finalizeData();
 
         TracedPath displayIconPath = root.extend("displayIcon.png");
         if (displayIconPath.exists()) {
@@ -220,6 +220,8 @@ public final class Pack {
                 dependencies.put(dependencyIndex.getIdentifier(), dependenciesIndexEntry);
             }
         }
+
+        dependencies.finalizeData();
     }
 
     /**
@@ -240,7 +242,7 @@ public final class Pack {
         TracedPath animationcontrollersPath = root.extend("animationControllers");
         if (animationcontrollersPath.exists()) {
 
-            HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ANIMATION_CONTROLLER);
+            FinalizedMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ANIMATION_CONTROLLER);
 
             // Compiles a list of paths and iterates through them.
             ArrayList<TracedPath> assetPaths = animationcontrollersPath.compileFileArray(".json", true);
@@ -269,7 +271,7 @@ public final class Pack {
         TracedPath animationsPath = root.extend("animations");
         if (animationsPath.exists()) {
 
-            HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ANIMATION);
+            FinalizedMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ANIMATION);
 
             // Compiles a list of paths and iterates through them.
             ArrayList<TracedPath> assetPaths = animationsPath.compileFileArray(".json", true);
@@ -298,7 +300,7 @@ public final class Pack {
         TracedPath elementsPath = root.extend("elements");
         if (elementsPath.exists()) {
 
-            HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ELEMENT);
+            FinalizedMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ELEMENT);
 
             // Compiles a list of paths and iterates through them.
             ArrayList<TracedPath> assetPaths = elementsPath.compileFileArray(".json", true);
@@ -327,7 +329,7 @@ public final class Pack {
         TracedPath entitiesPath = root.extend("entities");
         if (entitiesPath.exists()) {
 
-            HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ENTITY);
+            FinalizedMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ENTITY);
 
             // Compiles a list of paths and iterates through them.
             ArrayList<TracedPath> assetPaths = entitiesPath.compileFileArray(".json", true);
@@ -356,11 +358,11 @@ public final class Pack {
         TracedPath itemsPath = root.extend("items");
         if (itemsPath.exists()) {
 
-        HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ITEM);
+            FinalizedMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.ITEM);
 
-        // Compiles a list of paths and iterates through them.
-        ArrayList<TracedPath> assetPaths = itemsPath.compileFileArray(".json", true);
-        for (TracedPath assetPath : assetPaths) {
+            // Compiles a list of paths and iterates through them.
+            ArrayList<TracedPath> assetPaths = itemsPath.compileFileArray(".json", true);
+            for (TracedPath assetPath : assetPaths) {
 
                 try {
 
@@ -385,7 +387,7 @@ public final class Pack {
         TracedPath modelsPath = root.extend("models");
         if (modelsPath.exists()) {
 
-            HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.MODEL);
+            FinalizedMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.MODEL);
 
             // Compiles a list of paths and iterates through them.
             ArrayList<TracedPath> assetPaths = modelsPath.compileFileArray(".json", true);
@@ -414,7 +416,7 @@ public final class Pack {
         TracedPath renderMaterialsPath = root.extend("renderMaterials");
         if (renderMaterialsPath.exists()) {
 
-            HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.RENDER_MATERIAL);
+            FinalizedMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.RENDER_MATERIAL);
 
             // Compiles a list of paths and iterates through them.
             ArrayList<TracedPath> assetPaths = renderMaterialsPath.compileFileArray(".json", true);
@@ -443,7 +445,7 @@ public final class Pack {
         TracedPath structuresPath = root.extend("structures");
         if (structuresPath.exists()) {
 
-            HashMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.STRUCTURE);
+            FinalizedMap<Identifier, AssetSchema> assets = assetMap.get(AssetType.STRUCTURE);
 
             // Compiles a list of paths and iterates through them.
             ArrayList<TracedPath> assetPaths = structuresPath.compileFileArray(".json", true);
@@ -483,6 +485,8 @@ public final class Pack {
 
             assetMap.get(invalidAsset.type).remove(invalidAsset.metadata.getIdentifier());
         }
+
+        assetMap.finalizeData();
     }
 
     /**
@@ -496,9 +500,9 @@ public final class Pack {
 
     /**
      * Retrieves the asset map of this <code>Pack</code> instance.
-     * @return <code>HashMap&lt;AssetType, HashMap&lt;Identifier, AssetSchema&gt;&gt;</code>: The <code>assetMap</code> field of this <code>Pack</code> instance.
+     * @return <code>FinalizedMap&lt;AssetType, FinalizedMap&lt;Identifier, AssetSchema&gt;&gt;</code>: The <code>assetMap</code> field of this <code>Pack</code> instance.
      */
-    public HashMap<AssetType, HashMap<Identifier, AssetSchema>> getAssetMap() {
+    public FinalizedMap<AssetType, FinalizedMap<Identifier, AssetSchema>> getAssetMap() {
 
         return assetMap;
     }
@@ -571,6 +575,60 @@ public final class Pack {
     }
 
     /**
+     * Retrieves the name of this <code>Pack</code> instance.
+     * @return <code>String</code>: The <code>name</code> field of this <code>Pack</code> instance.
+     */
+    public String getName() {
+
+        return name;
+    }
+
+    /**
+     * Retrieves the description of this <code>Pack</code> instance.
+     * @return <code>String</code>: The <code>description</code> field of this <code>Pack</code> instance.
+     */
+    public String getDescription() {
+
+        return description;
+    }
+
+    /**
+     * Retrieves the authors of this <code>Pack</code> instance.
+     * @return <code>FinalizedList&lt;String&gt;</code>: The <code>authors</code> field of this <code>Pack</code> instance.
+     */
+    public FinalizedList<String> getAuthors() {
+
+        return authors;
+    }
+
+    /**
+     * Retrieves the display icon of this <code>Pack</code> instance.
+     * @return <code>ImageIcon</code>: The <code>displayIcon</code> field of this <code>Pack</code> instance.
+     */
+    public ImageIcon getDisplayIcon() {
+
+        return displayIcon;
+    }
+
+    /**
+     * Retrieves the dependencies entry of this <code>Pack</code> instance.
+     * @return <code>TracedEntry&lt;TracedArray&gt;</code>: The <code>dependenciesEntry</code> field of this <code>Pack</code> instance.
+     */
+    public TracedEntry<TracedArray> getDependenciesEntry() {
+
+        return dependenciesEntry;
+    }
+
+    /**
+     * Retrieves the dependencies of this <code>Pack</code> instance.
+     * @return <code>FinalizedMap&lt;Identifier, TracedEntry&lt;Metadata&gt;&gt;</code>: The <code>dependencies</code> field of this <code>Pack</code> instance.
+     */
+    public FinalizedMap<Identifier, TracedEntry<Metadata>> getDependencies() {
+
+        return dependencies;
+    }
+
+    /**
      * Returns the string representation of this <code>Metadata</code> instance.
      * @return <code>String</code>: This <code>Pack</code> instance in the following string representation: <br>"<code>namespace:identifier [a, b, c]</code>"
      */
@@ -582,20 +640,16 @@ public final class Pack {
 
     /**
      * Creates a default asset map containing all the types of <code>AssetSchema</code> subclasses.
-     * @return <code>HashMap&lt;AssetType, HashMap&lt;Identifier, AssetSchema&gt;&gt;</code>: The resulting map instance.
+     * @return <code>FinalizedMap&lt;AssetType, FinalizedMap&lt;Identifier, AssetSchema&gt;&gt;</code>: The resulting map instance.
      */
-    public static HashMap<AssetType, HashMap<Identifier, AssetSchema>> defaultAssetMap() {
+    public static FinalizedMap<AssetType, FinalizedMap<Identifier, AssetSchema>> defaultAssetMap() {
 
-        HashMap<AssetType, HashMap<Identifier, AssetSchema>> newVal = new HashMap<>();
+        FinalizedMap<AssetType, FinalizedMap<Identifier, AssetSchema>> newVal = new FinalizedMap<>();
 
-        newVal.put(AssetType.ANIMATION_CONTROLLER, new HashMap<>());
-        newVal.put(AssetType.ANIMATION, new HashMap<>());
-        newVal.put(AssetType.ELEMENT, new HashMap<>());
-        newVal.put(AssetType.ENTITY, new HashMap<>());
-        newVal.put(AssetType.ITEM, new HashMap<>());
-        newVal.put(AssetType.MODEL, new HashMap<>());
-        newVal.put(AssetType.RENDER_MATERIAL, new HashMap<>());
-        newVal.put(AssetType.STRUCTURE, new HashMap<>());
+        for (AssetType asset : AssetType.values()) {
+
+            newVal.put(asset, new FinalizedMap<>());
+        }
 
         return newVal;
     }
