@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class FinalizedMap<K, V> extends HashMap<K, V> implements Finalized {
-    
+
     private boolean isFinalized = false;
 
     public FinalizedMap() {}
@@ -31,7 +31,7 @@ public class FinalizedMap<K, V> extends HashMap<K, V> implements Finalized {
     public void finalizeData() {
 
         if (isFinalized) {
-            
+
             return;
         }
 
@@ -43,7 +43,7 @@ public class FinalizedMap<K, V> extends HashMap<K, V> implements Finalized {
 
                 finalKey.finalizeData();
             }
-            
+
             if (entry.getValue() instanceof Finalized finalValue) {
 
                 finalValue.finalizeData();

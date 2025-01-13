@@ -17,25 +17,49 @@ import com.transcendruins.utilities.json.TracedEntry;
 public final class Version {
 
     /**
-     * <code>Hashmap&lt;String, Version&gt;</code>: A set of versions to be retrieved in order to produce equivalent versions.
+     * <code>Hashmap&lt;String, Version&gt;</code>: A set of versions to be
+     * retrieved in order to produce equivalent versions.
      */
     private static final HashMap<String, Version> VERSIONS = new HashMap<>();
 
     /**
      * <code>long[3]</code>: An vector array representing the version values.
      */
-    public final long[] vector = new long[Vector.DIMENSION_3D];
+    private final long[] vector = new long[Vector.DIMENSION_3D];
+
+    /**
+     * Retrieves a version field of this <code>Version</code> instance.
+     * 
+     * @param index <code>int</code>: The index of the version field to retrieve.
+     * @return <code>long</code>: The value retrieved from the
+     *         <code>vector<code> field of this <code>Version</code> instance.
+     */
+    public long getVersion(int index) {
+
+        return vector[index];
+    }
 
     /**
      * Creates a new instance of the <code>Version</code> class.
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The entry from which to create this <code>Version</code> instance.
-     * @param negativeVectorValuesAllowed <code>boolean</code>: Whether or not negative version vector values are allowed.
-     * @throws ArrayLengthException Thrown if the length of the <code>version</code> perameter is not 3.
-     * @throws MissingPropertyException Thrown if any of the indices of the <code>version</code> perameter are missing.
-     * @throws PropertyTypeException Thrown if any of the indices of the <code>version</code> perameter are not of the <code>Long</code> class.
-     * @throws NumberBoundsException Thrown if any vector value in this <code>Version</code> instance is negative.
+     * 
+     * @param entry                       <code>TracedEntry&lt;TracedArray&gt;</code>:
+     *                                    The entry from which to create this
+     *                                    <code>Version</code> instance.
+     * @param negativeVectorValuesAllowed <code>boolean</code>: Whether or not
+     *                                    negative version vector values are
+     *                                    allowed.
+     * @throws ArrayLengthException     Thrown if the length of the
+     *                                  <code>version</code> perameter is not 3.
+     * @throws MissingPropertyException Thrown if any of the indices of the
+     *                                  <code>version</code> perameter are missing.
+     * @throws PropertyTypeException    Thrown if any of the indices of the
+     *                                  <code>version</code> perameter are not of
+     *                                  the <code>Long</code> class.
+     * @throws NumberBoundsException    Thrown if any vector value in this
+     *                                  <code>Version</code> instance is negative.
      */
-    private Version(TracedEntry<TracedArray> entry, boolean negativeVectorValuesAllowed) throws ArrayLengthException, MissingPropertyException, PropertyTypeException, VersionBoundsException, NumberBoundsException {
+    private Version(TracedEntry<TracedArray> entry, boolean negativeVectorValuesAllowed) throws ArrayLengthException,
+            MissingPropertyException, PropertyTypeException, VersionBoundsException, NumberBoundsException {
 
         TracedArray list = entry.getValue();
         if (list.size() != Vector.DIMENSION_3D) {
@@ -51,16 +75,30 @@ public final class Version {
     }
 
     /**
-     * Generates an instance of the <code>Version</code> class. Once a version is generated, its instance will be used to represent that version vector from then on.
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The entry from which to create this <code>Version</code> instance.
-     * @param negativeVectorValuesAllowed <code>boolean</code>: Whether or not negative version vector values are allowed.
+     * Generates an instance of the <code>Version</code> class. Once a version is
+     * generated, its instance will be used to represent that version vector from
+     * then on.
+     * 
+     * @param entry                       <code>TracedEntry&lt;TracedArray&gt;</code>:
+     *                                    The entry from which to create this
+     *                                    <code>Version</code> instance.
+     * @param negativeVectorValuesAllowed <code>boolean</code>: Whether or not
+     *                                    negative version vector values are
+     *                                    allowed.
      * @return <code>Version</code>: The generated <code>Version</code> instance.
-     * @throws ArrayLengthException Thrown if the length of the <code>version</code> perameter is not 3.
-     * @throws MissingPropertyException Thrown if any of the indices of the <code>version</code> perameter are missing.
-     * @throws PropertyTypeException Thrown if any of the indices of the <code>version</code> perameter are not of the <code>Long</code> class.
-     * @throws VersionBoundsException Thrown if any vector value in this <code>Version</code> instance is negative.
+     * @throws ArrayLengthException     Thrown if the length of the
+     *                                  <code>version</code> perameter is not 3.
+     * @throws MissingPropertyException Thrown if any of the indices of the
+     *                                  <code>version</code> perameter are missing.
+     * @throws PropertyTypeException    Thrown if any of the indices of the
+     *                                  <code>version</code> perameter are not of
+     *                                  the <code>Long</code> class.
+     * @throws VersionBoundsException   Thrown if any vector value in this
+     *                                  <code>Version</code> instance is negative.
      */
-    public static Version createVersion(TracedEntry<TracedArray> entry, boolean negativeVectorValuesAllowed) throws ArrayLengthException, MissingPropertyException, PropertyTypeException, VersionBoundsException, NumberBoundsException {
+    public static Version createVersion(TracedEntry<TracedArray> entry, boolean negativeVectorValuesAllowed)
+            throws ArrayLengthException, MissingPropertyException, PropertyTypeException, VersionBoundsException,
+            NumberBoundsException {
 
         Version newVersion = new Version(entry, negativeVectorValuesAllowed);
         String versionString = newVersion.toString();
@@ -74,7 +112,9 @@ public final class Version {
     }
 
     /**
-     * Generates an instance of the <code>Version</code> class using only a version vector. This method is only to be used for testing purposes.
+     * Generates an instance of the <code>Version</code> class using only a version
+     * vector. This method is only to be used for testing purposes.
+     * 
      * @param version <code>long[3]</code>: The vector to parse into a version code.
      */
     @Deprecated
@@ -84,7 +124,9 @@ public final class Version {
     }
 
     /**
-     * Generates an instance of the <code>Version</code> class using only a version vector. This method is only to be used for testing purposes.
+     * Generates an instance of the <code>Version</code> class using only a version
+     * vector. This method is only to be used for testing purposes.
+     * 
      * @param version <code>long[3]</code>: The vector to parse into a version code.
      * @return <code>Version</code> The generated <code>Version</code> instance.
      */
@@ -104,7 +146,10 @@ public final class Version {
 
     /**
      * Returns a string representation of this <code>Version</code> instance.
-     * @return <code>String</code>: This <code>Version</code> instance in the string representation: <br>"<code>[a, b, c]</code>"
+     * 
+     * @return <code>String</code>: This <code>Version</code> instance in the string
+     *         representation: <br>
+     *         "<code>[a, b, c]</code>"
      */
     @Override
     public String toString() {

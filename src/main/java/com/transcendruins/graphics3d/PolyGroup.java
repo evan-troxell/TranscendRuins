@@ -30,7 +30,7 @@ public final class PolyGroup {
         @Override
         public Triangle3D sortSelector(Triangle3D newEntry, Triangle3D oldEntry) {
 
-            return (newEntry.center.getX() < oldEntry.center.getX()) ? newEntry : oldEntry;
+            return (newEntry.getCenter().getX() < oldEntry.getCenter().getX()) ? newEntry : oldEntry;
         }
     };
 
@@ -42,7 +42,7 @@ public final class PolyGroup {
         @Override
         public Triangle3D sortSelector(Triangle3D newEntry, Triangle3D oldEntry) {
 
-            return (newEntry.center.getY() < oldEntry.center.getY()) ? newEntry : oldEntry;
+            return (newEntry.getCenter().getY() < oldEntry.getCenter().getY()) ? newEntry : oldEntry;
         }
     };
 
@@ -54,7 +54,7 @@ public final class PolyGroup {
         @Override
         public Triangle3D sortSelector(Triangle3D newEntry, Triangle3D oldEntry) {
 
-            return (newEntry.center.getZ() < oldEntry.center.getZ()) ? newEntry : oldEntry;
+            return (newEntry.getCenter().getZ() < oldEntry.getCenter().getZ()) ? newEntry : oldEntry;
         }
     };
 
@@ -62,6 +62,15 @@ public final class PolyGroup {
      * <code>ArrayList&lt;Triangle3D&gt;</code>: The <code>Triangle3D</code> instances to construct polygon groups from.
      */
     private final ArrayList<Triangle3D> polygons;
+
+    /**
+     * Retrieves the polygons of this <code>PolyGroup</code> instance for the purposes of being rendered.
+     * @return <code>ArrayList&lt;Triangle3D&gt;</code>: The <code>polygons</code> field of this <code>PolyGroup</code> instance.
+     */
+    public ArrayList<Triangle3D> getPolygons() {
+
+        return polygons;
+    }
 
     /**
      * <code>List&lt;Triangle3D&gt;</code>: All triangles in this <code>PolyGroup</code> instance, sorted by the X axis.
@@ -109,9 +118,9 @@ public final class PolyGroup {
         int normalizedIndex2 = polygons.size() - normalizedIndex;
         int medianIndex = (int) Math.ceil(polygons.size() / 2);
 
-        double averageDifferenceX = sortedX.get(normalizedIndex2).center.getX() - sortedX.get(normalizedIndex).center.getX();
-        double averageDifferenceY = sortedY.get(normalizedIndex2).center.getY() - sortedY.get(normalizedIndex).center.getY();
-        double averageDifferenceZ = sortedZ.get(normalizedIndex2).center.getZ() - sortedZ.get(normalizedIndex).center.getZ();
+        double averageDifferenceX = sortedX.get(normalizedIndex2).getCenter().getX() - sortedX.get(normalizedIndex).getCenter().getX();
+        double averageDifferenceY = sortedY.get(normalizedIndex2).getCenter().getY() - sortedY.get(normalizedIndex).getCenter().getY();
+        double averageDifferenceZ = sortedZ.get(normalizedIndex2).getCenter().getZ() - sortedZ.get(normalizedIndex).getCenter().getZ();
 
         double greatestAverageDifference = Math.max(averageDifferenceX, Math.max(averageDifferenceY, averageDifferenceZ));
 
@@ -135,14 +144,5 @@ public final class PolyGroup {
         polygonGroups.addAll(groupB.subDivide());
 
         return polygonGroups;
-    }
-
-    /**
-     * Retrieves the polygons of this <code>PolyGroup</code> instance for the purposes of being rendered.
-     * @return <code>ArrayList&lt;Triangle3D&gt;</code>: The <code>polygons</code> field of this <code>PolyGroup</code> instance.
-     */
-    public ArrayList<Triangle3D> getPolygons() {
-
-        return polygons;
     }
 }

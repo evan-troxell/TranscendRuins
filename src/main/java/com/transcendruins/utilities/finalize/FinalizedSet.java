@@ -35,14 +35,14 @@ public class FinalizedSet<E> extends HashSet<E> implements Finalized {
     public void finalizeData() {
 
         if (isFinalized) {
-            
+
             return;
         }
 
         isFinalized = true;
 
         for (E value : this) {
-            
+
             if (value instanceof Finalized finalValue) {
 
                 finalValue.finalizeData();

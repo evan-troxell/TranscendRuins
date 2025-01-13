@@ -17,7 +17,8 @@ import com.transcendruins.ui.mappedcomponents.TRComponent;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 
 /**
- * <code>TRPanel</code>: A class representing a <code>JPanel</code> whose components have been mapped, allowing for easy retrieval.
+ * <code>TRPanel</code>: A class representing a <code>JPanel</code> whose
+ * components have been mapped, allowing for easy retrieval.
  */
 public class TRPanel extends JPanel implements TRContainer {
 
@@ -26,15 +27,25 @@ public class TRPanel extends JPanel implements TRContainer {
      */
     private final String name;
 
+    @Override
+    public final String getComponentName() {
+
+        return name;
+    }
+
     /**
-     * <code>LinkedHashMap&lt;String, TRComponent&gt;</code>: The map of components of this <code>TRPanel</code> instance.
+     * <code>LinkedHashMap&lt;String, TRComponent&gt;</code>: The map of components
+     * of this <code>TRPanel</code> instance.
      */
     private final LinkedHashMap<String, TRComponent> componentMap = new LinkedHashMap<>();
 
     /**
      * Creates a new instance of the <code>TRPanel</code> class.
-     * @param name <code>String</code>: The name of this <code>TRPanel</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRPanel</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this <code>TRPanel</code>
+     *                 instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRPanel</code> instance.
      */
     public TRPanel(String name, ComponentSettings settings) {
 
@@ -47,9 +58,13 @@ public class TRPanel extends JPanel implements TRContainer {
 
     /**
      * Creates a new instance of the <code>TRPanel</code> class.
-     * @param name <code>String</code>: The name of this <code>TRPanel</code> instance.
-     * @param layout <code>LayoutManager</code>: The layout to apply to this <code>TRPanel</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRPanel</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this <code>TRPanel</code>
+     *                 instance.
+     * @param layout   <code>LayoutManager</code>: The layout to apply to this
+     *                 <code>TRPanel</code> instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRPanel</code> instance.
      */
     public TRPanel(String name, LayoutManager layout, ComponentSettings settings) {
 
@@ -58,19 +73,31 @@ public class TRPanel extends JPanel implements TRContainer {
     }
 
     /**
-     * Creates a panel using the <code>BoxLayout</code> layout manager with a set spacing between each element.
-     * @param name <code>String</code>: The name of the new <code>TRPanel</code> instance.
+     * Creates a panel using the <code>BoxLayout</code> layout manager with a set
+     * spacing between each element.
      * 
-     * @param components <codeList&lt;TRComponent&gt;</code>: The components to add to the new <code>TRPanel</code> instance.
-     * @param isVertical <code>boolean</code>: Whether or not the layout should be stacked vertically or not.
-     * @param componentAlignment <code>Float</code>: The alignment to apply to each component.
-     * A <code>null</code> value represents not applying any alignment.
-     * @param pixelSpacing <code>int</code>: The spacing, in pixels, to apply between each element.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to the new <code>TRPanel</code> instance.
-     * @param createBuffers <code>boolean</code>: Whether or not buffers should be created around the edge components.
+     * @param name               <code>String</code>: The name of the new
+     *                           <code>TRPanel</code> instance.
+     *
+     * @param components         <code>List&lt;TRComponent&gt;</code>: The
+     *                           components to add to the new <code>TRPanel</code>
+     *                           instance.
+     * @param isVertical         <code>boolean</code>: Whether or not the layout
+     *                           should be stacked vertically or not.
+     * @param componentAlignment <code>Float</code>: The alignment to apply to each
+     *                           component.
+     *                           A <code>null</code> value represents not applying
+     *                           any alignment.
+     * @param pixelSpacing       <code>int</code>: The spacing, in pixels, to apply
+     *                           between each element.
+     * @param settings           <code>ComponentSettings</code>: The settings to
+     *                           apply to the new <code>TRPanel</code> instance.
+     * @param createBuffers      <code>boolean</code>: Whether or not buffers should
+     *                           be created around the edge components.
      * @return <code>TRPanel</code>: The generated mapped panel.
      */
-    public static final TRPanel createBoxPanel(String name, List<TRComponent> components, boolean isVertical, Float componentAlignment, int pixelSpacing, ComponentSettings settings, boolean createBuffers) {
+    public static final TRPanel createBoxPanel(String name, List<TRComponent> components, boolean isVertical,
+            Float componentAlignment, int pixelSpacing, ComponentSettings settings, boolean createBuffers) {
 
         TRPanel returnPanel = new TRPanel(name, settings);
         returnPanel.setLayout(new BoxLayout(returnPanel, isVertical ? BoxLayout.Y_AXIS : BoxLayout.X_AXIS));
@@ -78,7 +105,7 @@ public class TRPanel extends JPanel implements TRContainer {
         Iterator<TRComponent> iterator = components.iterator();
 
         if (createBuffers) {
-            
+
             returnPanel.add((Component) (isVertical ? Box.createVerticalGlue() : Box.createHorizontalGlue()));
         }
 
@@ -86,7 +113,6 @@ public class TRPanel extends JPanel implements TRContainer {
 
             TRComponent trComponent = iterator.next();
             JComponent component = (JComponent) trComponent;
-
 
             if (isVertical) {
 
@@ -98,13 +124,14 @@ public class TRPanel extends JPanel implements TRContainer {
 
             returnPanel.addComponent(trComponent);
             if (pixelSpacing != 0 && iterator.hasNext()) {
-                
-                returnPanel.add(isVertical ? Box.createVerticalStrut(pixelSpacing) : Box.createHorizontalStrut(pixelSpacing));
+
+                returnPanel.add(
+                        isVertical ? Box.createVerticalStrut(pixelSpacing) : Box.createHorizontalStrut(pixelSpacing));
             }
         }
 
         if (createBuffers) {
-            
+
             returnPanel.add((Component) (isVertical ? Box.createVerticalGlue() : Box.createHorizontalGlue()));
         }
 
@@ -172,11 +199,5 @@ public class TRPanel extends JPanel implements TRContainer {
 
         TRComponent component = getComponent(name);
         component.setEnabled(enabled);
-    }
-
-    @Override
-    public final String getComponentName() {
-
-        return name;
     }
 }

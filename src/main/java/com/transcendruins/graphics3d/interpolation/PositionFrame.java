@@ -4,7 +4,7 @@ import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 
 public final class PositionFrame extends PositionModifier {
-    
+
     private final Interpolation interpolation;
 
     public PositionFrame(TracedDictionary json, double timestamp) throws LoggedException {
@@ -18,7 +18,7 @@ public final class PositionFrame extends PositionModifier {
         double inter = interpolation.getInter(next.interpolation.getTimestamp(), t);
 
         com.transcendruins.graphics3d.geometry.Vector position = Interpolation.lerp(getPosition(), next.getPosition(), inter);
-        
+
         double rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
         com.transcendruins.graphics3d.geometry.Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(), next.getRotation().getAxis(), inter);
 

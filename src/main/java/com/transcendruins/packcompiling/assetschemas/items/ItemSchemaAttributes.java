@@ -25,6 +25,6 @@ public final class ItemSchemaAttributes extends AssetSchemaAttributes {
 
     @Override
     public void finalizeData() {
-        
+
     }
 }

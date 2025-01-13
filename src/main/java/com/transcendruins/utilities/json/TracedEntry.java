@@ -6,34 +6,39 @@ import java.util.Collection;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyExceptionPathway;
 
 /**
- * <code>TracedEntry&lt;K&gt;</code>: A class representing an entry of type K in a <code>TracedCollection</code> instance.
+ * <code>TracedEntry&lt;K&gt;</code>: A class representing an entry of type K in
+ * a <code>TracedCollection</code> instance.
  */
 public final class TracedEntry<K> {
 
     /**
-     * <code>PropertyExceptionPathway</code>: The pathway to this <code>TracedEntry</code> instance.
+     * <code>PropertyExceptionPathway</code>: The pathway to this
+     * <code>TracedEntry</code> instance.
      */
     private final PropertyExceptionPathway pathway;
 
     /**
-     * <code>K</code>: The value contained within this <code>TracedEntry</code> instance.
+     * Retrieves the pathway of this <code>TracedEntry&lt;K&gt;</code> instance.
+     * 
+     * @return <code>PropertyExceptionPathway</code>: The pathway of this
+     *         <code>TracedEntry&lt;K&gt;</code> instance.
+     */
+    public PropertyExceptionPathway getPathway() {
+
+        return pathway;
+    }
+
+    /**
+     * <code>K</code>: The value contained within this <code>TracedEntry</code>
+     * instance.
      */
     private final K value;
 
     /**
-     * Creates a new instance of the <code>TracedEntry<K></code> class.
-     * @param pathway <code>PropertyExceptionPathway</code>: The pathway to this <code>TracedEntry</code> instance.
-     * @param value <code>K</code>: The value contained within this <code>TracedEntry</code> instance.
-     */
-    public TracedEntry(PropertyExceptionPathway pathway, K value) {
-
-        this.pathway = pathway;
-        this.value = value;
-    }
-
-    /**
      * Retrieves the value of this <code>TracedEntry&lt;K&gt;</code> instance.
-     * @return <code>K</code>: The value of this <code>TracedEntry&lt;K&gt;</code> instance.
+     * 
+     * @return <code>K</code>: The value of this <code>TracedEntry&lt;K&gt;</code>
+     *         instance.
      */
     public K getValue() {
 
@@ -41,12 +46,17 @@ public final class TracedEntry<K> {
     }
 
     /**
-     * Retrieves the pathway of this <code>TracedEntry&lt;K&gt;</code> instance.
-     * @return <code>PropertyExceptionPathway</code>: The pathway of this <code>TracedEntry&lt;K&gt;</code> instance.
+     * Creates a new instance of the <code>TracedEntry<K></code> class.
+     * 
+     * @param pathway <code>PropertyExceptionPathway</code>: The pathway to this
+     *                <code>TracedEntry</code> instance.
+     * @param value   <code>K</code>: The value contained within this
+     *                <code>TracedEntry</code> instance.
      */
-    public PropertyExceptionPathway getPathway() {
+    public TracedEntry(PropertyExceptionPathway pathway, K value) {
 
-        return pathway;
+        this.pathway = pathway;
+        this.value = value;
     }
 
     public static <T> ArrayList<T> getValues(Collection<TracedEntry<T>> entries) {
@@ -60,8 +70,11 @@ public final class TracedEntry<K> {
     }
 
     /**
-     * Returns whether or not this <code>TracedEntry</code> instance contains a value.
-     * @return <code>boolean</code>: Whether or not the <code>value</code> field of this <code>TracedEntry</code> instance is not equal to null.
+     * Returns whether or not this <code>TracedEntry</code> instance contains a
+     * value.
+     * 
+     * @return <code>boolean</code>: Whether or not the <code>value</code> field of
+     *         this <code>TracedEntry</code> instance is not equal to null.
      */
     public boolean containsValue() {
 
@@ -70,7 +83,9 @@ public final class TracedEntry<K> {
 
     /**
      * Returns the string representation of this <code>TracedEntry</code> instance.
-     * @return <code>String</code>: The string representation of the <code>value</code> field of this <code>TracedEntry</code> instance.
+     * 
+     * @return <code>String</code>: The string representation of the
+     *         <code>value</code> field of this <code>TracedEntry</code> instance.
      */
     @Override
     public String toString() {

@@ -22,7 +22,7 @@ public abstract class SettingsPanel extends TRPanel {
      * <code>Dimension</code>: The default dimensions of a settings box.
      */
     public static final Dimension SETTINGS_DIMENSIONS = new Dimension(900, 525);
-    
+
     /**
      * Creates a new instance of the <code>SettingsPanel</code> class.
      * @param name <code>String</code>: The name of this <code>SettingsPanel</code> instance.
@@ -32,7 +32,7 @@ public abstract class SettingsPanel extends TRPanel {
     public SettingsPanel(String name, ComponentSettings settings) {
 
         super(name, new BorderLayout(), settings);
-        
+
         TRPanel headerPanel = new TRPanel("headerPanel", new BorderLayout(), ComponentSettings.PALETTE_PANEL_SETTINGS);
 
         TRButton exitButton = new TRButton(DisplayFrame.EXIT_BUTTON, "< Settings", new Dimension(95, 35), ComponentSettings.DEFAULT_LABEL_SETTINGS) {
@@ -65,7 +65,7 @@ public abstract class SettingsPanel extends TRPanel {
 
                 @Override
                 public void onClick() {
-                    
+
                     headerLabel.setText(menu);
                     menuDisplayPanel.setScreen(menu);
                 }
@@ -76,7 +76,7 @@ public abstract class SettingsPanel extends TRPanel {
 
         TRPanel menuSelectionPanel = TRPanel.createBoxPanel("menuSelectionPanel", menuSelectionPanelComponents, true, LEFT_ALIGNMENT, 15, ComponentSettings.BACKGROUND_PANEL_SETTINGS, false);
         menuContentPanel.addComponent(menuSelectionPanel, BorderLayout.WEST);
-        
+
         addComponent(headerPanel, BorderLayout.NORTH);
         addComponent(menuContentPanel, BorderLayout.CENTER);
     }
@@ -91,7 +91,7 @@ public abstract class SettingsPanel extends TRPanel {
         return switch (name) {
 
             case GameSettings.VIDEO -> {
-            
+
                 ArrayList<TRComponent> videoComponents = new ArrayList<>();
                 TRPanel videoPanel = TRPanel.createBoxPanel(name, videoComponents, true, LEFT_ALIGNMENT, 5, ComponentSettings.HIDDEN_COMPONENT_SETTINGS, false);
                 videoPanel.addComponent(new TRLabel("test", "Video", new Dimension(100, 35), ComponentSettings.DEFAULT_LABEL_SETTINGS));
@@ -104,7 +104,7 @@ public abstract class SettingsPanel extends TRPanel {
                 ArrayList<TRComponent> audioComponents = new ArrayList<>();
                 TRPanel audioPanel = TRPanel.createBoxPanel(name, audioComponents, true, LEFT_ALIGNMENT, 5, ComponentSettings.HIDDEN_COMPONENT_SETTINGS, false);
                 audioPanel.addComponent(new TRLabel("test", "Audio", new Dimension(100, 35), ComponentSettings.DEFAULT_LABEL_SETTINGS));
-                
+
                 yield audioPanel;
             }
 

@@ -16,17 +16,22 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
-* <code>AnimationSchemaAttributes</code>: A class which represents the attributes of an <code>AnimationSchema</code> instance.
-*/
+ * <code>AnimationSchemaAttributes</code>: A class which represents the
+ * attributes of an <code>AnimationSchema</code> instance.
+ */
 public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
 
     /**
-     * <code>String</code>: The regular expression used to ensure all key frames are of the expected pattern.
+     * <code>String</code>: The regular expression used to ensure all key frames are
+     * of the expected pattern.
      */
     private static final String KEYFRAME_PATTERN = "[-+]?\\d*\\.\\d+";
 
     /**
-     * <code>Sorter&lt;Double&gt;</code>: A sorter which takes an input of any <code>Collection&lt;Double&gt;</code> composed of timestamps and outputs an <code>ArrayList&lt;Double&gt;</code> composed of timestamps from lowest to highest.
+     * <code>Sorter&lt;Double&gt;</code>: A sorter which takes an input of any
+     * <code>Collection&lt;Double&gt;</code> composed of timestamps and outputs an
+     * <code>ArrayList&lt;Double&gt;</code> composed of timestamps from lowest to
+     * highest.
      */
     private static final Sorter<Double> TIMESTAMP_SORTER = new Sorter<Double>() {
 
@@ -38,50 +43,140 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
     };
 
     /**
-     * <code>Double</code>: The animation length of this <code>AnimationSchemaAttributes</code> instance in seconds.
+     * <code>Double</code>: The animation length of this
+     * <code>AnimationSchemaAttributes</code> instance in seconds.
      */
     private final Double length;
 
     /**
-     * <code>Boolean</code>: Whether or not this <code>AnimationSchemaAttributes</code> instance is a looping animation.
+     * Retrieves the length of this <code>AnimationSchemaAttributes</code> instance.
+     * 
+     * @return <code>Double</code>: The <code>length</code> field of this
+     *         <code>AnimationSchemaAttributes</code> instance.
+     */
+    public Double getLength() {
+
+        return length;
+    }
+
+    /**
+     * <code>Boolean</code>: Whether or not this
+     * <code>AnimationSchemaAttributes</code> instance is a looping animation.
      */
     private final Boolean looping;
 
     /**
-     * <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>: The key frame time stamps of this <code>AnimationSchemaAttributes</code> instance paired with the key frames of the bone actors.
+     * Retrieves whether or not this <code>AnimationSchemaAttributes</code> instance
+     * is looping.
+     * 
+     * @return <code>Boolean</code>: The <code>looping</code> field of this
+     *         <code>AnimationSchemaAttributes</code> instance.
+     */
+    public Boolean getLooping() {
+
+        return looping;
+    }
+
+    /**
+     * <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>:
+     * The key frame time stamps of this <code>AnimationSchemaAttributes</code>
+     * instance paired with the key frames of the bone actors.
      */
     private final FinalizedMap<Double, FinalizedMap<String, KeyFrame>> keyframes;
 
     /**
-     * <code>FinalizedList&lt;Double&gt;</code>: The sorted list of timestamps of this <code>AnimationSchemaAttributes</code> instance.
+     * Retrieves the keyframes of this <code>AnimationSchemaAttributes</code>
+     * instance.
+     * 
+     * @return <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, KeyFrame&gt;&gt;</code>:
+     *         The <code>keyframes</code> field of this
+     *         <code>AnimationSchemaAttributes</code> instance.
+     */
+    public FinalizedMap<Double, FinalizedMap<String, KeyFrame>> getKeyframes() {
+
+        return keyframes;
+    }
+
+    /**
+     * <code>FinalizedList&lt;Double&gt;</code>: The sorted list of timestamps of
+     * this <code>AnimationSchemaAttributes</code> instance.
      */
     private final FinalizedList<Double> timestampsSorted;
 
     /**
-     * <code>FinalizedSet&lt;String&gt</code>: The set of all bones of this <code>AnimationSchemaAttributes</code> instance.
+     * Retrieves the sorted timestamps of this
+     * <code>AnimationSchemaAttributes</code> instance.
+     * 
+     * @return <code>FinalizedList&lt;Double&gt;</code>: The
+     *         <code>timestampsSorted</code> field of this
+     *         <code>AnimationSchemaAttributes</code> instance.
+     */
+    public FinalizedList<Double> getTimestampsSorted() {
+
+        return timestampsSorted;
+    }
+
+    /**
+     * <code>FinalizedSet&lt;String&gt;</code>: The set of all bones of this
+     * <code>AnimationSchemaAttributes</code> instance.
      */
     private final FinalizedSet<String> bones;
 
     /**
-     * <code>boolean</code>: Whether or not this <code>AnimationSchemaAttributes</code> defines a new animation or only properties of the animation.
+     * Retrieves the bones of this <code>AnimationSchemaAttributes</code> instance.
+     * 
+     * @return <code>FinalizedSet&lt;String&gt;</code>: The <code>bones</code> field
+     *         of this <code>AnimationSchemaAttributes</code> instance.
+     */
+    public FinalizedSet<String> getBones() {
+
+        return bones;
+    }
+
+    /**
+     * <code>boolean</code>: Whether or not this
+     * <code>AnimationSchemaAttributes</code> defines a new animation or only
+     * properties of the animation.
      */
     private final boolean animationDefinition;
 
     /**
-     * Compiles this <code>AnimationSchemaAttributes</code> instance into a completed instance.
-     * @param schema <code>AnimationSchema</code>: The schema which created this <code>AnimationSchemaAttributes</code> instance.
-     * @param schemaJson <code>TracedDictionary</code>: The schema JSON used to compile this <code>AnimationSchemaAttributes</code> instance.
-     * @param isBase <code>boolean</code>: Whether or not this <code>AnimationSchemaAttributes</code> instance is the base attribute set of an <code>AnimationSchema</code> instance.
-     * @throws LoggedException Thrown if an exception is raised while processing this <code>AnimationSchemaAttributes</code> instance.
+     * Retrieves whether or not this <code>AnimationSchemaAttributes</code> instance
+     * is an animation definition.
+     * 
+     * @return <code>boolean</code>: The <code>animationDefinition</code> field of
+     *         this <code>AnimationSchemaAttributes</code> instance.
      */
-    public AnimationSchemaAttributes(AnimationSchema schema, TracedDictionary schemaJson, boolean isBase) throws LoggedException {
+    public boolean getAnimationDefinition() {
+
+        return animationDefinition;
+    }
+
+    /**
+     * Compiles this <code>AnimationSchemaAttributes</code> instance into a
+     * completed instance.
+     * 
+     * @param schema     <code>AnimationSchema</code>: The schema which created this
+     *                   <code>AnimationSchemaAttributes</code> instance.
+     * @param schemaJson <code>TracedDictionary</code>: The schema JSON used to
+     *                   compile this <code>AnimationSchemaAttributes</code>
+     *                   instance.
+     * @param isBase     <code>boolean</code>: Whether or not this
+     *                   <code>AnimationSchemaAttributes</code> instance is the base
+     *                   attribute set of an <code>AnimationSchema</code> instance.
+     * @throws LoggedException Thrown if an exception is raised while processing
+     *                         this <code>AnimationSchemaAttributes</code> instance.
+     */
+    public AnimationSchemaAttributes(AnimationSchema schema, TracedDictionary schemaJson, boolean isBase)
+            throws LoggedException {
 
         super(schema, schemaJson, isBase);
 
-        TracedEntry<Boolean> loopingEntry = schemaJson.getAsBoolean("looping", true, null);
+        TracedEntry<Boolean> loopingEntry = schemaJson.getAsBoolean("looping", true, isBase ? false : null);
         looping = loopingEntry.getValue();
 
-        // Key frames should be required if this attribute set is the base attribute set.
+        // Key frames should be required if this attribute set is the base attribute
+        // set.
         TracedEntry<TracedDictionary> keyframesEntry = schemaJson.getAsDictionary("keyframes", !isBase);
         animationDefinition = keyframesEntry.containsValue();
 
@@ -93,7 +188,7 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
             TracedDictionary keyframesJson = keyframesEntry.getValue();
 
             // If there are keyframe entries, a new length should be defined.
-            TracedEntry<Double> lengthEntry = schemaJson.getAsDouble("length", false,  null, 0.0, null);
+            TracedEntry<Double> lengthEntry = schemaJson.getAsDouble("length", false, null, 0.0, null);
             length = lengthEntry.getValue();
 
             ArrayList<Double> timestampsList = new ArrayList<>();
@@ -109,7 +204,8 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
                 // Generates the timestamp of the keyframe.
                 Double keyframeTimestamp = Double.valueOf(keyframe);
 
-                // If the timestamp of the keyframe is outside of the animation length, raise an exception.
+                // If the timestamp of the keyframe is outside of the animation length, raise an
+                // exception.
                 if (keyframeTimestamp < 0 || keyframeTimestamp > length || keyframes.containsKey(keyframeTimestamp)) {
 
                     throw new InvalidKeyException(keyframesEntry, keyframe);
@@ -150,84 +246,40 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
     }
 
     /**
-     * Retrieves the length of this <code>AnimationSchemaAttributes</code> instance.
-     * @return <code>Double</code>: The <code>length</code> field of this <code>AnimationSchemaAttributes</code> instance.
-     */
-    public Double getLength() {
-
-        return length;
-    }
-
-    /**
-     * Retrieves whether or not this <code>AnimationSchemaAttributes</code> instance is looping.
-     * @return <code>Boolean</code>: The <code>looping</code> field of this <code>AnimationSchemaAttributes</code> instance.
-     */
-    public Boolean getLooping() {
-
-        return looping;
-    }
-
-    /**
-     * Retrieves the keyframes of this <code>AnimationSchemaAttributes</code> instance.
-     * @return <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, KeyFrame&gt;&gt;</code>: The <code>keyframes</code> field of this <code>AnimationSchemaAttributes</code> instance.
-     */
-    public FinalizedMap<Double, FinalizedMap<String, KeyFrame>> getKeyFrames() {
-
-        return keyframes;
-    }
-
-    /**
-     * Retrieves the sorted timestamps of this <code>AnimationSchemaAttributes</code> instance.
-     * @return <code>FinalizedList&ltDouble&gt;</code>: The <code>timestampsSorted</code> field of this <code>AnimationSchemaAttributes</code> instance.
-     */
-    public FinalizedList<Double> getTimeStampsSorted() {
-
-       return timestampsSorted;
-    }
-
-    /**
-     * Retrieves the bones of this <code>AnimationSchemaAttributes</code> instance.
-     * @return <code>FinalizedSet&lt;String&gt;</code>: The <code>bones</code> field of this <code>AnimationSchemaAttributes</code> instance.
-     */
-    public FinalizedSet<String> getBones() {
-
-        return bones;
-     }
-
-    /**
-     * Retrieves whether or not this <code>AnimationSchemaAttributes</code> instance is an animation definition.
-     * @return <code>boolean</code>: The <code>animationDefinition</code> field of this <code>AnimationSchemaAttributes</code> instance.
-     */
-    public boolean getAnimationDefinition() {
-
-        return animationDefinition;
-     }
-
-    /**
-     * <code>AnimationSchemaAttributes.KeyFrame</code>: A class representing a keyframe in an animation.
+     * <code>AnimationSchemaAttributes.KeyFrame</code>: A subclass representing a
+     * keyframe in an animation.
      */
     public final class KeyFrame {
 
         /**
-         * <code>RotationFrame</code>: The rotation frame of this <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         * <code>RotationFrame</code>: The rotation frame of this
+         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
          */
-        public final RotationFrame rotation;
+        private final RotationFrame rotation;
 
         /**
-         * <code>PositionFrame</code>: The position frame of this <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         * <code>PositionFrame</code>: The position frame of this
+         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
          */
-        public final PositionFrame position;
+        private final PositionFrame position;
 
         /**
-         * <code>ScaleFrame</code>: The scale frame of this <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         * <code>ScaleFrame</code>: The scale frame of this
+         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
          */
-        public final ScaleFrame scale;
+        private final ScaleFrame scale;
 
         /**
-         * Creates a new instance of the <code>AnimationSchemaAttributes.KeyFrame</code> class.
-         * @param keyframeJson <code>TracedDictionary</code>: The json from which this <code>AnimationSchemaAttributes.KeyFrame</code> instance should be constructed.
-         * @param timestamp <code>double</code>: The timestamp of this <code>AnimationSchemaAttributes.KeyFrame</code> instance.
-         * @throws LoggedException Thrown to indicate any raised exception while building this key frame.
+         * Creates a new instance of the <code>AnimationSchemaAttributes.KeyFrame</code>
+         * class.
+         * 
+         * @param keyframeJson <code>TracedDictionary</code>: The json from which this
+         *                     <code>AnimationSchemaAttributes.KeyFrame</code> instance
+         *                     should be constructed.
+         * @param timestamp    <code>double</code>: The timestamp of this
+         *                     <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         * @throws LoggedException Thrown to indicate any raised exception while
+         *                         building this key frame.
          */
         private KeyFrame(TracedDictionary keyframeJson, double timestamp) throws LoggedException {
 
@@ -243,23 +295,59 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
             TracedDictionary scaleJson = scaleEntry.getValue();
             scale = scaleEntry.containsValue() ? new ScaleFrame(scaleJson, timestamp) : null;
         }
+
+        /**
+         * Retrieves the position of this
+         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         * 
+         * @return <code>PositionFrame</code>: The <code>position</code> field of this
+         *         <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         */
+        public PositionFrame getPosition() {
+
+            return position;
+        }
+
+        /**
+         * Retrieves the rotation of this
+         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         * 
+         * @return <code>RotationFrame</code>: The <code>rotation</code> field of this
+         *         <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         */
+        public RotationFrame getRotation() {
+
+            return rotation;
+        }
+
+        /**
+         * Retrieves the scale of this <code>AnimationSchemaAttributes.KeyFrame</code>
+         * instance.
+         * 
+         * @return <code>ScaleFrame</code>: The <code>scale</code> field of this
+         *         <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         */
+        public ScaleFrame getScale() {
+
+            return scale;
+        }
     }
 
     @Override
     protected void finalizeData() {
 
         if (keyframes != null) {
-            
+
             keyframes.finalizeData();
         }
 
         if (timestampsSorted != null) {
-            
+
             timestampsSorted.finalizeData();
         }
 
         if (bones != null) {
-            
+
             bones.finalizeData();
         }
     }

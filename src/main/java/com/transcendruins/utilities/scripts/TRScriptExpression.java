@@ -11,7 +11,7 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>TRScriptExpression</code>: A class representing an evaluable TRScript expression. 
+ * <code>TRScriptExpression</code>: A class representing an evaluable TRScript expression.
  */
 final class TRScriptExpression {
 
@@ -49,7 +49,7 @@ final class TRScriptExpression {
             if (argsEntry.getValue() instanceof TracedArray argsArray) {
 
                 if (operator.invalidArgs(argsArray.size())) {
-                    
+
                     throw new ArrayLengthException((TracedEntry<TracedArray>) argsEntry);
                 }
 
@@ -60,7 +60,7 @@ final class TRScriptExpression {
             } else {
 
                 if (operator.invalidArgs(1)) {
-                    
+
                     throw new UnexpectedValueException(argsEntry);
                 }
                 args.add(new TRScriptValue(argsEntry));
@@ -70,7 +70,7 @@ final class TRScriptExpression {
 
             operator = TRScriptOperator.getOperator((TracedEntry<String>) expressionEntry);
             if (operator.invalidArgs(0)) {
-                    
+
                 throw new UnexpectedValueException(expressionEntry);
             }
 
@@ -84,7 +84,7 @@ final class TRScriptExpression {
      * Parses the value of a dictionary entry into an expression.
      * @param valueEntry <code>TracedEntry&lt;TracedDictionary&gt;</code>: The entry to parse;
      * @return <code>TRScriptExpression</code>: The resulting expression.
-     * @throws LoggedException  
+     * @throws LoggedException
      */
     public static TRScriptExpression parseExpression(TracedEntry<TracedDictionary> expressionEntry) throws UnexpectedValueException, ArrayLengthException, MissingPropertyException, PropertyTypeException {
 
@@ -95,7 +95,7 @@ final class TRScriptExpression {
      * Parses the value of a string entry into a constant expression or an expression.
      * @param valueEntry <code>TracedEntry&lt;String&gt;</code>: The entry to parse;
      * @return <code>Object</code>: The resulting value.
-     * @throws LoggedException  
+     * @throws LoggedException
      */
     public static Object parseStringExpression(TracedEntry<String> valueEntry) throws UnexpectedValueException, ArrayLengthException, MissingPropertyException, PropertyTypeException {
 

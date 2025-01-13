@@ -19,12 +19,23 @@ public class TRLabel extends JLabel implements TRComponent {
      */
     private final String name;
 
+    @Override
+    public final String getComponentName() {
+
+        return name;
+    }
+
     /**
      * Creates a new instance of the <code>TRLabel</code> class.
-     * @param name <code>String</code>: The name of this <code>TRLabel</code> instance.
-     * @param text <code>String</code>: The text to apply to this <code>TRLabel</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRLabel</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRLabel</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this <code>TRLabel</code>
+     *                 instance.
+     * @param text     <code>String</code>: The text to apply to this
+     *                 <code>TRLabel</code> instance.
+     * @param size     <code>Dimension</code>: The size to apply to this
+     *                 <code>TRLabel</code> instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRLabel</code> instance.
      */
     public TRLabel(String name, String text, Dimension size, ComponentSettings settings) {
 
@@ -33,23 +44,34 @@ public class TRLabel extends JLabel implements TRComponent {
 
     /**
      * Creates a new instance of the <code>TRLabel</code> class.
-     * @param name <code>String</code>: The name of this <code>TRLabel</code> instance.
-     * @param icon <code>ImageIcon</code>: The icon to apply to this <code>TRLabel</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRLabel</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRLabel</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this <code>TRLabel</code>
+     *                 instance.
+     * @param icon     <code>ImageIcon</code>: The icon to apply to this
+     *                 <code>TRLabel</code> instance.
+     * @param size     <code>Dimension</code>: The size to apply to this
+     *                 <code>TRLabel</code> instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRLabel</code> instance.
      */
     public TRLabel(String name, ImageIcon icon, Dimension size, ComponentSettings settings) {
 
         this(name, null, icon, size, settings);
     }
-    
+
     /**
      * Creates a new instance of the <code>TRLabel</code> class.
-     * @param name <code>String</code>: The name of this <code>TRLabel</code> instance.
-     * @param text <code>String</code>: The text to apply to this <code>TRLabel</code> instance.
-     * @param icon <code>ImageIcon</code>: The icon to apply to this <code>TRLabel</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRLabel</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRLabel</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this <code>TRLabel</code>
+     *                 instance.
+     * @param text     <code>String</code>: The text to apply to this
+     *                 <code>TRLabel</code> instance.
+     * @param icon     <code>ImageIcon</code>: The icon to apply to this
+     *                 <code>TRLabel</code> instance.
+     * @param size     <code>Dimension</code>: The size to apply to this
+     *                 <code>TRLabel</code> instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRLabel</code> instance.
      */
     public TRLabel(String name, String text, ImageIcon icon, Dimension size, ComponentSettings settings) {
 
@@ -63,10 +85,15 @@ public class TRLabel extends JLabel implements TRComponent {
     }
 
     /**
-     * Creates a new instance of the <code>TRLabel</code> class with default settings applied.
-     * @param name <code>String</code>: The name of this <code>TRLabel</code> instance.
-     * @param text <code>String</code>: The text to apply to this <code>TRLabel</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRLabel</code> instance.
+     * Creates a new instance of the <code>TRLabel</code> class with default
+     * settings applied.
+     * 
+     * @param name <code>String</code>: The name of this <code>TRLabel</code>
+     *             instance.
+     * @param text <code>String</code>: The text to apply to this
+     *             <code>TRLabel</code> instance.
+     * @param size <code>Dimension</code>: The size to apply to this
+     *             <code>TRLabel</code> instance.
      */
     public TRLabel(String name, String text, Dimension size) {
 
@@ -74,10 +101,15 @@ public class TRLabel extends JLabel implements TRComponent {
     }
 
     /**
-     * Creates a new instance of the <code>TRLabel</code> class with default settings applied.
-     * @param name <code>String</code>: The name of this <code>TRLabel</code> instance.
-     * @param icon <code>ImageIcon</code>: The icon to apply to this <code>TRLabel</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRLabel</code> instance.
+     * Creates a new instance of the <code>TRLabel</code> class with default
+     * settings applied.
+     * 
+     * @param name <code>String</code>: The name of this <code>TRLabel</code>
+     *             instance.
+     * @param icon <code>ImageIcon</code>: The icon to apply to this
+     *             <code>TRLabel</code> instance.
+     * @param size <code>Dimension</code>: The size to apply to this
+     *             <code>TRLabel</code> instance.
      */
     public TRLabel(String name, ImageIcon icon, Dimension size) {
 
@@ -85,11 +117,17 @@ public class TRLabel extends JLabel implements TRComponent {
     }
 
     /**
-     * Creates a new instance of the <code>TRLabel</code> class with default settings applied.
-     * @param name <code>String</code>: The name of this <code>TRLabel</code> instance.
-     * @param text <code>String</code>: The text to apply to this <code>TRLabel</code> instance.
-     * @param icon <code>ImageIcon</code>: The icon to apply to this <code>TRLabel</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRLabel</code> instance.
+     * Creates a new instance of the <code>TRLabel</code> class with default
+     * settings applied.
+     * 
+     * @param name <code>String</code>: The name of this <code>TRLabel</code>
+     *             instance.
+     * @param text <code>String</code>: The text to apply to this
+     *             <code>TRLabel</code> instance.
+     * @param icon <code>ImageIcon</code>: The icon to apply to this
+     *             <code>TRLabel</code> instance.
+     * @param size <code>Dimension</code>: The size to apply to this
+     *             <code>TRLabel</code> instance.
      */
     public TRLabel(String name, String text, ImageIcon icon, Dimension size) {
 
@@ -106,11 +144,5 @@ public class TRLabel extends JLabel implements TRComponent {
     public final void setEnabled(boolean enabled) {
 
         super.setEnabled(enabled);
-    }
-
-    @Override
-    public final String getComponentName() {
-
-        return name;
     }
 }

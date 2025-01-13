@@ -8,12 +8,14 @@ import javax.swing.JFrame;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 
 /**
- * <code>TRFrame</code>: A class representing a <code>JFrame</code> whose screens have been mapped, allowing for easy retrieval.
+ * <code>TRFrame</code>: A class representing a <code>JFrame</code> whose
+ * screens have been mapped, allowing for easy retrieval.
  */
 public class TRFrame extends JFrame implements TRScreenContainer {
 
     /**
-     * <code>String</code>: The name of the standard display panel used in all <code>TRFrame</code> instances.
+     * <code>String</code>: The name of the standard display panel used in all
+     * <code>TRFrame</code> instances.
      */
     public static final String DISPLAY_PANEL_NAME = "displayPanel";
 
@@ -22,15 +24,25 @@ public class TRFrame extends JFrame implements TRScreenContainer {
      */
     private final String name;
 
+    @Override
+    public final String getComponentName() {
+
+        return name;
+    }
+
     /**
-     * <code>TRScreenPanel</code>: The panel used to display all screens of this <code>TRFrame</code> instance.
+     * <code>TRScreenPanel</code>: The panel used to display all screens of this
+     * <code>TRFrame</code> instance.
      */
     private final TRScreenPanel displayPanel;
 
     /**
      * Creates a new instance of the <code>TRFrame</code> class.
-     * @param name <code>String</code>: The name of this <code>TRFrame</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRFrame</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this <code>TRFrame</code>
+     *                 instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRFrame</code> instance.
      */
     public TRFrame(String name, ComponentSettings settings) {
 
@@ -85,11 +97,5 @@ public class TRFrame extends JFrame implements TRScreenContainer {
 
             componentEntry.getValue().setEnabled(enabled);
         }
-    }
-
-    @Override
-    public final String getComponentName() {
-
-        return name;
     }
 }

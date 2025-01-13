@@ -7,22 +7,26 @@ import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.world.World;
 
 /**
- * <code>CacheOperator</code>: A set of operations for accessing and manipulating the data cache.
+ * <code>CacheOperator</code>: A set of operations for accessing and
+ * manipulating the data cache.
  */
 public final class CacheOperator {
 
     /**
-     * <code>CacheOperator.CacheElement</code>: An enum class representing the various kinds of cache elements.
+     * <code>CacheOperator.CacheElement</code>: An enum class representing the
+     * various kinds of cache elements.
      */
     public enum CacheElement {
 
         /**
-         * <code>CacheOperator.CacheElement</code>: An enum constant representing stored terrain information.
+         * <code>CacheOperator.CacheElement</code>: An enum constant representing stored
+         * terrain information.
          */
         TERRAIN,
 
         /**
-         * <code>CacheOperator.CacheElement</code>: An enum constant representing stored entity information.
+         * <code>CacheOperator.CacheElement</code>: An enum constant representing stored
+         * entity information.
          */
         ENTITIES
     }
@@ -33,12 +37,33 @@ public final class CacheOperator {
     private static final TracedPath CACHE_DIRECTORY = buildCacheDirectory();
 
     /**
+     * Retrieves the cache directory.
+     * 
+     * @return <code>TracedPath</code>: The <code>CACHE_DIRECTORY</code> field.
+     */
+    public static TracedPath getCacheDirectory() {
+
+        return CACHE_DIRECTORY;
+    }
+
+    /**
      * <code>TracedPath</code>: The filepath of the worlds directory.
      */
     private static final TracedPath WORLDS_DIRECTORY = buildWorldsDirectory();
 
     /**
+     * Retrieves the worlds directory.
+     * 
+     * @return <code>TracedPath</code>: The <code>WORLDS_DIRECTORY</code> field.
+     */
+    public static TracedPath getWorldsDirectory() {
+
+        return WORLDS_DIRECTORY;
+    }
+
+    /**
      * Generates the cache directory.
+     * 
      * @return <code>TracedPath</code>: The path to the generated cache directory
      */
     private static TracedPath buildCacheDirectory() {
@@ -48,13 +73,15 @@ public final class CacheOperator {
         try {
 
             cacheRoot.createFile(true);
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
 
         return cacheRoot;
     }
 
     /**
      * Generates the worlds directory.
+     * 
      * @return <code>TracedPath</code>: The path to the generated worlds directory
      */
     private static TracedPath buildWorldsDirectory() {
@@ -64,19 +91,22 @@ public final class CacheOperator {
         try {
 
             worldRoot.createFile(true);
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
 
         return worldRoot;
     }
 
     /**
      * Saves a single world to the cache directory.
+     * 
      * @param world <code>World</code>: The world to save.
-     * @throws IOException Thrown if an error is raised while attempting to save the world.
+     * @throws IOException Thrown if an error is raised while attempting to save the
+     *                     world.
      */
     public static void saveWorld(World world) throws IOException {
 
-        //UUID uuid = world.getUUID();
+        // UUID uuid = world.getUUID();
 
         String worldName = "world_";// + uuid.toString();
         TracedPath worldPath = WORLDS_DIRECTORY.extend(worldName);
@@ -86,9 +116,13 @@ public final class CacheOperator {
 
     /**
      * Saves the elements of a world to a cache.
-     * @param world <code>World</code>: The world from which to build the element map.
-     * @param worldPath <code>TracedPath</code>: The root from which to create element directories.
-     * @throws IOException Thrown if an error is raised while attempting to create the element directories.
+     * 
+     * @param world     <code>World</code>: The world from which to build the
+     *                  element map.
+     * @param worldPath <code>TracedPath</code>: The root from which to create
+     *                  element directories.
+     * @throws IOException Thrown if an error is raised while attempting to create
+     *                     the element directories.
      */
     private static void buildElementDirectories(World world, TracedPath worldPath) throws IOException {
 
@@ -104,17 +138,10 @@ public final class CacheOperator {
     }
 
     /**
-     * Retrieves the cache directory.
-     * @return <code>TracedPath</code>: The <code>CACHE_DIRECTORY</code> field
-     */
-    public static TracedPath getCacheDirectory() {
-
-        return CACHE_DIRECTORY;
-    }
-
-    /**
      * Determines whether or not the cache directory exists.
-     * @return <code>boolean</code>: If a directory exists at the <code>CACHE_DIRECTORY</code> field
+     * 
+     * @return <code>boolean</code>: If a directory exists at the
+     *         <code>CACHE_DIRECTORY</code> field
      */
     public static boolean cacheExists() {
 
@@ -124,5 +151,6 @@ public final class CacheOperator {
     /**
      * Prevents the <code>CacheOperator</code> class from being instantiated.
      */
-    private CacheOperator() {}
+    private CacheOperator() {
+    }
 }

@@ -5,81 +5,190 @@ import java.awt.Color;
 import com.transcendruins.world.assetinstances.rendermaterials.RenderMaterialInstance;
 
 /**
- * <code>Triangle3D</code>: A class representing a triangle in a 3D space with each vertice represented by a <code>Vector</code> instance.
+ * <code>Triangle3D</code>: A class representing a triangle in a 3D space with
+ * each vertice represented by a <code>Vector</code> instance.
  */
 public final class Triangle3D {
 
     /**
-     * <code>Vector</code>: The first vertex of this <code>Triangle3D</code> instance.
+     * <code>Vector</code>: The first vertex of this <code>Triangle3D</code>
+     * instance.
      */
-    public final Vector vertex1;
+    private final Vector vertex1;
 
     /**
-     * <code>Vector</code>: The second vertex of this <code>Triangle3D</code> instance.
+     * <code>Vector</code>: The second vertex of this <code>Triangle3D</code>
+     * instance.
      */
-    public final Vector vertex2;
+    private final Vector vertex2;
 
     /**
-     * <code>Vector</code>: The third vertex of this <code>Triangle3D</code> instance.
+     * <code>Vector</code>: The third vertex of this <code>Triangle3D</code>
+     * instance.
      */
-    public final Vector vertex3;
+    private final Vector vertex3;
 
     /**
-     * <code>double</code>: The vector values of the normal to the plane formed by this <code>Triangle3D</code.
+     * <code>double</code>: The vector values of the normal to the plane formed by
+     * this <code>Triangle3D</code>.
      */
-    public final double normalX, normalY, normalZ;
+    private final double normalX, normalY, normalZ;
 
     /**
-     * <code>double</code>: The plane shift used to represent the plane formed by this <code>Triangle3D</code> instance.
+     * <code>double</code>: The plane shift used to represent the plane formed by
+     * this <code>Triangle3D</code> instance.
      */
-    public final double planeShift;
+    private final double planeShift;
 
     /**
-     * <code>double</code>: The cosine value of the angle between the normal of the plane formed by the vertices of this <code>Triangle3D</code> and the viewing vector.
+     * <code>double</code>: The cosine value of the angle between the normal of the
+     * plane formed by the vertices of this <code>Triangle3D</code> and the viewing
+     * vector.
      */
-    public final double viewCosine;
+    private final double viewCosine;
+
+    /**
+     * Retrieves the cosine of the angle between the plane normal of this
+     * <code>Triangle3D</code> instance and the viewing plane normal.
+     * 
+     * @return <code>double</code>: The <code>viewCosine</code> field of this
+     *         <code>Triangle3D</code> instance.
+     */
+    public double getViewCosine() {
+
+        return viewCosine;
+    }
 
     /**
      * <code>Vector</code>: The center of this <code>Triangle3D</code> instance.
      */
-    public final Vector center;
+    private final Vector center;
 
     /**
-     * <code>int</code>: The minimum X bounds of this <code>Triangle3D</code> instance.
+     * Retrieves the center of this <code>Triangle3D</code> instance.
+     * 
+     * @return <code>Vector</code>: The <code>center</code> field of this
+     *         <code>Triangle3D</code> instance.
      */
-    public final int minX;
+    public Vector getCenter() {
+
+        return center;
+    }
 
     /**
-     * <code>int</code>: The maximum X bounds of this <code>Triangle3D</code> instance.
+     * <code>int</code>: The minimum X bounds of this <code>Triangle3D</code>
+     * instance.
      */
-    public final int maxX;
+    private final int minX;
 
     /**
-     * <code>int</code>: The minimum Y bounds of this <code>Triangle3D</code> instance.
+     * Retrieves the minimum X value of this <code>Triangle3D</code> instance.
+     * 
+     * @return <code>int</code>: The <code>minX</code> field of this
+     *         <code>Triangle3D</code> instance.
      */
-    public final int minY;
+    public int getMinX() {
+
+        return minX;
+    }
 
     /**
-     * <code>int</code>: The maximum Y bounds of this <code>Triangle3D</code> instance.
+     * <code>int</code>: The maximum X bounds of this <code>Triangle3D</code>
+     * instance.
      */
-    public final int maxY;
+    private final int maxX;
 
     /**
-     * <code>Color</code>: The color assigned to this <code>Triangle3D</code> instance.
+     * Retrieves the maximum X value of this <code>Triangle3D</code> instance.
+     * 
+     * @return <code>int</code>: The <code>maxX</code> field of this
+     *         <code>Triangle3D</code> instance.
      */
-    public final Color color;
+    public int getMaxX() {
+
+        return maxX;
+    }
 
     /**
-     * <code>RenderMaterialInstance</code>: The render material used to render this <code>Triangle3D</code> instance.
+     * <code>int</code>: The minimum Y bounds of this <code>Triangle3D</code>
+     * instance.
+     */
+    private final int minY;
+
+    /**
+     * Retrieves the minimum Y value of this <code>Triangle3D</code> instance.
+     * 
+     * @return <code>int</code>: The <code>minY</code> field of this
+     *         <code>Triangle3D</code> instance.
+     */
+    public int getMinY() {
+
+        return minY;
+    }
+
+    /**
+     * <code>int</code>: The maximum Y bounds of this <code>Triangle3D</code>
+     * instance.
+     */
+    private final int maxY;
+
+    /**
+     * Retrieves the maximum Y value of this <code>Triangle3D</code> instance.
+     * 
+     * @return <code>int</code>: The <code>maxY</code> field of this
+     *         <code>Triangle3D</code> instance.
+     */
+    public int getMaxY() {
+
+        return maxY;
+    }
+
+    /**
+     * <code>Color</code>: The color assigned to this <code>Triangle3D</code>
+     * instance.
+     */
+    private final Color color;
+
+    /**
+     * Retrieves the color of this <code>Triangle3D</code> instance.
+     * 
+     * @return <code>Color</code>: The <code>color</code> field of this
+     *         <code>Triangle3D</code> instance.
+     */
+    public Color getColor() {
+
+        return color;
+    }
+
+    /**
+     * <code>RenderMaterialInstance</code>: The render material used to render this
+     * <code>Triangle3D</code> instance.
      */
     private RenderMaterialInstance renderMaterial;
 
     /**
+     * Retrieves the render material used to render this <code>Triangle3D</code>
+     * instance.
+     * 
+     * @return <code>RenderMaterialInstance</code>: The <code>renderMaterial</code>
+     *         field of this <code>Triangle3D</code> instance.
+     */
+    public RenderMaterialInstance getRenderMaterial() {
+
+        return renderMaterial;
+    }
+
+    /**
      * Creates a new instance of the <code>Triangle3D</code> class.
-     * @param vertex1 <code>Vector</code>: The first vertice of this <code>Triangle3D</code> instance.
-     * @param vertex2 <code>Vector</code>: The second vertice of this <code>Triangle3D</code> instance.
-     * @param vertex3 <code>Vector</code>: The third vertice of this <code>Triangle3D</code> instance.
-     * @param color <code>Color</code>: The color to assign to this <code>Triangle3D</code> instance.
+     * 
+     * @param vertex1 <code>Vector</code>: The first vertice of this
+     *                <code>Triangle3D</code> instance.
+     * @param vertex2 <code>Vector</code>: The second vertice of this
+     *                <code>Triangle3D</code> instance.
+     * @param vertex3 <code>Vector</code>: The third vertice of this
+     *                <code>Triangle3D</code> instance.
+     * @param color   <code>Color</code>: The color to assign to this
+     *                <code>Triangle3D</code> instance.
      */
     public Triangle3D(Vector vertex1, Vector vertex2, Vector vertex3, Color color) {
 
@@ -109,13 +218,19 @@ public final class Triangle3D {
         Vector n = new Vector(0, 0, 20);
         viewCosine = n.dot(normal) / (normal.magnitude() * n.magnitude());
 
-        center = vertex1.addVector(vertex2).addVector(vertex3).multiplyScalar(1.0/3.0);
+        center = vertex1.addVector(vertex2).addVector(vertex3).multiplyScalar(1.0 / 3.0);
     }
 
     /**
-     * Creates a new instance of the <code>Triangle3D</code> class by performing a set of matrix operations on the existing vertices in this <code>Triangle3D</code> instance.
-     * @param operations <code>MatrixOperations</code>: The matrix operations to perform on the vertices of this <code>Triangle3D</code> instance.
-     * @return <code>Triangle3D</code> The generated <code>Triangle3D</code> instance.
+     * Creates a new instance of the <code>Triangle3D</code> class by performing a
+     * set of matrix operations on the existing vertices in this
+     * <code>Triangle3D</code> instance.
+     * 
+     * @param operations <code>MatrixOperations</code>: The matrix operations to
+     *                   perform on the vertices of this <code>Triangle3D</code>
+     *                   instance.
+     * @return <code>Triangle3D</code> The generated <code>Triangle3D</code>
+     *         instance.
      */
     public Triangle3D getAdjustedInstance(MatrixOperations operations) {
 
@@ -127,20 +242,26 @@ public final class Triangle3D {
     }
 
     /**
-     * Calculates whether or not this <code>Triangle3D</code> instance is being viewed from the backside.
-     * @return <code>boolean</code>: Whether or not this <code>Triangle3D</code> instance is being viewed from the backside.
+     * Calculates whether or not this <code>Triangle3D</code> instance is being
+     * viewed from the backside.
+     * 
+     * @return <code>boolean</code>: Whether or not this <code>Triangle3D</code>
+     *         instance is being viewed from the backside.
      */
     public boolean facingBackside() {
 
-        // If the depth of the cross product of vector <v2, v1> and vector <v3, v1> is greater than 0, the origin point is facing the back of the triangle.
+        // If the depth of the cross product of vector <v2, v1> and vector <v3, v1> is
+        // greater than 0, the origin point is facing the back of the triangle.
         return normalZ > 0;
     }
 
     /**
      * Calculates whether or not this <code>Triangle3D</code> instance is in frame.
-     * @param width <code>int</code>: The width of the frame.
+     * 
+     * @param width  <code>int</code>: The width of the frame.
      * @param height <code>int</code>: The height of the frame.
-     * @return <code>boolean</code>: Whether or not this <code>Triangle3D</code> instance is in frame.
+     * @return <code>boolean</code>: Whether or not this <code>Triangle3D</code>
+     *         instance is in frame.
      */
     public boolean inFrame(int width, int height) {
 
@@ -148,65 +269,86 @@ public final class Triangle3D {
     }
 
     /**
-     * Retrieves the depth of this <code>Triangle3D</code> instance in 3D space at a specific point.
+     * Retrieves the depth of this <code>Triangle3D</code> instance in 3D space at a
+     * specific point.
+     * 
      * @param x <code>int</code>: The X coordinate of the point to retrieve.
      * @param y <code>int</code>: The Y coordinate of the point to retrieve.
-     * @return <code>double</code>: The depth of this <code>Triangle3D</code> instance at the point <code>point</code>.
+     * @return <code>double</code>: The depth of this <code>Triangle3D</code>
+     *         instance at the point <code>point</code>.
      */
     public double depthAtPoint(int x, int y) {
 
-        // The formula of a plane is nx(x - px) + ny(y - py) + nz(z - pz) = 0, where (px, py, pz) is a point on the plane and the vector <nx, ny, nz> is normal (orthoganol) to the plane.
+        // The formula of a plane is nx(x - px) + ny(y - py) + nz(z - pz) = 0, where
+        // (px, py, pz) is a point on the plane and the vector <nx, ny, nz> is normal
+        // (orthoganol) to the plane.
         // Adjust the formula to isolate Z.
         return -(x * normalX + y * normalY + planeShift) / normalZ;
     }
 
     /**
      * Retrieves the Y bounds of this <code>Triangle3D</code> instance at input X.
+     * 
      * @param x <code>int</code>: The X coordinate whose Y bounds should be found.
-     * @return <code>int[2]</code>: The Y bounds of this <code>Triangle3D</code> instance at input X.
+     * @return <code>int[2]</code>: The Y bounds of this <code>Triangle3D</code>
+     *         instance at input X.
      */
     public int[] findYBoundsAtX(int x) {
 
         // Find the Y value on the line v1v2 at point X.
-        Integer boundV1V2 = getYAtX(x, (int) vertex1.getX(), (int) vertex1.getY(), (int) vertex2.getX(), (int) vertex2.getY());
+        Integer boundV1V2 = getYAtX(x, (int) vertex1.getX(), (int) vertex1.getY(), (int) vertex2.getX(),
+                (int) vertex2.getY());
 
         // Find the Y value on the line v2v3 at point X.
-        Integer boundV2V3 = getYAtX(x, (int) vertex2.getX(), (int) vertex2.getY(), (int) vertex3.getX(), (int) vertex3.getY());
+        Integer boundV2V3 = getYAtX(x, (int) vertex2.getX(), (int) vertex2.getY(), (int) vertex3.getX(),
+                (int) vertex3.getY());
 
         // Find the Y value on the line v3v1 at point X.
-        Integer boundV3V1 = getYAtX(x, (int) vertex3.getX(), (int) vertex3.getY(), (int) vertex1.getX(), (int) vertex1.getY());
+        Integer boundV3V1 = getYAtX(x, (int) vertex3.getX(), (int) vertex3.getY(), (int) vertex1.getX(),
+                (int) vertex1.getY());
 
         // Find the minimum and maximum Y values of the triangle at point X.
-        int[] newValues = new int[] {min(boundV1V2, min(boundV2V3, boundV3V1)), max(boundV1V2, max(boundV2V3, boundV3V1))};
+        int[] newValues = new int[] { min(boundV1V2, min(boundV2V3, boundV3V1)),
+                max(boundV1V2, max(boundV2V3, boundV3V1)) };
 
         return newValues;
     }
 
     /**
      * Retrieves the X bounds of this <code>Triangle3D</code> instance at input Y.
+     * 
      * @param y <code>int</code>: The Y coordinate whose X bounds should be found.
-     * @return <code>int[2]</code>: The X bounds of this <code>Triangle3D</code> instance at input Y.
+     * @return <code>int[2]</code>: The X bounds of this <code>Triangle3D</code>
+     *         instance at input Y.
      */
     public int[] findXBoundsAtY(int y) {
 
         // Find the X value on the line v1v2 at point Y.
-        Integer boundV1V2 = getYAtX(y, (int) vertex1.getY(), (int) vertex1.getX(), (int) vertex2.getY(), (int) vertex2.getX());
+        Integer boundV1V2 = getYAtX(y, (int) vertex1.getY(), (int) vertex1.getX(), (int) vertex2.getY(),
+                (int) vertex2.getX());
 
         // Find the X value on the line v2v3 at point Y.
-        Integer boundV2V3 = getYAtX(y, (int) vertex2.getY(), (int) vertex2.getX(), (int) vertex3.getY(), (int) vertex3.getX());
+        Integer boundV2V3 = getYAtX(y, (int) vertex2.getY(), (int) vertex2.getX(), (int) vertex3.getY(),
+                (int) vertex3.getX());
 
         // Find the X value on the line v3v1 at point Y.
-        Integer boundV3V1 = getYAtX(y, (int) vertex3.getY(), (int) vertex3.getX(), (int) vertex1.getY(), (int) vertex1.getX());
+        Integer boundV3V1 = getYAtX(y, (int) vertex3.getY(), (int) vertex3.getX(), (int) vertex1.getY(),
+                (int) vertex1.getX());
 
         // Find the minimum and maximum X values of the triangle at point Y.
-        int[] newValues = new int[] {min(boundV1V2, min(boundV2V3, boundV3V1)), max(boundV1V2, max(boundV2V3, boundV3V1))};
+        int[] newValues = new int[] { min(boundV1V2, min(boundV2V3, boundV3V1)),
+                max(boundV1V2, max(boundV2V3, boundV3V1)) };
 
         return newValues;
     }
 
     /**
-     * Sets the <code>renderMaterial</code> field of this <code>Triangle3D</code> instance.
-     * @param renderMaterial <code>RenderMaterialInstance</code>: The render material used to render this <code>Triangle3D</code> instance.
+     * Sets the <code>renderMaterial</code> field of this <code>Triangle3D</code>
+     * instance.
+     * 
+     * @param renderMaterial <code>RenderMaterialInstance</code>: The render
+     *                       material used to render this <code>Triangle3D</code>
+     *                       instance.
      */
     public void setRenderMaterial(RenderMaterialInstance renderMaterial) {
 
@@ -214,17 +356,10 @@ public final class Triangle3D {
     }
 
     /**
-     * Retrieves the render material used to render this <code>Triangle3D</code> instance.
-     * @return <code>RenderMaterialInstance</code>: The <code>renderMaterial</code> field of this <code>Triangle3D</code> instance.
-     */
-    public RenderMaterialInstance getRenderMaterial() {
-
-        return renderMaterial;
-    }
-
-    /**
-     * Retrieves the Y coordinate of input X on the line between points (x1, y1) and (x2, y2).
-     * @param x <code>int</code>: The X coordinate whose pair should be found.
+     * Retrieves the Y coordinate of input X on the line between points (x1, y1) and
+     * (x2, y2).
+     * 
+     * @param x  <code>int</code>: The X coordinate whose pair should be found.
      * @param x1 <code>int</code>: The X coordinate of the first point on the line.
      * @param y1 <code>int</code>: The Y coordinate of the first point on the line.
      * @param x2 <code>int</code>: The X coordinate of the first point on the line.
@@ -238,7 +373,8 @@ public final class Triangle3D {
             return null;
         }
 
-        // If the slope is 0.0 or the slope is vertical, return the Y coordinate of the first point.
+        // If the slope is 0.0 or the slope is vertical, return the Y coordinate of the
+        // first point.
         if (x1 == x2 || y1 == y2) {
 
             return y1;
@@ -254,10 +390,14 @@ public final class Triangle3D {
     }
 
     /**
-     * Returns the smaller of two <code>Integer</code> values, with the possibility of a <code>null</code> value in either value.
+     * Returns the smaller of two <code>Integer</code> values, with the possibility
+     * of a <code>null</code> value in either value.
+     * 
      * @param val1 <code>Integer</code>: The first value to check.
      * @param val2 <code>Integer</code>: The second value to check.
-     * @return <code>Integer</code>: The lowest value between <code>val1</code> and <code>val2</code>, or <code>null</code> if neither perameter has a value.
+     * @return <code>Integer</code>: The lowest value between <code>val1</code> and
+     *         <code>val2</code>, or <code>null</code> if neither perameter has a
+     *         value.
      */
     private static Integer min(Integer val1, Integer val2) {
 
@@ -275,10 +415,14 @@ public final class Triangle3D {
     }
 
     /**
-     * Returns the larger of two <code>Integer</code> values, with the possibility of a <code>null</code> value in either value.
+     * Returns the larger of two <code>Integer</code> values, with the possibility
+     * of a <code>null</code> value in either value.
+     * 
      * @param val1 <code>Integer</code>: The first value to check.
      * @param val2 <code>Integer</code>: The second value to check.
-     * @return <code>Integer</code>: The highest value between <code>val1</code> and <code>val2</code>, or <code>null</code> if neither perameter has a value.
+     * @return <code>Integer</code>: The highest value between <code>val1</code> and
+     *         <code>val2</code>, or <code>null</code> if neither perameter has a
+     *         value.
      */
     private static Integer max(Integer val1, Integer val2) {
 

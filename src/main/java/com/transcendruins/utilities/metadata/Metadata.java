@@ -21,47 +21,182 @@ import com.transcendruins.utilities.json.TracedEntry;
 public final class Metadata {
 
     /**
-     * <code>TracedDictionary</code>: The JSON representation of this <code>Metadata</code> instance.
+     * <code>TracedDictionary</code>: The JSON representation of this
+     * <code>Metadata</code> instance.
      */
-    public final TracedDictionary json;
+    private final TracedDictionary json;
 
     /**
-     * <code>TracedEntry&lt;Identifier&gt;</code>: The <code>TracedEntry&lt;Identifier&gt;</code> representing the identifier of this <code>Metadata</code> instance.
+     * Retrieves the json of this <code>Metadata</code> instance.
+     * 
+     * @return <code>TracedDictionary</code>: The <code>json</code> field of this
+     *         <code>Metadata</code> instance.
      */
-    public final TracedEntry<Identifier> identifierEntry;
+    public TracedDictionary getJson() {
+
+        return json;
+    }
 
     /**
-     * <code>TracedEntry&lt;Version&gt;</code>: The <code>TracedEntry&lt;Version&gt;</code> representing the version of this <code>Metadata</code> instance.
+     * <code>TracedEntry&lt;Identifier&gt;</code>: The
+     * <code>TracedEntry&lt;Identifier&gt;</code> representing the identifier of
+     * this <code>Metadata</code> instance.
      */
-    public final TracedEntry<Version> versionEntry;
+    private final TracedEntry<Identifier> identifierEntry;
 
     /**
-     * <code>boolean</code>: Whether or not this <code>Metadata</code> instance utilized a version range or a regular version.
+     * Retrieves the identifier entry of this <code>Metadata</code> instance.
+     * 
+     * @return <code>TracedEntry&lt;Identifier&gt;</code>: The
+     *         <code>identifierEntry</code> field of this <code>Metadata</code>
+     *         instance.
      */
-    public final boolean versionRange;
+    public TracedEntry<Identifier> getIdentifierEntry() {
+
+        return identifierEntry;
+    }
 
     /**
-     * <code>Identifier[2]</code>: The version bounds to check between, if the <code>versionRange</code> field is <code>true</code>.
+     * <code>Identifier</code>: The identifier of this <code>Metadata</code>
+     * instance.
      */
-    public final Identifier[] versionBounds = new Identifier[2];
+    private final Identifier identifier;
 
     /**
-     * Creates a new instance of the <code>Metadata</code> class using a field from a <code>TracedCollection</code> instance. This version WILL retrieve the version.
-     * @param entry <code>TracedEntry&lt;TracedDictionary&gt;</code>: The entry from which to create this <code>Metadata</code> instance.
-     * @param versionRangeAllowed <code>boolean</code>: Whether or not a range of versions is allowed in this <code>Metadata</code> instance.
-     * @throws ArrayLengthException Thrown if an array in this <code>Metadata</code> instance is of an invalid length.
-     * @throws PropertyTypeException Thrown if the type of a field in this <code>Metadata</code> instance is invalid.
-     * @throws MissingPropertyException Thrown if a field is missing from this <code>Metadata</code> instance.
-     * @throws IdentifierFormatException Thrown if this <code>Metadata</code> instance identifier is in an invalid format.
-     * @throws VersionBoundsException Thrown if the minimum version bounds is greater than the maximum version bounds in this <code>Metadata</code> instance.
-     * @throws VersionBoundsException Thrown if any vector value in the <code>Version</code> vector or any vector value in the minimum allowed version vector is negative.
-     * @throws NumberBoundsException Thrown if any vector value in the generated <code>Metadata</code> instance is negative.
+     * Retrieves the <code>Identifier</code> of this <code>Metadata</code> instance.
+     * 
+     * @return <code>Identifier</code>: The <code>Identifier</code> of this
+     *         <code>Metadata</code> instance.
      */
-    public Metadata(TracedEntry<TracedDictionary> entry, boolean versionRangeAllowed) throws IdentifierFormatException, MissingPropertyException, PropertyTypeException, ArrayLengthException, VersionBoundsException, NumberBoundsException {
+    public Identifier getIdentifier() {
+
+        return identifier;
+    }
+
+    /**
+     * <code>TracedEntry&lt;Version&gt;</code>: The
+     * 
+     * @return <code>TracedEntry&lt;Version&gt;</code> representing the version of
+     *         this <code>Metadata</code> instance.
+     */
+    private final TracedEntry<Version> versionEntry;
+
+    /**
+     * Retrieves the version entry of this <code>Metadata</code> instance.
+     * 
+     * @return <code>TracedEntry&lt;Version&gt;</code>: The
+     *         <code>versionEntry</code> field of this <code>Metadata</code>
+     *         instance.
+     */
+    public TracedEntry<Version> getVersionEntry() {
+
+        return versionEntry;
+    }
+
+    /**
+     * <code>Version</code>: The version of this <code>Metadata</code>
+     * instance.
+     */
+    private final Version version;
+
+    /**
+     * Retrieves the version of this <code>Metadata</code> instance.
+     * 
+     * @return <code>Version</code>: The <code>version</code> field of this
+     *         <code>Metadata</code> instance.
+     */
+    public Version getVersion() {
+
+        return version;
+    }
+
+    /**
+     * <code>boolean</code>: Whether or not this <code>Metadata</code> instance
+     * utilized a version range or a regular version.
+     */
+    private final boolean hasVersionRange;
+
+    /**
+     * Retrieves whether or not this <code>Metadata</code> instance has a version
+     * range.
+     * 
+     * @return <code>boolean</code>: The <code>hasVersionRange</code> field of this
+     *         <code>Metadata</code> instance.
+     */
+    public boolean hasVersionRange() {
+
+        return hasVersionRange;
+    }
+
+    /**
+     * <code>Identifier[2]</code>: The version range to check between, if the
+     * <code>hasVersionRange</code> field is <code>true</code>.
+     */
+    public final Identifier[] versionRange = new Identifier[2];
+
+    /**
+     * Retrieves the upper version range of this <code>Metadata</code> instance.
+     * 
+     * @return <code>Identifier</code>: The second index of the
+     *         <code>versionRange</code> field of this <code>Metadata</code>
+     *         instance.
+     */
+    public Identifier getUpperVersionRange() {
+
+        return versionRange[1];
+    }
+
+    /**
+     * Retrieves the lower version range of this <code>Metadata</code> instance.
+     * 
+     * @return <code>Identifier</code>: The first index of the
+     *         <code>versionRange</code> field of this <code>Metadata</code>
+     *         instance.
+     */
+    public Identifier getLowerVersionRange() {
+
+        return versionRange[0];
+    }
+
+    /**
+     * Creates a new instance of the <code>Metadata</code> class using a field from
+     * a <code>TracedCollection</code> instance. This version WILL retrieve the
+     * version.
+     * 
+     * @param entry               <code>TracedEntry&lt;TracedDictionary&gt;</code>:
+     *                            The entry from which to create this
+     *                            <code>Metadata</code> instance.
+     * @param versionRangeAllowed <code>boolean</code>: Whether or not a range of
+     *                            versions is allowed in this <code>Metadata</code>
+     *                            instance.
+     * @throws ArrayLengthException      Thrown if an array in this
+     *                                   <code>Metadata</code> instance is of an
+     *                                   invalid length.
+     * @throws PropertyTypeException     Thrown if the type of a field in this
+     *                                   <code>Metadata</code> instance is invalid.
+     * @throws MissingPropertyException  Thrown if a field is missing from this
+     *                                   <code>Metadata</code> instance.
+     * @throws IdentifierFormatException Thrown if this <code>Metadata</code>
+     *                                   instance identifier is in an invalid
+     *                                   format.
+     * @throws VersionBoundsException    Thrown if the minimum version bounds is
+     *                                   greater than the maximum version bounds in
+     *                                   this <code>Metadata</code> instance.
+     * @throws VersionBoundsException    Thrown if any vector value in the
+     *                                   <code>Version</code> vector or any vector
+     *                                   value in the minimum allowed version vector
+     *                                   is negative.
+     * @throws NumberBoundsException     Thrown if any vector value in the generated
+     *                                   <code>Metadata</code> instance is negative.
+     */
+    public Metadata(TracedEntry<TracedDictionary> entry, boolean versionRangeAllowed)
+            throws IdentifierFormatException, MissingPropertyException, PropertyTypeException, ArrayLengthException,
+            NumberBoundsException, VersionBoundsException {
 
         json = entry.getValue();
 
-        // Whether or not a version may be defined as a single version, or a range between a minimum and maximum version value.
+        // Whether or not a version may be defined as a single version, or a range
+        // between a minimum and maximum version value.
         if (versionRangeAllowed) {
 
             TracedEntry<?> retrievedVersionEntry = json.get("version", false, null, JSONArray.class, JSONObject.class);
@@ -69,10 +204,12 @@ public final class Metadata {
             // If the version key is a regular version vector, treat it as such.
             if (retrievedVersionEntry.getValue() instanceof TracedDictionary versionJson) {
 
-                TracedEntry<Identifier> minVersionEntry = json.getAsIdentifier("identifier", false, versionJson.getAsVersion("min", false, false));
+                TracedEntry<Identifier> minVersionEntry = json.getAsIdentifier("identifier", false,
+                        versionJson.getAsVersion("min", false, false));
                 Identifier minVersion = minVersionEntry.getValue();
 
-                TracedEntry<Identifier> maxVersionEntry = json.getAsIdentifier("identifier", false, versionJson.getAsVersion("max", true, true));
+                TracedEntry<Identifier> maxVersionEntry = json.getAsIdentifier("identifier", false,
+                        versionJson.getAsVersion("max", true, true));
                 Identifier maxVersion = maxVersionEntry.getValue();
 
                 if (minVersion.lowestVersion(maxVersion) != minVersion) {
@@ -83,74 +220,74 @@ public final class Metadata {
                 if (minVersion == maxVersion) {
 
                     identifierEntry = minVersionEntry;
-                    versionRange = false;
+                    hasVersionRange = false;
                 } else {
 
                     identifierEntry = json.getAsIdentifier("identifier", false);
-                    versionBounds[0] = minVersion;
-                    versionBounds[1] = maxVersion;
-                    versionRange = true;
+                    versionRange[0] = minVersion;
+                    versionRange[1] = maxVersion;
+                    hasVersionRange = true;
                 }
             } else {
 
-                versionRange = false;
+                hasVersionRange = false;
                 identifierEntry = json.getAsIdentifier("identifier", false, json.getAsVersion("version", false, false));
             }
         } else {
 
             // Retrieve the version if the useVersion perameter is true.
-            versionRange = false;
+            hasVersionRange = false;
             TracedEntry<Version> absoluteVersionEntry = json.getAsVersion("version", false, false);
 
             identifierEntry = json.getAsIdentifier("identifier", false, absoluteVersionEntry);
         }
 
-        versionEntry = getIdentifier().version;
+        identifier = identifierEntry.getValue();
+
+        versionEntry = getIdentifier().getVersionEntry();
+        version = versionEntry.getValue();
     }
 
     /**
-     * Retrieves the <code>Identifier</code> of this <code>Metadata</code> instance.
-     * @return <code>Identifier</code>: The <code>Identifier</code> of this <code>Metadata</code> instance.
+     * Creates a new instance of the <code>Metadata</code> class using a field from
+     * a <code>TracedCollection</code> instance. This version WILL NOT retrieve the
+     * version.
+     * 
+     * @param entry <code>TracedEntry&lt;TracedDictionary&gt;</code>: The entry from
+     *              which to create the new <code>Metadata</code> instance.
+     * @throws PropertyTypeException     Thrown if the type of a field in this
+     *                                   <code>Metadata</code> instance is invalid.
+     * @throws MissingPropertyException  Thrown if a field is missing from this
+     *                                   <code>Metadata</code> instance.
+     * @throws IdentifierFormatException Thrown if this <code>Metadata</code>
+     *                                   instance identifier is in an invalid
+     *                                   format.
      */
-    public Identifier getIdentifier() {
-
-        return identifierEntry.getValue();
-    }
-
-    /**
-     * Retrieves the <code>Version</code> of this <code>Metadata</code> instance.
-     * @return <code>Version</code>: The <code>Version</code> of this <code>Metadata</code> instance.
-     */
-    public Version getVersion() {
-
-        return versionEntry.getValue();
-    }
-
-    /**
-     * Creates a new instance of the <code>Metadata</code> class using a field from a <code>TracedCollection</code> instance. This version WILL NOT retrieve the version.
-     * @param entry <code>TracedEntry&lt;TracedDictionary&gt;</code>: The entry from which to create the new <code>Metadata</code> instance.
-     * @throws PropertyTypeException Thrown if the type of a field in this <code>Metadata</code> instance is invalid.
-     * @throws MissingPropertyException Thrown if a field is missing from this <code>Metadata</code> instance.
-     * @throws IdentifierFormatException Thrown if this <code>Metadata</code> instance identifier is in an invalid format.
-     */
-    public Metadata(TracedEntry<TracedDictionary> entry) throws IdentifierFormatException, MissingPropertyException, PropertyTypeException {
+    public Metadata(TracedEntry<TracedDictionary> entry)
+            throws IdentifierFormatException, MissingPropertyException, PropertyTypeException {
 
         json = entry.getValue();
 
-        versionRange = false;
+        hasVersionRange = false;
         identifierEntry = json.getAsIdentifier("identifier", false);
+        identifier = identifierEntry.getValue();
 
-        versionEntry = getIdentifier().version;
+        versionEntry = getIdentifier().getVersionEntry();
+        version = versionEntry.getValue();
     }
 
     /**
-     * Tests if another <code>Identifier</code> instance is compatible with this <code>Metadata</code> instance.
-     * @param identifier <code>Identifier</code>: The <code>Identifier</code> instance to check against.
-     * @return <code>boolean</code>: Whether or not the <code>identifier</code> perameter is compatible with this <code>Metadata</code> instance.
+     * Tests if another <code>Identifier</code> instance is compatible with this
+     * <code>Metadata</code> instance.
+     * 
+     * @param identifier <code>Identifier</code>: The <code>Identifier</code>
+     *                   instance to check against.
+     * @return <code>boolean</code>: Whether or not the <code>identifier</code>
+     *         perameter is compatible with this <code>Metadata</code> instance.
      */
     public boolean compatableIdentifier(Identifier identifier) {
 
-        if (versionRange) {
+        if (hasVersionRange) {
 
             if (identifier == null) {
 
@@ -162,8 +299,8 @@ public final class Metadata {
                 return false;
             }
 
-            Identifier min = versionBounds[0];
-            Identifier max = versionBounds[1];
+            Identifier min = versionRange[0];
+            Identifier max = versionRange[1];
 
             return identifier.highestVersion(min) == identifier && identifier.lowestVersion(max) == identifier;
 
@@ -174,10 +311,16 @@ public final class Metadata {
     }
 
     /**
-     * Iterates through a collection of <code>Identifier</code> instances and determines which are compatible with this <code>Metadata</code> instance.
-     * @param identifiers <code>Collection&lt;Identifier&gt;</code>: A collection of identifiers of which to determine compatibility with this <code>Metadata</code> instance.
-     * @return <code>HashSet&lt;Identifier&gt;</code>: A set of compatible <code>Identifier</code> instances from the <code>identifiers</code> perameter.
-    */
+     * Iterates through a collection of <code>Identifier</code> instances and
+     * determines which are compatible with this <code>Metadata</code> instance.
+     * 
+     * @param identifiers <code>Collection&lt;Identifier&gt;</code>: A collection of
+     *                    identifiers of which to determine compatibility with this
+     *                    <code>Metadata</code> instance.
+     * @return <code>HashSet&lt;Identifier&gt;</code>: A set of compatible
+     *         <code>Identifier</code> instances from the <code>identifiers</code>
+     *         perameter.
+     */
     public HashSet<Identifier> retrieveCompatibleIdentifiers(Collection<Identifier> identifiers) {
 
         HashSet<Identifier> compatibleIdentifiers = new HashSet<>();
@@ -193,9 +336,13 @@ public final class Metadata {
     }
 
     /**
-     * Tests whether or not another <code>Metadata</code> instance version bounds (or version perameter) overlaps with this <code>Metadata</code> instance version bounds (or version perameter).
-     * @param metadata <code>Metadata</code>: The metadata to compare.
-     * @param ignoreVersions <code>boolean</code>: Whether or not the versions of the identifiers should be considered.
+     * Tests whether or not another <code>Metadata</code> instance version bounds
+     * (or version perameter) overlaps with this <code>Metadata</code> instance
+     * version bounds (or version perameter).
+     * 
+     * @param metadata       <code>Metadata</code>: The metadata to compare.
+     * @param ignoreVersions <code>boolean</code>: Whether or not the versions of
+     *                       the identifiers should be considered.
      * @return <code>boolean</code>: Whether or not the two versions overlap.
      */
     public boolean overlaps(Metadata metadata, boolean ignoreVersions) {
@@ -205,21 +352,21 @@ public final class Metadata {
             return getIdentifier().getFull().equals(metadata.getIdentifier().getFull());
         }
 
-        if (metadata.versionRange) {
+        if (metadata.hasVersionRange()) {
 
-            if (!versionRange) {
+            if (!hasVersionRange) {
 
                 return metadata.compatableIdentifier(getIdentifier());
             }
 
-            boolean minVersionOverlap = metadata.compatableIdentifier(versionBounds[0]);
-            boolean maxVersionOverlap = metadata.compatableIdentifier(versionBounds[1]);
+            boolean minVersionOverlap = metadata.compatableIdentifier(getLowerVersionRange());
+            boolean maxVersionOverlap = metadata.compatableIdentifier(getUpperVersionRange());
 
             return minVersionOverlap || maxVersionOverlap;
 
         } else {
 
-            if (!versionRange) {
+            if (!hasVersionRange) {
 
                 return getIdentifier() == metadata.getIdentifier();
             }
@@ -229,12 +376,19 @@ public final class Metadata {
     }
 
     /**
-     * Retrieves a set of all overlapping <code>Metadata</code> instances from a <code>Collection</code> of <code>Metadata</code> instances.
-     * @param metadatas <code>Collection&lt;TracedEntry&lt;Metadata&gt;&gt;</code>: The collection of all <code>Metadata</code> instances.
-     * @param ignoreVersions <code>boolean</code>: Whether or not the versions of the identifiers should be considered.
-     * @return <code>HashSet&lt;TracedEntry&lt;Metadata&gt;&gt;</code>: A <code>HashSet</code> containing all overlapping <code>Metadata</code> instances.
+     * Retrieves a set of all overlapping <code>Metadata</code> instances from a
+     * <code>Collection</code> of <code>Metadata</code> instances.
+     * 
+     * @param metadatas      <code>Collection&lt;TracedEntry&lt;Metadata&gt;&gt;</code>:
+     *                       The collection of all <code>Metadata</code> instances.
+     * @param ignoreVersions <code>boolean</code>: Whether or not the versions of
+     *                       the identifiers should be considered.
+     * @return <code>HashSet&lt;TracedEntry&lt;Metadata&gt;&gt;</code>: A
+     *         <code>HashSet</code> containing all overlapping <code>Metadata</code>
+     *         instances.
      */
-    public HashSet<TracedEntry<Metadata>> retrieveOverslaps(Collection<TracedEntry<Metadata>> metadatas, boolean ignoreVersions) {
+    public HashSet<TracedEntry<Metadata>> retrieveOverslaps(Collection<TracedEntry<Metadata>> metadatas,
+            boolean ignoreVersions) {
 
         HashSet<TracedEntry<Metadata>> overlappingMetadatas = new HashSet<>();
         for (TracedEntry<Metadata> metadata : metadatas) {
@@ -250,18 +404,27 @@ public final class Metadata {
 
     /**
      * Returns a string representation of this <code>Metadata</code> instance.
-     * @return <code>String</code>: This <code>Metadata</code> instance in the following string representation: <br>"<code>namespace:identifier</code>"
-     * <br> <b>OR</b> <br>"<code>namespace:identifier [a, b, c]</code>"
-     * <br> <b>OR</b> <br>"<code>namspace:identifier {[a, b, c], [?, ?, ?]}</code>"
-     * <br> <b>OR</b> <br>"<code>namspace:identifier {[a, b, c], [d, e, f]}</code>"
+     * 
+     * @return <code>String</code>: This <code>Metadata</code> instance in the
+     *         following string representation: <br>
+     *         "<code>namespace:identifier</code>"
+     *         <br>
+     *         <b>OR</b> <br>
+     *         "<code>namespace:identifier [a, b, c]</code>"
+     *         <br>
+     *         <b>OR</b> <br>
+     *         "<code>namspace:identifier {[a, b, c], [?, ?, ?]}</code>"
+     *         <br>
+     *         <b>OR</b> <br>
+     *         "<code>namspace:identifier {[a, b, c], [d, e, f]}</code>"
      */
     @Override
     public String toString() {
 
-        if (versionRange) {
+        if (hasVersionRange) {
 
-            String returnString = getIdentifier() + " {" + versionBounds[0].version + ", ";
-            returnString += (versionBounds[1] == null) ? "[?, ?, ?]}" : versionBounds[1].version + "}";
+            String returnString = getIdentifier() + " {" + getLowerVersionRange().getVersion() + ", ";
+            returnString += (getUpperVersionRange() == null) ? "[?, ?, ?]}" : getUpperVersionRange().getVersion() + "}";
 
             return returnString;
         }

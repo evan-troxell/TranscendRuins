@@ -15,22 +15,26 @@ public final class World {
     public static final int UNIT_TILE = 20;
 
     /**
-     * <code>int</code>: An enum constant representing the cardinal direction <code>East</code>.
+     * <code>int</code>: An enum constant representing the cardinal direction
+     * <code>East</code>.
      */
     public static final int EAST = 0;
 
     /**
-     * <code>int</code>: An enum constant representing the cardinal direction <code>North</code>.
+     * <code>int</code>: An enum constant representing the cardinal direction
+     * <code>North</code>.
      */
     public static final int NORTH = 1;
 
     /**
-     * <code>int</code>: An enum constant representing the cardinal direction <code>West</code>.
+     * <code>int</code>: An enum constant representing the cardinal direction
+     * <code>West</code>.
      */
     public static final int WEST = 2;
 
     /**
-     * <code>int</code>: An enum constant representing the cardinal direction <code>South</code>.
+     * <code>int</code>: An enum constant representing the cardinal direction
+     * <code>South</code>.
      */
     public static final int SOUTH = 3;
 
@@ -40,9 +44,31 @@ public final class World {
     private static World world;
 
     /**
-     * <code>EnvironmentState</code>: The environment state of this <code>World</code> instance.
+     * Retrieves the current world of the program.
+     * 
+     * @return <code>World</code>: The <code>world</code> field
+     */
+    public static World getWorld() {
+
+        return world;
+    }
+
+    /**
+     * <code>EnvironmentState</code>: The environment state of this
+     * <code>World</code> instance.
      */
     private final EnvironmentState environment;
+
+    /**
+     * Retrieves the current environment state of this <code>World</code> instance.
+     * 
+     * @return <code>EnvironmentState</code>: The <code>environment</code> field of
+     *         this <code>World</code> instance.
+     */
+    public EnvironmentState getEnvironment() {
+
+        return environment;
+    }
 
     /**
      * <code>long</code>: The time of creation of this <code>World</code> instance.
@@ -51,7 +77,9 @@ public final class World {
 
     /**
      * Creates a new instance of the <code>World</code> class.
-     * @param packs <code>ArrayList&lt;Pack&gt;</code>: The packs used to create this <code>World</code> instance.
+     * 
+     * @param packs <code>ArrayList&lt;Pack&gt;</code>: The packs used to create
+     *              this <code>World</code> instance.
      */
     private World(ArrayList<Pack> packs) {
 
@@ -60,8 +88,11 @@ public final class World {
     }
 
     /**
-     * Creates a new instance of the <code>World</code> class and assigns it to the <code>world</code> field
-     * @param packs <code>ArrayList&lt;Pack&gt;</code>: The packs used to create the new <code>World</code> instance.
+     * Creates a new instance of the <code>World</code> class and assigns it to the
+     * <code>world</code> field
+     * 
+     * @param packs <code>ArrayList&lt;Pack&gt;</code>: The packs used to create the
+     *              new <code>World</code> instance.
      * @return <code>World</code>: The generated world.
      */
     public static World buildWorld(ArrayList<Pack> packs) {
@@ -71,17 +102,11 @@ public final class World {
     }
 
     /**
-     * Retrieves the current environment state of this <code>World</code> instance.
-     * @return <code>EnvironmentState</code>: The <code>environment</code> field of this <code>World</code> instance.
-     */
-    public EnvironmentState getEnvironment() {
-
-        return environment;
-    }
-
-    /**
-     * Retrieve the current time in millis since the time of creation of this <code>World</code> instance.
-     * @return <code>long</code>: The <code>timeOfCreation</code> field subtracted from the current time in milliseconds.
+     * Retrieve the current time in millis since the time of creation of this
+     * <code>World</code> instance.
+     * 
+     * @return <code>long</code>: The <code>timeOfCreation</code> field subtracted
+     *         from the current time in milliseconds.
      */
     public long getRuntimeMillis() {
 
@@ -89,20 +114,14 @@ public final class World {
     }
 
     /**
-     * Retrieve the current time in seconds since the time of creation of this <code>World</code> instance.
-     * @return <code>long</code>: The current runtime milliseconds divided by 1000.0.
+     * Retrieve the current time in seconds since the time of creation of this
+     * <code>World</code> instance.
+     * 
+     * @return <code>long</code>: The current runtime milliseconds divided by
+     *         1000.0.
      */
     public double getRuntimeSeconds() {
 
         return getRuntimeMillis() / 1000.0;
-    }
-
-    /**
-     * Retrieves the current world of the program.
-     * @return <code>World</code>: The <code>world</code> field
-     */
-    public static World getWorld() {
-
-        return world;
     }
 }

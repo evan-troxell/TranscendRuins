@@ -11,7 +11,8 @@ import com.transcendruins.ui.mappedcomponents.TRComponent;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 
 /**
- * <code>TRLayoutPanel</code>: A class representing a <code>JLayeredPane</code> whose components have been mapped, allowing for easy retrieval.
+ * <code>TRLayoutPanel</code>: A class representing a <code>JLayeredPane</code>
+ * whose components have been mapped, allowing for easy retrieval.
  */
 public class TRLayeredPanel extends JLayeredPane implements TRContainer {
 
@@ -20,15 +21,25 @@ public class TRLayeredPanel extends JLayeredPane implements TRContainer {
      */
     private final String name;
 
+    @Override
+    public final String getComponentName() {
+
+        return name;
+    }
+
     /**
-     * <code>LinkedHashMap&lt;String, TRComponent&gt;</code>: The map of components of this <code>TRLayoutPanel</code> instance.
+     * <code>LinkedHashMap&lt;String, TRComponent&gt;</code>: The map of components
+     * of this <code>TRLayoutPanel</code> instance.
      */
     private final LinkedHashMap<String, TRComponent> componentMap = new LinkedHashMap<>();
 
     /**
      * Creates a new instance of the <code>TRLayoutPanel</code> class.
-     * @param name <code>String</code>: The name of this <code>TRLayeredPanel</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRLayeredPanel</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this
+     *                 <code>TRLayeredPanel</code> instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRLayeredPanel</code> instance.
      */
     public TRLayeredPanel(String name, ComponentSettings settings) {
 
@@ -39,9 +50,13 @@ public class TRLayeredPanel extends JLayeredPane implements TRContainer {
     }
 
     /**
-     * Sets the visibility of a component in this <code>TRLayoutPanel</code> instance.
-     * @param name <code>String</code>: The name of the component whose visibility to set.
-     * @param visible <code>boolean</code>: The visibility state to apply to the component.
+     * Sets the visibility of a component in this <code>TRLayoutPanel</code>
+     * instance.
+     * 
+     * @param name    <code>String</code>: The name of the component whose
+     *                visibility to set.
+     * @param visible <code>boolean</code>: The visibility state to apply to the
+     *                component.
      */
     public final void setComponentVisibility(String name, boolean visible) {
 
@@ -51,6 +66,7 @@ public class TRLayeredPanel extends JLayeredPane implements TRContainer {
 
     /**
      * Shows a component in this <code>TRLayoutPanel</code> instance.
+     * 
      * @param name <code>String</code>: The name of the component to show.
      */
     public final void showComponent(String name) {
@@ -60,6 +76,7 @@ public class TRLayeredPanel extends JLayeredPane implements TRContainer {
 
     /**
      * Hides a component in this <code>TRLayoutPanel</code> instance.
+     * 
      * @param name <code>String</code>: The name of the component to hide.
      */
     public final void hideComponent(String name) {
@@ -128,11 +145,5 @@ public class TRLayeredPanel extends JLayeredPane implements TRContainer {
 
         TRComponent component = getComponent(name);
         component.setEnabled(enabled);
-    }
-
-    @Override
-    public final String getComponentName() {
-
-        return name;
     }
 }

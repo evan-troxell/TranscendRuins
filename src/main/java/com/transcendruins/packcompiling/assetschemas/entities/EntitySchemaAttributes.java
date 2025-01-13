@@ -25,6 +25,6 @@ public final class EntitySchemaAttributes extends ModelAssetSchemaAttributes {
 
     @Override
     public void finalizeData() {
-        
+
     }
 }

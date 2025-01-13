@@ -29,7 +29,7 @@ final class TRScriptValue {
     public TRScriptValue(TracedEntry<?> valueEntry) throws UnexpectedValueException, MissingPropertyException, PropertyTypeException, ArrayLengthException {
 
         Object rawTRScriptValue = valueEntry.getValue();
-        
+
         value = switch (rawTRScriptValue) {
 
             case Boolean boolVal -> boolVal;

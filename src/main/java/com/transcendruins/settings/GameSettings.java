@@ -12,17 +12,20 @@ import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.json.JSONOperator;
 
 /**
- * <code>GameSettings</code>: A class representing the settings preferences of the user.
+ * <code>GameSettings</code>: A class representing the settings preferences of
+ * the user.
  */
 public final class GameSettings {
 
     /**
-     * <code>String</code>: An enum constant representing the <code>Video</code> menu.
+     * <code>String</code>: An enum constant representing the <code>Video</code>
+     * menu.
      */
     public static final String VIDEO = "Video";
 
     /**
-     * <code>String</code>: An enum constant representing the <code>Audio</code> menu.
+     * <code>String</code>: An enum constant representing the <code>Audio</code>
+     * menu.
      */
     public static final String AUDIO = "Audio";
 
@@ -37,14 +40,17 @@ public final class GameSettings {
     public static final TracedPath SETTINGS_DIRECTORY = CacheOperator.getCacheDirectory().extend("settings.json");
 
     /**
-     * <code>HashMap&lt;String, HashMap&lt;String, Object&gt;&gt;</code>: The map of menu types to their user settings as applied by the user or stored in memory.
+     * <code>HashMap&lt;String, HashMap&lt;String, Object&gt;&gt;</code>: The map of
+     * menu types to their user settings as applied by the user or stored in memory.
      */
     private static final HashMap<String, HashMap<String, Object>> SETTINGS = retrieveSettings();
 
     /**
      * Retrieves a key from the saved settings.
+     * 
      * @param menu <code>String</code>: The menu to retrieve.
-     * @param key <code>String</code>: The setting key to retrieve from the menu. All settings are in lowercase with underscores between words.
+     * @param key  <code>String</code>: The setting key to retrieve from the menu.
+     *             All settings are in lowercase with underscores between words.
      * @return <code>Object</code>: The retrieved setting.
      */
     public static Object getValue(String menu, String key) {
@@ -53,9 +59,22 @@ public final class GameSettings {
     }
 
     /**
+     * Retrieves the set of all menu keys.
+     * 
+     * @return <code>Set&lt;String&gt;</code>: The key set of the
+     *         <code>SETTINGS</code> field
+     */
+    public static Set<String> getMenuSet() {
+
+        return SETTINGS.keySet();
+    }
+
+    /**
      * Applies a key to a saved setting and saves the user's settings.
-     * @param menu <code>String</code>: The menu to save to.
-     * @param key <code>String</code>: The setting key to apply to the menu. All settings are in lowercase with underscores between words.
+     * 
+     * @param menu  <code>String</code>: The menu to save to.
+     * @param key   <code>String</code>: The setting key to apply to the menu. All
+     *              settings are in lowercase with underscores between words.
      * @param value code>Object</code>: The applied setting.
      */
     public static void putValue(String menu, String key, Object value) {
@@ -66,17 +85,11 @@ public final class GameSettings {
     }
 
     /**
-     * Retrieves the set of all menu keys.
-     * @return <code>Set&lt;String&gt;</code>: The key set of the <code>SETTINGS</code> field
-     */
-    public static Set<String> getMenuSet() {
-
-        return SETTINGS.keySet();
-    }
-
-    /**
-     * Creates the default settings used when previous settings do not exist or could not be found.
-     * @return <code>HashMap&lt;String, HashMap&lt;String, Object&gt;&gt;</code>: The generated default settings.
+     * Creates the default settings used when previous settings do not exist or
+     * could not be found.
+     * 
+     * @return <code>HashMap&lt;String, HashMap&lt;String, Object&gt;&gt;</code>:
+     *         The generated default settings.
      */
     private static HashMap<String, HashMap<String, Object>> defaultSettings() {
 
@@ -103,8 +116,11 @@ public final class GameSettings {
     }
 
     /**
-     * Retrieves the settings from the path traced by the <code>SETTINGS_DIRECTORY</code> directory.
-     * @return <code>HashMap&lt;String, HashMap&lt;String, Object&gt;&gt;</code>: The retrieved settings map.
+     * Retrieves the settings from the path traced by the
+     * <code>SETTINGS_DIRECTORY</code> directory.
+     * 
+     * @return <code>HashMap&lt;String, HashMap&lt;String, Object&gt;&gt;</code>:
+     *         The retrieved settings map.
      */
     private static HashMap<String, HashMap<String, Object>> retrieveSettings() {
 
@@ -125,7 +141,7 @@ public final class GameSettings {
 
                 JSONObject menuSettingsJson = (JSONObject) settingsJson.get(menu);
                 if (menuSettingsJson == null) {
-                    
+
                     continue;
                 }
 
@@ -134,7 +150,7 @@ public final class GameSettings {
                 for (String setting : settings.keySet()) {
 
                     if (menuSettingsJson.containsKey(setting)) {
-                        
+
                         menuSettingsMap.put(setting, menuSettingsJson.get(setting));
                     }
                 }
@@ -152,9 +168,13 @@ public final class GameSettings {
     }
 
     /**
-     * Saves a map representing the user's settings to the path represented by the <code>SETTINGS_PATH</code> constant.
-     * @param settings <code>HashMap&lt;String, HashMap&lt;String, Object&gt;&gt;</code>: The settings to save.
-     * @return <code>boolean</code>: Whether or not the settings were successfully saved.
+     * Saves a map representing the user's settings to the path represented by the
+     * <code>SETTINGS_PATH</code> constant.
+     * 
+     * @param settings <code>HashMap&lt;String, HashMap&lt;String, Object&gt;&gt;</code>:
+     *                 The settings to save.
+     * @return <code>boolean</code>: Whether or not the settings were successfully
+     *         saved.
      */
     private static boolean save(HashMap<String, HashMap<String, Object>> settings) {
 
@@ -171,5 +191,6 @@ public final class GameSettings {
     /**
      * Prevents the <code>GameSettings</code> class from being instantiated.
      */
-    private GameSettings() {}
+    private GameSettings() {
+    }
 }

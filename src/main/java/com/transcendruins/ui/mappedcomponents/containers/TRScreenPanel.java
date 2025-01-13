@@ -11,7 +11,9 @@ import javax.swing.JPanel;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 
 /**
- * <code>TRScreenPanel</code>: A class representing a <code>JPanel</code> with an implemented card layout, whose screens have been mapped, allowing for easy retrieval.
+ * <code>TRScreenPanel</code>: A class representing a <code>JPanel</code> with
+ * an implemented card layout, whose screens have been mapped, allowing for easy
+ * retrieval.
  */
 public final class TRScreenPanel extends JPanel implements TRScreenContainer {
 
@@ -20,25 +22,37 @@ public final class TRScreenPanel extends JPanel implements TRScreenContainer {
      */
     private final String name;
 
+    @Override
+    public final String getComponentName() {
+
+        return name;
+    }
+
     /**
-     * <code>LinkedHashMap&lt;String, TRContainer&gt;</code>: The map of screens of this <code>TRScreenPanel</code> instance.
+     * <code>LinkedHashMap&lt;String, TRContainer&gt;</code>: The map of screens of
+     * this <code>TRScreenPanel</code> instance.
      */
     private final LinkedHashMap<String, TRContainer> screenMap = new LinkedHashMap<>();
 
     /**
-     * <code>String</code>: The name of the screen currently being displayed, or <code>null</code> if a screen has not yet been assigned.
+     * <code>String</code>: The name of the screen currently being displayed, or
+     * <code>null</code> if a screen has not yet been assigned.
      */
     private String currentScreen = null;
 
     /**
-     * <code>CardLayout</code>: The layout used to switch between frames of this <code>TRScreenPanel</code> instance.
+     * <code>CardLayout</code>: The layout used to switch between frames of this
+     * <code>TRScreenPanel</code> instance.
      */
     private final CardLayout layout = new CardLayout();
 
     /**
      * Creates a new instance of the <code>TRScreenPanel</code> class.
-     * @param name <code>String</code>: The name of this <code>TRScreenPanel</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRScreenPanel</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this
+     *                 <code>TRScreenPanel</code> instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRScreenPanel</code> instance.
      */
     public TRScreenPanel(String name, ComponentSettings settings) {
 
@@ -100,11 +114,5 @@ public final class TRScreenPanel extends JPanel implements TRScreenContainer {
 
             componentEntry.getValue().setEnabled(enabled);
         }
-    }
-
-    @Override
-    public final String getComponentName() {
-
-        return name;
     }
 }

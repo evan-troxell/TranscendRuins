@@ -31,14 +31,14 @@ public class FinalizedList<E> extends ArrayList<E> implements Finalized {
     public void finalizeData() {
 
         if (isFinalized) {
-            
+
             return;
         }
 
         isFinalized = true;
 
         for (E value : this) {
-            
+
             if (value instanceof Finalized finalValue) {
 
                 finalValue.finalizeData();

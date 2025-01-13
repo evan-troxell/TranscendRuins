@@ -12,17 +12,7 @@ public abstract class AssetSchemaAttributes {
     /**
      * <code>AssetSchema</code>: The asset schema which created this <code>AssetSchemaAttributes</code> instance.
      */
-    public final AssetSchema schema;
-
-    /**
-     * <code>TracedDictionary</code>: The schema JSON used to compile this <code>AssetSchemaAttributes</code> instance.
-     */
-    public final TracedDictionary schemaJson;
-
-    /**
-     * <code>boolean</code>: Whether or not this <code>AssetSchemaAttributes</code> instance is the base attribute layer of an <code>AssetSchema</code> instance.
-     */
-    public final boolean isBase;
+    private final AssetSchema schema;
 
     /**
      * Creates a new instance of the <code>AssetSchemaAttributes</code> class.
@@ -33,8 +23,6 @@ public abstract class AssetSchemaAttributes {
     public AssetSchemaAttributes(AssetSchema schema, TracedDictionary schemaJson, boolean isBase) {
 
         this.schema = schema;
-        this.schemaJson = schemaJson;
-        this.isBase = isBase;
     };
 
     /**

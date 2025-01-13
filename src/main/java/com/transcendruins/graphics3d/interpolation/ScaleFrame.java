@@ -4,7 +4,7 @@ import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 
 public final class ScaleFrame extends ScaleModifier {
-    
+
     private final Interpolation interpolation;
 
     public ScaleFrame(TracedDictionary json, double timestamp) throws LoggedException {
@@ -18,7 +18,7 @@ public final class ScaleFrame extends ScaleModifier {
         double inter = interpolation.getInter(next.interpolation.getTimestamp(), t);
 
         com.transcendruins.graphics3d.geometry.Vector scale = Interpolation.lerp(getScale(), next.getScale(), inter);
-        
+
         double rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
         com.transcendruins.graphics3d.geometry.Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(), next.getRotation().getAxis(), inter);
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.packcompiling.Pack;
-import com.transcendruins.packcompiling.PackProcessor;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
 import com.transcendruins.packcompiling.assetschemas.elements.ElementSchema;
 import com.transcendruins.rendering.RenderInstance;
@@ -25,7 +24,7 @@ public final class App {
      */
     public static void main(String[] args) throws Exception {
 
-        PackProcessor packProcessor = PackProcessor.getProcessor();
+        //PackProcessor packProcessor = PackProcessor.getProcessor();
 
         Identifier vanillaId = Identifier.createTestIdentifier("transcendRuins:vanilla", new long[] {1, 0, 0});
         Pack vanillaPack = Pack.PACKS.get(vanillaId);
@@ -40,15 +39,15 @@ public final class App {
         Identifier axesId = Identifier.createTestIdentifier("transcendRuins:axes", null);
         ElementSchema axesSchema = (ElementSchema) vanillaPack.getAsset(AssetType.ELEMENT, axesId);
 
-        ElementInstance pyramidInstance = new ElementInstance(pyramidSchema, 0, 0, World.EAST, Vector.DEFAULT_VECTOR);
-        ElementInstance axesInstance = new ElementInstance(axesSchema, 0, 0, World.EAST, Vector.DEFAULT_VECTOR);
+        ElementInstance pyramidInstance = new ElementInstance(pyramidSchema, World.getWorld(), 0, 0, World.EAST, Vector.DEFAULT_VECTOR);
+        ElementInstance axesInstance = new ElementInstance(axesSchema, World.getWorld(), 0, 0, World.EAST, Vector.DEFAULT_VECTOR);
 
         DisplayFrame frame = new DisplayFrame();
 
         ArrayList<RenderInstance> models = new ArrayList<>();
         //models.add(pyramidInstance.getRenderInstance());
         models.add(axesInstance.getRenderInstance());
-        
+
 
         Render3D renderer = (Render3D) frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
         renderer.render(models);

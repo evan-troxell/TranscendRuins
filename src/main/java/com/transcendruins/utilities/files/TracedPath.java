@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import javax.swing.ImageIcon;
 
 /**
- * <code>TracedPath</code>: A class representing a filepath which has been traced, and which can be inherited from.
+ * <code>TracedPath</code>: A class representing a filepath which has been
+ * traced, and which can be inherited from.
  */
 public final class TracedPath {
 
@@ -32,11 +33,23 @@ public final class TracedPath {
     /**
      * <code>Path</code>: The directory this path is inherited from.
      */
-    public final Path path;
+    private final Path path;
+
+    /**
+     * Retrieves the path pointed to by this <code>TracedPath</code> instance.
+     * 
+     * @return <code>Path</code>: The <code>path</code> field of this <code>TracedPath</code> instance.
+     */
+    public Path getPath() {
+
+        return path;
+    }
 
     /**
      * Creates a new instance of the <code>TracedPath</code> class.
-     * @param root <code>Path</code>: The root directory to initiate this <code>TracedPath</code> from.
+     * 
+     * @param root <code>Path</code>: The root directory to initiate this
+     *             <code>TracedPath</code> from.
      */
     public TracedPath(Path root) {
 
@@ -45,7 +58,9 @@ public final class TracedPath {
 
     /**
      * Creates a new instance of the <code>TracedPath</code> class.
-     * @param root <code>TracedPath</code>: The root <code>TracedPath</code> to initiate this <code>TracedPath</code> from.
+     * 
+     * @param root       <code>TracedPath</code>: The root <code>TracedPath</code>
+     *                   to initiate this <code>TracedPath</code> from.
      * @param pathString <code>String...</code>: The path to extend along.
      */
     private TracedPath(TracedPath root, String... pathString) {
@@ -55,8 +70,10 @@ public final class TracedPath {
 
     /**
      * Extends this <code>TracedPath</code> object along a directory branch.
+     * 
      * @param pathString <code>String...</code>: The path to extend along.
-     * @return <code>TracedPath</code>: The generated <code>TracedPath</code> instance.
+     * @return <code>TracedPath</code>: The generated <code>TracedPath</code>
+     *         instance.
      */
     public TracedPath extend(String... pathString) {
 
@@ -64,18 +81,12 @@ public final class TracedPath {
     }
 
     /**
-     * Retrieves the path pointed to by this <code>TracedPath</code> instance.
-     * @return <code>Path</code>: The generated <code>Path</code> object.
-     */
-    public Path getPath() {
-
-        return path;
-    }
-
-    /**
-     * Writes a <code>String</code> the file pointed to by this <code>TracedPath</code> instance.
+     * Writes a <code>String</code> the file pointed to by this
+     * <code>TracedPath</code> instance.
+     * 
      * @param contents <code>String</code>: The contents to write.
-     * @throws IOException Thrown if the designated file cannot be written to for any reason.
+     * @throws IOException Thrown if the designated file cannot be written to for
+     *                     any reason.
      */
     public void writeTo(String contents) throws IOException {
 
@@ -84,9 +95,12 @@ public final class TracedPath {
     }
 
     /**
-     * Writes a <code>ByteBuffer</code> the file pointed to by this <code>TracedPath</code> instance.
+     * Writes a <code>ByteBuffer</code> the file pointed to by this
+     * <code>TracedPath</code> instance.
+     * 
      * @param contents <code>ByteBuffer</code>: The buffer to write.
-     * @throws IOException Thrown if the designated file cannot be written to for any reason.
+     * @throws IOException Thrown if the designated file cannot be written to for
+     *                     any reason.
      */
     public void writeTo(ByteBuffer contents) throws IOException {
 
@@ -95,7 +109,9 @@ public final class TracedPath {
     }
 
     /**
-     * Retrieves the file contents from the file pointed to by this <code>TracedPath</code> instance.
+     * Retrieves the file contents from the file pointed to by this
+     * <code>TracedPath</code> instance.
+     * 
      * @return <code>String</code>: The retrieved file information.
      */
     public String retrieveContents() {
@@ -115,7 +131,9 @@ public final class TracedPath {
     }
 
     /**
-     * Retrieves an image from the file pointed to by this <code>TracedPath</code> instance.
+     * Retrieves an image from the file pointed to by this <code>TracedPath</code>
+     * instance.
+     * 
      * @return <code>ImageIcon</code>: The retrieved image.
      */
     public ImageIcon retrieveImage() {
@@ -130,9 +148,13 @@ public final class TracedPath {
     }
 
     /**
-     * Retrieves whether or not this <code>TracedPath</code> instance points to a file (or alternatively a directory).
-     * @param isDirectory <code>boolean</code>: Whether or not to check for a directory instead.
-     * @return <code>boolean</code>: Whether or not the path ends in a file or directory.
+     * Retrieves whether or not this <code>TracedPath</code> instance points to a
+     * file (or alternatively a directory).
+     * 
+     * @param isDirectory <code>boolean</code>: Whether or not to check for a
+     *                    directory instead.
+     * @return <code>boolean</code>: Whether or not the path ends in a file or
+     *         directory.
      */
     public boolean isFile(boolean isDirectory) {
 
@@ -141,7 +163,9 @@ public final class TracedPath {
     }
 
     /**
-     * Retrieves whether or not this <code>TracedPath</code> instance points to a valid file (or directory).
+     * Retrieves whether or not this <code>TracedPath</code> instance points to a
+     * valid file (or directory).
+     * 
      * @return <code>boolean</code>: Whether or not the file or directory exists.
      */
     public boolean exists() {
@@ -151,10 +175,14 @@ public final class TracedPath {
     }
 
     /**
-     * Creates a new file (or directory) from the path of this <code>TracedPath</code> instance.
-     * @param isDirectory <code>boolean</code>: Whether or not to create a directory instead.
+     * Creates a new file (or directory) from the path of this
+     * <code>TracedPath</code> instance.
+     * 
+     * @param isDirectory <code>boolean</code>: Whether or not to create a directory
+     *                    instead.
      * @return <code>boolean</code>: Whether or not the file already existed.
-     * @throws IOException Thrown if the designated directory cannot be created for any reason.
+     * @throws IOException Thrown if the designated directory cannot be created for
+     *                     any reason.
      */
     public boolean createFile(boolean isDirectory) throws IOException {
 
@@ -162,9 +190,9 @@ public final class TracedPath {
 
             return true;
         }
-        
+
         if (isDirectory) {
-            
+
             Files.createDirectory(getPath());
         } else {
 
@@ -174,10 +202,16 @@ public final class TracedPath {
     }
 
     /**
-     * Constructs a list of files contained within this <code>TracedPath</code> instance.
-     * @param endsWith <code>String</code>: A string with which all compiled directories must end with. If null, this will be ignored.
-     * @param recursive <code>boolean</code>: Whether or not files in subsequent child directories should be recursively checked.
-     * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of <code>TracedPath</code> corresponding to files within the root directory.
+     * Constructs a list of files contained within this <code>TracedPath</code>
+     * instance.
+     * 
+     * @param endsWith  <code>String</code>: A string with which all compiled
+     *                  directories must end with. If null, this will be ignored.
+     * @param recursive <code>boolean</code>: Whether or not files in subsequent
+     *                  child directories should be recursively checked.
+     * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of
+     *         <code>TracedPath</code> corresponding to files within the root
+     *         directory.
      */
     public ArrayList<TracedPath> compileFileArray(String endsWith, boolean recursive) {
 
@@ -224,9 +258,15 @@ public final class TracedPath {
     }
 
     /**
-     * Constructs a list of directories contained within this <code>TracedPath</code> instance. This will NOT recursively check subsequent child directories.
-     * @param endsWith <code>String</code>: A string with which all compiled directories must end with. If null, this will be ignored.
-     * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of <code>TracedPath</code> corresponding to directories within the root directory.
+     * Constructs a list of directories contained within this
+     * <code>TracedPath</code> instance. This will NOT recursively check subsequent
+     * child directories.
+     * 
+     * @param endsWith <code>String</code>: A string with which all compiled
+     *                 directories must end with. If null, this will be ignored.
+     * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of
+     *         <code>TracedPath</code> corresponding to directories within the root
+     *         directory.
      */
     public ArrayList<TracedPath> compileDirectoryArray(String endsWith) {
 
@@ -257,7 +297,10 @@ public final class TracedPath {
 
     /**
      * Returns the string representation of this <code>TracedPath</code> instance.
-     * @return <code>String</code>: This <code>TracedPath</code> instance in the following string representation: <br>"<code>absolute/pathway/example.txt</code>"
+     * 
+     * @return <code>String</code>: This <code>TracedPath</code> instance in the
+     *         following string representation: <br>
+     *         "<code>absolute/pathway/example.txt</code>"
      */
     @Override
     public String toString() {

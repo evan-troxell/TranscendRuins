@@ -64,9 +64,9 @@ public final class Model {
 
         // Create the polygons to be rendered and assign them with their individual vertices.
         TracedEntry<TracedArray> polygonsEntry = modelJson.getAsArray("polygons", false);
-        
+
         if (polygonsEntry.containsValue()) {
-            
+
             TracedArray polygonsJson = polygonsEntry.getValue();
 
             for (int polygonIndex : polygonsJson.getIndices()) {
@@ -239,7 +239,7 @@ public final class Model {
 
         /**
          * Retrieves the polygon of this <code>Model.IndexedPolygon</code> instance.
-         * @param modelledVertices <code>ArrayList&lt;Vector&gt;/code>: The modelled vertices to index when creating the polygon.
+         * @param modelledVertices <code>ArrayList&lt;Vector&gt;</code>: The modelled vertices to index when creating the polygon.
          * @return <code>Triangle3D</code>: The generated polygon.
          */
         private Triangle3D getPolygon(ArrayList<Vector> modelledVertices) {
@@ -285,7 +285,7 @@ public final class Model {
             TracedEntry<TracedDictionary> vertexWeightsEntry = modelJson.getAsDictionary("vertexWeights", true);
 
             if (vertexWeightsEntry.containsValue()) {
-                
+
                 TracedDictionary vertexWeightsJson = vertexWeightsEntry.getValue();
 
                 for (String vertexKey : vertexWeightsJson.getKeys()) {
@@ -312,7 +312,7 @@ public final class Model {
             TracedEntry<TracedDictionary> bonesEntry = modelJson.getAsDictionary("bones", true);
 
             if (bonesEntry.containsValue()) {
-                
+
                 TracedDictionary bonesJson = bonesEntry.getValue();
 
                 for (String boneKey : bonesJson.getKeys()) {
@@ -381,7 +381,7 @@ public final class Model {
 
                         vertexBoneWeights.put(boneVertexBoneWeights.getKey(), boneWeights);
                     } else {
-                        
+
                         vertexBoneWeights.get(boneVertexBoneWeights.getKey()).putAll(boneWeights);
                     }
                 }

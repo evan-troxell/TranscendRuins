@@ -6,7 +6,7 @@ import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
  * <code>TRComponent</code>: An interface representing any custom component implementing the <code>ComponentSettings</code> settings system.
  */
 public interface TRComponent {
-    
+
     /**
      * Appies a set of component settings to this <code>TRComponent</code> instance.
      * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRComponent</code> instance.

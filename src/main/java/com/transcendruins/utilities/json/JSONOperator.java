@@ -115,8 +115,8 @@ public final class JSONOperator {
     }
 
     /**
-     * Converts a <code>Map&ltString, Object&gt;</code> instance to a <code>JSONObject</code> instance.
-     * @param map <code>Map&ltString, Object&gt;</code>: The map to process.
+     * Converts a <code>Map&lt;String, Object&gt;</code> instance to a <code>JSONObject</code> instance.
+     * @param map <code>Map&lt;String, Object&gt;</code>: The map to process.
      * @return <code>JSONObject</code>: The generated JSON Object.
      */
     public static JSONObject toJSONObject(Map<String, ?> map) {
@@ -129,18 +129,18 @@ public final class JSONOperator {
 
             recursionMap.put(key, switch (value) {
                 case Map<?, ?> map1 -> {
-                    
+
                     // Safely convert the new value to a perameterized map.
                     HashMap<String, Object> valueMap = new HashMap<>();
                     for (Map.Entry<?, ?> entry : map1.entrySet()) {
-                        
+
                         valueMap.put((String) entry.getKey(), entry.getValue());
                     }
-                    
+
                     yield toJSONObject(valueMap);
                 }
                 case Collection<?> valueList -> toJSONArray(valueList);
-                
+
                 case Object[] valueList -> toJSONArray(Arrays.asList(valueList));
 
                 default -> value;
@@ -164,14 +164,14 @@ public final class JSONOperator {
 
             recursionList.add(switch (value) {
                 case Map<?, ?> map -> {
-                    
+
                     // Safely convert the new value to a perameterized map.
                     HashMap<String, Object> valueMap = new HashMap<>();
                     for (Map.Entry<?, ?> entry : map.entrySet()) {
-                        
+
                         valueMap.put((String) entry.getKey(), entry.getValue());
                     }
-                    
+
                     yield toJSONObject(valueMap);
                 }
                 case Collection<?> valueList -> toJSONArray(valueList);
@@ -199,7 +199,7 @@ public final class JSONOperator {
     /**
      * Writes the JSON information from a <code>Map</code> to the designated file from a <code>TracedPath</code> directory.
      * @param path <code>TracedPath</code>: The path to write to.
-     * @param values <code>Map&lt:String, ?&gt;</code>: The contents to write.
+     * @param values <code>Map&lt;String, ?&gt;</code>: The contents to write.
      * @throws IOException Thrown if the designated file cannot be written to for any reason.
      */
     public static void writeTo(TracedPath path, Map<String, ?> values) throws IOException {

@@ -147,7 +147,7 @@ public final class MatrixOperations {
                 }
                     case SUBTRACT_MATRIX -> {
                         if (!(i[1] instanceof Matrix) && !(i[1] instanceof Vector)) {
-                            
+
                             yield null;
                         }
                         yield ((Vector) prevVal).subtractMatrix(((Matrix) i[1]));
@@ -171,7 +171,7 @@ public final class MatrixOperations {
 
                 case DOT_PRODUCT -> {
                     if (!(i[1] instanceof Vector)) {
-                        
+
                         yield null;
                     }
                     yield ((Vector) prevVal).dot((Vector) i[1]);

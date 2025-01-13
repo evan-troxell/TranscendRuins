@@ -27,7 +27,8 @@ import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
- * <code>DisplayFrame</code>: A class representing the display frame used throughout the project.
+ * <code>DisplayFrame</code>: A class representing the display frame used
+ * throughout the project.
  */
 public final class DisplayFrame extends TRFrame {
 
@@ -69,7 +70,18 @@ public final class DisplayFrame extends TRFrame {
     /**
      * <code>Camera3D</code>: The camera used to display 3D graphics.
      */
-    public final Camera3D camera = new Camera3D(new Vector(0, 0, 0), 0, 0, false, 0);
+    private final Camera3D camera = new Camera3D(new Vector(0, 0, 0), 0, 0, false, 0);
+
+    /**
+     * Retrieves the camera of this <code>DisplayFrame</code> instance.
+     * 
+     * @return <code>Camera3D</code>: The <code>camera</code> field of this
+     *         <code>DisplayFrame</code> instance.
+     */
+    public Camera3D getCamera() {
+
+        return camera;
+    }
 
     /**
      * Creates a new instance of the <code>DisplayFrame</code> class.
@@ -78,12 +90,13 @@ public final class DisplayFrame extends TRFrame {
 
         super("displayFrame", ComponentSettings.BACKGROUND_PANEL_SETTINGS);
         ImageIcon icon = TracedPath.LOCAL_ROOT_DIRECTORY.extend("internal", "frameIcon.png").retrieveImage();
-        if (icon != null) setIconImage(icon.getImage());
+        if (icon != null)
+            setIconImage(icon.getImage());
         setName("Transcend Ruins V2");
-        //setUndecorated(true);
+        // setUndecorated(true);
 
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
-        //setResizable(false);
+        // setResizable(false);
 
         addScreen(createMainScreen());
         addScreen(createWorldsScreen());
@@ -92,13 +105,14 @@ public final class DisplayFrame extends TRFrame {
         camera.setDimensions(getWidth(), getHeight());
         camera.setPitchBounds(-90.0, 90.0, false);
         camera.setZoomBounds(-Math.log(20), Math.log(20));
-        
+
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setVisible(true);
     }
 
     /**
      * Creates the main screen.
+     * 
      * @return <code>TRLayoutPanel</code>: The generated panel.
      */
     private TRLayeredPanel createMainScreen() {
@@ -106,14 +120,14 @@ public final class DisplayFrame extends TRFrame {
         TRLayeredPanel mainScreen = new TRLayeredPanel(MAIN_SCREEN, ComponentSettings.BACKGROUND_PANEL_SETTINGS);
         Dimension buttonSize = new Dimension(500, 50);
 
-        //region Menu Panel
+        // region Menu Panel
         ArrayList<TRComponent> mainScreenMenuPanelComponents = new ArrayList<>();
         TRButton playButton = new TRButton("playButton", "Play", buttonSize) {
 
             @Override
             public void onClick() {
-                
-                setScreen(RENDER_DISPLAY_SCREEN);//setScreen(WORLDS_SCREEN);
+
+                setScreen(RENDER_DISPLAY_SCREEN);// setScreen(WORLDS_SCREEN);
             }
         };
 
@@ -121,7 +135,7 @@ public final class DisplayFrame extends TRFrame {
 
             @Override
             public void onClick() {
-                
+
                 mainScreen.showComponent(SETTINGS_PANEL);
                 mainScreen.setComponentEnabled(MENU_PANEL, false);
             }
@@ -131,7 +145,7 @@ public final class DisplayFrame extends TRFrame {
 
             @Override
             public void onClick() {
-                
+
                 System.exit(0);
             }
         };
@@ -140,18 +154,19 @@ public final class DisplayFrame extends TRFrame {
         mainScreenMenuPanelComponents.add(settingsButton);
         mainScreenMenuPanelComponents.add(quitButton);
 
-        TRPanel mainScreenMenuPanel = TRPanel.createBoxPanel(MENU_PANEL, mainScreenMenuPanelComponents, true, CENTER_ALIGNMENT, 10, ComponentSettings.FOREGROUND_PANEL_SETTINGS, true);
+        TRPanel mainScreenMenuPanel = TRPanel.createBoxPanel(MENU_PANEL, mainScreenMenuPanelComponents, true,
+                CENTER_ALIGNMENT, 10, ComponentSettings.FOREGROUND_PANEL_SETTINGS, true);
         mainScreenMenuPanel.setBounds(0, 0, getWidth(), getHeight());
-        
-        mainScreen.addComponent(mainScreenMenuPanel, JLayeredPane.DEFAULT_LAYER);
-        //endregion
 
-        //region Settings Panel
+        mainScreen.addComponent(mainScreenMenuPanel, JLayeredPane.DEFAULT_LAYER);
+        // endregion
+
+        // region Settings Panel
         TRPanel mainScreenSettingsPanel = new SettingsPanel(SETTINGS_PANEL, ComponentSettings.PALETTE_PANEL_SETTINGS) {
 
             @Override
             public void onExit() {
-                
+
                 mainScreen.hideComponent(SETTINGS_PANEL);
                 mainScreen.setComponentEnabled(MENU_PANEL, true);
             }
@@ -160,26 +175,29 @@ public final class DisplayFrame extends TRFrame {
 
         mainScreen.addComponent(mainScreenSettingsPanel, JLayeredPane.PALETTE_LAYER);
         mainScreen.hideComponent(SETTINGS_PANEL);
-        //endregion
+        // endregion
 
         return mainScreen;
     }
 
     /**
      * Creates the worlds screen.
+     * 
      * @return <code>TRPanel</code>: The generated panel.
      */
     private TRPanel createWorldsScreen() {
 
         ArrayList<TRComponent> worldsScreenComponent = new ArrayList<>();
 
-        TRPanel worldsScreen = TRPanel.createBoxPanel(WORLDS_SCREEN, worldsScreenComponent, true, LEFT_ALIGNMENT, 5, ComponentSettings.BACKGROUND_PANEL_SETTINGS, false);
+        TRPanel worldsScreen = TRPanel.createBoxPanel(WORLDS_SCREEN, worldsScreenComponent, true, LEFT_ALIGNMENT, 5,
+                ComponentSettings.BACKGROUND_PANEL_SETTINGS, false);
 
         return worldsScreen;
     }
 
     /**
      * Creates the render display screen.
+     * 
      * @return <code>GraphicsPanel</code>: The generated panel.
      */
     private GraphicsPanel createRenderDisplayScreen() {
@@ -188,11 +206,13 @@ public final class DisplayFrame extends TRFrame {
 
         Dimension statsPanelComponentDimensions = new Dimension(150, 35);
 
-        TRLabel fpsDisplayLabel = new TRLabel("fpsDiplayLabel", "Current FPS: ##", statsPanelComponentDimensions, ComponentSettings.OVERLAY_LABEL_SETTINGS);
+        TRLabel fpsDisplayLabel = new TRLabel("fpsDiplayLabel", "Current FPS: ##", statsPanelComponentDimensions,
+                ComponentSettings.OVERLAY_LABEL_SETTINGS);
 
         statsPanelComponents.add(fpsDisplayLabel);
 
-        TRPanel statsPanel = TRPanel.createBoxPanel("statsPanel", statsPanelComponents, true, LEFT_ALIGNMENT, 5, ComponentSettings.HIDDEN_COMPONENT_SETTINGS, false);
+        TRPanel statsPanel = TRPanel.createBoxPanel("statsPanel", statsPanelComponents, true, LEFT_ALIGNMENT, 5,
+                ComponentSettings.HIDDEN_COMPONENT_SETTINGS, false);
         statsPanel.setBounds(0, 0, 150, getHeight());
 
         Render3D renderDisplayScreen = new Render3D(RENDER_DISPLAY_SCREEN, camera) {
@@ -204,7 +224,7 @@ public final class DisplayFrame extends TRFrame {
             private boolean getKey(int key) {
 
                 if (keysDown.get(key) == null) {
-                    
+
                     return false;
                 }
 
@@ -212,7 +232,8 @@ public final class DisplayFrame extends TRFrame {
             }
 
             @Override
-            public void mouseClicked(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) {
+            }
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -222,16 +243,20 @@ public final class DisplayFrame extends TRFrame {
             }
 
             @Override
-            public void mouseReleased(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {
+            }
 
             @Override
-            public void mouseEntered(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {
+            }
 
             @Override
-            public void mouseExited(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {
+            }
 
             @Override
-            public void keyTyped(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {
+            }
 
             @Override
             public void keyPressed(KeyEvent e) {
@@ -270,7 +295,8 @@ public final class DisplayFrame extends TRFrame {
                 double angle = Math.atan2(y, x);
                 double a = 2;
 
-                camera.transformBy(new Vector(a * Math.sin(camera.getHeading() + angle), 0, -a * Math.cos(camera.getHeading() + angle)));
+                camera.transformBy(new Vector(a * Math.sin(camera.getHeading() + angle), 0,
+                        -a * Math.cos(camera.getHeading() + angle)));
             }
 
             @Override
@@ -283,18 +309,21 @@ public final class DisplayFrame extends TRFrame {
             public void mouseDragged(MouseEvent e) {
 
                 double fovSensitivity = (double) GameSettings.getValue(GameSettings.VIDEO, "fovSensitivity");
-                camera.rotateBy((e.getX() - mousePosition[0]) * fovSensitivity, (e.getY() - mousePosition[1]) * fovSensitivity, false);
+                camera.rotateBy((e.getX() - mousePosition[0]) * fovSensitivity,
+                        (e.getY() - mousePosition[1]) * fovSensitivity, false);
                 mousePosition[0] = e.getX();
                 mousePosition[1] = e.getY();
             }
 
             @Override
-            public void mouseMoved(MouseEvent e) {}
+            public void mouseMoved(MouseEvent e) {
+            }
 
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
 
-                camera.zoomBy(((boolean) GameSettings.getValue(GameSettings.VIDEO, "invertZoom") ? -1 : 1) * e.getPreciseWheelRotation() / 20);
+                camera.zoomBy(((boolean) GameSettings.getValue(GameSettings.VIDEO, "invertZoom") ? -1 : 1)
+                        * e.getPreciseWheelRotation() / 20);
             }
 
             @Override
@@ -304,25 +333,31 @@ public final class DisplayFrame extends TRFrame {
             }
         };
 
-        TRPanel uiOverlayPanel = new TRPanel("uiOverlayPanel", new BorderLayout(), ComponentSettings.HIDDEN_COMPONENT_SETTINGS);
+        TRPanel uiOverlayPanel = new TRPanel("uiOverlayPanel", new BorderLayout(),
+                ComponentSettings.HIDDEN_COMPONENT_SETTINGS);
         uiOverlayPanel.setBounds(0, 0, getWidth(), getHeight());
 
         ArrayList<TRComponent> menuPanelComponents = new ArrayList<>();
         Dimension menuPanelComponentDimensions = new Dimension(80, 50);
 
-        TRButton chatButton = new TRButton("chatButton", "Chat", menuPanelComponentDimensions, ComponentSettings.OVERLAY_BUTTON_SETTINGS) {
+        TRButton chatButton = new TRButton("chatButton", "Chat", menuPanelComponentDimensions,
+                ComponentSettings.OVERLAY_BUTTON_SETTINGS) {
 
             @Override
-            public void onClick() {}
+            public void onClick() {
+            }
         };
 
-        TRButton menuButton = new TRButton("menuButton", "Menu", menuPanelComponentDimensions, ComponentSettings.OVERLAY_BUTTON_SETTINGS) {
+        TRButton menuButton = new TRButton("menuButton", "Menu", menuPanelComponentDimensions,
+                ComponentSettings.OVERLAY_BUTTON_SETTINGS) {
 
             @Override
-            public void onClick() {}
+            public void onClick() {
+            }
         };
 
-        TRButton testButton = new TRButton("settingsButton", "Settings", menuPanelComponentDimensions, ComponentSettings.OVERLAY_BUTTON_SETTINGS) {
+        TRButton testButton = new TRButton("settingsButton", "Settings", menuPanelComponentDimensions,
+                ComponentSettings.OVERLAY_BUTTON_SETTINGS) {
 
             @Override
             public void onClick() {
@@ -336,7 +371,8 @@ public final class DisplayFrame extends TRFrame {
         menuPanelComponents.add(menuButton);
         menuPanelComponents.add(testButton);
 
-        TRPanel menuPanel = TRPanel.createBoxPanel(MENU_PANEL, menuPanelComponents, false, CENTER_ALIGNMENT, 5, ComponentSettings.HIDDEN_COMPONENT_SETTINGS, true);
+        TRPanel menuPanel = TRPanel.createBoxPanel(MENU_PANEL, menuPanelComponents, false, CENTER_ALIGNMENT, 5,
+                ComponentSettings.HIDDEN_COMPONENT_SETTINGS, true);
 
         uiOverlayPanel.addComponent(menuPanel, BorderLayout.NORTH);
 
@@ -344,11 +380,11 @@ public final class DisplayFrame extends TRFrame {
 
             @Override
             public void onExit() {
-                
+
                 renderDisplayScreen.hideComponent(SETTINGS_PANEL);
                 renderDisplayScreen.setComponentEnabled("uiOverlayPanel", true);
             }
-            
+
         };
         settingsPanel.setBounds(getCenteredBounds(SettingsPanel.SETTINGS_DIMENSIONS));
 
@@ -363,6 +399,7 @@ public final class DisplayFrame extends TRFrame {
 
     public Rectangle getCenteredBounds(Dimension dimensions) {
 
-        return new Rectangle(new Point((int) (getWidth() - dimensions.getWidth()) / 2, (int) (getHeight() - dimensions.getHeight()) / 2), dimensions);
+        return new Rectangle(new Point((int) (getWidth() - dimensions.getWidth()) / 2,
+                (int) (getHeight() - dimensions.getHeight()) / 2), dimensions);
     }
 }

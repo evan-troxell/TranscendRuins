@@ -9,7 +9,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 /**
- * <code>TRButton</code>: A class representing the applied settings of a component.
+ * <code>TRButton</code>: A class representing the applied settings of a
+ * component.
  */
 public final class ComponentSettings {
 
@@ -46,7 +47,8 @@ public final class ComponentSettings {
     /**
      * <code>Border</code>: The border of components of the UI.
      */
-    public static final Border COMPONENT_BORDER = BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.WHITE, Color.BLACK);
+    public static final Border COMPONENT_BORDER = BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.WHITE,
+            Color.BLACK);
 
     /**
      * <code>Font</code>: The default font of components of the UI.
@@ -61,7 +63,8 @@ public final class ComponentSettings {
     /**
      * <code>ComponentSettings</code>: The component settings of a foreground panel.
      */
-    public static final ComponentSettings FOREGROUND_PANEL_SETTINGS = createSettings(FOREGROUND_COLOR, COMPONENT_BORDER);
+    public static final ComponentSettings FOREGROUND_PANEL_SETTINGS = createSettings(FOREGROUND_COLOR,
+            COMPONENT_BORDER);
 
     /**
      * <code>ComponentSettings</code>: The component settings of a palette panel.
@@ -71,42 +74,83 @@ public final class ComponentSettings {
     /**
      * <code>ComponentSettings</code>: The component settings of a hidden component.
      */
-    public static final ComponentSettings HIDDEN_COMPONENT_SETTINGS = createTransparentSettings(DEFAULT_TEXT_COLOR, DEFAULT_FONT);
+    public static final ComponentSettings HIDDEN_COMPONENT_SETTINGS = createTransparentSettings(DEFAULT_TEXT_COLOR,
+            DEFAULT_FONT);
 
     /**
      * <code>ComponentSettings</code>: The default component settings of button.
      */
-    public static final ComponentSettings DEFAULT_BUTTON_SETTINGS = createSettings(PALETTE_COLOR, COMPONENT_BORDER, DEFAULT_TEXT_COLOR, DEFAULT_FONT);
+    public static final ComponentSettings DEFAULT_BUTTON_SETTINGS = createSettings(PALETTE_COLOR, COMPONENT_BORDER,
+            DEFAULT_TEXT_COLOR, DEFAULT_FONT);
 
     /**
      * <code>ComponentSettings</code>: The settings of an overlay button.
      */
-    public static final ComponentSettings OVERLAY_BUTTON_SETTINGS = createSettings(OVERLAY_COLOR, COMPONENT_BORDER, OVERLAY_TEXT_COLOR, DEFAULT_FONT);
+    public static final ComponentSettings OVERLAY_BUTTON_SETTINGS = createSettings(OVERLAY_COLOR, COMPONENT_BORDER,
+            OVERLAY_TEXT_COLOR, DEFAULT_FONT);
 
     /**
      * <code>ComponentSettings</code>: The default component settings of label.
      */
-    public static final ComponentSettings DEFAULT_LABEL_SETTINGS = createSettings(PALETTE_COLOR, null, DEFAULT_TEXT_COLOR, DEFAULT_FONT);
+    public static final ComponentSettings DEFAULT_LABEL_SETTINGS = createSettings(PALETTE_COLOR, null,
+            DEFAULT_TEXT_COLOR, DEFAULT_FONT);
 
     /**
      * <code>ComponentSettings</code>: The component settings of an overlay label.
      */
-    public static final ComponentSettings OVERLAY_LABEL_SETTINGS = createSettings(OVERLAY_COLOR, null, OVERLAY_TEXT_COLOR, DEFAULT_FONT);
+    public static final ComponentSettings OVERLAY_LABEL_SETTINGS = createSettings(OVERLAY_COLOR, null,
+            OVERLAY_TEXT_COLOR, DEFAULT_FONT);
 
     /**
-     * <code>Color</code>: The background color of this <code>ComponentSettings</code> instance.
+     * <code>Color</code>: The background color of this
+     * <code>ComponentSettings</code> instance.
      */
     private final Color background;
 
     /**
-     * <code>Color</code>: The foreground color of this <code>ComponentSettings</code> instance.
+     * Retrieves the background of this <code>ComponentSettings</code> instance.
+     * 
+     * @return <code>Color</code>: The <code>background</code> field of this
+     *         <code>ComponentSettings</code> instance.
+     */
+    public Color getBackground() {
+
+        return background;
+    }
+
+    /**
+     * <code>Color</code>: The foreground color of this
+     * <code>ComponentSettings</code> instance.
      */
     private final Color foreground;
 
     /**
-     * <code>Border</code>: The border of this <code>ComponentSettings</code> instance.
+     * Retrieves the foregound of this <code>ComponentSettings</code> instance.
+     * 
+     * @return <code>Color</code>: The <code>foreground</code> field of this
+     *         <code>ComponentSettings</code> instance.
+     */
+    public Color getForeground() {
+
+        return foreground;
+    }
+
+    /**
+     * <code>Border</code>: The border of this <code>ComponentSettings</code>
+     * instance.
      */
     private final Border border;
+
+    /**
+     * Retrieves the border of this <code>ComponentSettings</code> instance.
+     * 
+     * @return <code>Color</code>: The <code>border</code> field of this
+     *         <code>ComponentSettings</code> instance.
+     */
+    public Border getBorder() {
+
+        return border;
+    }
 
     /**
      * <code>Font</code>: The font of this <code>ComponentSettings</code> instance.
@@ -114,12 +158,37 @@ public final class ComponentSettings {
     private final Font font;
 
     /**
-     * <code>boolean</code>: Whether or not this <code>ComponentSettings</code> instance is opaque.
+     * Retrieves the font of this <code>ComponentSettings</code> instance.
+     * 
+     * @return <code>Font</code>: The <code>font</code> field of this
+     *         <code>ComponentSettings</code> instance.
+     */
+    public Font getFont() {
+
+        return font;
+    }
+
+    /**
+     * <code>boolean</code>: Whether or not this <code>ComponentSettings</code>
+     * instance is opaque.
      */
     private final boolean opaque;
 
     /**
+     * Retrieves whether or not this <code>ComponentSettings</code> instance is
+     * opaque.
+     * 
+     * @return <code>Color</code>: The <code>opaque</code> field of this
+     *         <code>ComponentSettings</code> instance.
+     */
+    public boolean getOpaque() {
+
+        return opaque;
+    }
+
+    /**
      * Creates a transparent instance of the <code>ComponentSettings</code> class.
+     * 
      * @return <code>ComponentSettings</code>: The generated component settings.
      */
     public static ComponentSettings createTransparentSettings() {
@@ -129,8 +198,11 @@ public final class ComponentSettings {
 
     /**
      * Creates a transparent instance of the <code>ComponentSettings</code> class.
-     * @param foreground <code>Color</code>: The foreground color to apply to the new <code>ComponentSettings</code> instance.
-     * @param font <code>Font</code>: The font to apply to the new <code>ComponentSettings</code> instance.
+     * 
+     * @param foreground <code>Color</code>: The foreground color to apply to the
+     *                   new <code>ComponentSettings</code> instance.
+     * @param font       <code>Font</code>: The font to apply to the new
+     *                   <code>ComponentSettings</code> instance.
      * @return <code>ComponentSettings</code>: The generated component settings.
      */
     public static ComponentSettings createTransparentSettings(Color foreground, Font font) {
@@ -140,8 +212,11 @@ public final class ComponentSettings {
 
     /**
      * Creates an opaque instance of the <code>ComponentSettings</code> class.
-     * @param background <code>Color</code>: The background color to apply to the new <code>ComponentSettings</code> instance.
-     * @param border <code>Border</code>: The border to apply to the new <code>ComponentSettings</code> instance.
+     * 
+     * @param background <code>Color</code>: The background color to apply to the
+     *                   new <code>ComponentSettings</code> instance.
+     * @param border     <code>Border</code>: The border to apply to the new
+     *                   <code>ComponentSettings</code> instance.
      * @return <code>ComponentSettings</code>: The generated component settings.
      */
     public static ComponentSettings createSettings(Color background, Border border) {
@@ -151,24 +226,35 @@ public final class ComponentSettings {
 
     /**
      * Creates an opaque instance of the <code>ComponentSettings</code> class.
-     * @param background <code>Color</code>: The background color to apply to the new <code>ComponentSettings</code> instance.
-     * @param border <code>Border</code>: The border to apply to the new <code>ComponentSettings</code> instance.
-     * @param foreground <code>Color</code>: The foreground color to apply to the new <code>ComponentSettings</code> instance.
-     * @param font <code>Font</code>: The font to apply to the new <code>ComponentSettings</code> instance.
+     * 
+     * @param background <code>Color</code>: The background color to apply to the
+     *                   new <code>ComponentSettings</code> instance.
+     * @param border     <code>Border</code>: The border to apply to the new
+     *                   <code>ComponentSettings</code> instance.
+     * @param foreground <code>Color</code>: The foreground color to apply to the
+     *                   new <code>ComponentSettings</code> instance.
+     * @param font       <code>Font</code>: The font to apply to the new
+     *                   <code>ComponentSettings</code> instance.
      * @return <code>ComponentSettings</code>: The generated component settings.
      */
     public static ComponentSettings createSettings(Color background, Border border, Color foreground, Font font) {
 
         return new ComponentSettings(background, border, foreground, font, true);
     }
-    
+
     /**
      * Creates a new instance of the <code>ComponentSettings</code> class.
-     * @param background <code>Color</code>: The background color to apply to this <code>ComponentSettings</code> instance.
-     * @param border <code>Border</code>: The border to apply to this <code>ComponentSettings</code> instance.
-     * @param foreground <code>Color</code>: The foreground color to apply to the new <code>ComponentSettings</code> instance.
-     * @param font <code>Font</code>: The font to apply to this <code>ComponentSettings</code> instance.
-     * @param opaque <code>boolean</code> Whether or not this <code>ComponentSettings</code> instance should be opaque.
+     * 
+     * @param background <code>Color</code>: The background color to apply to this
+     *                   <code>ComponentSettings</code> instance.
+     * @param border     <code>Border</code>: The border to apply to this
+     *                   <code>ComponentSettings</code> instance.
+     * @param foreground <code>Color</code>: The foreground color to apply to the
+     *                   new <code>ComponentSettings</code> instance.
+     * @param font       <code>Font</code>: The font to apply to this
+     *                   <code>ComponentSettings</code> instance.
+     * @param opaque     <code>boolean</code> Whether or not this
+     *                   <code>ComponentSettings</code> instance should be opaque.
      */
     public ComponentSettings(Color background, Border border, Color foreground, Font font, boolean opaque) {
 
@@ -190,6 +276,7 @@ public final class ComponentSettings {
 
     /**
      * Applies the settings of this <code>ComponentSettings</code> to a component.
+     * 
      * @param component <code>JComponent</code>: The component to be altered.
      */
     public void apply(JComponent component) {
@@ -203,50 +290,5 @@ public final class ComponentSettings {
         component.setFont(font);
 
         component.setOpaque(opaque);
-    }
-
-    /**
-     * Retrieves the background of this <code>ComponentSettings</code> instance.
-     * @return <code>Color</code>: The <code>background</code> field of this <code>ComponentSettings</code> instance.
-     */
-    public Color getBackground() {
-
-        return background;
-    }
-
-    /**
-     * Retrieves the border of this <code>ComponentSettings</code> instance.
-     * @return <code>Color</code>: The <code>border</code> field of this <code>ComponentSettings</code> instance.
-     */
-    public Border getBorder() {
-
-        return border;
-    }
-
-    /**
-     * Retrieves the foregound of this <code>ComponentSettings</code> instance.
-     * @return <code>Color</code>: The <code>foreground</code> field of this <code>ComponentSettings</code> instance.
-     */
-    public Color getForeground() {
-
-        return foreground;
-    }
-
-    /**
-     * Retrieves the font of this <code>ComponentSettings</code> instance.
-     * @return <code>Font</code>: The <code>font</code> field of this <code>ComponentSettings</code> instance.
-     */
-    public Font getFont() {
-
-        return font;
-    }
-
-    /**
-     * Retrieves whether or not this <code>ComponentSettings</code> instance is opaque.
-     * @return <code>Color</code>: The <code>opaque</code> field of this <code>ComponentSettings</code> instance.
-     */
-    public boolean getOpaque() {
-
-        return opaque;
     }
 }

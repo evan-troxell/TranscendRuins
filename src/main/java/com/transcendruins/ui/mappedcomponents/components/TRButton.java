@@ -22,12 +22,23 @@ public abstract class TRButton extends JButton implements TRComponent {
      */
     private final String name;
 
+    @Override
+    public final String getComponentName() {
+
+        return name;
+    }
+
     /**
      * Creates a new instance of the <code>TRButton</code> class.
-     * @param name <code>String</code>: The name of this <code>TRButton</code> instance.
-     * @param text <code>String</code>: The text to apply to this <code>TRButton</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRButton</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRButton</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this <code>TRButton</code>
+     *                 instance.
+     * @param text     <code>String</code>: The text to apply to this
+     *                 <code>TRButton</code> instance.
+     * @param size     <code>Dimension</code>: The size to apply to this
+     *                 <code>TRButton</code> instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRButton</code> instance.
      */
     public TRButton(String name, String text, Dimension size, ComponentSettings settings) {
 
@@ -36,23 +47,34 @@ public abstract class TRButton extends JButton implements TRComponent {
 
     /**
      * Creates a new instance of the <code>TRButton</code> class.
-     * @param name <code>String</code>: The name of this <code>TRButton</code> instance.
-     * @param icon <code>ImageIcon</code>: The icon to apply to this <code>TRButton</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRButton</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRButton</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this <code>TRButton</code>
+     *                 instance.
+     * @param icon     <code>ImageIcon</code>: The icon to apply to this
+     *                 <code>TRButton</code> instance.
+     * @param size     <code>Dimension</code>: The size to apply to this
+     *                 <code>TRButton</code> instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRButton</code> instance.
      */
     public TRButton(String name, ImageIcon icon, Dimension size, ComponentSettings settings) {
 
         this(name, null, icon, size, settings);
     }
-    
+
     /**
      * Creates a new instance of the <code>TRButton</code> class.
-     * @param name <code>String</code>: The name of this <code>TRButton</code> instance.
-     * @param text <code>String</code>: The text to apply to this <code>TRButton</code> instance.
-     * @param icon <code>ImageIcon</code>: The icon to apply to this <code>TRButton</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRButton</code> instance.
-     * @param settings <code>ComponentSettings</code>: The settings to apply to this <code>TRButton</code> instance.
+     * 
+     * @param name     <code>String</code>: The name of this <code>TRButton</code>
+     *                 instance.
+     * @param text     <code>String</code>: The text to apply to this
+     *                 <code>TRButton</code> instance.
+     * @param icon     <code>ImageIcon</code>: The icon to apply to this
+     *                 <code>TRButton</code> instance.
+     * @param size     <code>Dimension</code>: The size to apply to this
+     *                 <code>TRButton</code> instance.
+     * @param settings <code>ComponentSettings</code>: The settings to apply to this
+     *                 <code>TRButton</code> instance.
      */
     public TRButton(String name, String text, ImageIcon icon, Dimension size, ComponentSettings settings) {
 
@@ -69,14 +91,14 @@ public abstract class TRButton extends JButton implements TRComponent {
             public void mouseEntered(MouseEvent e) {
 
                 if (isEnabled()) {
-                    
+
                     setBackground(settings.getBackground().darker());
                 }
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                    
+
                 setBackground(settings.getBackground());
             }
 
@@ -84,14 +106,14 @@ public abstract class TRButton extends JButton implements TRComponent {
             public void mousePressed(MouseEvent e) {
 
                 if (isEnabled()) {
-                    
+
                     setBackground(Color.WHITE);
                 }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                    
+
                 setBackground(settings.getBackground());
             }
         });
@@ -100,21 +122,31 @@ public abstract class TRButton extends JButton implements TRComponent {
     }
 
     /**
-     * Creates a new instance of the <code>TRButton</code> class with default settings applied.
-     * @param name <code>String</code>: The name of this <code>TRButton</code> instance.
-     * @param text <code>String</code>: The text to apply to this <code>TRButton</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRButton</code> instance.
+     * Creates a new instance of the <code>TRButton</code> class with default
+     * settings applied.
+     * 
+     * @param name <code>String</code>: The name of this <code>TRButton</code>
+     *             instance.
+     * @param text <code>String</code>: The text to apply to this
+     *             <code>TRButton</code> instance.
+     * @param size <code>Dimension</code>: The size to apply to this
+     *             <code>TRButton</code> instance.
      */
-    public TRButton(String name,  String text, Dimension size) {
+    public TRButton(String name, String text, Dimension size) {
 
         this(name, text, null, size, ComponentSettings.DEFAULT_BUTTON_SETTINGS);
     }
 
     /**
-     * Creates a new instance of the <code>TRButton</code> class with default settings applied.
-     * @param name <code>String</code>: The name of this <code>TRButton</code> instance.
-     * @param icon <code>ImageIcon</code>: The icon to apply to this <code>TRButton</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRButton</code> instance.
+     * Creates a new instance of the <code>TRButton</code> class with default
+     * settings applied.
+     * 
+     * @param name <code>String</code>: The name of this <code>TRButton</code>
+     *             instance.
+     * @param icon <code>ImageIcon</code>: The icon to apply to this
+     *             <code>TRButton</code> instance.
+     * @param size <code>Dimension</code>: The size to apply to this
+     *             <code>TRButton</code> instance.
      */
     public TRButton(String name, ImageIcon icon, Dimension size) {
 
@@ -122,11 +154,17 @@ public abstract class TRButton extends JButton implements TRComponent {
     }
 
     /**
-     * Creates a new instance of the <code>TRButton</code> class with default settings applied.
-     * @param name <code>String</code>: The name of this <code>TRButton</code> instance.
-     * @param text <code>String</code>: The text to apply to this <code>TRButton</code> instance.
-     * @param icon <code>ImageIcon</code>: The icon to apply to this <code>TRButton</code> instance.
-     * @param size <code>Dimension</code>: The size to apply to this <code>TRButton</code> instance.
+     * Creates a new instance of the <code>TRButton</code> class with default
+     * settings applied.
+     * 
+     * @param name <code>String</code>: The name of this <code>TRButton</code>
+     *             instance.
+     * @param text <code>String</code>: The text to apply to this
+     *             <code>TRButton</code> instance.
+     * @param icon <code>ImageIcon</code>: The icon to apply to this
+     *             <code>TRButton</code> instance.
+     * @param size <code>Dimension</code>: The size to apply to this
+     *             <code>TRButton</code> instance.
      */
     public TRButton(String name, String text, ImageIcon icon, Dimension size) {
 
@@ -148,11 +186,5 @@ public abstract class TRButton extends JButton implements TRComponent {
     public final void setEnabled(boolean enabled) {
 
         super.setEnabled(enabled);
-    }
-
-    @Override
-    public final String getComponentName() {
-
-        return name;
     }
 }

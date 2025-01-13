@@ -29,25 +29,39 @@ import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 import com.transcendruins.world.assetinstances.rendermaterials.RenderMaterialInstance;
 
 /**
- * <code>Render3D</code>: A class representing the game display object of the program.
+ * <code>Render3D</code>: A class representing the game display object of the
+ * program.
  */
-public abstract class Render3D extends GraphicsPanel implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public abstract class Render3D extends GraphicsPanel
+        implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
     /**
-     * <code>Matrix</code>: A matrix transform used to standardize the X, Y, and Z coordinates.
+     * <code>Matrix</code>: A matrix transform used to standardize the X, Y, and Z
+     * coordinates.
      * Current status: X axis: regular, Y axis: inverted, Z axis: regular.
      */
     public static final Matrix DISPLAY_TRANSFORM = new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
 
-        1, 0, 0,
-        0, -1, 0,
-        0, 0, 1
+            1, 0, 0,
+            0, -1, 0,
+            0, 0, 1
     });
 
     /**
      * <code>Camera3D</code>: The camera to be rendered from.
      */
-    public final Camera3D camera;
+    private final Camera3D camera;
+
+    /**
+     * Retrieves the camera of this <code>Render3D</code> instance.
+     * 
+     * @return <code>Camera3D</code>: The <code>camera</code> field of this
+     *         <code>Render3D</code> instance.
+     */
+    public Camera3D getCamera() {
+
+        return camera;
+    }
 
     /**
      * <code>ArrayList&lt;PolyGroup&gt;</code>: The polygon groups to be rendered.
@@ -55,33 +69,53 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
     private ArrayList<PolyGroup> polygonGroups = new ArrayList<>();
 
     /**
-     * <code>boolean</code>: Whether or not this <code>Render3D</code> instance is currently active.
+     * <code>boolean</code>: Whether or not this <code>Render3D</code> instance is
+     * currently active.
      */
     private boolean active = false;
 
     /**
-     * <code>long</code>: The next time (in milliseconds) when the FPS counter will be assigned to the <code>fps</code> field of this <code>Render3D</code> instance.
+     * <code>long</code>: The next time (in milliseconds) when the FPS counter will
+     * be assigned to the <code>fps</code> field of this <code>Render3D</code>
+     * instance.
      */
     private long nextTime;
 
     /**
-     * <code>int</code>: The number of elapsed frames since the <code>fps</code> field of this <code>Render3D</code> instance was last assigned.
+     * <code>int</code>: The number of elapsed frames since the <code>fps</code>
+     * field of this <code>Render3D</code> instance was last assigned.
      */
     private int framesCounter = 0;
 
     /**
-     * <code>int</code>: The current frames-per-second counter of this <code>Render3D</code> instance.
+     * <code>int</code>: The current frames-per-second counter of this
+     * <code>Render3D</code> instance.
      */
     private int fps = -1;
 
     /**
-     * <code>Object</code>: The synchronized lock used to ensure all access to ths <code>renderInstance</code> field of this <code>Render3D</code> instance is synchronized for thread safety.
+     * Retrieves the FPS counter of this <code>Render3D</code> instance.
+     * 
+     * @return <code>int</code>: The <code>fps</code> field of this
+     *         <code>Render3D</code> instance.
+     */
+    public final int getFPS() {
+
+        return fps;
+    }
+
+    /**
+     * <code>Object</code>: The synchronized lock used to ensure all access to ths
+     * <code>renderInstance</code> field of this <code>Render3D</code> instance is
+     * synchronized for thread safety.
      */
     private final Object renderLock = new Object();
 
     /**
      * Creates a new instance of the <code>Render3D</code> class.
-     * @param name <code>String</code>: The name of this <code>Render3D</code> instance.
+     * 
+     * @param name   <code>String</code>: The name of this <code>Render3D</code>
+     *               instance.
      * @param camera <code>Camera3D</code>: The camera to render from.
      */
     public Render3D(String name, Camera3D camera) {
@@ -103,8 +137,12 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
     }
 
     /**
-     * Paints this <code>Render3D</code> instance. The body of this method is synchronized, meaning it can be safely called without the possibility of the <code>renderInstance</code> being altered during rendering.
-     * @param g <code>Graphics</code>: The graphics object used to paint this <code>Render3D</code> instance.
+     * Paints this <code>Render3D</code> instance. The body of this method is
+     * synchronized, meaning it can be safely called without the possibility of the
+     * <code>renderInstance</code> being altered during rendering.
+     * 
+     * @param g <code>Graphics</code>: The graphics object used to paint this
+     *          <code>Render3D</code> instance.
      */
     @Override
     public void paintComponent(Graphics g) {
@@ -113,17 +151,20 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
 
             Graphics2D g2D = (Graphics2D) g;
 
-            // Retrieves the matrix operations used to normalize the position of a polygon on frame.
+            // Retrieves the matrix operations used to normalize the position of a polygon
+            // on frame.
             MatrixOperations normalize = camera.getRenderTransform();
 
             // Generate the image which the rendering will be drawn onto.
-            BufferedImage render = new BufferedImage((int) (getWidth()), (int) (getHeight()), BufferedImage.TYPE_INT_RGB);
+            BufferedImage render = new BufferedImage((int) (getWidth()), (int) (getHeight()),
+                    BufferedImage.TYPE_INT_RGB);
             Graphics2D renderG2D = render.createGraphics();
             renderG2D.setColor(Color.BLACK);
             renderG2D.fillRect(0, 0, render.getWidth(), render.getHeight());
             renderG2D.dispose();
 
-            // An array of the distances of the pixels in the 'render' variable. Pixels will begin with a null depth, and will be assigned automatically once drawn over.
+            // An array of the distances of the pixels in the 'render' variable. Pixels will
+            // begin with a null depth, and will be assigned automatically once drawn over.
             RenderedPixel[] pixelDepths = new RenderedPixel[render.getWidth() * render.getHeight()];
 
             // Creates the thread pool used to manage threading polygon groups.
@@ -137,7 +178,8 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
 
             try {
 
-                // Await the termination of the thread pool. If it takes too long, forcefully shut down the thread.
+                // Await the termination of the thread pool. If it takes too long, forcefully
+                // shut down the thread.
                 threadPool.shutdown();
                 if (!threadPool.awaitTermination(1, TimeUnit.SECONDS)) {
 
@@ -156,7 +198,7 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
 
                 if (pixel != null) {
 
-                    render.setRGB(pixel.x, pixel.y, pixel.getColor(backgroundColor));
+                    render.setRGB(pixel.getX(), pixel.getY(), pixel.getColor(backgroundColor));
                 }
             }
 
@@ -183,37 +225,46 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
 
     /**
      * Renders a polygon group onto the <code>pixelDepths</code> array.
-     * @param polygonGroup <code>PolyGroup</code>: The polygon group to render.
-     * @param verticeNormalizer <code>MatrixOperations</code>: The vertice normalizer used to adjust for the spacial position and orientation of the camera.
-     * @param pixelDepths <code>RenderedPixel[frameWidth * frameHeight]</code>: An array of the mapped pixel distances to add onto.
-     * @param frameWidth <code>int</code>: The width of the frame to center on.
-     * @param frameHeight <code>int</code>: The height of the frame to center on.
+     * 
+     * @param polygonGroup      <code>PolyGroup</code>: The polygon group to render.
+     * @param verticeNormalizer <code>MatrixOperations</code>: The vertice
+     *                          normalizer used to adjust for the spacial position
+     *                          and orientation of the camera.
+     * @param pixelDepths       <code>RenderedPixel[frameWidth * frameHeight]</code>:
+     *                          An array of the mapped pixel distances to add onto.
+     * @param frameWidth        <code>int</code>: The width of the frame to center
+     *                          on.
+     * @param frameHeight       <code>int</code>: The height of the frame to center
+     *                          on.
      */
-    public static final void renderPolygonGroup(PolyGroup polygonGroup, MatrixOperations verticeNormalizer, RenderedPixel[] pixelDepths, int frameWidth, int frameHeight) {
+    public static final void renderPolygonGroup(PolyGroup polygonGroup, MatrixOperations verticeNormalizer,
+            RenderedPixel[] pixelDepths, int frameWidth, int frameHeight) {
 
         // Render all polygons in the polygon group.
         for (Triangle3D polygon : polygonGroup.getPolygons()) {
 
-            // Create the normalized triangle which will be displayed on the 'render' variable.
+            // Create the normalized triangle which will be displayed on the 'render'
+            // variable.
             Triangle3D normalizedTriangle = polygon.getAdjustedInstance(verticeNormalizer);
 
             RenderMaterialInstance renderMaterial = polygon.getRenderMaterial();
 
             // If the triangle is completely out of frame or facing the wrong side, move on.
-            if (!normalizedTriangle.inFrame(frameWidth, frameHeight) || (renderMaterial.backfaceCulling() && normalizedTriangle.facingBackside())) {
+            if (!normalizedTriangle.inFrame(frameWidth, frameHeight)
+                    || (renderMaterial.backfaceCulling() && normalizedTriangle.facingBackside())) {
 
                 continue;
             }
 
-            int minX = Math.max(0, normalizedTriangle.minX);
-            int maxX = Math.min(frameWidth - 1, normalizedTriangle.maxX);
+            int minX = Math.max(0, normalizedTriangle.getMinX());
+            int maxX = Math.min(frameWidth - 1, normalizedTriangle.getMaxX());
 
-            double fresnelFactor = normalizedTriangle.viewCosine;
+            double fresnelFactor = normalizedTriangle.getViewCosine();
             double convertFactor = Math.pow(1 - fresnelFactor * fresnelFactor, 8);
 
-            int red = polygon.color.getRed();
-            int green = polygon.color.getGreen();
-            int blue = polygon.color.getBlue();
+            int red = polygon.getColor().getRed();
+            int green = polygon.getColor().getGreen();
+            int blue = polygon.getColor().getBlue();
 
             // Applies face dimming to the polygon.
             if (renderMaterial.faceDimming()) {
@@ -226,7 +277,7 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
 
             int color = (red << 16) | (green << 8) | blue;
 
-            int alpha = renderMaterial.opaque() ? 255 : polygon.color.getAlpha();
+            int alpha = renderMaterial.opaque() ? 255 : polygon.getColor().getAlpha();
 
             // Applies the fresnel effect to the polygon.
             if (renderMaterial.fresnelEffect() && alpha < 255) {
@@ -234,7 +285,8 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
                 alpha += ((255 - alpha) * convertFactor);
             }
 
-            // Iterate through the box with the bounds of the minimum and maximum X and Y values previously layed out.
+            // Iterate through the box with the bounds of the minimum and maximum X and Y
+            // values previously layed out.
             for (int x = minX; x <= maxX; x++) {
 
                 int[] yBounds = normalizedTriangle.findYBoundsAtX(x);
@@ -314,9 +366,13 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
     }
 
     /**
-     * Parses the polygons in the stored render instances of this <code>Render3D</code> instance into polygon groups.
-     * @param models <code>Collection&ltRenderInstance&gt;</code>: The models to be rendered.
-     * @return <code>ArrayList&lt;PolyGroup&gt;</code>: The retrieved polygon groups.
+     * Parses the polygons in the stored render instances of this
+     * <code>Render3D</code> instance into polygon groups.
+     * 
+     * @param models <code>Collection&ltlRenderInstance&gt;</code>: The models to be
+     *               rendered.
+     * @return <code>ArrayList&lt;PolyGroup&gt;</code>: The retrieved polygon
+     *         groups.
      */
     private ArrayList<PolyGroup> getPolygonGroups(Collection<RenderInstance> models) {
 
@@ -331,7 +387,9 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
 
     /**
      * Begins displaying this <code>Render3D</code> instance.
-     * @param models <code>Collection&ltRenderInstance&gt;</code>: The models to be rendered.
+     * 
+     * @param models <code>Collection&ltRenderInstance&gt;</code>: The models to be
+     *               rendered.
      */
     public final void render(Collection<RenderInstance> models) {
 
@@ -349,7 +407,9 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
 
     /**
      * Assigns the models of this <code>Render3D</code> instance.
-     * @param models <code>Collection&ltRenderInstance&gt;</code>: The models to be rendered.
+     * 
+     * @param models <code>Collection&ltRenderInstance&gt;</code>: The models to be
+     *               rendered.
      */
     public final void setModels(Collection<RenderInstance> models) {
 
@@ -369,16 +429,9 @@ public abstract class Render3D extends GraphicsPanel implements KeyListener, Mou
 
     /**
      * Outputs the FPS counter of this <code>Render3D</code> instance.
-     * @param outputFPS <code>int</code>: The outputted FPS of this <code>Render3D</code> instance.
+     * 
+     * @param outputFPS <code>int</code>: The outputted FPS of this
+     *                  <code>Render3D</code> instance.
      */
     public abstract void outputFPS(int outputFPS);
-
-    /**
-     * Retrieves the FPS counter of this <code>Render3D</code> instance.
-     * @return <code>int</code>: The <code>fps</code> counter of this <code>Render3D</code> instance.
-     */
-    public final int getFPS() {
-
-        return fps;
-    }
 }

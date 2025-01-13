@@ -8,7 +8,7 @@ import com.transcendruins.utilities.exceptions.propertyexceptions.UnexpectedValu
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>TRScriptOperator</code>: A class representing an evaluable TRScript operator. 
+ * <code>TRScriptOperator</code>: A class representing an evaluable TRScript operator.
  */
 final class TRScriptOperator {
 
@@ -118,7 +118,7 @@ final class TRScriptOperator {
                         return value;
                     }
                 }
-                
+
                 return false;
             }, argsLength -> argsLength < 2));
 
@@ -130,7 +130,7 @@ final class TRScriptOperator {
 
                     sum += value;
                 }
-                
+
                 return sum;
             }, argsLength -> argsLength < 1));
 
@@ -140,7 +140,7 @@ final class TRScriptOperator {
 
                     return -args.get(0).evaluateDouble();
                 }
-                
+
                 return args.get(0).evaluateDouble() - args.get(1).evaluateDouble();
             }, argsLength -> argsLength != 1 && argsLength != 2));
 
@@ -152,7 +152,7 @@ final class TRScriptOperator {
 
                     prod *= value;
                 }
-                
+
                 return prod;
             }, argsLength -> argsLength < 2));
 
@@ -208,14 +208,14 @@ final class TRScriptOperator {
 
                 return Math.log(args.get(0).evaluateDouble()) / Math.log(args.get(1).evaluateDouble());
             }, argsLength -> argsLength != 2));
-    
+
         operators.put("?", new TRScriptOperator(args -> {
 
             boolean conditional = args.get(0).evaluateBoolean();
 
             return conditional ? args.get(1).evaluate() : args.get(2).evaluate();
         }, argsLength -> argsLength != 3));
-        
+
         operators.put("random", new TRScriptOperator(args -> {
 
             if (args.isEmpty()) {

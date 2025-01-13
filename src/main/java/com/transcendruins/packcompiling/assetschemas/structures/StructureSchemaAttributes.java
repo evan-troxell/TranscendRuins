@@ -25,6 +25,6 @@ public final class StructureSchemaAttributes extends AssetSchemaAttributes {
 
     @Override
     public void finalizeData() {
-        
+
     }
 }

@@ -3,7 +3,7 @@ package com.transcendruins.graphics3d.geometry;
 /**
  * <code>Vector</code>: A class representing a point in a variable-dimensional space.
  */
-public final class 
+public final class
 Vector extends Matrix {
 
     /**
@@ -19,7 +19,16 @@ Vector extends Matrix {
     /**
      * <code>int</code>: The dimensions of this <code>Vector</code> instance.
      */
-    public final int dimensions;
+    private final int dimensions;
+
+    /**
+     * Retrieves the dimensions of this <code>Vector</code> instance.
+     * @return <code>int</code>: The <code>dimensions</code> field of this <code>Vector</code> instance.
+     */
+    public int getDimensions() {
+
+        return dimensions;
+    }
 
     /**
      * Creates a new instance of the <code>Vector</code> class using three dimensions.

@@ -29,7 +29,7 @@ public final class TRScript {
 
     /**
      * Evaluates the boolean value of this <code>TRScript</code> instance.
-     * @return <code>boolean</code.: The boolean value of this <code>TRScript</code> instance.
+     * @return <code>boolean</code>: The boolean value of this <code>TRScript</code> instance.
      */
     public boolean evaluate() {
 
