@@ -6,7 +6,9 @@
         "defaultState": "default",
         "states": {
             "default": {
-                "animations": [],
+                "animations": [
+                    "TranscendRuins:example"
+                ],
                 "soundEffects": [],
                 "particleEffects": [],
                 "transitions": {
@@ -23,7 +25,8 @@
             },
             "open": {
                 "animations": [
-                    "TranscendRuins:example"
+                    "TranscendRuins:example",
+                    "TranscendRuins:example2"
                 ],
                 "soundEffects": [],
                 "particleEffects": [],

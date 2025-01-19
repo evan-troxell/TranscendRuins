@@ -61,7 +61,13 @@ public final class App {
         Identifier exampleId = Identifier.createTestIdentifier("TranscendRuins:example", null);
         EntitySchema exampleSchema = (EntitySchema) vanillaPack.getAsset(AssetType.ENTITY, exampleId);
 
-        EntityInstance exampleInstance = new EntityInstance(exampleSchema,
+        EntityInstance ex1 = new EntityInstance(exampleSchema,
+                World.getWorld(), 0, 0, World.NORTH,
+                Vector.DEFAULT_VECTOR);
+
+        ex1.onUpdate();
+
+        EntityInstance ex2 = new EntityInstance(exampleSchema,
                 World.getWorld(), 0, 0, World.NORTH,
                 Vector.DEFAULT_VECTOR);
 
@@ -74,11 +80,12 @@ public final class App {
             while (true) {
                 models = new ArrayList<>();
 
-                // exampleInstance.onUpdate();
-                // models.add(exampleInstance.getRenderInstance());
+                // models.add(ex1.getRenderInstance());
 
-                axesInstance.onUpdate();
-                models.add(axesInstance.getRenderInstance());
+                models.add(ex2.getRenderInstance());
+
+                // axesInstance.onUpdate();
+                // models.add(axesInstance.getRenderInstance());
 
                 renderer.render(models);
 

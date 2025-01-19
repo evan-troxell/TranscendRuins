@@ -125,6 +125,16 @@ final class TRScriptOperator {
             return false;
         }, argsLength -> argsLength < 2));
 
+        operators.put("==", new TRScriptOperator(args -> {
+
+            return args.get(0).evaluateDouble() == args.get(1).evaluateDouble();
+        }, argsLength -> argsLength != 2));
+
+        operators.put("!=", new TRScriptOperator(args -> {
+
+            return args.get(0).evaluateDouble() != args.get(1).evaluateDouble();
+        }, argsLength -> argsLength != 2));
+
         operators.put("<", new TRScriptOperator(args -> {
 
             return args.get(0).evaluateDouble() < args.get(1).evaluateDouble();
@@ -197,7 +207,7 @@ final class TRScriptOperator {
 
         operators.put("*", new TRScriptOperator(args -> {
 
-            double prod = 0;
+            double prod = 1;
 
             for (double value : TRScriptValue.evaluateDoubles(args)) {
 
@@ -222,19 +232,34 @@ final class TRScriptOperator {
             return args.get(0).evaluateDouble() % args.get(1).evaluateDouble();
         }, argsLength -> argsLength != 2));
 
+        operators.put("exp", new TRScriptOperator(args -> {
+
+            return Math.exp(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
         operators.put("pow", new TRScriptOperator(args -> {
 
             return Math.pow(args.get(0).evaluateDouble(), args.get(1).evaluateDouble());
         }, argsLength -> argsLength != 2));
 
+        operators.put("root", new TRScriptOperator(args -> {
+
+            return Math.pow(args.get(0).evaluateDouble(), 1.0 / args.get(1).evaluateDouble());
+        }, argsLength -> argsLength != 2));
+
         operators.put("log", new TRScriptOperator(args -> {
+
+            if (args.size() == 1) {
+
+                return Math.log(args.get(0).evaluateDouble());
+            }
 
             double first = args.get(0).evaluateDouble();
             double second = args.get(1).evaluateDouble();
 
             if (first < 0 || second < 0) {
 
-                return null;
+                return Double.NaN;
             }
 
             if (first == 0 && second != 0) {
@@ -258,7 +283,109 @@ final class TRScriptOperator {
             }
 
             return Math.log(args.get(0).evaluateDouble()) / Math.log(args.get(1).evaluateDouble());
-        }, argsLength -> argsLength != 2));
+        }, argsLength -> argsLength != 2 && argsLength != 1));
+
+        operators.put("sin", new TRScriptOperator(args -> {
+
+            return Math.sin(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("cos", new TRScriptOperator(args -> {
+
+            return Math.cos(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("tan", new TRScriptOperator(args -> {
+
+            return Math.tan(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("asin", new TRScriptOperator(args -> {
+
+            return Math.asin(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("acos", new TRScriptOperator(args -> {
+
+            return Math.acos(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("atan", new TRScriptOperator(args -> {
+
+            if (args.size() == 1) {
+
+                return Math.atan(args.get(0).evaluateDouble());
+            }
+
+            if (args.size() == 2) {
+                return Math.atan2(args.get(0).evaluateDouble(), args.get(1).evaluateDouble());
+            }
+
+            return Math.atan2(args.get(0).evaluateDouble() - args.get(2).evaluateDouble(),
+                    args.get(1).evaluateDouble() - args.get(3).evaluateDouble());
+
+        }, argsLength -> argsLength != 1 && argsLength != 2 && argsLength != 4));
+
+        operators.put("sinh", new TRScriptOperator(args -> {
+
+            return Math.sinh(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("cosh", new TRScriptOperator(args -> {
+
+            return Math.cosh(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("tanh", new TRScriptOperator(args -> {
+
+            return Math.tanh(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("dist", new TRScriptOperator(args -> {
+
+            if (args.size() == 2) {
+
+                return Math.hypot(args.get(0).evaluateDouble(), args.get(1).evaluateDouble());
+            }
+
+            return Math.hypot(args.get(0).evaluateDouble() - args.get(2).evaluateDouble(),
+                    args.get(1).evaluateDouble() - args.get(3).evaluateDouble());
+        }, argsLength -> argsLength != 2 || argsLength != 4));
+
+        operators.put("sign", new TRScriptOperator(args -> {
+
+            return Math.signum(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("abs", new TRScriptOperator(args -> {
+
+            return Math.abs(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("floor", new TRScriptOperator(args -> {
+
+            return Math.floor(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("ceil", new TRScriptOperator(args -> {
+
+            return Math.ceil(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("round", new TRScriptOperator(args -> {
+
+            return Math.round(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("sqrt", new TRScriptOperator(args -> {
+
+            return Math.sqrt(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
+
+        operators.put("cbrt", new TRScriptOperator(args -> {
+
+            return Math.cbrt(args.get(0).evaluateDouble());
+        }, argsLength -> argsLength != 1));
 
         operators.put("random", new TRScriptOperator(args -> {
 
@@ -276,6 +403,7 @@ final class TRScriptOperator {
             }
 
         }, argsLength -> argsLength < 0 || argsLength > 2));
+
         return operators;
     }
 

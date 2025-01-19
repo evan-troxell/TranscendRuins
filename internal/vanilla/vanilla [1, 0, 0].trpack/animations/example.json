@@ -3,8 +3,8 @@
         "identifier": "TranscendRuins:example"
     },
     "attributes": {
-        "length": 15.0,
-        "loopMode": "cycle",
+        "length": 20.0,
+        "loopMode": "loop",
         "keyframes": {
             "5.0": {
                 "cube": {
@@ -66,7 +66,7 @@
                 "cube": {
                     "position":{
                         "position":[20, 0, 0],
-                        "interpolation": "step"
+                        "interpolation": "logistic"
                     }
                 }
             }
