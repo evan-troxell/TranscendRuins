@@ -136,7 +136,7 @@ public final class Identifier {
 
         full = entry.getValue();
         this.versionEntry = versionEntry;
-        version = versionEntry.getValue();
+        version = versionEntry == null ? null : versionEntry.getValue();
 
         if (!full.contains(":")) {
 

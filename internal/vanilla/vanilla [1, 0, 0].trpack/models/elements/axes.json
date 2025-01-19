@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "identifier": "transcendRuins:axes"
+        "identifier": "TranscendRuins:axes"
     },
     "attributes": {
         "vertices": [
@@ -24,6 +24,16 @@
                 "color": [0, 0, 255]
             }
         ],
-        "bones": {}
+        "bones": {
+            "cube": {
+                "pivotPoint": [0, 0, 0],
+                "vertexWeights": {
+                    "0": 1.0,
+                    "1": 1.0,
+                    "2": 1.0,
+                    "3": 1.0
+                }
+            }
+        }
     }
 }

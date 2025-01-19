@@ -1,5 +1,7 @@
 package com.transcendruins.packcompiling.assetschemas;
 
+import org.json.simple.JSONObject;
+
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
@@ -31,21 +33,21 @@ public abstract class ModelAssetSchemaAttributes extends AssetSchemaAttributes {
     }
 
     /**
-     * <code>Double</code>: The rotational offset of this
+     * <code>Double</code>: The angle of this
      * <code>ModelAssetSchemaAttributes</code> instance.
      */
-    private final Double rotationOffset;
+    private final Double angle;
 
     /**
      * Retrieves the rotational offset of this
      * <code>ModelAssetSchemaAttributes</code> instance.
      * 
-     * @return <code>double</code>: The <code>rotationOffset</code> field of this
+     * @return <code>double</code>: The <code>angle</code> field of this
      *         <code>ModelAssetSchemaAttributes</code> instance.
      */
-    public final Double getRotationOffset() {
+    public final Double getAngle() {
 
-        return rotationOffset;
+        return angle;
     }
 
     /**
@@ -141,11 +143,10 @@ public abstract class ModelAssetSchemaAttributes extends AssetSchemaAttributes {
 
         super(schema, schemaJson, isBase);
 
-        TracedEntry<TracedDictionary> modelEntry = schemaJson.getAsDictionary("model", !isBase);
+        TracedEntry<?> modelEntry = schemaJson.get("model", !isBase, null, String.class, JSONObject.class);
 
-        if (modelEntry.containsValue()) {
+        if (modelEntry.getValue() instanceof TracedDictionary modelJson) {
 
-            TracedDictionary modelJson = modelEntry.getValue();
             TracedEntry<Identifier> modelIdentifierEntry = modelJson.getAsIdentifier("identifier", !isBase);
             modelIdentifier = modelIdentifierEntry.getValue();
             if (modelIdentifierEntry.containsValue()) {
@@ -153,18 +154,37 @@ public abstract class ModelAssetSchemaAttributes extends AssetSchemaAttributes {
                 addElementDependency(AssetType.MODEL, modelIdentifierEntry);
             }
 
-            TracedEntry<Double> modelRotationOffset = modelJson.getAsDouble("rotationOffset", true, 0d);
-            rotationOffset = Math.toRadians(modelRotationOffset.getValue());
+            TracedEntry<TracedDictionary> rotationEntry = modelJson.getAsDictionary("rotation", true);
 
-            TracedEntry<Double> modelAxisHeading = modelJson.getAsDouble("axisHeading", true, 0d);
-            axisHeading = Math.toRadians(modelAxisHeading.getValue());
+            if (rotationEntry.containsValue()) {
+                TracedDictionary rotationJson = rotationEntry.getValue();
 
-            TracedEntry<Double> modelAxisPitch = modelJson.getAsDouble("axisPitch", true, 0d);
-            axisPitch = Math.toRadians(modelAxisPitch.getValue());
+                TracedEntry<Double> angleEntry = rotationJson.getAsDouble("angle", true, 0d);
+                angle = Math.toRadians(angleEntry.getValue());
+
+                TracedEntry<Double> axisHeadingEntry = rotationJson.getAsDouble("axisHeading", true, 0d);
+                axisHeading = Math.toRadians(axisHeadingEntry.getValue());
+
+                TracedEntry<Double> axisPitchEntry = rotationJson.getAsDouble("axisPitch", true, 0d);
+                axisPitch = Math.toRadians(axisPitchEntry.getValue());
+
+            } else {
+
+                angle = 0.0;
+                axisHeading = 0.0;
+                axisPitch = 0.0;
+            }
+        } else if (modelEntry.getValue() instanceof String) {
+
+            TracedEntry<Identifier> modelIdentifierEntry = schemaJson.getAsIdentifier("model", !isBase);
+            modelIdentifier = modelIdentifierEntry.getValue();
+            angle = 0.0;
+            axisHeading = 0.0;
+            axisPitch = 0.0;
         } else {
 
             modelIdentifier = null;
-            rotationOffset = null;
+            angle = null;
             axisHeading = null;
             axisPitch = null;
         }

@@ -1,7 +1,9 @@
 package com.transcendruins.world.assetinstances.animationcontrollers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
@@ -17,36 +19,47 @@ import com.transcendruins.utilities.scripts.TRScript;
 import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.AssetInstance;
 import com.transcendruins.world.assetinstances.animations.AnimationInstance;
+import com.transcendruins.world.assetinstances.animations.AnimationInstance.AnimationNode;
 
 /**
- * <code>AnimationControllerInstance</code>: A class representing a generated animation controller instance.
+ * <code>AnimationControllerInstance</code>: A class representing a generated
+ * animation controller instance.
  */
 public final class AnimationControllerInstance extends AssetInstance {
 
     /**
-     * <code>FinalizedMap&lt;Identifier, AnimationSchema&gt;</code>: All animations of this <code>AnimationControllerInstance</code> instance.
+     * <code>FinalizedMap&lt;Identifier, AnimationSchema&gt;</code>: All animations
+     * of this <code>AnimationControllerInstance</code> instance.
      */
     private FinalizedMap<Identifier, AnimationSchema> animations;
 
     /**
-     * <code>FinalizedMap&lt;String, AnimationControllerSchemaAttributes.AnimationStateSchema&lt;</code>: All animation states of this <code>AnimationControllerInstance</code> instance.
+     * <code>FinalizedMap&lt;String, AnimationControllerSchemaAttributes.AnimationStateSchema&lt;</code>:
+     * All animation states of this <code>AnimationControllerInstance</code>
+     * instance.
      */
     private FinalizedMap<String, AnimationControllerSchemaAttributes.AnimationStateSchema> states;
 
     /**
-     * <code>String</code>: The default animation state of this <code>AnimationControllerInstance</code> instance.
+     * <code>String</code>: The default animation state of this
+     * <code>AnimationControllerInstance</code> instance.
      */
     private String defaultState;
 
     /**
-     * <code>AnimationStateInstance</code>: The current state of this <code>AnimationControllerInstance</code> instance.
+     * <code>AnimationStateInstance</code>: The current state of this
+     * <code>AnimationControllerInstance</code> instance.
      */
     private AnimationStateInstance state;
 
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
-     * @param schema <code>AnimationControllerSchema</code>: The schema used to generate this <code>AnimationControllerInstance</code> instance.
-     * @param world <code>World</code>: The world copy to assign to this <code>AnimationControllerInstance</code> instance.
+     * 
+     * @param schema <code>AnimationControllerSchema</code>: The schema used to
+     *               generate this <code>AnimationControllerInstance</code>
+     *               instance.
+     * @param world  <code>World</code>: The world copy to assign to this
+     *               <code>AnimationControllerInstance</code> instance.
      */
     public AnimationControllerInstance(AnimationControllerSchema schema, World world) {
 
@@ -56,8 +69,11 @@ public final class AnimationControllerInstance extends AssetInstance {
     }
 
     /**
-     * Applies a attribute set to this <code>AnimationControllerInstance</code> instance.
-     * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to apply.
+     * Applies a attribute set to this <code>AnimationControllerInstance</code>
+     * instance.
+     * 
+     * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to
+     *                     apply.
      */
     @Override
     protected void applyAttributeSet(AssetSchemaAttributes attributeSet) {
@@ -65,14 +81,19 @@ public final class AnimationControllerInstance extends AssetInstance {
         AnimationControllerSchemaAttributes attributes = (AnimationControllerSchemaAttributes) attributeSet;
 
         HashSet<Identifier> attributeAnimations = attributes.getAnimations();
+
+        animations = new FinalizedMap<>();
         if (attributeAnimations != null) {
 
             for (Identifier animationIdentifier : attributeAnimations) {
 
-                animations.put(animationIdentifier, (AnimationSchema) getSchema(AssetType.ANIMATION, animationIdentifier));
+                animations.put(animationIdentifier,
+                        (AnimationSchema) getSchema(AssetType.ANIMATION, animationIdentifier));
             }
 
         }
+
+        animations.finalizeData();
 
         states = attributes.getStates();
 
@@ -80,27 +101,37 @@ public final class AnimationControllerInstance extends AssetInstance {
     }
 
     /**
-     * <code>AnimationControllerInstance.AnimationStateInstance</code>: A subclass representing a specific state of this <code>AnimationControllerInstance</code> instance.
+     * <code>AnimationControllerInstance.AnimationStateInstance</code>: A subclass
+     * representing a specific state of this
+     * <code>AnimationControllerInstance</code> instance.
      */
     public final class AnimationStateInstance {
 
         /**
-         * <code>double</code>: The time of creation of this <code>AnimationControllerInstance.AnimationStateInstance</code> instance in seconds.
+         * <code>double</code>: The time of creation of this
+         * <code>AnimationControllerInstance.AnimationStateInstance</code> instance in
+         * seconds.
          */
         private final double timeOfCreation = getWorld().getRuntimeSeconds();
 
         /**
-         * <code>FinalizedList&lt;AnimationInstance&gt;</code>: The list of all animations of this <code>AnimationControllerInstance.AnimationStateInstance</code> instance.
+         * <code>ArrayList&lt;AnimationInstance&gt;</code>: The list of all
+         * animations of this
+         * <code>AnimationControllerInstance.AnimationStateInstance</code> instance.
          */
-        private final FinalizedList<AnimationInstance> stateAnimations = new FinalizedList<>();
+        private final ArrayList<AnimationInstance> stateAnimations = new ArrayList<>();
 
         /**
-         * <code>FinalizedMap&lt;String, FinalizedList&lt;TRScript&gt;&gt;</code>: The map of all transitions of this <code>AnimationControllerInstance.AnimationStateInstance</code> instance.
+         * <code>FinalizedMap&lt;String, FinalizedList&lt;TRScript&gt;&gt;</code>: The
+         * map of all transitions of this
+         * <code>AnimationControllerInstance.AnimationStateInstance</code> instance.
          */
         private final FinalizedMap<String, FinalizedList<TRScript>> stateTransitions;
 
         /**
-         * Creates a new instance of the <code>AnimationControllerInstance.AnimationStateInstance</code> class.
+         * Creates a new instance of the
+         * <code>AnimationControllerInstance.AnimationStateInstance</code> class.
+         * 
          * @param schema
          */
         private AnimationStateInstance(AnimationControllerSchemaAttributes.AnimationStateSchema schema) {
@@ -110,14 +141,15 @@ public final class AnimationControllerInstance extends AssetInstance {
                 stateAnimations.add(new AnimationInstance(animations.get(animationIdentifier), getWorld()));
             }
 
-            stateAnimations.finalizeData();
-
             stateTransitions = schema.getStateTransitions();
         }
 
         /**
-         * Evaluates the transitions of this <code>AnimationControllerInstance.AnimationStateInstance</code> instance.
-         * @return <code>String</code>: The first applicable state transition, or <code>null</code> if no state transitions are applicable.
+         * Evaluates the transitions of this
+         * <code>AnimationControllerInstance.AnimationStateInstance</code> instance.
+         * 
+         * @return <code>String</code>: The first applicable state transition, or
+         *         <code>null</code> if no state transitions are applicable.
          */
         private String evaluateTransitions() {
 
@@ -138,8 +170,12 @@ public final class AnimationControllerInstance extends AssetInstance {
         }
 
         /**
-         * Evaluates the animations of this <code>AnimationControllerInstance.AnimationStateInstance</code> instance.
-         * @return <code>HashMap&lt;String, BoneActor&gt;</code>: The constructed map of bone actors.
+         * Evaluates the animations of this
+         * <code>AnimationControllerInstance.AnimationStateInstance</code> instance.
+         * 
+         * @return <code>HashMap&lt;String, Model.BoneActor&gt;</code>: The constructed
+         *         map of
+         *         bone actors.
          */
         private HashMap<String, BoneActor> evaluateAnimations() {
 
@@ -147,9 +183,22 @@ public final class AnimationControllerInstance extends AssetInstance {
 
             HashMap<String, BoneActor> boneActors = new HashMap<>();
 
-            for (AnimationInstance animation : stateAnimations) {
+            Iterator<AnimationInstance> iterator = stateAnimations.iterator();
 
-                boneActors.putAll(animation.getKeyFrames(timestamp));
+            while (iterator.hasNext()) {
+
+                AnimationInstance animation = iterator.next();
+
+                if (timestamp > animation.getLength() && !animation.getHoldOnFinish()) {
+
+                    iterator.remove();
+                }
+
+                for (Map.Entry<String, AnimationNode> nodeEntry : animation.getKeyFrames(timestamp).entrySet()) {
+
+                    BoneActor boneActor = boneActors.computeIfAbsent(nodeEntry.getKey(), (_) -> new BoneActor());
+                    nodeEntry.getValue().apply(boneActor);
+                }
             }
 
             return boneActors;
@@ -157,8 +206,12 @@ public final class AnimationControllerInstance extends AssetInstance {
     }
 
     /**
-     * Evaluates the animations of this <code>AnimationControllerInstance</code> instance, generating a set of bone actors.
-     * @return <code>HashMap&lt;String, BoneActor&gt;</code>: The constructed map of bone actors.
+     * Evaluates the animations of this <code>AnimationControllerInstance</code>
+     * instance, generating a set of bone actors.
+     * 
+     * @return <code>HashMap&lt;String, Model.BoneActor&gt;</code>: The constructed
+     *         map of
+     *         bone actors.
      */
     public HashMap<String, BoneActor> evaluateAnimations() {
 
@@ -166,7 +219,8 @@ public final class AnimationControllerInstance extends AssetInstance {
     }
 
     /**
-     * Evaluates the transitions of this <code>AnimationControllerInstance</code> instance, automatically transitioning to the next state if applicable.
+     * Evaluates the transitions of this <code>AnimationControllerInstance</code>
+     * instance, automatically transitioning to the next state if applicable.
      */
     public void evaluateTransitions() {
 

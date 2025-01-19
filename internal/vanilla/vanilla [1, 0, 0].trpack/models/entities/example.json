@@ -1,8 +1,8 @@
 {
-    "metadata" : {
-        "identifier": "transcendRuins:example"
+    "metadata": {
+        "identifier": "TranscendRuins:example"
     },
-    "attributes" : {
+    "attributes": {
         "vertices": [
             [-10, 0, -10],
             [-10, 0, 10],
@@ -56,21 +56,21 @@
 
             {
                 "vertices": [2, 3, 8],
-                "color": [0, 255, 0]
+                "color": [128, 128, 128]
             },
             {
                 "vertices": [8, 9, 2],
-                "color": [0, 255, 0]
+                "color": [128, 128, 128]
             },
 
 
             {
                 "vertices": [11, 10, 7],
-                "color": [0, 255, 0]
+                "color": [196, 196, 196]
             },
             {
                 "vertices": [7, 6, 11],
-                "color": [0, 255, 0]
+                "color": [196, 196, 196]
             },
 
 
@@ -87,18 +87,33 @@
 
         "bones": {
 
-            "armDown": {
-                "pivotPoint": [10, 0, 0],
+            "cube": {
+                "pivotPoint": [0, 10, 0],
                 "vertexWeights": {
-                    "8": 1.0,
-                    "9": 1.0
-                }
-            },
-            "armUp": {
-                "pivotPoint": [10, 20, 0],
-                "vertexWeights": {
-                    "10": 1.0,
-                    "11": 1.0
+                    "0": 1.0,
+                    "1": 1.0,
+                    "2": 1.0,
+                    "3": 1.0,
+                    "4": 1.0,
+                    "5": 1.0,
+                    "6": 1.0,
+                    "7": 1.0
+                },
+                "bones": {
+                    "armDown": {
+                        "pivotPoint": [10, 0, 0],
+                        "vertexWeights": {
+                            "8": 1.0,
+                            "9": 1.0
+                        }
+                    },
+                    "armUp": {
+                        "pivotPoint": [10, 20, 0],
+                        "vertexWeights": {
+                            "10": 1.0,
+                            "11": 1.0
+                        }
+                    }
                 }
             }
         }

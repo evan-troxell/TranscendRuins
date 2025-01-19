@@ -1,11 +1,18 @@
 {
     "metadata": {
-        "identifier": "transcendRuins:example"
+        "identifier": "TranscendRuins:example"
     },
     "attributes": {
-        "length": 10.0,
+        "length": 15.0,
+        "loopMode": "cycle",
         "keyframes": {
-            "0.0": {
+            "5.0": {
+                "cube": {
+                    "position": {
+                        "interpolation": "logistic",
+                        "position": [0, 0, 0]
+                    }
+                },
                 "armDown": {
                     "rotation": {
                         "interpolation": "logistic",
@@ -23,11 +30,17 @@
                     }
                 }
             },
-            "1.0": {
+            "10.0": {
+                "cube": {
+                    "position": {
+                        "interpolation": "logistic",
+                        "position": [20, 0, 0]
+                    }
+                },
                 "armDown": {
                     "rotation": {
                         "interpolation": "logistic",
-                        "angle": 90,
+                        "angle": -90,
                         "axisHeading": 90,
                         "axisPitch": 90
                     }
@@ -35,9 +48,25 @@
                 "armUp": {
                     "rotation": {
                         "interpolation": "logistic",
-                        "angle": -90,
+                        "angle": 90,
                         "axisHeading": 90,
                         "axisPitch": 90
+                    }
+                }
+            },
+            "12.5": {
+                "cube": {
+                    "position":{
+                        "position":[30, 0, 0],
+                        "interpolation": "linear"
+                    }
+                }
+            },
+            "15.0": {
+                "cube": {
+                    "position":{
+                        "position":[20, 0, 0],
+                        "interpolation": "step"
                     }
                 }
             }

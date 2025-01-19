@@ -9,6 +9,7 @@ import javax.swing.ImageIcon;
 
 import com.transcendruins.packcompiling.assetschemas.AssetSchema;
 import com.transcendruins.packcompiling.assetschemas.AssetType;
+import com.transcendruins.packcompiling.assetschemas.animationcontrollers.AnimationControllerSchema;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
 import com.transcendruins.packcompiling.assetschemas.elements.ElementSchema;
 import com.transcendruins.packcompiling.assetschemas.entities.EntitySchema;
@@ -294,7 +295,7 @@ public final class Pack {
         metadataEntry = manifestJson.getAsMetadata("metadata", false, false);
         metadataJson = getMetadata().getJson();
 
-        boolean isVanillaNamespace = getMetadata().getIdentifier().getNameSpace().equals("transcendRuins");
+        boolean isVanillaNamespace = getMetadata().getIdentifier().getNameSpace().equals("TranscendRuins");
         if (vanillaNamespace != isVanillaNamespace) {
 
             throw new IdentifierFormatException(metadataJson.getAsString("identifier", false, null));
@@ -418,7 +419,7 @@ public final class Pack {
 
                 try {
 
-                    AnimationSchema asset = new AnimationSchema(assetPath);
+                    AnimationControllerSchema asset = new AnimationControllerSchema(assetPath);
                     Identifier assetIdentifier = asset.getMetadata().getIdentifier();
 
                     // Ensure the asset has not already been processed.

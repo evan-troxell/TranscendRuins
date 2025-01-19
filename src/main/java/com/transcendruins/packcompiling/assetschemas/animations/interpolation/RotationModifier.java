@@ -1,4 +1,4 @@
-package com.transcendruins.graphics3d.interpolation;
+package com.transcendruins.packcompiling.assetschemas.animations.interpolation;
 
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Vector;
@@ -102,31 +102,12 @@ public class RotationModifier {
     }
 
     /**
-     * Applies this <code>RotationModifier</code> instance to another vector.
+     * Retrieves the transformation of this <code>RotationModifier</code> instance.
      * 
-     * @param vector <code>Vector</code>: The vector to apply to.
-     * @return <code>Vector</code>: The resulting vector.
+     * @return <code>Quaternion</code>: The transformation quaternion.
      */
-    public Vector apply(Vector vector) {
+    public Quaternion getTransform() {
 
-        Quaternion quat = Quaternion.fromEulerRotation(angle, axis);
-        Quaternion conj = quat.toConjugate();
-
-        return quat.multiply(vector.toQuaternion()).multiply(conj).toVector();
-    }
-
-    /**
-     * Applies the conjugate of this <code>RotationModifier</code> instance to
-     * another vector.
-     * 
-     * @param vector <code>Vector</code>: The vector to apply to.
-     * @return <code>Vector</code>: The resulting vector.
-     */
-    public Vector applyConj(Vector vector) {
-
-        Quaternion quat = Quaternion.fromEulerRotation(angle, axis);
-        Quaternion conj = quat.toConjugate();
-
-        return conj.multiply(vector.toQuaternion()).multiply(quat).toVector();
+        return Quaternion.fromEulerRotation(angle, axis);
     }
 }

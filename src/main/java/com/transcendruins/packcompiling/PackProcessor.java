@@ -30,23 +30,6 @@ public final class PackProcessor {
     public static final TracedPath VANILLA_DIRECTORY = TracedPath.INTERNAL_DIRECTORY.extend("vanilla");
 
     /**
-     * The static <code>PackProcessor</code> instance which is used to compile and
-     * validate all packs.
-     */
-    private static final PackProcessor PACK_PROCESSOR = new PackProcessor();
-
-    /**
-     * Retrieves the pack processor, for use in processing and compiling pack
-     * directories into completed packs.
-     * 
-     * @return <code>PackProcessor</code>: The <code>PACK_PROCESSOR</code> field
-     */
-    public static PackProcessor getProcessor() {
-
-        return PACK_PROCESSOR;
-    }
-
-    /**
      * <code>Sorter&lt;Identifier&gt;</code>: A sorter which takes an input of any
      * <code>Collection&lt;Pack&gt;</code> composed of validated packs and outputs
      * an <code>ArrayList&lt;Pack&gt;</code> of packs, sorted by the
@@ -71,6 +54,23 @@ public final class PackProcessor {
      * A map of all currently unvalidated packs to their identifiers.
      */
     private final HashMap<Identifier, Pack> packsUnvalidated = new HashMap<>();
+
+    /**
+     * The static <code>PackProcessor</code> instance which is used to compile and
+     * validate all packs.
+     */
+    private static final PackProcessor PACK_PROCESSOR = new PackProcessor();
+
+    /**
+     * Retrieves the pack processor, for use in processing and compiling pack
+     * directories into completed packs.
+     * 
+     * @return <code>PackProcessor</code>: The <code>PACK_PROCESSOR</code> field.
+     */
+    public static PackProcessor getProcessor() {
+
+        return PACK_PROCESSOR;
+    }
 
     /**
      * Creates a new instance of the <code>PackProcessor</code> class and
@@ -406,7 +406,7 @@ public final class PackProcessor {
      *                              against.
      * @param entry                 <code>TracedEntry&lt;Metadata&gt;</code>: The
      *                              metadata entry to check.
-     * @param entryList             <code>Collection&lgt:Identifier&gt;</code>: The
+     * @param entryList             <code>Collection&lt;Identifier&gt;</code>: The
      *                              list of packs which satisfy the dependency being
      *                              checked.
      * @throws InvalidDependencyException Thrown if any dependency of the input pack

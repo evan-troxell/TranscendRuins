@@ -369,7 +369,7 @@ public abstract class Render3D extends GraphicsPanel
      * Parses the polygons in the stored render instances of this
      * <code>Render3D</code> instance into polygon groups.
      * 
-     * @param models <code>Collection&ltlRenderInstance&gt;</code>: The models to be
+     * @param models <code>Collection&lt;RenderInstance&gt;</code>: The models to be
      *               rendered.
      * @return <code>ArrayList&lt;PolyGroup&gt;</code>: The retrieved polygon
      *         groups.
@@ -388,7 +388,7 @@ public abstract class Render3D extends GraphicsPanel
     /**
      * Begins displaying this <code>Render3D</code> instance.
      * 
-     * @param models <code>Collection&ltRenderInstance&gt;</code>: The models to be
+     * @param models <code>Collection&lt;RenderInstance&gt;</code>: The models to be
      *               rendered.
      */
     public final void render(Collection<RenderInstance> models) {
@@ -408,7 +408,7 @@ public abstract class Render3D extends GraphicsPanel
     /**
      * Assigns the models of this <code>Render3D</code> instance.
      * 
-     * @param models <code>Collection&ltRenderInstance&gt;</code>: The models to be
+     * @param models <code>Collection&lt;enderInstance&gt;</code>: The models to be
      *               rendered.
      */
     public final void setModels(Collection<RenderInstance> models) {

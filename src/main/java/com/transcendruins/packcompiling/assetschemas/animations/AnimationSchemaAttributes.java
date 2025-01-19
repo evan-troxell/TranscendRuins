@@ -1,14 +1,17 @@
 package com.transcendruins.packcompiling.assetschemas.animations;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import com.transcendruins.graphics3d.interpolation.PositionFrame;
-import com.transcendruins.graphics3d.interpolation.RotationFrame;
-import com.transcendruins.graphics3d.interpolation.ScaleFrame;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.PermutationFrame;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.PositionFrame;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.RotationFrame;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.ScaleFrame;
 import com.transcendruins.utilities.Sorter;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.InvalidKeyException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.finalize.FinalizedList;
 import com.transcendruins.utilities.finalize.FinalizedMap;
 import com.transcendruins.utilities.finalize.FinalizedSet;
@@ -59,40 +62,43 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
         return length;
     }
 
-    /**
-     * <code>Boolean</code>: Whether or not this
-     * <code>AnimationSchemaAttributes</code> instance is a looping animation.
-     */
-    private final Boolean looping;
+    private final Boolean holdOnFinish;
 
-    /**
-     * Retrieves whether or not this <code>AnimationSchemaAttributes</code> instance
-     * is looping.
-     * 
-     * @return <code>Boolean</code>: The <code>looping</code> field of this
-     *         <code>AnimationSchemaAttributes</code> instance.
-     */
-    public Boolean getLooping() {
+    public Boolean getHoldOnFinish() {
 
-        return looping;
+        return holdOnFinish;
+    }
+
+    private final Boolean loopOnFinish;
+
+    public Boolean getLoopOnFinish() {
+
+        return loopOnFinish;
+    }
+
+    private final Boolean cycleOnFinish;
+
+    public Boolean getCycleOnFinish() {
+
+        return cycleOnFinish;
     }
 
     /**
-     * <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>:
+     * <code>FinalizedList&lt;FinalizedMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>:
      * The key frame time stamps of this <code>AnimationSchemaAttributes</code>
      * instance paired with the key frames of the bone actors.
      */
-    private final FinalizedMap<Double, FinalizedMap<String, KeyFrame>> keyframes;
+    private final FinalizedList<FinalizedMap<String, KeyFrame>> keyframes;
 
     /**
      * Retrieves the keyframes of this <code>AnimationSchemaAttributes</code>
      * instance.
      * 
-     * @return <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, KeyFrame&gt;&gt;</code>:
+     * @return <code>FinalizedList&lt;FinalizedMap&lt;String, KeyFrame&gt;&gt;</code>:
      *         The <code>keyframes</code> field of this
      *         <code>AnimationSchemaAttributes</code> instance.
      */
-    public FinalizedMap<Double, FinalizedMap<String, KeyFrame>> getKeyframes() {
+    public FinalizedList<FinalizedMap<String, KeyFrame>> getKeyframes() {
 
         return keyframes;
     }
@@ -172,8 +178,48 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
 
         super(schema, schemaJson, isBase);
 
-        TracedEntry<Boolean> loopingEntry = schemaJson.getAsBoolean("looping", true, isBase ? false : null);
-        looping = loopingEntry.getValue();
+        TracedEntry<String> loopModeEntry = schemaJson.getAsString("loopMode", true, isBase ? "once" : null);
+        String loopModeString = loopModeEntry.getValue();
+
+        switch (loopModeString) {
+
+            case "once" -> {
+
+                holdOnFinish = false;
+                loopOnFinish = false;
+                cycleOnFinish = false;
+            }
+
+            case "hold" -> {
+
+                holdOnFinish = true;
+                loopOnFinish = false;
+                cycleOnFinish = false;
+            }
+
+            case "loop" -> {
+
+                holdOnFinish = true;
+                loopOnFinish = true;
+                cycleOnFinish = false;
+            }
+
+            case "cycle" -> {
+
+                holdOnFinish = true;
+                loopOnFinish = true;
+                cycleOnFinish = true;
+            }
+
+            case null -> {
+
+                holdOnFinish = null;
+                loopOnFinish = null;
+                cycleOnFinish = null;
+            }
+
+            default -> throw new UnexpectedValueException(loopModeEntry);
+        }
 
         // Key frames should be required if this attribute set is the base attribute
         // set.
@@ -182,7 +228,7 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
 
         if (animationDefinition) {
 
-            keyframes = new FinalizedMap<>();
+            keyframes = new FinalizedList<>();
             bones = new FinalizedSet<>();
 
             TracedDictionary keyframesJson = keyframesEntry.getValue();
@@ -192,6 +238,8 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
             length = lengthEntry.getValue();
 
             ArrayList<Double> timestampsList = new ArrayList<>();
+
+            HashMap<Double, FinalizedMap<String, KeyFrame>> tempKeyframes = new HashMap<>();
 
             for (String keyframe : keyframesJson.getKeys()) {
 
@@ -206,7 +254,8 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
 
                 // If the timestamp of the keyframe is outside of the animation length, raise an
                 // exception.
-                if (keyframeTimestamp < 0 || keyframeTimestamp > length || keyframes.containsKey(keyframeTimestamp)) {
+                if (keyframeTimestamp < 0.0 || keyframeTimestamp > length
+                        || tempKeyframes.containsKey(keyframeTimestamp)) {
 
                     throw new InvalidKeyException(keyframesEntry, keyframe);
                 }
@@ -229,11 +278,60 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
                     boneMap.put(bone, new KeyFrame(keyframeJson, keyframeTimestamp));
                 }
 
-                keyframes.put(keyframeTimestamp, boneMap);
+                tempKeyframes.put(keyframeTimestamp, boneMap);
             }
 
             // Sort the list of timestamps and apply it to this attribute set.
             timestampsSorted = new FinalizedList<>(TIMESTAMP_SORTER.sort(timestampsList));
+
+            for (double timestamp : timestampsSorted) {
+
+                keyframes.add(tempKeyframes.get(timestamp));
+            }
+
+            for (String bone : bones) {
+
+                for (int t = 0; t < keyframes.size(); t++) {
+
+                    KeyFrame b = keyframes.get(t).computeIfAbsent(bone, (_) -> new KeyFrame());
+
+                    if (b.baseComplete) {
+
+                        continue;
+                    }
+
+                    for (int i = 1; i < timestampsSorted.size(); i++) {
+
+                        int iL = t - i;
+                        if (!b.last.isComplete() && (iL >= 0 || cycleOnFinish)) {
+
+                            if (iL < 0) {
+
+                                iL += timestampsSorted.size();
+                            }
+
+                            if (keyframes.get(iL).containsKey(bone)) {
+
+                                b.last.applyPermutation(keyframes.get(iL).get(bone).base);
+                            }
+                        }
+
+                        int iN = t + i;
+                        if (!b.next.isComplete() && (iN < timestampsSorted.size() || cycleOnFinish)) {
+
+                            if (iN >= timestampsSorted.size()) {
+
+                                iN -= timestampsSorted.size();
+                            }
+
+                            if (keyframes.get(iN).containsKey(bone)) {
+
+                                b.next.applyPermutation(keyframes.get(iN).get(bone).base);
+                            }
+                        }
+                    }
+                }
+            }
         } else {
 
             length = null;
@@ -252,22 +350,21 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
     public final class KeyFrame {
 
         /**
-         * <code>RotationFrame</code>: The rotation frame of this
-         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         * <code>int</code>: An enum constant representing the next keyframe.
          */
-        private final RotationFrame rotation;
+        public static final int NEXT = 0;
 
         /**
-         * <code>PositionFrame</code>: The position frame of this
-         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
+         * <code>int</code>: An enum constant representing the last keyframe.
          */
-        private final PositionFrame position;
+        public static final int LAST = 1;
 
-        /**
-         * <code>ScaleFrame</code>: The scale frame of this
-         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
-         */
-        private final ScaleFrame scale;
+        private final boolean baseComplete;
+
+        private final PermutationFrame base;
+
+        private final PermutationFrame last = new PermutationFrame();
+        private final PermutationFrame next = new PermutationFrame();
 
         /**
          * Creates a new instance of the <code>AnimationSchemaAttributes.KeyFrame</code>
@@ -283,53 +380,74 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
          */
         private KeyFrame(TracedDictionary keyframeJson, double timestamp) throws LoggedException {
 
-            TracedEntry<TracedDictionary> rotationEntry = keyframeJson.getAsDictionary("rotation", true);
-            TracedDictionary rotationJson = rotationEntry.getValue();
-            rotation = rotationEntry.containsValue() ? new RotationFrame(rotationJson, timestamp) : null;
-
             TracedEntry<TracedDictionary> positionEntry = keyframeJson.getAsDictionary("position", true);
-            TracedDictionary positionJson = positionEntry.getValue();
-            position = positionEntry.containsValue() ? new PositionFrame(positionJson, timestamp) : null;
+            PositionFrame position = positionEntry.containsValue()
+                    ? new PositionFrame(positionEntry.getValue(), timestamp, length)
+                    : null;
+
+            TracedEntry<TracedDictionary> rotationEntry = keyframeJson.getAsDictionary("rotation", true);
+            RotationFrame rotation = rotationEntry.containsValue()
+                    ? new RotationFrame(rotationEntry.getValue(), timestamp, length)
+                    : null;
 
             TracedEntry<TracedDictionary> scaleEntry = keyframeJson.getAsDictionary("scale", true);
-            TracedDictionary scaleJson = scaleEntry.getValue();
-            scale = scaleEntry.containsValue() ? new ScaleFrame(scaleJson, timestamp) : null;
+            ScaleFrame scale = scaleEntry.containsValue()
+                    ? new ScaleFrame(scaleEntry.getValue(), timestamp, length)
+                    : null;
+
+            base = new PermutationFrame(position, rotation, scale);
+            baseComplete = base.isComplete();
         }
 
-        /**
-         * Retrieves the position of this
-         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
-         * 
-         * @return <code>PositionFrame</code>: The <code>position</code> field of this
-         *         <code>AnimationSchemaAttributes.KeyFrame</code> instance.
-         */
-        public PositionFrame getPosition() {
+        private KeyFrame() {
 
-            return position;
+            base = new PermutationFrame();
+            baseComplete = false;
         }
 
-        /**
-         * Retrieves the rotation of this
-         * <code>AnimationSchemaAttributes.KeyFrame</code> instance.
-         * 
-         * @return <code>RotationFrame</code>: The <code>rotation</code> field of this
-         *         <code>AnimationSchemaAttributes.KeyFrame</code> instance.
-         */
-        public RotationFrame getRotation() {
+        public PositionFrame getPosition(int version) {
 
-            return rotation;
+            if (baseComplete || base.getPosition() != null) {
+
+                return base.getPosition();
+            }
+
+            if ((version == NEXT && next.getPosition() != null) || last.getPosition() == null) {
+
+                return next.getPosition();
+            }
+
+            return last.getPosition();
         }
 
-        /**
-         * Retrieves the scale of this <code>AnimationSchemaAttributes.KeyFrame</code>
-         * instance.
-         * 
-         * @return <code>ScaleFrame</code>: The <code>scale</code> field of this
-         *         <code>AnimationSchemaAttributes.KeyFrame</code> instance.
-         */
-        public ScaleFrame getScale() {
+        public RotationFrame getRotation(int version) {
 
-            return scale;
+            if (baseComplete || base.getRotation() != null) {
+
+                return base.getRotation();
+            }
+
+            if (version == NEXT && next.getRotation() != null) {
+
+                return next.getRotation();
+            }
+
+            return last.getRotation();
+        }
+
+        public ScaleFrame getScale(int version) {
+
+            if (baseComplete || base.getScale() != null) {
+
+                return base.getScale();
+            }
+
+            if (version == NEXT && next.getScale() != null) {
+
+                return next.getScale();
+            }
+
+            return last.getScale();
         }
     }
 

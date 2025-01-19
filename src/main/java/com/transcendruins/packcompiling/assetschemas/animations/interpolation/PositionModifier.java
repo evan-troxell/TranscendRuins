@@ -1,5 +1,6 @@
-package com.transcendruins.graphics3d.interpolation;
+package com.transcendruins.packcompiling.assetschemas.animations.interpolation;
 
+import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -86,13 +87,18 @@ public class PositionModifier {
     }
 
     /**
-     * Applies this <code>PositionModifier</code> instance to another vector.
+     * Retrieves the transformation of this <code>PositionModifier</code> instance.
      * 
-     * @param vector <code>Vector</code>: The vector to apply to.
-     * @return <code>Vector</code>: The resulting vector.
+     * @return <code>Vector</code>: The transformation vector.
      */
-    public Vector apply(Vector vector) {
+    public Vector getTransform() {
 
-        return vector.addVector(rotation.apply(vector));
+        if (rotation == null) {
+
+            return position;
+        }
+        Quaternion quat = rotation.getTransform();
+
+        return quat.multiply(position.toQuaternion()).multiply(quat.toConjugate()).toVector();
     }
 }

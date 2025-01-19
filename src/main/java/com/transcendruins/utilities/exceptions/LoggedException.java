@@ -8,7 +8,9 @@ import com.transcendruins.settings.CacheOperator;
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
- * <code>LoggedException</code>: A general exception which logs a message and a filepath to a predetermined directory when thrown. This is a general exception, and should be inherited upon to improve clarity.
+ * <code>LoggedException</code>: A general exception which logs a message and a
+ * filepath to a predetermined directory when thrown. This is a general
+ * exception, and should be inherited upon to improve clarity.
  */
 public class LoggedException extends Exception {
 
@@ -16,6 +18,31 @@ public class LoggedException extends Exception {
      * <code>String</code>: The absolute directory of the log cache.
      */
     public static final TracedPath LOGS_DIRECTORY = CacheOperator.getCacheDirectory().extend("logs");
+
+    private final static TracedPath LOG_PATH = getLogPath();
+
+    private static TracedPath getLogPath() {
+
+        Date date = new Date(System.currentTimeMillis());
+        String dateString = new SimpleDateFormat("MM-dd-yyyy").format(date);
+
+        TracedPath path = LOGS_DIRECTORY.extend("Log " + dateString + ".log");
+        String logs = path.exists() ? path.retrieveContents() + "\n\n\n" : "";
+        logs += "----------------------------------------\n";
+        logs += "         Log " + new SimpleDateFormat("HH:mm:ss").format(date) + "\n";
+        logs += "----------------------------------------\n\n";
+        try {
+
+            if (!LOGS_DIRECTORY.exists())
+                LOGS_DIRECTORY.createFile(true);
+            path.writeTo(logs);
+        } catch (IOException e) {
+
+            System.out.println(e);
+        }
+
+        return path;
+    }
 
     /**
      * <code>TracedPath</code>: The filepath to the root of this exception.
@@ -34,8 +61,9 @@ public class LoggedException extends Exception {
 
     /**
      * Creates a new instance of the <code>LoggedException</code> exception.
-     * @param path <code>TracedPath</code>: The path to the exception.
-     * @param message <code>String</code>: The message to record in the log.
+     * 
+     * @param path      <code>TracedPath</code>: The path to the exception.
+     * @param message   <code>String</code>: The message to record in the log.
      * @param errorCode <code>String</code>: The error type to record in the log.
      */
     public LoggedException(TracedPath path, String message, String errorCode) {
@@ -59,23 +87,22 @@ public class LoggedException extends Exception {
         errorMessage += " | " + timeString + " | ";
         errorMessage += message;
 
-        String dateString = new SimpleDateFormat("MM-dd-yyyy").format(date);
-        saveErrorMessage(errorMessage, "Log " + dateString + ".log");
+        saveErrorMessage(errorMessage);
     }
 
     /**
      * Records an error message to the logs directory.
+     * 
      * @param message <code>String</code>: The message to record to the file.
-     * @param name <code>String</code>: The name of the log file, specifically in the format of "Log MMMM dd, yyyy + [MESSAGE]".
      */
-    private static void saveErrorMessage(String message, String name) {
+    private static void saveErrorMessage(String message) {
 
-        TracedPath path = LOGS_DIRECTORY.extend(name);
-        String logs = path.exists() ? path.retrieveContents() + "\n\n\n" + message : message;
+        String logs = LOG_PATH.retrieveContents() + "\n\n\n" + message;
         try {
 
-            if (!LOGS_DIRECTORY.exists()) LOGS_DIRECTORY.createFile(true);
-            path.writeTo(logs);
+            if (!LOGS_DIRECTORY.exists())
+                LOGS_DIRECTORY.createFile(true);
+            LOG_PATH.writeTo(logs);
             System.out.println(message);
         } catch (IOException e) {
 

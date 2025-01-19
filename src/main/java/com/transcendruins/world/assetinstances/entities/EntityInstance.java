@@ -36,4 +36,7 @@ public final class EntityInstance extends ModelAssetInstance {
         EntitySchemaAttributes attributes = (EntitySchemaAttributes) attributeSet;
 
     }
+
+    @Override
+    protected void update() {}
 }

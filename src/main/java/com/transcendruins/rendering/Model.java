@@ -7,11 +7,9 @@ import java.util.Map;
 
 import com.transcendruins.graphics3d.Position3D;
 import com.transcendruins.graphics3d.geometry.Matrix;
+import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Triangle3D;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.graphics3d.interpolation.PositionModifier;
-import com.transcendruins.graphics3d.interpolation.RotationModifier;
-import com.transcendruins.graphics3d.interpolation.ScaleModifier;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.InvalidKeyException;
@@ -20,31 +18,40 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>Model</code>: A class representing a portion of this <code>Model</code> instance.
+ * <code>Model</code>: A class representing a portion of this <code>Model</code>
+ * instance.
  */
 public final class Model {
 
     /**
-     * <code>ArrayList&lt;WeightedVertex&gt;</code>: The vertices of this <code>Model</code> instance.
-     * This <code>ArrayList</code> only represents the initial positions of the vertices before animation transformations have been applied.
+     * <code>ArrayList&lt;WeightedVertex&gt;</code>: The vertices of this
+     * <code>Model</code> instance.
+     * This <code>ArrayList</code> only represents the initial positions of the
+     * vertices before animation transformations have been applied.
      */
     private final ArrayList<WeightedVertex> vertices = new ArrayList<>();
 
     /**
-     * <code>ArrayList&lt;IndexedPolygon&gt;</code>: The polygons of this <code>Model</code> instance.
+     * <code>ArrayList&lt;IndexedPolygon&gt;</code>: The polygons of this
+     * <code>Model</code> instance.
      */
     private final ArrayList<IndexedPolygon> polygons = new ArrayList<>();
 
     /**
-     * <code>Model.Bone</code>: The bone which contains all vertex structures of this <code>Model</code> instance.
+     * <code>Model.Bone</code>: The bone which contains all vertex structures of
+     * this <code>Model</code> instance.
      */
     private final Bone bone;
 
     /**
      * Creates a new instance of the <code>Model</code> class.
-     * @param modelJson <code>TracedDictionary</code>: The dictionary from which to create this <code>Model</code> instance.
-     * @param vertices <code>ArrayList&lt;Vector&gt;</code>: The vertices to reference when parsing the <code>modelJson</code> perameter.
-     * @throws LoggedException Thrown to represent any exception raised which creating the model.
+     * 
+     * @param modelJson <code>TracedDictionary</code>: The dictionary from which to
+     *                  create this <code>Model</code> instance.
+     * @param vertices  <code>ArrayList&lt;Vector&gt;</code>: The vertices to
+     *                  reference when parsing the <code>modelJson</code> perameter.
+     * @throws LoggedException Thrown to represent any exception raised which
+     *                         creating the model.
      */
     public Model(TracedDictionary modelJson) throws LoggedException {
 
@@ -62,7 +69,8 @@ public final class Model {
             vertices.add(new WeightedVertex(vertexIndexEntry.getValue()));
         }
 
-        // Create the polygons to be rendered and assign them with their individual vertices.
+        // Create the polygons to be rendered and assign them with their individual
+        // vertices.
         TracedEntry<TracedArray> polygonsEntry = modelJson.getAsArray("polygons", false);
 
         if (polygonsEntry.containsValue()) {
@@ -82,10 +90,12 @@ public final class Model {
                 }
                 int[] vertexIndices = new int[Vector.DIMENSION_3D];
 
-                // For each vertex of the triangle, retrieve the appropriate vertex from the vertices perameter.
+                // For each vertex of the triangle, retrieve the appropriate vertex from the
+                // vertices perameter.
                 for (int i = 0; i < vertexIndices.length; i++) {
 
-                    TracedEntry<Long> vertexIndexEntry = polygonVerticesJson.getAsLong(i, false, null, 0l, vertices.size() - 1l);
+                    TracedEntry<Long> vertexIndexEntry = polygonVerticesJson.getAsLong(i, false, null, 0l,
+                            vertices.size() - 1l);
                     vertexIndices[i] = vertexIndexEntry.getValue().intValue();
                 }
 
@@ -93,7 +103,8 @@ public final class Model {
                 TracedEntry<TracedArray> colorEntry = polygonJson.getAsArray("color", false);
                 TracedArray colorJson = colorEntry.getValue();
 
-                // The color entry should either represent an RGB value or an RGBA value, with a length of 3 or 4.
+                // The color entry should either represent an RGB value or an RGBA value, with a
+                // length of 3 or 4.
                 if (colorJson.size() != 3 && colorJson.size() != 4) {
 
                     throw new ArrayLengthException(colorEntry);
@@ -104,7 +115,8 @@ public final class Model {
 
                     polygonColorArray[i] = colorJson.getAsLong(i, (i == 3), 255l, 0l, 255l).getValue().intValue();
                 }
-                Color polygonColor = new Color(polygonColorArray[0], polygonColorArray[1], polygonColorArray[2], polygonColorArray[3]);
+                Color polygonColor = new Color(polygonColorArray[0], polygonColorArray[1], polygonColorArray[2],
+                        polygonColorArray[3]);
 
                 polygons.add(new IndexedPolygon(vertexIndices, polygonColor));
             }
@@ -115,18 +127,25 @@ public final class Model {
 
     /**
      * Retrieves the polygons of this <code>Model</code> instance.
-     * @param boneActors <code>HashMap&lt;String, Model.BoneActor&gt;</code>: The bone actors used to model the bones of this <code>Model</code> instance.
-     * @param offset <code>Position3D</code>: The offset at which to render this <code>Model</code> instance from.
-     * @param rotationOffset <code>Vector</code>: The rotation offset of the model, represented as a vector.
-     * @return <code>ArrayList&lt;Triangle3D&gt;</code>: The retrieved polygons of this <code>ModelSchema</code> instance.
+     * 
+     * @param boneActors     <code>HashMap&lt;String, Model.BoneActor&gt;</code>:
+     *                       The bone actors used to model the bones of this
+     *                       <code>Model</code> instance.
+     * @param offset         <code>Position3D</code>: The offset at which to render
+     *                       this <code>Model</code> instance from.
+     * @param rotationOffset <code>Vector</code>: The rotation offset of the model,
+     *                       represented as a vector.
+     * @return <code>ArrayList&lt;Triangle3D&gt;</code>: The retrieved polygons of
+     *         this <code>ModelSchema</code> instance.
      */
-    public ArrayList<Triangle3D> getPolygons(HashMap<String, BoneActor> boneActors, Position3D offset, double angle, double heading, double pitch) {
+    public ArrayList<Triangle3D> getPolygons(HashMap<String, BoneActor> boneActors, Position3D offset, double angle,
+            double heading, double pitch) {
 
-        PositionModifier positionModifier = new PositionModifier(offset.getPosition(), new RotationModifier(0, Vector.DEFAULT_VECTOR));
-        RotationModifier rotationModifier = new RotationModifier(angle, Vector.fromUnitSphere(heading, pitch));
-        BoneActor boneActor = new BoneActor(positionModifier, rotationModifier, null);
+        BoneActor boneActor = new BoneActor();
+        boneActor.updatePosition(offset.getPosition());
+        boneActor.updateRotation(Quaternion.fromEulerRotation(angle, Vector.fromUnitSphere(heading, pitch)));
 
-        HashMap<Integer, HashMap<String, Vector>> boneWeights = bone.getVertexWeights(boneActors);
+        HashMap<Integer, HashMap<Vector, Double>> boneWeights = bone.getVertexWeights(boneActors);
         ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
 
         Matrix cardinalDirection = Matrix.getRotationalMatrix3X3(offset.getHeading(), Matrix.Y_AXIS);
@@ -134,10 +153,9 @@ public final class Model {
         for (int i = 0; i < vertices.size(); i++) {
 
             verticesModified.add(
-                boneActor.apply(
-                    vertices.get(i).getWeightedVertex(boneWeights.get(i)), bone.pivotPoint
-                ).multiplyMatrix(cardinalDirection)
-            );
+                    boneActor.transform(
+                            vertices.get(i).getWeightedVertex(boneWeights.get(i)),
+                            bone.pivotPoint).multiplyMatrix(cardinalDirection));
         }
 
         ArrayList<Triangle3D> finalizedPolygons = new ArrayList<>(polygons.size());
@@ -150,28 +168,24 @@ public final class Model {
     }
 
     /**
-     * <code>Model.WeightedVertex</code>: A subclass representing a vertex of a parent <code>Model</code> instance which can be modified using a weighting system.
+     * <code>Model.WeightedVertex</code>: A subclass representing a vertex of a
+     * parent <code>Model</code> instance which can be modified using a weighting
+     * system.
      */
     private final class WeightedVertex {
 
         /**
-         * <code>Vector</code>: The initial position of this <code>Model.WeightedVertex</code> instance.
+         * <code>Vector</code>: The initial position of this
+         * <code>Model.WeightedVertex</code> instance.
          */
         private final Vector baseVertex;
 
         /**
-         * <code>HashMap&lt;String, Double&gt;</code>: The map of all bones to their specific weights in this <code>Model.WeightedVertex</code> instance.
-         */
-        private final HashMap<String, Double> weights = new HashMap<>();
-
-        /**
-         * <code>double</code>: The total weight of this <code>Model.WeightedVertex</code> instance.
-         */
-        private double weight;
-
-        /**
          * Creates a new instance of the <code>Model.WeightedVertex</code> class.
-         * @param baseVertex <code>Vector</code>: The initial position of this <code>Model.WeightedVertex</code> instance, and the vertex which will be returned if no weights are added.
+         * 
+         * @param baseVertex <code>Vector</code>: The initial position of this
+         *                   <code>Model.WeightedVertex</code> instance, and the vertex
+         *                   which will be returned if no weights are added.
          */
         private WeightedVertex(Vector baseVertex) {
 
@@ -179,57 +193,65 @@ public final class Model {
         }
 
         /**
-         * Adds a weight to this <code>Model.WeightedVertex</code> instance.
-         * @param newBone <code>String</code>: The bone assigning the weight.
-         * @param newWeight <code>double</code>: The weight to be asigned.
-         */
-        private void addWeight(String newBone, double newWeight) {
-
-            weights.put(newBone, newWeight);
-            this.weight += weight;
-        }
-
-        /**
-         * Retrieves the weighted vertex of this <code>Model.WeightedVertex</code> instance.
-         * @param boneVertices <code>HashMap&lt;String, Vector&gt;</code>: The map of bones to their respective vertex which should be applied.
+         * Retrieves the weighted vertex of this <code>Model.WeightedVertex</code>
+         * instance.
+         * 
+         * @param weights <code>HashMap&lt;String, Vector&gt;</code>: The map of
+         *                bones to their respective vertex which should be applied.
          * @return <code>Vector</code>: The generated vertex.
          */
-        private Vector getWeightedVertex(HashMap<String, Vector> boneVertices) {
+        private Vector getWeightedVertex(HashMap<Vector, Double> vertices) {
 
-            if (weight <= 0) {
+            if (vertices == null || vertices.isEmpty()) {
 
                 return baseVertex;
             }
+
             Vector returnVertex = Vector.DEFAULT_VECTOR;
+            double weightSum = 0.0;
 
-            for (Map.Entry<String, Vector> vertexEntry : boneVertices.entrySet()) {
+            for (Map.Entry<Vector, Double> vertexEntry : vertices.entrySet()) {
 
-                returnVertex = returnVertex.addVector(vertexEntry.getValue().multiplyScalar(weights.get(vertexEntry.getKey())));
+                returnVertex = returnVertex
+                        .addVector(vertexEntry.getKey().multiplyScalar(vertexEntry.getValue()));
+
+                weightSum += vertexEntry.getValue();
             }
 
-            return returnVertex.multiplyScalar(1.0 / weight);
+            if (weightSum == 0) {
+
+                return baseVertex;
+            }
+
+            return returnVertex.multiplyScalar(1.0 / weightSum);
         }
     }
 
     /**
-     * <code>Model.IndexedPolygon</code>: A subclass representing a polygon which is defined only with the indices of vertices in another list.
+     * <code>Model.IndexedPolygon</code>: A subclass representing a polygon which is
+     * defined only with the indices of vertices in another list.
      */
     private final class IndexedPolygon {
 
         /**
-         * <code>int[3]</code>: The vertex indices of this <code>Model.IndexedPolygon</code> instance.
+         * <code>int[3]</code>: The vertex indices of this
+         * <code>Model.IndexedPolygon</code> instance.
          */
         private final int[] vertexIndices;
 
         /**
-         * <code>Color</code>: The color of this <code>Model.IndexedPolygon</code> instance.
+         * <code>Color</code>: The color of this <code>Model.IndexedPolygon</code>
+         * instance.
          */
         private final Color color;
 
         /**
          * Creates a new instance of the <code>Model.IndexedPolygon</code> class.
-         * @param vertexIndices <code>int[3]</code>: The vertex indices to assign to this <code>Model.IndexedPolygon</code> instance.
-         * @param color <code>Color</code>: The color to assign to this <code>Model.IndexedPolygon</code> instance.
+         * 
+         * @param vertexIndices <code>int[3]</code>: The vertex indices to assign to
+         *                      this <code>Model.IndexedPolygon</code> instance.
+         * @param color         <code>Color</code>: The color to assign to this
+         *                      <code>Model.IndexedPolygon</code> instance.
          */
         private IndexedPolygon(int[] vertexIndices, Color color) {
 
@@ -239,46 +261,59 @@ public final class Model {
 
         /**
          * Retrieves the polygon of this <code>Model.IndexedPolygon</code> instance.
-         * @param modelledVertices <code>ArrayList&lt;Vector&gt;</code>: The modelled vertices to index when creating the polygon.
+         * 
+         * @param modelledVertices <code>ArrayList&lt;Vector&gt;</code>: The modelled
+         *                         vertices to index when creating the polygon.
          * @return <code>Triangle3D</code>: The generated polygon.
          */
         private Triangle3D getPolygon(ArrayList<Vector> modelledVertices) {
 
-            return new Triangle3D(modelledVertices.get((int) vertexIndices[0]), modelledVertices.get((int) vertexIndices[1]), modelledVertices.get((int) vertexIndices[2]), color);
+            return new Triangle3D(modelledVertices.get((int) vertexIndices[0]),
+                    modelledVertices.get((int) vertexIndices[1]), modelledVertices.get((int) vertexIndices[2]), color);
         }
     }
 
     /**
-     * <code>Model.Bone</code>: A subclass representing a polygon structure of a <code>Model</code> instance.
+     * <code>Model.Bone</code>: A subclass representing a polygon structure of a
+     * <code>Model</code> instance.
      */
     public final class Bone {
 
         /**
-         * <code>String</code>: The regular expression used to ensure all vertex indices are of the expected pattern.
+         * <code>String</code>: The regular expression used to ensure all vertex indices
+         * are of the expected pattern.
          */
         private static final String INDEX_PATTERN = "[+]?\\d+";
 
         /**
-         * <code>HashMap&lt;Integer, Double&gt;</code>: The vertex weights of this <code>Model.Bone</code> instance.
+         * <code>HashMap&lt;Integer, Double&gt;</code>: The vertex weights of this
+         * <code>Model.Bone</code> instance.
          */
         private final HashMap<Integer, Double> vertexWeights = new HashMap<>();
 
-         /**
-         * <code>HashMap&lgt;String, Bone&gt;</code>: The bones of this <code>Model.Bone</code> instance.
+        /**
+         * <code>HashMap&lt;String, Bone&gt;</code>: The bones of this
+         * <code>Model.Bone</code> instance.
          */
         private final HashMap<String, Bone> bones = new HashMap<>();
 
         /**
-         * <code>Vector</code>: The pivot point around which this <code>Model.Bone</code> should rotate and scale about during animations.
-         * Note that this value is in relative space, assuming the model is centered at (0, 0, 0).
+         * <code>Vector</code>: The pivot point around which this
+         * <code>Model.Bone</code> should rotate and scale about during animations.
+         * Note that this value is in relative space, assuming the model is centered at
+         * (0, 0, 0).
          */
         private final Vector pivotPoint;
 
         /**
          * Creates a new instance of the <code>Model.Bone</code> class.
-         * @param modelJson <code>TracedDictionary</code>: The JSON from which to create this <code>Model.Bone</code> instance.
-         * @param boneKeys <code>ArrayList&lt;String&gt;</code>: The list of all previous bone keys.
-         * @throws LoggedException Thrown to represent any exception raised which creating the bone.
+         * 
+         * @param modelJson <code>TracedDictionary</code>: The JSON from which to create
+         *                  this <code>Model.Bone</code> instance.
+         * @param boneKeys  <code>ArrayList&lt;String&gt;</code>: The list of all
+         *                  previous bone keys.
+         * @throws LoggedException Thrown to represent any exception raised which
+         *                         creating the bone.
          */
         private Bone(TracedDictionary modelJson, ArrayList<String> boneKeys) throws LoggedException {
 
@@ -298,7 +333,6 @@ public final class Model {
 
                     if (vertexWeights.containsKey(vertexIndex) || vertexIndex >= vertices.size()) {
 
-                        System.out.println(vertices.size());
                         throw new InvalidKeyException(vertexWeightsEntry, vertexKey);
                     }
 
@@ -328,11 +362,6 @@ public final class Model {
                     TracedDictionary boneJson = boneEntry.getValue();
                     Bone newBone = new Bone(boneJson, boneKeys);
 
-                    for (Map.Entry<Integer, Double> vertexWeightEntry : newBone.vertexWeights.entrySet()) {
-
-                        vertices.get(vertexWeightEntry.getKey()).addWeight(boneKey, vertexWeightEntry.getValue());
-                    }
-
                     bones.put(boneKey, newBone);
                 }
             }
@@ -343,12 +372,18 @@ public final class Model {
 
         /**
          * Retrieves the vertex weights of this <code>Model.Bone</code> instance.
-         * @param boneActors <code>HashMap&lt;String, Model.BoneActor&gt;</code>: The bone actors used to model the bones of this <code>Model.Bone</code> instance.
-         * @return <code>HashMap&lt;Integer, HashMap&lt;String, Vector&gt;&gt;</code>: The retrieved vertex weights of this <code>Model.Bone</code> instance.
+         * 
+         * @param boneActors <code>HashMap&lt;String, Model.BoneActor&gt;</code>:
+         *                   The
+         *                   bone actors used to model the bones of this
+         *                   <code>Model.Bone</code> instance.
+         * @return <code>HashMap&lt;Integer, HashMap&lt;String, Vector&gt;&gt;</code>:
+         *         The retrieved vertex weights of this <code>Model.Bone</code>
+         *         instance.
          */
-        private HashMap<Integer, HashMap<String, Vector>> getVertexWeights(HashMap<String, BoneActor> boneActors) {
+        private HashMap<Integer, HashMap<Vector, Double>> getVertexWeights(HashMap<String, BoneActor> boneActors) {
 
-            HashMap<Integer, HashMap<String, Vector>> vertexBoneWeights = new HashMap<>();
+            HashMap<Integer, HashMap<Vector, Double>> vertexBoneWeights = new HashMap<>();
 
             // Retrieve all bones in this model and apply bone actors.
             for (Map.Entry<String, Bone> boneEntry : bones.entrySet()) {
@@ -357,32 +392,50 @@ public final class Model {
                 BoneActor boneActor = boneActors.get(boneName);
                 Bone newBone = boneEntry.getValue();
 
+                HashMap<Integer, HashMap<Vector, Double>> boneVertices = new HashMap<>();
+
                 for (Map.Entry<Integer, Double> vertexWeight : newBone.vertexWeights.entrySet()) {
 
-                    int vertex = vertexWeight.getKey();
-                    if (!vertexBoneWeights.containsKey(vertex)) {
+                    int index = vertexWeight.getKey();
+                    Vector vertex = vertices.get(index).baseVertex;
 
-                        vertexBoneWeights.put(vertex, new HashMap<>());
-                    }
-
-                    Vector vertexVector = vertices.get(vertex).baseVertex;
-                    vertexBoneWeights.get(vertex).put(boneName, boneActor == null ? vertexVector : boneActor.apply(vertexVector, newBone.pivotPoint));
+                    addVertexWeight(index, vertex, vertexWeight.getValue(), boneVertices);
                 }
 
-                for (Map.Entry<Integer, HashMap<String, Vector>> boneVertexBoneWeights : newBone.getVertexWeights(boneActors).entrySet()) {
+                for (Map.Entry<Integer, HashMap<Vector, Double>> boneVertexBoneWeights : newBone
+                        .getVertexWeights(boneActors).entrySet()) {
 
-                    HashMap<String, Vector> boneWeights = new HashMap<>();
-                    for (Map.Entry<String, Vector> boneWeightsEntry : boneVertexBoneWeights.getValue().entrySet()) {
+                    int index = boneVertexBoneWeights.getKey();
 
-                        boneWeights.put(boneWeightsEntry.getKey(), boneActor == null ? boneWeightsEntry.getValue() : boneActor.apply(boneWeightsEntry.getValue(), newBone.pivotPoint));
+                    for (Map.Entry<Vector, Double> boneWeightEntry : boneVertexBoneWeights.getValue().entrySet()) {
+
+                        addVertexWeight(index, boneWeightEntry.getKey(), boneWeightEntry.getValue(), boneVertices);
+                    }
+                }
+
+                for (Map.Entry<Integer, HashMap<Vector, Double>> boneWeightsEntry : boneVertices.entrySet()) {
+
+                    int index = boneWeightsEntry.getKey();
+                    if (!vertexBoneWeights.containsKey(index)) {
+
+                        vertexBoneWeights.put(index, new HashMap<>());
                     }
 
-                    if (!vertexBoneWeights.containsKey(boneVertexBoneWeights.getKey())) {
+                    HashMap<Vector, Double> verticesMap = vertexBoneWeights.get(index);
 
-                        vertexBoneWeights.put(boneVertexBoneWeights.getKey(), boneWeights);
+                    if (boneActor == null) {
+
+                        for (Map.Entry<Vector, Double> vertexEntry : boneWeightsEntry.getValue().entrySet()) {
+
+                            verticesMap.put(vertexEntry.getKey(), vertexEntry.getValue());
+                        }
                     } else {
 
-                        vertexBoneWeights.get(boneVertexBoneWeights.getKey()).putAll(boneWeights);
+                        for (Map.Entry<Vector, Double> vertexEntry : boneWeightsEntry.getValue().entrySet()) {
+
+                            verticesMap.put(boneActor.transform(vertexEntry.getKey(), newBone.pivotPoint),
+                                    vertexEntry.getValue());
+                        }
                     }
                 }
             }
@@ -391,50 +444,57 @@ public final class Model {
         }
     }
 
-    /**
-     * <code>Model.BoneActor</code>: A class representing a bone actor (a collection of operations to perform on a bone when modelling its vertices).
-     */
-    public static final class BoneActor {
+    private void addVertexWeight(int index, Vector vertex, double weight,
+            HashMap<Integer, HashMap<Vector, Double>> map) {
 
-        /**
-         * <code>PositionModifier</code>: The operator used to perform all matrix adding on the polygons of a <code>Model</code> instance.
-         */
-        private final PositionModifier positionOperator;
+        if (!map.containsKey(index)) {
 
-        /**
-         * <code>RotationModifier</code>: The operator used to perform all matrix rotations on the polygons of a <code>Model</code> instance.
-         */
-        private final RotationModifier rotationOperator;
-
-        /**
-         * <code>ScaleModifier</code>: The operator used to perform all matrix scaling on the polygons of a <code>Model</code> instance.
-         */
-        private final ScaleModifier scaleOperator;
-
-        public BoneActor(PositionModifier positionOperator, RotationModifier rotationOperator, ScaleModifier scaleOperator) {
-
-            this.positionOperator = positionOperator;
-            this.rotationOperator = rotationOperator;
-            this.scaleOperator = scaleOperator;
+            map.put(index, new HashMap<>());
         }
 
-        public Vector apply(Vector vector, Vector pivotPoint) {
+        map.get(index).put(vertex, weight);
+    }
+
+    public static final class BoneActor {
+
+        private Vector position = null;
+
+        private Quaternion rotation = null;
+
+        private Matrix scale = null;
+
+        public void updatePosition(Vector p) {
+
+            position = (position == null) ? p : position.addVector(p);
+        }
+
+        public void updateRotation(Quaternion r) {
+
+            rotation = (rotation == null) ? r : rotation.multiply(r);
+        }
+
+        public void updateScale(Matrix s) {
+
+            scale = (scale == null) ? s : scale.multiplyMatrix(s);
+        }
+
+        public Vector transform(Vector vector, Vector pivotPoint) {
 
             vector = vector.subtractVector(pivotPoint);
 
-            if (scaleOperator != null) {
+            if (scale != null) {
 
-                vector = scaleOperator.apply(vector);
+                vector = vector.multiplyMatrix(scale);
             }
 
-            if (rotationOperator != null) {
+            if (rotation != null) {
 
-                vector = rotationOperator.apply(vector);
+                vector = rotation.multiply(vector.toQuaternion()).multiply(rotation.toConjugate()).toVector();
             }
 
-            if (positionOperator != null) {
+            if (position != null) {
 
-                vector = positionOperator.apply(vector);
+                vector = vector.addVector(position);
             }
 
             vector = vector.addVector(pivotPoint);

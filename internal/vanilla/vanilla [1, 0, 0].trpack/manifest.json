@@ -1,10 +1,10 @@
 {
 
-    "metadata" : {
+    "metadata": {
 
-        "identifier" : "transcendRuins:vanilla",
-        "version" : [1, 0, 0],
-        "name" : "Vanilla"
+        "identifier": "TranscendRuins:vanilla",
+        "version": [1, 0, 0],
+        "name": "Vanilla"
     },
-    "dependencies" : []
+    "dependencies": []
 }

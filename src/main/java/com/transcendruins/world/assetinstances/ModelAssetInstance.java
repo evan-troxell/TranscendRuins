@@ -65,7 +65,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
      */
     private ModelInstance model;
 
-    private double rotationOffset, axisHeading, axisPitch;
+    private double angle, axisHeading, axisPitch;
 
     /**
      * <code>RenderMaterialInstance</code>: The render material of this
@@ -149,7 +149,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
 
         Vector tileVector = new Vector(tileX * World.UNIT_TILE, 0, tileZ * World.UNIT_TILE);
         offset.setPosition(tileVector.addVector(tileOffset));
-        offset.setRotation(Math.PI / 2 * cardinalDirection, 0, true);
+        offset.setRotation(Math.PI / 2 * -cardinalDirection, 0, true);
     }
 
     /**
@@ -163,7 +163,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
 
         return new RenderInstance(model, renderMaterial,
                 (animationController == null) ? new HashMap<>() : animationController.evaluateAnimations(), offset,
-                rotationOffset, axisHeading, axisPitch);
+                angle, axisHeading, axisPitch);
     }
 
     /**
@@ -195,9 +195,9 @@ public abstract class ModelAssetInstance extends AssetInstance {
                     AssetType.ANIMATION_CONTROLLER, attributes.getAnimationControllerIdentifier()), getWorld());
         }
 
-        if (attributes.getRotationOffset() != null) {
+        if (attributes.getAngle() != null) {
 
-            rotationOffset = attributes.getRotationOffset();
+            angle = attributes.getAngle();
         }
 
         if (attributes.getAxisHeading() != null) {
@@ -212,4 +212,20 @@ public abstract class ModelAssetInstance extends AssetInstance {
 
         applyAttributeSet(attributeSet);
     }
+
+    /**
+     * Performs all update actions of this <code>ModelAsseetInstance</code>
+     * instance.
+     */
+    public final void onUpdate() {
+
+        animationController.evaluateTransitions();
+        update();
+    }
+
+    /**
+     * Performs all instance updates of this <code>ModelAssetInstance</code>
+     * instance.
+     */
+    protected abstract void update();
 }

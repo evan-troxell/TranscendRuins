@@ -18,25 +18,25 @@ public final class World {
      * <code>int</code>: An enum constant representing the cardinal direction
      * <code>East</code>.
      */
-    public static final int EAST = 0;
+    public static final int NORTH = 0;
 
     /**
      * <code>int</code>: An enum constant representing the cardinal direction
      * <code>North</code>.
      */
-    public static final int NORTH = 1;
+    public static final int EAST = 1;
 
     /**
      * <code>int</code>: An enum constant representing the cardinal direction
      * <code>West</code>.
      */
-    public static final int WEST = 2;
+    public static final int SOUTH = 2;
 
     /**
      * <code>int</code>: An enum constant representing the cardinal direction
      * <code>South</code>.
      */
-    public static final int SOUTH = 3;
+    public static final int WEST = 3;
 
     /**
      * <code>World</code>: The current world of the program.
@@ -73,7 +73,31 @@ public final class World {
     /**
      * <code>long</code>: The time of creation of this <code>World</code> instance.
      */
-    private final long timeOfCreation;
+    private long timeOfCreation;
+
+    /**
+     * Retrieve the current time in millis since the time of creation of this
+     * <code>World</code> instance.
+     * 
+     * @return <code>long</code>: The <code>timeOfCreation</code> field subtracted
+     *         from the current time in milliseconds.
+     */
+    public long getRuntimeMillis() {
+
+        return initialized ? System.currentTimeMillis() - timeOfCreation : 0;
+    }
+
+    /**
+     * Retrieve the current time in seconds since the time of creation of this
+     * <code>World</code> instance.
+     * 
+     * @return <code>long</code>: The current runtime milliseconds divided by
+     *         1000.0.
+     */
+    public double getRuntimeSeconds() {
+
+        return getRuntimeMillis() / 1000.0;
+    }
 
     /**
      * Creates a new instance of the <code>World</code> class.
@@ -83,8 +107,21 @@ public final class World {
      */
     private World(ArrayList<Pack> packs) {
 
-        timeOfCreation = System.currentTimeMillis();
         environment = new EnvironmentState(packs);
+    }
+
+    private boolean initialized = false;
+
+    public void start() {
+
+        timeOfCreation = System.currentTimeMillis();
+        initialized = true;
+    }
+
+    public void end() {
+
+        timeOfCreation = -1;
+        initialized = false;
     }
 
     /**
@@ -99,29 +136,5 @@ public final class World {
 
         world = new World(packs);
         return world;
-    }
-
-    /**
-     * Retrieve the current time in millis since the time of creation of this
-     * <code>World</code> instance.
-     * 
-     * @return <code>long</code>: The <code>timeOfCreation</code> field subtracted
-     *         from the current time in milliseconds.
-     */
-    public long getRuntimeMillis() {
-
-        return System.currentTimeMillis() - timeOfCreation;
-    }
-
-    /**
-     * Retrieve the current time in seconds since the time of creation of this
-     * <code>World</code> instance.
-     * 
-     * @return <code>long</code>: The current runtime milliseconds divided by
-     *         1000.0.
-     */
-    public double getRuntimeSeconds() {
-
-        return getRuntimeMillis() / 1000.0;
     }
 }

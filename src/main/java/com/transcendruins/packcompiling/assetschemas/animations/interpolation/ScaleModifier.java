@@ -1,4 +1,4 @@
-package com.transcendruins.graphics3d.interpolation;
+package com.transcendruins.packcompiling.assetschemas.animations.interpolation;
 
 import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.Vector;
@@ -89,16 +89,15 @@ public class ScaleModifier {
     }
 
     /**
-     * Applies this <code>ScaleModifier</code> instance to another vector.
+     * Retrieves the transformation of this <code>ScaleModifier</code> instance.
      * 
-     * @param vector <code>Vector</code>: The vector to apply to.
-     * @return <code>Vector</code>: The resulting vector.
+     * @return <code>Matrix</code>: The transformation matrix.
      */
-    public Vector apply(Vector vector) {
+    public Matrix getTransform() {
 
-        Vector unscaled = rotation.applyConj(vector);
-        Vector scaled = unscaled.multiplyMatrix(Matrix.getScaledMatrix3X3(vector.getX(), vector.getY(), vector.getZ()));
+        Matrix rQuat = rotation.getTransform().toMatrix();
 
-        return rotation.apply(scaled);
+        return rQuat.multiplyMatrix(Matrix.getScaledMatrix3X3(scale.getX(), scale.getY(), scale.getZ()))
+                .multiplyMatrix(rQuat.transpose());
     }
 }

@@ -1,4 +1,6 @@
-package com.transcendruins.graphics3d.interpolation;
+package com.transcendruins.packcompiling.assetschemas.animations.interpolation;
+
+import org.json.simple.JSONObject;
 
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -51,7 +53,7 @@ public final class Interpolation {
      * <code>double</code>: A value used to assist in the interpolation of this
      * <code>Interpolation</code> instance.
      */
-    private double c;
+    private final double c;
 
     /**
      * <code>int</code>: The interpolation method used by this
@@ -73,10 +75,11 @@ public final class Interpolation {
     /**
      * Creates a new instance of the <code>Interpolation</code> class.
      * 
-     * @param entry     <code>TracedDictionary</code>: The entry to parse into this
+     * @param entry     <code>TracedDictionary</code>: The entry to parse into
+     *                  this
      *                  <code>Interpolation</code> instance.
      * @param timestamp <code>double</code>: The timestamp of this
-     *                  <code>Interpolation</code> instance.
+     *                  <code>Interpolation</code> instance in seconds.
      * @throws LoggedException Thrown if any exception is raised while creating this
      *                         <code>Interpolation</code> instance.
      */
@@ -84,11 +87,28 @@ public final class Interpolation {
 
         this.timestamp = timestamp;
 
-        TracedEntry<TracedDictionary> interpolationEntry = entry.getAsDictionary("interpolation", false);
-        TracedDictionary interpolationJson = (TracedDictionary) interpolationEntry.getValue();
+        String interpolationString;
 
-        TracedEntry<String> typeEntry = interpolationJson.getAsString("type", false, null);
-        String interpolationString = typeEntry.getValue();
+        TracedEntry<?> value = entry.get("interpolation", false, null, String.class, JSONObject.class);
+        TracedEntry<String> typeEntry;
+
+        if (value.getValue() instanceof TracedDictionary interpolationJson) {
+
+            typeEntry = interpolationJson.getAsString("type", false, null);
+            interpolationString = typeEntry.getValue();
+
+            TracedEntry<Double> adjustmentValueEntry = interpolationJson.getAsDouble("adjustmentValue", true, 0.5,
+                    0.0, 1.0);
+
+            double tempC = adjustmentValueEntry.getValue();
+            c = Math.pow(tempC, 1.0 / tempC) / 2;
+        } else {
+
+            typeEntry = entry.getAsString("interpolation", false, null);
+            interpolationString = typeEntry.getValue();
+
+            c = 0.005;
+        }
 
         type = switch (interpolationString) {
 
@@ -97,10 +117,6 @@ public final class Interpolation {
             case "linear" -> LINEAR_INTERPOLATION;
 
             case "logistic" -> {
-
-                TracedEntry<Double> adjustmentValueEntry = interpolationJson.getAsDouble("adjustmentValue", false, null,
-                        0.01, 0.49);
-                c = adjustmentValueEntry.getValue();
 
                 yield LOGISTIC_INTERPOLATION;
             }
@@ -112,31 +128,59 @@ public final class Interpolation {
         };
     }
 
-    protected double getInter(double nextTimestamp, double t) {
+    protected static double getInter(Interpolation lastInterp, Interpolation nextInterp, double timestamp,
+            double animationLength) {
 
-        if (nextTimestamp == timestamp || t == timestamp) {
+        double last = lastInterp.timestamp;
+        double next = nextInterp.timestamp;
+
+        if (next < last) {
+
+            if (timestamp < next) {
+
+                last -= animationLength;
+            } else {
+
+                next += animationLength;
+            }
+        }
+
+        if (last == next || timestamp == last) {
 
             return 0;
         }
 
-        if (t == nextTimestamp) {
+        if (timestamp == next) {
 
             return 1;
         }
 
-        return switch (type) {
+        double d = next - last;
+
+        return switch (lastInterp.type) {
 
             case STEP_INTERPOLATION -> 0;
 
-            case LINEAR_INTERPOLATION -> (t - timestamp) / (nextTimestamp - timestamp);
+            case LINEAR_INTERPOLATION -> (timestamp - last) / d;
 
             case LOGISTIC_INTERPOLATION -> {
-                double a = (Math.log(1 / (-c + 1d) - 1d) * (nextTimestamp - timestamp))
-                        / (timestamp - (timestamp + nextTimestamp) / 2);
-                double v = 1 / (1 + Math.exp(a * (t - (timestamp + nextTimestamp) / 2) / (nextTimestamp - timestamp)));
-                yield ((v - 0.5) / (0.5 - c) - 1) / -2;
+
+                if (lastInterp.c == 0.0) {
+
+                    yield (timestamp >= (next + last) / 2.0) ? 1.0 : 0.0;
+                }
+
+                if (lastInterp.c == 1.0) {
+
+                    yield (timestamp - last) / d;
+                }
+
+                double a = 2.0 * Math.log(2.0 / lastInterp.c - 1.0);
+                double v = 1.0 / (1.0 + Math.exp(a * (timestamp - (last + next) / 2) / d));
+
+                yield (1.0 - lastInterp.c / 2.0 - v) / (1.0 - lastInterp.c);
             }
-            default -> 0;
+            default -> 0.0;
         };
     }
 

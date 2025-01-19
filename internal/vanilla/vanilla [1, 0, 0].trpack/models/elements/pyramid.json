@@ -1,8 +1,8 @@
 {
-    "metadata" : {
-        "identifier": "transcendRuins:pyramid"
+    "metadata": {
+        "identifier": "TranscendRuins:pyramid"
     },
-    "attributes" : {
+    "attributes": {
         "vertices": [
             [0, 10, 0],
             [-10, 0, 10],
@@ -21,19 +21,19 @@
                 "color": [0, 0, 0, 128]
             },
             {
-                "vertices" : [0, 1, 2],
+                "vertices": [0, 1, 2],
                 "color": [128, 0, 0, 128]
             },
             {
-                "vertices" : [0, 2, 3],
+                "vertices": [0, 2, 3],
                 "color": [0, 255, 0, 255]
             },
             {
-                "vertices" : [0, 3, 4],
+                "vertices": [0, 3, 4],
                 "color": [255, 0, 255, 255]
             },
             {
-                "vertices" : [0, 4, 1],
+                "vertices": [0, 4, 1],
                 "color": [0, 0, 255, 255]
             }
         ],

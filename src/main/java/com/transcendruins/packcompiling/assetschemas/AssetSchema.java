@@ -343,7 +343,7 @@ public abstract class AssetSchema {
 
             // TODO - check if this NOT operator should be here (I may have fucked up at
             // some point idk)
-            if (!childAsset.validationFailed) {
+            if (childAsset.validationFailed) {
 
                 childAsset.invalidate(pack);
             }

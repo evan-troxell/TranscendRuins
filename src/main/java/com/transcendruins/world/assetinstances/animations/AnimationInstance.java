@@ -1,19 +1,18 @@
 package com.transcendruins.world.assetinstances.animations;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
-import com.transcendruins.graphics3d.interpolation.PositionFrame;
-import com.transcendruins.graphics3d.interpolation.PositionModifier;
-import com.transcendruins.graphics3d.interpolation.RotationFrame;
-import com.transcendruins.graphics3d.interpolation.RotationModifier;
-import com.transcendruins.graphics3d.interpolation.ScaleFrame;
-import com.transcendruins.graphics3d.interpolation.ScaleModifier;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaAttributes;
+import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaAttributes.KeyFrame;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.PositionFrame;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.PositionModifier;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.RotationFrame;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.RotationModifier;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.ScaleFrame;
+import com.transcendruins.packcompiling.assetschemas.animations.interpolation.ScaleModifier;
 import com.transcendruins.rendering.Model.BoneActor;
 import com.transcendruins.utilities.finalize.FinalizedList;
 import com.transcendruins.utilities.finalize.FinalizedMap;
@@ -44,29 +43,32 @@ public final class AnimationInstance extends AssetInstance {
         return length;
     }
 
-    /**
-     * <code>boolean</code>: Whether or not this <code>AnimationInstance</code> is
-     * looping.
-     */
-    private boolean looping;
+    private boolean holdOnFinish;
 
-    /**
-     * Retrieves whether or not this <code>AnimationInstance</code> instance is
-     * looping.
-     * 
-     * @return <code>boolean</code>: The <code>looping</code> field of this
-     *         <code>AnimationInstance</code> instance.
-     */
-    public boolean getLooping() {
+    public boolean getHoldOnFinish() {
 
-        return looping;
+        return holdOnFinish;
+    }
+
+    private boolean loopOnFinish;
+
+    public boolean getLoopOnFinish() {
+
+        return loopOnFinish;
+    }
+
+    private boolean cycleOnFinish;
+
+    public boolean getCycleOnFinish() {
+
+        return cycleOnFinish;
     }
 
     /**
-     * <code>FinalizedMap&lt;Double, FinalizedMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>:
+     * <code>FinalizedList&lt;FinalizedMap&lt;String, AnimationSchemaAttributes.KeyFrame&gt;&gt;</code>:
      * The key frames of this <code>AnimationInstance</code> instance.
      */
-    private FinalizedMap<Double, FinalizedMap<String, AnimationSchemaAttributes.KeyFrame>> keyframes;
+    private FinalizedList<FinalizedMap<String, AnimationSchemaAttributes.KeyFrame>> keyframes;
 
     /**
      * <code>FinalizedSet&lt;String&gt;</code>: The set of all bones in this
@@ -104,9 +106,19 @@ public final class AnimationInstance extends AssetInstance {
 
         AnimationSchemaAttributes attributes = (AnimationSchemaAttributes) attributeSet;
 
-        if (attributes.getLooping() != null) {
+        if (attributes.getHoldOnFinish() != null) {
 
-            looping = attributes.getLooping();
+            holdOnFinish = attributes.getHoldOnFinish();
+        }
+
+        if (attributes.getLoopOnFinish() != null) {
+
+            loopOnFinish = attributes.getLoopOnFinish();
+        }
+
+        if (attributes.getCycleOnFinish() != null) {
+
+            cycleOnFinish = attributes.getCycleOnFinish();
         }
 
         if (attributes.getAnimationDefinition()) {
@@ -123,40 +135,59 @@ public final class AnimationInstance extends AssetInstance {
      * specified timestamp.
      * 
      * @param timestamp <code>double</code>: The timestamp whose keyframes to find.
-     * @return <code>HashMap&lt;String, BoneActor&gt;</code>: The retrieved bone
+     * @return <code>HashMap&lt;String, AnimationNode&gt;</code>: The retrieved bone
      *         actors of the keyframes.
      */
-    public HashMap<String, BoneActor> getKeyFrames(double timestamp) {
+    public HashMap<String, AnimationNode> getKeyFrames(double timestamp) {
+
+        double loopTimestamp = timestamp % length;
+
+        if (timestamp > length) {
+
+            timestamp = loopOnFinish ? ((loopTimestamp == 0) ? length : loopTimestamp) : length;
+        }
+
+        if (timestamp < 0) {
+
+            timestamp = loopOnFinish ? loopTimestamp : 0;
+        }
 
         if (timestampsSorted == null) {
 
             return new HashMap<>();
         }
-        Integer higherTimestamp = findTimestampIndex(timestamp);
+        Integer higherIndex = findTimestampIndex(timestamp);
+        Integer lowerIndex = higherIndex - 1;
 
-        // Retrieves the timestamps lower than the input timestamp. Because they would
-        // sorted from lowest to highest, it should be reversed.
-        ArrayList<Double> lowerTimestamps = new ArrayList<>(timestampsSorted.subList(0, higherTimestamp));
-        Collections.reverse(lowerTimestamps);
-        HashMap<String, BoneKeyFrame> lowerBoneMap = buildKeyFrames(lowerTimestamps);
+        if (higherIndex >= timestampsSorted.size()) {
 
-        ArrayList<Double> higherTimestamps = new ArrayList<>(
-                timestampsSorted.subList(higherTimestamp, timestampsSorted.size()));
-        HashMap<String, BoneKeyFrame> higherBoneMap = buildKeyFrames(higherTimestamps);
+            higherIndex = cycleOnFinish ? 0 : null;
+        }
+
+        if (lowerIndex < 0) {
+
+            lowerIndex = cycleOnFinish ? timestampsSorted.size() - 1 : null;
+        }
+
+        FinalizedMap<String, KeyFrame> higherKeyframes = higherIndex == null ? null
+                : keyframes.get(higherIndex);
+
+        FinalizedMap<String, KeyFrame> lowerKeyframes = lowerIndex == null ? null
+                : keyframes.get(lowerIndex);
 
         // Retrieve all bone keys retrieved while processing the key frames.
 
-        HashMap<String, BoneActor> boneActorMap = new HashMap<>();
+        HashMap<String, AnimationNode> animationNodeMap = new HashMap<>();
 
         for (String bone : bones) {
 
-            BoneKeyFrame prevFrame = lowerBoneMap.get(bone);
-            BoneKeyFrame nextFrame = higherBoneMap.get(bone);
+            KeyFrame nextFrame = higherKeyframes == null ? null : higherKeyframes.get(bone);
+            KeyFrame lastFrame = lowerKeyframes == null ? null : lowerKeyframes.get(bone);
 
-            boneActorMap.put(bone, buildBoneActor(prevFrame, nextFrame, timestamp));
+            animationNodeMap.put(bone, new AnimationNode(lastFrame, nextFrame, timestamp));
         }
 
-        return boneActorMap;
+        return animationNodeMap;
     }
 
     /**
@@ -169,7 +200,7 @@ public final class AnimationInstance extends AssetInstance {
      *         timestamps list, then there are no timestamps greater than the
      *         <code>timestamp</code> perameter.
      */
-    private Integer findTimestampIndex(double timestamp) {
+    private int findTimestampIndex(double timestamp) {
 
         // The timestamps list is already sorted, so it is a candidate for a binary
         // sort.
@@ -191,121 +222,64 @@ public final class AnimationInstance extends AssetInstance {
     }
 
     /**
-     * Builds the key frames of this <code>AnimationInstance</code> instance.
-     * 
-     * @param timestamps <code>ArrayList&lt;Double&gt;</code>: The timestamps to
-     *                   build using.
-     * @return <code>HashMap&lt;String, BoneKeyFrame&gt;</code>: The generated map
-     *         of bones to their key frames.
+     * <code>AnimationInstance.AnimationNode</code>: A class representing a bone
+     * actor (a
+     * collection
+     * of operations to perform on a bone when modelling its vertices).
      */
-    private HashMap<String, BoneKeyFrame> buildKeyFrames(ArrayList<Double> timestamps) {
+    public static final class AnimationNode {
 
-        HashMap<String, BoneKeyFrame> boneKeyFrames = new HashMap<>();
+        /**
+         * <code>PositionModifier</code>: The operator used to perform matrix adding
+         * on the polygons of a <code>Model</code> instance.
+         */
+        private final PositionModifier position;
 
-        for (double newTimestamp : timestamps) {
+        /**
+         * <code>RotationModifier</code>: The operator used to perform matrix
+         * rotations on the polygons of a <code>Model</code> instance.
+         */
+        private final RotationModifier rotation;
 
-            HashMap<String, AnimationSchemaAttributes.KeyFrame> bonesTimestampMap = keyframes.get(newTimestamp);
+        /**
+         * <code>ScaleModifier</code>: The operator used to perform matrix scaling
+         * on the polygons of a <code>Model</code> instance.
+         */
+        private final ScaleModifier scale;
 
-            for (Map.Entry<String, AnimationSchemaAttributes.KeyFrame> boneEntry : bonesTimestampMap.entrySet()) {
+        /**
+         * Creates a new instance of the <code>AnimationInstance.AnimationNode</code>
+         * class.
+         * 
+         * @param prevFrame <code>KeyFrame</code>: The previous key frame to
+         *                  interpolate from.
+         * @param nextFrame <code>KeyFrame</code>: The next key frame to interpolate
+         *                  to.
+         * @param timestamp <code>double</code>: The timestamp to interpolate at.
+         */
+        public AnimationNode(KeyFrame prevFrame, KeyFrame nextFrame, double timestamp) {
 
-                String bone = boneEntry.getKey();
-
-                if (!boneKeyFrames.containsKey(bone)) {
-
-                    boneKeyFrames.put(bone, new BoneKeyFrame());
-                }
-                BoneKeyFrame boneKeyFrame = boneKeyFrames.get(bone);
-
-                if (boneKeyFrame.complete()) {
-
-                    continue;
-                }
-                boneKeyFrame.update(boneEntry.getValue());
-            }
+            position = PositionFrame.interpolate(prevFrame, nextFrame, timestamp);
+            rotation = RotationFrame.interpolate(prevFrame, nextFrame, timestamp);
+            scale = ScaleFrame.interpolate(prevFrame, nextFrame, timestamp);
         }
 
-        return boneKeyFrames;
-    }
+        public void apply(BoneActor boneActor) {
 
-    /**
-     * Generates a bone actor given a set of previous and next keyframes.
-     * 
-     * @param prevFrame <code>BoneKeyFrame</code>: The previous key frame to
-     *                  interpolate from.
-     * @param nextFrame <code>BoneKeyFrame</code>: The next key frame to interpolate
-     *                  to.
-     * @param timestamp <code>double</code>: The timestamp to interpolate at.
-     * @return <code>Model.BoneActor</code>: The generated bone actor.
-     */
-    private BoneActor buildBoneActor(BoneKeyFrame prevFrame, BoneKeyFrame nextFrame, double timestamp) {
+            if (position != null) {
 
-        PositionModifier position = prevFrame.position.interpolate(nextFrame.position, timestamp);
-
-        RotationModifier rotation = prevFrame.rotation.interpolate(nextFrame.rotation, timestamp);
-
-        ScaleModifier scale = prevFrame.scale.interpolate(nextFrame.scale, timestamp);
-
-        return new BoneActor(position, rotation, scale);
-    }
-
-    /**
-     * <code>AnimationInstance.BoneKeyFrame</code>: The keyframe of a bone at a
-     * specific
-     */
-    private class BoneKeyFrame {
-
-        /**
-         * <code>PositionFrame</code>: The nearest position keyframe of a bone to a
-         * specified timestamp.
-         */
-        private PositionFrame position = null;
-
-        /**
-         * <code>RotationFrame</code>: The nearest rotation keyframe of a bone to a
-         * specified timestamp.
-         */
-        private RotationFrame rotation = null;
-
-        /**
-         * <code>ScaleFrame</code>: The nearest scale keyframe of a bone to a specified
-         * timestamp.
-         */
-        private ScaleFrame scale = null;
-
-        /**
-         * Updates this <code>AnimationInstance.BoneKeyFrame</code> instance to a new
-         * keyframe.
-         * 
-         * @param keyframe <code>AnimationSchemaAttributes.KeyFrame</code>: The keyframe
-         *                 to assign.
-         */
-        private void update(AnimationSchemaAttributes.KeyFrame keyframe) {
-
-            if (rotation == null && keyframe.getRotation() != null) {
-
-                rotation = keyframe.getRotation();
+                boneActor.updatePosition(position.getTransform());
             }
 
-            if (position == null && keyframe.getPosition() != null) {
+            if (rotation != null) {
 
-                position = keyframe.getPosition();
+                boneActor.updateRotation(rotation.getTransform());
             }
 
-            if (scale == null && keyframe.getScale() != null) {
+            if (scale != null) {
 
-                scale = keyframe.getScale();
+                boneActor.updateScale(scale.getTransform());
             }
-        }
-
-        /**
-         * Determines whether or not this <code>AnimationInstance.BoneKeyFrame</code>
-         * instance is complete.
-         * 
-         * @return
-         */
-        private boolean complete() {
-
-            return (position != null && rotation != null && scale != null);
         }
     }
 }

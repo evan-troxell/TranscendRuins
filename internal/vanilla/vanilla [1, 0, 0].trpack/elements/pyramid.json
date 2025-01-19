@@ -1,14 +1,16 @@
 {
     "metadata": {
-        "identifier": "transcendRuins:pyramid"
+        "identifier": "TranscendRuins:pyramid"
     },
     "attributes": {
         "model": {
-            "identifier": "transcendRuins:pyramid",
-            "rotationOffset": 0,
-            "axisHeading": 0,
-            "axisPitch": 0
+            "identifier": "TranscendRuins:pyramid",
+            "rotation": {
+                "angle": 0,
+                "axisHeading": 0,
+                "axisPitch": 0
+            }
         },
-        "renderMaterial": "transcendRuins:transparent"
+        "renderMaterial": "TranscendRuins:transparent"
     }
 }

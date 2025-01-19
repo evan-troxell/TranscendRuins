@@ -1,14 +1,17 @@
 {
     "metadata": {
-        "identifier": "transcendRuins:axes"
+        "identifier": "TranscendRuins:axes"
     },
     "attributes": {
         "model": {
-            "identifier": "transcendRuins:axes",
-            "rotationOffset": 45,
-            "axisHeading": 0,
-            "axisPitch": 90
+            "identifier": "TranscendRuins:axes",
+            "rotation": {
+                "angle": 0,
+                "axisHeading": 0,
+                "axisPitch": 0
+            }
         },
-        "renderMaterial": "transcendRuins:opaque"
+        "renderMaterial": "TranscendRuins:opaque",
+        "animationController": "TranscendRuins:example"
     }
 }

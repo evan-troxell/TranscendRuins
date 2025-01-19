@@ -89,7 +89,7 @@ public final class Quaternion {
      * @param k <code>double</code>: The third imaginary (<code>k</code>) component
      *          of this <code>Quaternion</code> instance.
      */
-    private Quaternion(double r, double i, double j, double k) {
+    public Quaternion(double r, double i, double j, double k) {
 
         this.r = r;
         this.i = i;

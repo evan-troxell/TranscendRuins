@@ -133,4 +133,7 @@ public final class ElementInstance extends ModelAssetInstance {
         if (getPositionInitialized())
             applyOffset(tileX, tileZ, cardinalDirection, tileOffset);
     }
+
+    @Override
+    protected void update() {}
 }

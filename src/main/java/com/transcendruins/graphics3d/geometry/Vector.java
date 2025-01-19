@@ -1,10 +1,10 @@
 package com.transcendruins.graphics3d.geometry;
 
 /**
- * <code>Vector</code>: A class representing a point in a variable-dimensional space.
+ * <code>Vector</code>: A class representing a point in a variable-dimensional
+ * space.
  */
-public final class
-Vector extends Matrix {
+public final class Vector extends Matrix {
 
     /**
      * <code>Vector</code>: A vector with no magnitude or orientation.
@@ -23,7 +23,9 @@ Vector extends Matrix {
 
     /**
      * Retrieves the dimensions of this <code>Vector</code> instance.
-     * @return <code>int</code>: The <code>dimensions</code> field of this <code>Vector</code> instance.
+     * 
+     * @return <code>int</code>: The <code>dimensions</code> field of this
+     *         <code>Vector</code> instance.
      */
     public int getDimensions() {
 
@@ -31,19 +33,26 @@ Vector extends Matrix {
     }
 
     /**
-     * Creates a new instance of the <code>Vector</code> class using three dimensions.
-     * @param x <code>double</code>: The X coordinate to assign to this <code>Vector</code> instance.
-     * @param y <code>double</code>: The Y coordinate to assign to this <code>Vector</code> instance.
-     * @param z <code>double</code>: The Z coordinate to assign to this <code>Vector</code> instance.
+     * Creates a new instance of the <code>Vector</code> class using three
+     * dimensions.
+     * 
+     * @param x <code>double</code>: The X coordinate to assign to this
+     *          <code>Vector</code> instance.
+     * @param y <code>double</code>: The Y coordinate to assign to this
+     *          <code>Vector</code> instance.
+     * @param z <code>double</code>: The Z coordinate to assign to this
+     *          <code>Vector</code> instance.
      */
     public Vector(double x, double y, double z) {
 
-        this(new double[] {x, y, z});
+        this(new double[] { x, y, z });
     }
 
     /**
      * Creates a new instance of the <code>Vector</code> class.
-     * @param values <code>double[dimensions]</code>: The coordinate values to assign to this <code>Vector</code> instance.
+     * 
+     * @param values <code>double[dimensions]</code>: The coordinate values to
+     *               assign to this <code>Vector</code> instance.
      */
     public Vector(double... values) {
 
@@ -53,8 +62,11 @@ Vector extends Matrix {
 
     /**
      * Creates a new instance of the <code>Vector</code> class.
-     * @param matrix <code>Matrix</code>: The <code>Matrix</code> instance from which this <code>Vector</code> instance should be created.
-     * @param use_column <code>boolean</code>: Whether or not the output matrix should utilize the first column instead of the first row.
+     * 
+     * @param matrix     <code>Matrix</code>: The <code>Matrix</code> instance from
+     *                   which this <code>Vector</code> instance should be created.
+     * @param use_column <code>boolean</code>: Whether or not the output matrix
+     *                   should utilize the first column instead of the first row.
      */
     public Vector(Matrix matrix, boolean use_column) {
 
@@ -62,9 +74,13 @@ Vector extends Matrix {
     }
 
     /**
-     * Creates a new instance of the <code>Vector</code> class as a point on the unit sphere, originating at point <code>&lt;0, 1, 0&gt;</code>.
-     * @param heading <code>double</code>: The heading of the new <code>Vector</code> instance.
-     * @param pitch <code>double</code>: The pitch of the new <code>Vector</code> instance.
+     * Creates a new instance of the <code>Vector</code> class as a point on the
+     * unit sphere, originating at point <code>&lt;0, 1, 0&gt;</code>.
+     * 
+     * @param heading <code>double</code>: The heading of the new
+     *                <code>Vector</code> instance.
+     * @param pitch   <code>double</code>: The pitch of the new <code>Vector</code>
+     *                instance.
      * @return <code>Vector</code>: The resulting vector.
      */
     public static Vector fromUnitSphere(double heading, double pitch) {
@@ -75,12 +91,16 @@ Vector extends Matrix {
         double sinV = Math.sin(pitch);
         double cosV = Math.cos(pitch);
 
-        return new Vector(sinV * cosH, cosV, sinV * sinH);
+        Vector val = new Vector(sinV * cosH, cosV, sinV * sinH);
+
+        return val.multiplyScalar(1.0 / val.magnitude());
     }
 
     /**
      * Retrieves the X coordinate of this <code>Vector</code> instance.
-     * @return <code>double</code>: The X coordinate of this <code>Vector</code> instance.
+     * 
+     * @return <code>double</code>: The X coordinate of this <code>Vector</code>
+     *         instance.
      */
     public double getX() {
 
@@ -89,7 +109,9 @@ Vector extends Matrix {
 
     /**
      * Retrieves the Y coordinate of this <code>Vector</code> instance.
-     * @return <code>double</code>: The Y coordinate of this <code>Vector</code> instance.
+     * 
+     * @return <code>double</code>: The Y coordinate of this <code>Vector</code>
+     *         instance.
      */
     public double getY() {
 
@@ -98,7 +120,9 @@ Vector extends Matrix {
 
     /**
      * Retrieves the Z coordinate of this <code>Vector</code> instance.
-     * @return <code>double</code>: The Z coordinate of this <code>Vector</code> instance.
+     * 
+     * @return <code>double</code>: The Z coordinate of this <code>Vector</code>
+     *         instance.
      */
     public double getZ() {
 
@@ -107,6 +131,7 @@ Vector extends Matrix {
 
     /**
      * Retrieves a dimensional coordinate of this <code>Vector</code> instance.
+     * 
      * @param n <code>int</code>: The dimension to retrieve.
      * @return <code>double</code>: The retrieved dimension.
      */
@@ -116,8 +141,16 @@ Vector extends Matrix {
     }
 
     /**
-     * Transforms this <code>Vector</code> instance by adding the coordinate values of another <code>Matrix</code> instance. If this <code>Vector</code> instance is incompatible with the <code>Matrix</code> instance being transformed by (the <code>dimensions</code> field of this <code>Vector</code> instance does not equal the <code>cols</code> field of the <code>matrix</code> perameter or the <code>rows</code> field of the <code>matrix</code> perameter does not equal 1), then <code>null</code> will be returned.
-     * @param matrix <code>Matrix</code>: The matrix values to add to this <code>Vector</code> instance.
+     * Transforms this <code>Vector</code> instance by adding the coordinate values
+     * of another <code>Matrix</code> instance. If this <code>Vector</code> instance
+     * is incompatible with the <code>Matrix</code> instance being transformed by
+     * (the <code>dimensions</code> field of this <code>Vector</code> instance does
+     * not equal the <code>cols</code> field of the <code>matrix</code> perameter or
+     * the <code>rows</code> field of the <code>matrix</code> perameter does not
+     * equal 1), then <code>null</code> will be returned.
+     * 
+     * @param matrix <code>Matrix</code>: The matrix values to add to this
+     *               <code>Vector</code> instance.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
     @Override
@@ -137,8 +170,17 @@ Vector extends Matrix {
     }
 
     /**
-     * Transforms this <code>Vector</code> instance by subtracting the coordinate values of another <code>Matrix</code> instance. If this <code>Vector</code> instance is incompatible with the <code>Matrix</code> instance being transformed by (the <code>dimensions</code> field of this <code>Vector</code> instance does not equal the <code>cols</code> field of the <code>matrix</code> perameter or the <code>rows</code> field of the <code>matrix</code> perameter does not equal 1), then <code>null</code> will be returned.
-     * @param matrix <code>Matrix</code>: The matrix values to subtract from this <code>Vector</code> instance.
+     * Transforms this <code>Vector</code> instance by subtracting the coordinate
+     * values of another <code>Matrix</code> instance. If this <code>Vector</code>
+     * instance is incompatible with the <code>Matrix</code> instance being
+     * transformed by (the <code>dimensions</code> field of this <code>Vector</code>
+     * instance does not equal the <code>cols</code> field of the
+     * <code>matrix</code> perameter or the <code>rows</code> field of the
+     * <code>matrix</code> perameter does not equal 1), then <code>null</code> will
+     * be returned.
+     * 
+     * @param matrix <code>Matrix</code>: The matrix values to subtract from this
+     *               <code>Vector</code> instance.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
     @Override
@@ -158,8 +200,15 @@ Vector extends Matrix {
     }
 
     /**
-     * Transforms this <code>Vector</code> instance by the coordinate values of another <code>Vector</code> instance. If this <code>Vector</code> instance is incompatible with the <code>Vector</code> instance being transformed by (the <code>dimensions</code> field of this <code>Vector</code> instance does not equal the <code>dimensions</code> field of the <code>vector</code> perameter), then <code>null</code> will be returned.
-     * @param vector <code>Vector</code>: The vector values to add to this <code>Vector</code> instance.
+     * Transforms this <code>Vector</code> instance by the coordinate values of
+     * another <code>Vector</code> instance. If this <code>Vector</code> instance is
+     * incompatible with the <code>Vector</code> instance being transformed by (the
+     * <code>dimensions</code> field of this <code>Vector</code> instance does not
+     * equal the <code>dimensions</code> field of the <code>vector</code>
+     * perameter), then <code>null</code> will be returned.
+     * 
+     * @param vector <code>Vector</code>: The vector values to add to this
+     *               <code>Vector</code> instance.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
     public Vector addVector(Vector vector) {
@@ -173,8 +222,15 @@ Vector extends Matrix {
     }
 
     /**
-     * Transforms this <code>Vector</code> instance by the negative coordinate values of another <code>Vector</code> instance. If this <code>Vector</code> instance is incompatible with the <code>Vector</code> instance being transformed by (the <code>dimensions</code> field of this <code>Vector</code> instance does not equal the <code>dimensions</code> field of the <code>vector</code> perameter), then <code>null</code> will be returned.
-     * @param vector <code>Vector</code>: The vector values to subtract from this <code>Vector</code> instance.
+     * Transforms this <code>Vector</code> instance by the negative coordinate
+     * values of another <code>Vector</code> instance. If this <code>Vector</code>
+     * instance is incompatible with the <code>Vector</code> instance being
+     * transformed by (the <code>dimensions</code> field of this <code>Vector</code>
+     * instance does not equal the <code>dimensions</code> field of the
+     * <code>vector</code> perameter), then <code>null</code> will be returned.
+     * 
+     * @param vector <code>Vector</code>: The vector values to subtract from this
+     *               <code>Vector</code> instance.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
     public Vector subtractVector(Vector vector) {
@@ -188,7 +244,9 @@ Vector extends Matrix {
     }
 
     /**
-     * Transforms this <code>Vector</code> instance by multiplying by a scalar to produce another <code>Vector</code> instance.
+     * Transforms this <code>Vector</code> instance by multiplying by a scalar to
+     * produce another <code>Vector</code> instance.
+     * 
      * @param scalar <code>double</code>: The scalar value to multiply by.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
@@ -205,8 +263,16 @@ Vector extends Matrix {
     }
 
     /**
-     * Transforms this <code>Vector</code> instance by multiplying by a <code>Matrix</code> instance to produce another <code>Vector</code> instance. If this <code>Vector</code> instance is incompatible with the <code>Matrix</code> instance being transformed by (the <code>dimensions</code> field of this <code>Vector</code> instance does not equal the <code>rows</code> field of the <code>matrix</code> perameter), then <code>null</code> will be returned.
-     * @param matrix <code>Matrix</code>: The <code>Matrix</code> instance to multiply by.
+     * Transforms this <code>Vector</code> instance by multiplying by a
+     * <code>Matrix</code> instance to produce another <code>Vector</code> instance.
+     * If this <code>Vector</code> instance is incompatible with the
+     * <code>Matrix</code> instance being transformed by (the
+     * <code>dimensions</code> field of this <code>Vector</code> instance does not
+     * equal the <code>rows</code> field of the <code>matrix</code> perameter), then
+     * <code>null</code> will be returned.
+     * 
+     * @param matrix <code>Matrix</code>: The <code>Matrix</code> instance to
+     *               multiply by.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
     @Override
@@ -226,9 +292,17 @@ Vector extends Matrix {
     }
 
     /**
-     * Transforms this <code>Vector</code> instance by projecting another <code>Vector</code> instance to produce another <code>Vector</code> instance. If this <code>Vector</code> instance is incompatible with the <code>Vector</code> instance being transformed by (the <code>dimensions</code> field of this <code>Vector</code> instance does not equal the <code>dimensions</code> field of the <code>vector</code> perameter), then <code>null</code> will be returned.
+     * Transforms this <code>Vector</code> instance by projecting another
+     * <code>Vector</code> instance to produce another <code>Vector</code> instance.
+     * If this <code>Vector</code> instance is incompatible with the
+     * <code>Vector</code> instance being transformed by (the
+     * <code>dimensions</code> field of this <code>Vector</code> instance does not
+     * equal the <code>dimensions</code> field of the <code>vector</code>
+     * perameter), then <code>null</code> will be returned.
+     * 
      * @param vector <code>Vector</code>: The vector to take the dot product using.
-     * @return <code>double</code>: The dot product of the two <code>Vector</code> instances.
+     * @return <code>double</code>: The dot product of the two <code>Vector</code>
+     *         instances.
      */
     public Double dot(Vector vector) {
 
@@ -253,8 +327,16 @@ Vector extends Matrix {
     }
 
     /**
-     * Transforms this <code>Vector</code> instance by taking the cross product of it and another <code>Vector</code> instance to produce another <code>Vector</code> instance. If this <code>Vector</code> instance is incompatible with the <code>Vector</code> instance being transformed by (the <code>dimensions</code> field of this <code>Vector</code> instance does not equal 3 or the <code>dimensions</code> field of the <code>vector</code> perameter does not equal 3), then <code>null</code> will be returned.
-     * @param vector <code>Vector</code>: The vector to take the cross product using.
+     * Transforms this <code>Vector</code> instance by taking the cross product of
+     * it and another <code>Vector</code> instance to produce another
+     * <code>Vector</code> instance. If this <code>Vector</code> instance is
+     * incompatible with the <code>Vector</code> instance being transformed by (the
+     * <code>dimensions</code> field of this <code>Vector</code> instance does not
+     * equal 3 or the <code>dimensions</code> field of the <code>vector</code>
+     * perameter does not equal 3), then <code>null</code> will be returned.
+     * 
+     * @param vector <code>Vector</code>: The vector to take the cross product
+     *               using.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
     public Vector cross3D(Vector vector) {
@@ -266,20 +348,24 @@ Vector extends Matrix {
 
         Matrix skewSymmetric = new Matrix(DIMENSION_3D, DIMENSION_3D, new double[] {
 
-            0, -getZ(), getY(),
-            getZ(), 0, -getX(),
-            -getY(), getX(), 0
+                0, -getZ(), getY(),
+                getZ(), 0, -getX(),
+                -getY(), getX(), 0
         });
 
         Matrix returnMatrix = skewSymmetric.multiplyMatrix(vector.transpose());
 
-        // The resulting matrix will have the dimensions [1, 3], and thus the first column should be used instead of the first row.
+        // The resulting matrix will have the dimensions [1, 3], and thus the first
+        // column should be used instead of the first row.
         return new Vector(returnMatrix, true);
     }
 
     /**
-     * Retrieves the magnitude value of this <code>Vector</code> instance (the absolute distance between this <code>Vector</code> instance and the origin).
-     * @return <code>double</code>: The magnitude of this <code>Vector</code> instance.
+     * Retrieves the magnitude value of this <code>Vector</code> instance (the
+     * absolute distance between this <code>Vector</code> instance and the origin).
+     * 
+     * @return <code>double</code>: The magnitude of this <code>Vector</code>
+     *         instance.
      */
     public double magnitude() {
 
@@ -294,7 +380,9 @@ Vector extends Matrix {
     }
 
     /**
-     * Converts this <code>Vector</code> instance into a quaternion represented only by its <code>&lt;x, y, z&gt;</code> components.
+     * Converts this <code>Vector</code> instance into a quaternion represented only
+     * by its <code>&lt;x, y, z&gt;</code> components.
+     * 
      * @return <code>Quaternion</code>: The resulting quaternion.
      */
     public Quaternion toQuaternion() {
@@ -304,8 +392,11 @@ Vector extends Matrix {
 
     /**
      * Returns the string representation of this <code>Vector</code> instance.
-     * @return <code>String</code>: This <code>Vector</code> instance in the following string representation:
-     * <br>"<code>&lt;a, b, c...&gt;</code>"
+     * 
+     * @return <code>String</code>: This <code>Vector</code> instance in the
+     *         following string representation:
+     *         <br>
+     *         "<code>&lt;a, b, c...&gt;</code>"
      */
     @Override
     public String toString() {

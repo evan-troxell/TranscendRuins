@@ -1,0 +1,12 @@
+{
+
+    "metadata": {
+
+        "identifier": "TranscendRuins:example"
+    },
+    "attributes": {
+        "model": "TranscendRuins:example",
+        "animationController": "TranscendRuins:example",
+        "renderMaterial": "TranscendRuins:opaque"
+    }
+}

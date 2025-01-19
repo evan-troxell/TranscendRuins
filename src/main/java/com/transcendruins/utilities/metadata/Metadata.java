@@ -245,7 +245,7 @@ public final class Metadata {
         identifier = identifierEntry.getValue();
 
         versionEntry = getIdentifier().getVersionEntry();
-        version = versionEntry.getValue();
+        version = versionEntry == null ? null : versionEntry.getValue();
     }
 
     /**
@@ -273,7 +273,7 @@ public final class Metadata {
         identifier = identifierEntry.getValue();
 
         versionEntry = getIdentifier().getVersionEntry();
-        version = versionEntry.getValue();
+        version = versionEntry == null ? null : versionEntry.getValue();
     }
 
     /**

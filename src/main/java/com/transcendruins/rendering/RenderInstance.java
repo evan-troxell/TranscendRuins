@@ -6,7 +6,6 @@ import java.util.HashMap;
 import com.transcendruins.graphics3d.PolyGroup;
 import com.transcendruins.graphics3d.Position3D;
 import com.transcendruins.graphics3d.geometry.Triangle3D;
-import com.transcendruins.rendering.Model.BoneActor;
 import com.transcendruins.world.assetinstances.models.ModelInstance;
 import com.transcendruins.world.assetinstances.rendermaterials.RenderMaterialInstance;
 
@@ -50,7 +49,8 @@ public final class RenderInstance {
      *                       represented by a vector.
      */
     public RenderInstance(ModelInstance model, RenderMaterialInstance renderMaterial,
-            HashMap<String, BoneActor> boneActors, Position3D offset, double angle, double heading, double pitch) {
+            HashMap<String, Model.BoneActor> boneActors, Position3D offset, double angle, double heading,
+            double pitch) {
 
         ArrayList<Triangle3D> polygonsAdjusted = model.getModel().getPolygons(boneActors, offset, angle, heading,
                 pitch);
