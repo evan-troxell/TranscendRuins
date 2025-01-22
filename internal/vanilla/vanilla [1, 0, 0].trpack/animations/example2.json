@@ -8,16 +8,22 @@
         "keyframes": {
             "0.0": {
                 "cube": {
-                    "rotation": {
-                        "angle": 0,
+                    "scale": {
+                        "scale": [2,1,1],
+                        "rotation": {
+                            "angle": 22.5
+                        },
                         "interpolation": "linear"
                     }
                 }
             },
             "10.0": {
                 "cube": {
-                    "rotation": {
-                        "angle": 360,
+                    "scale": {
+                        "scale": [2,1,1],
+                        "rotation": {
+                            "angle": 22.5
+                        },
                         "interpolation": "linear"
                     }
                 }

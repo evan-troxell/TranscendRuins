@@ -5,16 +5,16 @@ import java.util.ArrayList;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.packcompiling.Pack;
 import com.transcendruins.packcompiling.PackProcessor;
-import com.transcendruins.packcompiling.assetschemas.AssetType;
-import com.transcendruins.packcompiling.assetschemas.elements.ElementSchema;
-import com.transcendruins.packcompiling.assetschemas.entities.EntitySchema;
 import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.ui.DisplayFrame;
 import com.transcendruins.ui.Render3D;
+import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.elements.ElementInstance;
+import com.transcendruins.world.assetinstances.elements.ElementPresets;
 import com.transcendruins.world.assetinstances.entities.EntityInstance;
+import com.transcendruins.world.assetinstances.entities.EntityPresets;
 
 /**
  * <code>App</code>: Hello world!
@@ -37,6 +37,7 @@ public final class App {
 
         ArrayList<Pack> packs = new ArrayList<>();
         packs.add(vanillaPack);
+
         World.buildWorld(packs);
         World world = World.getWorld();
         world.start();
@@ -52,24 +53,36 @@ public final class App {
 
         Identifier axesId = Identifier.createTestIdentifier("TranscendRuins:axes",
                 null);
-        ElementSchema axesSchema = (ElementSchema) vanillaPack.getAsset(AssetType.ELEMENT, axesId);
 
-        ElementInstance axesInstance = new ElementInstance(axesSchema,
-                World.getWorld(), 0, 0, World.EAST,
+        ElementPresets axesPresets = new ElementPresets(new TracedEntry<>(null, axesId));
+
+        ElementInstance axesInstance = new ElementInstance(axesPresets,
+                world, 0, 0, World.EAST,
                 Vector.DEFAULT_VECTOR);
 
         Identifier exampleId = Identifier.createTestIdentifier("TranscendRuins:example", null);
-        EntitySchema exampleSchema = (EntitySchema) vanillaPack.getAsset(AssetType.ENTITY, exampleId);
+        EntityPresets examplePresets = new EntityPresets(new TracedEntry<>(null, exampleId));
 
-        EntityInstance ex1 = new EntityInstance(exampleSchema,
-                World.getWorld(), 0, 0, World.NORTH,
+        EntityInstance ex1 = new EntityInstance(examplePresets,
+                world, 0, 0, World.NORTH,
                 Vector.DEFAULT_VECTOR);
 
         ex1.onUpdate();
 
-        EntityInstance ex2 = new EntityInstance(exampleSchema,
-                World.getWorld(), 0, 0, World.NORTH,
+        EntityInstance ex2 = new EntityInstance(examplePresets,
+                world, 0, 0, World.NORTH,
                 Vector.DEFAULT_VECTOR);
+
+        double startTime = world.getRuntimeSeconds();
+
+        for (int i = 0; i < 1_000_000; i++) {
+
+            new ElementInstance(axesPresets,
+                    world, 0, 0, World.NORTH,
+                    Vector.DEFAULT_VECTOR);
+        }
+
+        System.out.println("ELAPSED TIME: " + (world.getRuntimeSeconds() - startTime));
 
         ArrayList<RenderInstance> models;
 
@@ -80,7 +93,7 @@ public final class App {
             while (true) {
                 models = new ArrayList<>();
 
-                // models.add(ex1.getRenderInstance());
+                models.add(ex1.getRenderInstance());
 
                 models.add(ex2.getRenderInstance());
 

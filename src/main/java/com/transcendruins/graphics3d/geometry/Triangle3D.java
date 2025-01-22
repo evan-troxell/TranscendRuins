@@ -308,7 +308,7 @@ public final class Triangle3D {
                 (int) vertex1.getY());
 
         // Find the minimum and maximum Y values of the triangle at point X.
-        int[] newValues = new int[] { min(boundV1V2, min(boundV2V3, boundV3V1)),
+        int[] newValues = { min(boundV1V2, min(boundV2V3, boundV3V1)),
                 max(boundV1V2, max(boundV2V3, boundV3V1)) };
 
         return newValues;

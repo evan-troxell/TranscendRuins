@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
-import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaAttributes;
 import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchemaAttributes.KeyFrame;
 import com.transcendruins.packcompiling.assetschemas.animations.interpolation.PositionFrame;
@@ -25,6 +24,24 @@ import com.transcendruins.world.assetinstances.AssetInstance;
  * instance.
  */
 public final class AnimationInstance extends AssetInstance {
+
+    /**
+     * <code>double</code>: The playback speed of this
+     * <code>AnimationInstance</code> instance.
+     */
+    private final double playbackSpeed;
+
+    /**
+     * <code>double>/code>: The starting timestamp of this <code>AnimationInstance</code>
+     * instance.
+     */
+    private final double startingTimestamp;
+
+    /**
+     * <code>boolean>/code>: Whether or not this <code>AnimationInstance</code>
+     * instance is playing in reverse.
+     */
+    private final boolean reversed;
 
     /**
      * <code>double</code>: The animation length of this
@@ -85,18 +102,23 @@ public final class AnimationInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
      * 
-     * @param schema <code>AnimationSchema</code>: The schema used to generate this
-     *               <code>AnimationInstance</code> instance.
-     * @param world  <code>World</code>: The world copy to assign to this
-     *               <code>AnimationInstance</code> instance.
+     * @param presets <code>AnimationPresets</code>: The presets used to
+     *                generate this
+     *                <code>AnimationInstance</code> instance.
+     * @param world   <code>World</code>: The world copy to assign to this
+     *                <code>AnimationInstance</code> instance.
      */
-    public AnimationInstance(AnimationSchema schema, World world) {
+    public AnimationInstance(AnimationPresets presets, World world) {
 
-        super(schema, world);
+        super(presets, world);
+
+        this.startingTimestamp = presets.getStartingTimestamp();
+        this.reversed = presets.getReversed();
+        this.playbackSpeed = presets.getPlaybackSpeed();
     }
 
     /**
-     * Applies a attribute set to this <code>AnimationInstance</code> instance.
+     * Applies an attribute set to this <code>AnimationInstance</code> instance.
      * 
      * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to
      *                     apply.
@@ -139,6 +161,15 @@ public final class AnimationInstance extends AssetInstance {
      *         actors of the keyframes.
      */
     public HashMap<String, AnimationNode> getKeyFrames(double timestamp) {
+
+        timestamp *= playbackSpeed;
+
+        if (reversed) {
+
+            timestamp *= -1;
+        }
+
+        timestamp += startingTimestamp;
 
         double loopTimestamp = timestamp % length;
 

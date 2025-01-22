@@ -87,6 +87,7 @@ public class LoggedException extends Exception {
         errorMessage += " | " + timeString + " | ";
         errorMessage += message;
 
+        printStackTrace();
         saveErrorMessage(errorMessage);
     }
 

@@ -4,13 +4,8 @@ import java.util.HashMap;
 
 import com.transcendruins.graphics3d.Position3D;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.packcompiling.assetschemas.AssetSchema;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
-import com.transcendruins.packcompiling.assetschemas.AssetType;
 import com.transcendruins.packcompiling.assetschemas.ModelAssetSchemaAttributes;
-import com.transcendruins.packcompiling.assetschemas.animationcontrollers.AnimationControllerSchema;
-import com.transcendruins.packcompiling.assetschemas.models.ModelSchema;
-import com.transcendruins.packcompiling.assetschemas.rendermaterials.RenderMaterialSchema;
 import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.animationcontrollers.AnimationControllerInstance;
@@ -65,8 +60,6 @@ public abstract class ModelAssetInstance extends AssetInstance {
      */
     private ModelInstance model;
 
-    private double angle, axisHeading, axisPitch;
-
     /**
      * <code>RenderMaterialInstance</code>: The render material of this
      * <code>ModelAssetInstance</code> instance.
@@ -82,7 +75,7 @@ public abstract class ModelAssetInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>ModelAssetInstance</code> class.
      * 
-     * @param schema            <code>AssetSchema</code>: The schema used to
+     * @param schema            <code>AssetPresets</code>: The presets used to
      *                          generate this <code>ModelAssetInstance</code>
      *                          instance.
      * @param world             <code>World</code>: The world copy to assign to this
@@ -100,10 +93,10 @@ public abstract class ModelAssetInstance extends AssetInstance {
      * @param tileOffset        <code>Vector</code>: The tile offset to assign to
      *                          this <code>ModelAssetInstance</code> instance.
      */
-    public ModelAssetInstance(AssetSchema schema, World world, long tileX, long tileZ, int cardinalDirection,
+    public ModelAssetInstance(AssetPresets presets, World world, long tileX, long tileZ, int cardinalDirection,
             Vector tileOffset) {
 
-        super(schema, world);
+        super(presets, world);
         setOffset(tileX, tileZ, cardinalDirection, tileOffset);
     }
 
@@ -162,12 +155,11 @@ public abstract class ModelAssetInstance extends AssetInstance {
     public final RenderInstance getRenderInstance() {
 
         return new RenderInstance(model, renderMaterial,
-                (animationController == null) ? new HashMap<>() : animationController.evaluateAnimations(), offset,
-                angle, axisHeading, axisPitch);
+                (animationController == null) ? new HashMap<>() : animationController.evaluateAnimations(), offset);
     }
 
     /**
-     * Applies a attribute set to this <code>ModelAssetInstance</code> instance.
+     * Applies an attribute set to this <code>ModelAssetInstance</code> instance.
      * 
      * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to
      *                     apply.
@@ -177,37 +169,19 @@ public abstract class ModelAssetInstance extends AssetInstance {
 
         ModelAssetSchemaAttributes attributes = (ModelAssetSchemaAttributes) attributeSet;
 
-        if (attributes.getModelIdentifier() != null) {
+        if (attributes.getModel() != null) {
 
-            model = new ModelInstance((ModelSchema) getSchema(AssetType.MODEL, attributes.getModelIdentifier()),
-                    getWorld());
+            model = new ModelInstance(attributes.getModel(), getWorld());
         }
 
-        if (attributes.getRenderMaterialIdentifier() != null) {
+        if (attributes.getRenderMaterial() != null) {
 
-            renderMaterial = new RenderMaterialInstance((RenderMaterialSchema) getSchema(AssetType.RENDER_MATERIAL,
-                    attributes.getRenderMaterialIdentifier()), getWorld());
+            renderMaterial = new RenderMaterialInstance(attributes.getRenderMaterial(), getWorld());
         }
 
-        if (attributes.getAnimationControllerIdentifier() != null) {
+        if (attributes.getAnimationController() != null) {
 
-            animationController = new AnimationControllerInstance((AnimationControllerSchema) getSchema(
-                    AssetType.ANIMATION_CONTROLLER, attributes.getAnimationControllerIdentifier()), getWorld());
-        }
-
-        if (attributes.getAngle() != null) {
-
-            angle = attributes.getAngle();
-        }
-
-        if (attributes.getAxisHeading() != null) {
-
-            axisHeading = attributes.getAxisHeading();
-        }
-
-        if (attributes.getAxisPitch() != null) {
-
-            axisPitch = attributes.getAxisPitch();
+            animationController = new AnimationControllerInstance(attributes.getAnimationController(), getWorld());
         }
 
         applyAttributeSet(attributeSet);
@@ -219,7 +193,10 @@ public abstract class ModelAssetInstance extends AssetInstance {
      */
     public final void onUpdate() {
 
-        animationController.evaluateTransitions();
+        if (animationController != null) {
+
+            animationController.evaluateTransitions();
+        }
         update();
     }
 

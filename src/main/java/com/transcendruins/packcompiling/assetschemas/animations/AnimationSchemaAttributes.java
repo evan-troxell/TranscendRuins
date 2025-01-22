@@ -162,23 +162,23 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
      * Compiles this <code>AnimationSchemaAttributes</code> instance into a
      * completed instance.
      * 
-     * @param schema     <code>AnimationSchema</code>: The schema which created this
-     *                   <code>AnimationSchemaAttributes</code> instance.
-     * @param schemaJson <code>TracedDictionary</code>: The schema JSON used to
-     *                   compile this <code>AnimationSchemaAttributes</code>
-     *                   instance.
-     * @param isBase     <code>boolean</code>: Whether or not this
-     *                   <code>AnimationSchemaAttributes</code> instance is the base
-     *                   attribute set of an <code>AnimationSchema</code> instance.
+     * @param schema <code>AnimationSchema</code>: The schema which created this
+     *               <code>AnimationSchemaAttributes</code> instance.
+     * @param json   <code>TracedDictionary</code>: The schema JSON used to
+     *               compile this <code>AnimationSchemaAttributes</code>
+     *               instance.
+     * @param isBase <code>boolean</code>: Whether or not this
+     *               <code>AnimationSchemaAttributes</code> instance is the base
+     *               attribute set of an <code>AnimationSchema</code> instance.
      * @throws LoggedException Thrown if an exception is raised while processing
      *                         this <code>AnimationSchemaAttributes</code> instance.
      */
-    public AnimationSchemaAttributes(AnimationSchema schema, TracedDictionary schemaJson, boolean isBase)
+    public AnimationSchemaAttributes(AnimationSchema schema, TracedDictionary json, boolean isBase)
             throws LoggedException {
 
-        super(schema, schemaJson, isBase);
+        super(schema, json, isBase);
 
-        TracedEntry<String> loopModeEntry = schemaJson.getAsString("loopMode", true, isBase ? "once" : null);
+        TracedEntry<String> loopModeEntry = json.getAsString("loopMode", true, isBase ? "once" : null);
         String loopModeString = loopModeEntry.getValue();
 
         switch (loopModeString) {
@@ -223,7 +223,7 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
 
         // Key frames should be required if this attribute set is the base attribute
         // set.
-        TracedEntry<TracedDictionary> keyframesEntry = schemaJson.getAsDictionary("keyframes", !isBase);
+        TracedEntry<TracedDictionary> keyframesEntry = json.getAsDictionary("keyframes", !isBase);
         animationDefinition = keyframesEntry.containsValue();
 
         if (animationDefinition) {
@@ -234,7 +234,7 @@ public final class AnimationSchemaAttributes extends AssetSchemaAttributes {
             TracedDictionary keyframesJson = keyframesEntry.getValue();
 
             // If there are keyframe entries, a new length should be defined.
-            TracedEntry<Double> lengthEntry = schemaJson.getAsDouble("length", false, null, 0.0, null);
+            TracedEntry<Double> lengthEntry = json.getAsDouble("length", false, null, 0.0, null);
             length = lengthEntry.getValue();
 
             ArrayList<Double> timestampsList = new ArrayList<>();

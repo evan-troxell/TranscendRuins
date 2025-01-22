@@ -2,24 +2,21 @@ package com.transcendruins.world.assetinstances.animationcontrollers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
-import com.transcendruins.packcompiling.assetschemas.AssetType;
 import com.transcendruins.packcompiling.assetschemas.animationcontrollers.AnimationControllerSchema;
 import com.transcendruins.packcompiling.assetschemas.animationcontrollers.AnimationControllerSchemaAttributes;
-import com.transcendruins.packcompiling.assetschemas.animations.AnimationSchema;
 import com.transcendruins.rendering.Model.BoneActor;
 import com.transcendruins.utilities.finalize.FinalizedList;
 import com.transcendruins.utilities.finalize.FinalizedMap;
-import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.utilities.scripts.TRScript;
 import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.AssetInstance;
 import com.transcendruins.world.assetinstances.animations.AnimationInstance;
 import com.transcendruins.world.assetinstances.animations.AnimationInstance.AnimationNode;
+import com.transcendruins.world.assetinstances.animations.AnimationPresets;
 
 /**
  * <code>AnimationControllerInstance</code>: A class representing a generated
@@ -28,13 +25,7 @@ import com.transcendruins.world.assetinstances.animations.AnimationInstance.Anim
 public final class AnimationControllerInstance extends AssetInstance {
 
     /**
-     * <code>FinalizedMap&lt;Identifier, AnimationSchema&gt;</code>: All animations
-     * of this <code>AnimationControllerInstance</code> instance.
-     */
-    private FinalizedMap<Identifier, AnimationSchema> animations;
-
-    /**
-     * <code>FinalizedMap&lt;String, AnimationControllerSchemaAttributes.AnimationStateSchema&lt;</code>:
+     * <code>FinalizedMap&lt;String, AnimationControllerSchemaAttributes.AnimationStateSchema&gt;</code>:
      * All animation states of this <code>AnimationControllerInstance</code>
      * instance.
      */
@@ -55,21 +46,21 @@ public final class AnimationControllerInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
      * 
-     * @param schema <code>AnimationControllerSchema</code>: The schema used to
-     *               generate this <code>AnimationControllerInstance</code>
-     *               instance.
-     * @param world  <code>World</code>: The world copy to assign to this
-     *               <code>AnimationControllerInstance</code> instance.
+     * @param presets <code>AnimationControllerPresets</code>: The presets used to
+     *                generate this <code>AnimationControllerInstance</code>
+     *                instance.
+     * @param world   <code>World</code>: The world copy to assign to this
+     *                <code>AnimationControllerInstance</code> instance.
      */
-    public AnimationControllerInstance(AnimationControllerSchema schema, World world) {
+    public AnimationControllerInstance(AnimationControllerPresets presets, World world) {
 
-        super(schema, world);
+        super(presets, world);
 
         state = new AnimationStateInstance(states.get(defaultState));
     }
 
     /**
-     * Applies a attribute set to this <code>AnimationControllerInstance</code>
+     * Applies an attribute set to this <code>AnimationControllerInstance</code>
      * instance.
      * 
      * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to
@@ -79,21 +70,6 @@ public final class AnimationControllerInstance extends AssetInstance {
     protected void applyAttributeSet(AssetSchemaAttributes attributeSet) {
 
         AnimationControllerSchemaAttributes attributes = (AnimationControllerSchemaAttributes) attributeSet;
-
-        HashSet<Identifier> attributeAnimations = attributes.getAnimations();
-
-        animations = new FinalizedMap<>();
-        if (attributeAnimations != null) {
-
-            for (Identifier animationIdentifier : attributeAnimations) {
-
-                animations.put(animationIdentifier,
-                        (AnimationSchema) getSchema(AssetType.ANIMATION, animationIdentifier));
-            }
-
-        }
-
-        animations.finalizeData();
 
         states = attributes.getStates();
 
@@ -136,9 +112,8 @@ public final class AnimationControllerInstance extends AssetInstance {
          */
         private AnimationStateInstance(AnimationControllerSchemaAttributes.AnimationStateSchema schema) {
 
-            for (Identifier animationIdentifier : schema.getStateAnimations()) {
-
-                stateAnimations.add(new AnimationInstance(animations.get(animationIdentifier), getWorld()));
+            for (AnimationPresets animationPresets : schema.getStateAnimations()) {
+                stateAnimations.add(new AnimationInstance(animationPresets, getWorld()));
             }
 
             stateTransitions = schema.getStateTransitions();

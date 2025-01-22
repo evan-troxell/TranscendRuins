@@ -4,12 +4,10 @@
     },
     "attributes": {
         "model": {
-            "identifier": "TranscendRuins:pyramid",
-            "rotation": {
-                "angle": 0,
-                "axisHeading": 0,
-                "axisPitch": 0
-            }
+            "model": "TranscendRuins:pyramid",
+            "angle": 0,
+            "axisHeading": 0,
+            "axisPitch": 0
         },
         "renderMaterial": "TranscendRuins:transparent"
     }

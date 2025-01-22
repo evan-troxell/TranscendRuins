@@ -35,22 +35,22 @@ public final class ElementSchemaAttributes extends ModelAssetSchemaAttributes {
      * Compiles this <code>ElementSchemaAttributes</code> instance into a completed
      * instance.
      * 
-     * @param schema     <code>ElementSchema</code>: The schema which created this
-     *                   <code>ElementSchemaAttributes</code> instance.
-     * @param schemaJson <code>TracedDictionary</code>: The schema JSON used to
-     *                   compile this <code>ElementSchemaAttributes</code> instance.
-     * @param isBase     <code>boolean</code>: Whether or not this
-     *                   <code>ElementSchemaAttributes</code> instance is the base
-     *                   attribute set of an <code>ElementSchema</code> instance.
+     * @param schema <code>ElementSchema</code>: The schema which created this
+     *               <code>ElementSchemaAttributes</code> instance.
+     * @param json   <code>TracedDictionary</code>: The schema JSON used to
+     *               compile this <code>ElementSchemaAttributes</code> instance.
+     * @param isBase <code>boolean</code>: Whether or not this
+     *               <code>ElementSchemaAttributes</code> instance is the base
+     *               attribute set of an <code>ElementSchema</code> instance.
      * @throws LoggedException Thrown if an exception is raised while processing
      *                         this <code>ElementSchemaAttributes</code> instance.
      */
-    public ElementSchemaAttributes(ElementSchema schema, TracedDictionary schemaJson, boolean isBase)
+    public ElementSchemaAttributes(ElementSchema schema, TracedDictionary json, boolean isBase)
             throws LoggedException {
 
-        super(schema, schemaJson, isBase);
+        super(schema, json, isBase);
 
-        TracedEntry<Boolean> gridRotationSnapEntry = schemaJson.getAsBoolean("gridRotationSnap", true,
+        TracedEntry<Boolean> gridRotationSnapEntry = json.getAsBoolean("gridRotationSnap", true,
                 isBase ? true : null);
         gridRotationSnap = gridRotationSnapEntry.getValue();
 

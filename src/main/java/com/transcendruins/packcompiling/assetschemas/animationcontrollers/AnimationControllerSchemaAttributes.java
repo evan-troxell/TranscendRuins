@@ -2,15 +2,11 @@ package com.transcendruins.packcompiling.assetschemas.animationcontrollers;
 
 import java.util.Map;
 
+import org.json.simple.JSONObject;
+
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
-import com.transcendruins.packcompiling.assetschemas.AssetType;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.IdentifierFormatException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.InvalidKeyException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.finalize.FinalizedList;
 import com.transcendruins.utilities.finalize.FinalizedMap;
 import com.transcendruins.utilities.finalize.FinalizedSet;
@@ -19,31 +15,13 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.utilities.scripts.TRScript;
+import com.transcendruins.world.assetinstances.animations.AnimationPresets;
 
 /**
  * <code>AnimationControllerSchemaAttributes</code>: A class which represents
  * the modules of an <code>AnimationControllerSchema</code> instance.
  */
 public final class AnimationControllerSchemaAttributes extends AssetSchemaAttributes {
-
-    /**
-     * <code>FinalizedSet&lt;Identifier&gt;</code>: The set of all animations of
-     * this <code>AnimationControllerSchemaAttributes</code> instance.
-     */
-    private final FinalizedSet<Identifier> animations;
-
-    /**
-     * Retrieves the animations of this <code>AnimationSchemaAttributes</code>
-     * instance.
-     * 
-     * @return <code>FinalizedSet&lt;Identifier&gt;</code>: The
-     *         <code>animations</code> field of this
-     *         <code>AnimationSchemaAttributes</code> instance.
-     */
-    public FinalizedSet<Identifier> getAnimations() {
-
-        return animations;
-    }
 
     /**
      * <code>FinalizedMap&lt;String, AnimationStateSchema&gt;</code>: The map of all
@@ -87,34 +65,33 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
      * Compiles this <code>AnimationControllerSchemaAttributes</code> instance into
      * a completed instance.
      * 
-     * @param schema     <code>AnimationSchema</code>: The schema which created this
-     *                   <code>AnimationControllerSchemaAttributes</code> instance.
-     * @param schemaJson <code>TracedDictionary</code>: The schema JSON used to
-     *                   compile this
-     *                   <code>AnimationControllerSchemaAttributes</code> instance.
-     * @param isBase     <code>boolean</code>: Whether or not this
-     *                   <code>AnimationControllerSchemaAttributes</code> instance
-     *                   is the base module set of an <code>AnimationSchema</code>
-     *                   instance.
+     * @param schema <code>AnimationSchema</code>: The schema which created this
+     *               <code>AnimationControllerSchemaAttributes</code> instance.
+     * @param json   <code>TracedDictionary</code>: The schema JSON used to
+     *               compile this
+     *               <code>AnimationControllerSchemaAttributes</code> instance.
+     * @param isBase <code>boolean</code>: Whether or not this
+     *               <code>AnimationControllerSchemaAttributes</code> instance
+     *               is the base module set of an <code>AnimationSchema</code>
+     *               instance.
      * @throws LoggedException Thrown if an exception is raised while processing
      *                         this <code>AnimationControllerSchemaAttributes</code>
      *                         instance.
      */
-    public AnimationControllerSchemaAttributes(AnimationControllerSchema schema, TracedDictionary schemaJson,
+    public AnimationControllerSchemaAttributes(AnimationControllerSchema schema, TracedDictionary json,
             boolean isBase) throws LoggedException {
 
-        super(schema, schemaJson, isBase);
+        super(schema, json, isBase);
 
-        TracedEntry<TracedDictionary> statesEntry = schemaJson.getAsDictionary("states", !isBase);
+        TracedEntry<TracedDictionary> statesEntry = json.getAsDictionary("states", !isBase);
 
         if (statesEntry.containsValue()) {
 
-            animations = new FinalizedSet<>();
             states = new FinalizedMap<>();
 
             TracedDictionary statesJson = statesEntry.getValue();
 
-            TracedEntry<String> defaultStateEntry = schemaJson.getAsString("defaultState", true, "default");
+            TracedEntry<String> defaultStateEntry = json.getAsString("defaultState", true, "default");
             defaultState = defaultStateEntry.getValue();
 
             statesJson.getAsDictionary(defaultState, false);
@@ -146,7 +123,6 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
         } else {
 
             defaultState = null;
-            animations = null;
             states = null;
         }
 
@@ -169,11 +145,12 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
         private final TracedEntry<TracedDictionary> transitionsEntry;
 
         /**
-         * <code>FinalizedSet&lt;Identifier&gt;</code>: The animations of this
+         * <code>FinalizedSet&lt;AnimationPresets&gt;</code>: The animations
+         * of this
          * <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code>
          * instance.
          */
-        private final FinalizedSet<Identifier> stateAnimations = new FinalizedSet<>();
+        private final FinalizedSet<AnimationPresets> stateAnimations = new FinalizedSet<>();
 
         /**
          * <code>FinalizedMap&lt;String, FinalizedList&lt;TRScript&gt;&gt;</code>: The
@@ -195,8 +172,7 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
          *                         <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code>
          *                         instance.
          */
-        private AnimationStateSchema(TracedDictionary json) throws MissingPropertyException, PropertyTypeException,
-                IdentifierFormatException, ArrayLengthException, UnexpectedValueException {
+        private AnimationStateSchema(TracedDictionary json) throws LoggedException {
 
             TracedEntry<TracedArray> animationsEntry = json.getAsArray("animations", true);
 
@@ -205,12 +181,22 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
                 TracedArray animationsJson = animationsEntry.getValue();
                 for (int i : animationsJson.getIndices()) {
 
-                    TracedEntry<Identifier> animationEntry = animationsJson.getAsIdentifier(i, false);
-                    Identifier animation = animationEntry.getValue();
+                    Object animationValue = animationsJson.get(i, false, null, String.class, JSONObject.class)
+                            .getValue();
 
-                    animations.add(animation);
-                    stateAnimations.add(animation);
-                    addElementDependency(AssetType.ANIMATION, animationEntry);
+                    AnimationPresets animationPresets;
+
+                    if (animationValue instanceof TracedDictionary animationJson) {
+
+                        animationPresets = new AnimationPresets(animationJson);
+                    } else {
+
+                        TracedEntry<Identifier> animationEntry = animationsJson.getAsIdentifier(i, false);
+                        animationPresets = new AnimationPresets(animationEntry);
+                    }
+
+                    stateAnimations.add(animationPresets);
+                    addElementDependency(animationPresets);
                 }
             }
 
@@ -245,12 +231,12 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
          * <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code>
          * instance.
          * 
-         * @return <code>FinalizedSet&lt;Identifier&gt;</code>: The
+         * @return <code>FinalizedSet&lt;AnimationPresets&gt;</code>: The
          *         <code>stateAnimations</code> field of this
          *         <code>AnimationControllerSchemaAttributes.AnimationStateSchema</code>
          *         instance.
          */
-        public FinalizedSet<Identifier> getStateAnimations() {
+        public FinalizedSet<AnimationPresets> getStateAnimations() {
 
             return stateAnimations;
         }
@@ -273,11 +259,6 @@ public final class AnimationControllerSchemaAttributes extends AssetSchemaAttrib
 
     @Override
     protected void finalizeData() {
-
-        if (animations != null) {
-
-            animations.finalizeData();
-        }
 
         if (states != null) {
 

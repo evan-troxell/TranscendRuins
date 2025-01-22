@@ -45,15 +45,12 @@ public final class RenderInstance {
      *                       perameter using.
      * @param offset         <code>Position3D</code>: The offset at which to render
      *                       the <code>model</code> perameter from.
-     * @param rotationOffset <code>Vector</code>: The rotation offset of the model,
-     *                       represented by a vector.
      */
     public RenderInstance(ModelInstance model, RenderMaterialInstance renderMaterial,
-            HashMap<String, Model.BoneActor> boneActors, Position3D offset, double angle, double heading,
-            double pitch) {
+            HashMap<String, Model.BoneActor> boneActors, Position3D offset) {
 
-        ArrayList<Triangle3D> polygonsAdjusted = model.getModel().getPolygons(boneActors, offset, angle, heading,
-                pitch);
+        ArrayList<Triangle3D> polygonsAdjusted = model.getModel().getPolygons(boneActors, offset, model.getAngle(),
+                model.getAxisHeading(), model.getAxisPitch());
 
         // Adjust every polygon in the retrieved polygons.
         for (Triangle3D polygonAdjusted : polygonsAdjusted) {

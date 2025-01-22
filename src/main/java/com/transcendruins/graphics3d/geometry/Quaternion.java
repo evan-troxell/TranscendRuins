@@ -209,9 +209,17 @@ public final class Quaternion {
     public Matrix toMatrix() {
 
         return new Matrix(3, 3, new double[] {
-                1 - 2 * j * j - 2 * k * k, 2 * i * j - 2 * r * k, 2 * i * k + 2 * r * k,
-                2 * i * j + 2 * r * k, 1 - 2 * i * i - 2 * k * k, 2 * j * k - 2 * r * i,
-                2 * i * k - 2 * r * j, 2 * j * k + 2 * r * i, 1 - 2 * i * i - 2 * j * j
+                1 - 2 * (j * j + k * k),
+                2 * (i * j - r * k),
+                2 * (i * k + r * j),
+
+                2 * (i * j + r * k),
+                1 - 2 * (i * i + k * k),
+                2 * (j * k - r * i),
+
+                2 * (i * k - r * j),
+                2 * (j * k + r * i),
+                1 - 2 * (i * i + j * j)
         });
     }
 

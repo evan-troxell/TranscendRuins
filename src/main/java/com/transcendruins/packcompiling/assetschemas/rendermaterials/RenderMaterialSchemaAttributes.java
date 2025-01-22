@@ -106,33 +106,33 @@ public final class RenderMaterialSchemaAttributes extends AssetSchemaAttributes 
      * Compiles this <code>RenderMaterialSchemaAttributes</code> instance into a
      * completed instance.
      * 
-     * @param schema     <code>RenderMaterialSchema</code>: The schema which created
-     *                   this <code>RenderMaterialSchemaAttributes</code> instance.
-     * @param schemaJson <code>TracedDictionary</code>: The schema JSON used to
-     *                   compile this <code>RenderMaterialSchemaAttributes</code>
-     *                   instance.
-     * @param isBase     <code>boolean</code>: Whether or not this
-     *                   <code>RenderMaterialSchemaAttributes</code> instance is the
-     *                   base attribute set of a
-     *                   <code>RenderMaterialSchemaAttributes</code> instance.
+     * @param schema <code>RenderMaterialSchema</code>: The schema which created
+     *               this <code>RenderMaterialSchemaAttributes</code> instance.
+     * @param json   <code>TracedDictionary</code>: The schema JSON used to
+     *               compile this <code>RenderMaterialSchemaAttributes</code>
+     *               instance.
+     * @param isBase <code>boolean</code>: Whether or not this
+     *               <code>RenderMaterialSchemaAttributes</code> instance is the
+     *               base attribute set of a
+     *               <code>RenderMaterialSchemaAttributes</code> instance.
      * @throws LoggedException Thrown if an exception is raised while processing
      *                         this <code>RenderMaterialSchemaAttributes</code>
      *                         instance.
      */
-    public RenderMaterialSchemaAttributes(RenderMaterialSchema schema, TracedDictionary schemaJson, boolean isBase)
+    public RenderMaterialSchemaAttributes(RenderMaterialSchema schema, TracedDictionary json, boolean isBase)
             throws LoggedException {
 
-        super(schema, schemaJson, isBase);
+        super(schema, json, isBase);
 
-        backfaceCulling = schemaJson.getAsBoolean("backfaceCulling", true, isBase ? true : null).getValue();
+        backfaceCulling = json.getAsBoolean("backfaceCulling", true, isBase ? true : null).getValue();
 
-        fresnelEffect = schemaJson.getAsBoolean("fresnelEffect", true, isBase ? false : null).getValue();
+        fresnelEffect = json.getAsBoolean("fresnelEffect", true, isBase ? false : null).getValue();
 
-        faceDimmingFactor = schemaJson.getAsDouble("faceDimmingFactor", true, isBase ? 0.0 : null, 0.0, 1.0).getValue();
+        faceDimmingFactor = json.getAsDouble("faceDimmingFactor", true, isBase ? 0.0 : null, 0.0, 1.0).getValue();
 
-        antiAliasing = schemaJson.getAsBoolean("antiAliasing", true, isBase ? true : null).getValue();
+        antiAliasing = json.getAsBoolean("antiAliasing", true, isBase ? true : null).getValue();
 
-        opaque = schemaJson.getAsBoolean("opaque", true, isBase ? true : null).getValue();
+        opaque = json.getAsBoolean("opaque", true, isBase ? true : null).getValue();
 
         finalizeData();
     }

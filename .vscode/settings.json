@@ -6,7 +6,4 @@
 
   "editor.formatOnSave": true,
   "java.format.enabled": true
-  /*"editor.codeActionsOnSave": {
-    "source.organizeImports": "explicit"
-  }*/
 }

@@ -32,7 +32,7 @@ public final class Camera3D extends Position3D {
      * zoom value allowed in the <code>zoom</code> field of this
      * <code>Camera3D</code> instance.
      */
-    private Double[] zoomBounds = new Double[] { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
+    private Double[] zoomBounds = { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
 
     /**
      * <code>int</code>: The width of the frame to center on.

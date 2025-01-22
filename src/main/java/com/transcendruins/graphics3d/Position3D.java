@@ -33,7 +33,7 @@ public class Position3D {
      * minimum X, Y, and Z values allowed in the <code>position</code> field of this
      * <code>Position3D</code> instance.
      */
-    private Vector[] positionBounds = new Vector[] {
+    private Vector[] positionBounds = {
             new Vector(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY),
             new Vector(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY) };
 
@@ -60,7 +60,7 @@ public class Position3D {
      * minimum heading value allowed in the <code>heading</code> field of this
      * <code>Position3D</code> instance, specified in radians.
      */
-    private Double[] headingBounds = new Double[] { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
+    private Double[] headingBounds = { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
 
     /**
      * <code>double</code>: The pitch of this <code>Position3D</code> instance,
@@ -85,7 +85,7 @@ public class Position3D {
      * minimum pitch value allowed in the <code>pitch</code> field of this
      * <code>Position3D</code> instance, specified in radians.
      */
-    private Double[] pitchBounds = new Double[] { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
+    private Double[] pitchBounds = { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
 
     /**
      * <code>MatrixOperations</code>: The operations used to normalize a polygon to

@@ -4,12 +4,10 @@
     },
     "attributes": {
         "model": {
-            "identifier": "TranscendRuins:axes",
-            "rotation": {
-                "angle": 0,
-                "axisHeading": 0,
-                "axisPitch": 0
-            }
+            "model": "TranscendRuins:axes",
+            "angle": 0,
+            "axisHeading": 0,
+            "axisPitch": 0
         },
         "renderMaterial": "TranscendRuins:opaque",
         "animationController": "TranscendRuins:example"

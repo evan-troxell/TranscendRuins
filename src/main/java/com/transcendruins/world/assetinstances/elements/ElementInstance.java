@@ -2,7 +2,6 @@ package com.transcendruins.world.assetinstances.elements;
 
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
-import com.transcendruins.packcompiling.assetschemas.elements.ElementSchema;
 import com.transcendruins.packcompiling.assetschemas.elements.ElementSchemaAttributes;
 import com.transcendruins.world.World;
 import com.transcendruins.world.assetinstances.ModelAssetInstance;
@@ -87,7 +86,7 @@ public final class ElementInstance extends ModelAssetInstance {
     /**
      * Creates a new instance of the <code>ElementInstance</code> class.
      * 
-     * @param schema            <code>ElementSchema</code>: The schema used to
+     * @param presets           <code>ElementPresets</code>: The presets used to
      *                          generate this <code>ElementInstance</code> instance.
      * @param world             <code>World</code>: The world copy to assign to this
      *                          <code>ElementInstance</code> instance.
@@ -103,10 +102,10 @@ public final class ElementInstance extends ModelAssetInstance {
      * @param tileOffset        <code>Vector</code>: The tile offset to assign to
      *                          this <code>ElementInstance</code> instance.
      */
-    public ElementInstance(ElementSchema schema, World world, long tileX, long tileZ, int cardinalDirection,
+    public ElementInstance(ElementPresets presets, World world, long tileX, long tileZ, int cardinalDirection,
             Vector tileOffset) {
 
-        super(schema, world, tileX, tileZ, cardinalDirection, tileOffset);
+        super(presets, world, tileX, tileZ, cardinalDirection, tileOffset);
     }
 
     @Override
@@ -120,7 +119,7 @@ public final class ElementInstance extends ModelAssetInstance {
     }
 
     /**
-     * Applies a attribute set to this <code>ElementInstance</code> instance.
+     * Applies an attribute set to this <code>ElementInstance</code> instance.
      * 
      * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to
      *                     apply.
@@ -135,5 +134,6 @@ public final class ElementInstance extends ModelAssetInstance {
     }
 
     @Override
-    protected void update() {}
+    protected void update() {
+    }
 }

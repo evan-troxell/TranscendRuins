@@ -1,27 +1,21 @@
 package com.transcendruins.packcompiling.assetschemas;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 
 import com.transcendruins.packcompiling.Pack;
 import com.transcendruins.packcompiling.PackCompiler;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.fileexceptions.FileFormatException;
-import com.transcendruins.utilities.exceptions.fileexceptions.MissingFileException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.ArrayLengthException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.IdentifierFormatException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingAttributeSetException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.MissingIdentifierException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeException;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.json.JSONOperator;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.utilities.metadata.Metadata;
+import com.transcendruins.world.assetinstances.AssetPresets;
 
 /**
  * <code>AssetSchema</code>: A class representing any asset schema type,
@@ -29,6 +23,12 @@ import com.transcendruins.utilities.metadata.Metadata;
  * more.
  */
 public abstract class AssetSchema {
+
+    public static final int UNPROCESSED = -1;
+
+    public static final int INVALIDATED = 0;
+
+    public static final int VALIDATED = 1;
 
     /**
      * <code>AssetType</code>: The type of this <code>AssetSchema</code> instance.
@@ -45,18 +45,6 @@ public abstract class AssetSchema {
 
         return type;
     }
-
-    /**
-     * <code>TracedDictionary</code>: The JSON information of this
-     * <code>AssetSchema</code> instance.
-     */
-    private final TracedDictionary json;
-
-    /**
-     * <code>TracedDictionary</code>: The JSON information of the schema of this
-     * <code>AssetSchema</code> instance.
-     */
-    private final TracedDictionary schemaJson;
 
     /**
      * <code>Metadata</code>: The metadata of this <code>AssetSchema</code>
@@ -85,16 +73,10 @@ public abstract class AssetSchema {
     private final ArrayList<AssetSchema> parentTo = new ArrayList<>();
 
     /**
-     * <code>boolean</code>: Whether or not this <code>AssetSchema</code> instance
-     * has been processed.
+     * <code>int</code>: The validation state of this <code>AssetSchema</code>
+     * instance.
      */
-    private boolean processed = false;
-
-    /**
-     * <code>boolean</code>: Whether or not the validation on this
-     * <code>AssetSchema</code> instance has failed.
-     */
-    private boolean validationFailed = false;
+    private int validationState = UNPROCESSED;
 
     /**
      * <code>AssetSchemaAttributes</code>: The base attribute set of this
@@ -120,7 +102,7 @@ public abstract class AssetSchema {
     private final HashMap<String, AssetSchemaAttributes> attributeSets = new HashMap<>();
 
     /**
-     * Retrieves a attribute set from this <code>AssetSchema</code> instance.
+     * Retrieves an attribute set from this <code>AssetSchema</code> instance.
      * 
      * @param entry <code>String</code>: The attribute set to retrieve.
      * @return <code>AssetSchemaAttributes</code>: The retrieved attribute set of
@@ -132,11 +114,10 @@ public abstract class AssetSchema {
     }
 
     /**
-     * <code>HashMap&lt;AssetType, Collection&lt;TracedEntry&lt;Identifier&gt;&gt;&gt;</code>:
-     * The collection of element dependencies in this <code>AssetSchema</code>
-     * instance.
+     * <code>HashSet&lt;AssetPresets&gt;</code>: The collection of element
+     * dependencies in this <code>AssetSchema</code> instance.
      */
-    private final HashMap<AssetType, Collection<TracedEntry<Identifier>>> assetDependencies = new HashMap<>();
+    private final HashSet<AssetPresets> assetDependencies = new HashSet<>();
 
     /**
      * Creates a new instance of the <code>AssetSchema</code> class.
@@ -148,20 +129,17 @@ public abstract class AssetSchema {
      * @throws LoggedException Thrown if an exception is raised while creating this
      *                         <code>AssetSchema</code> instance.
      */
-    public AssetSchema(TracedPath path, AssetType type)
-            throws MissingPropertyException, PropertyTypeException, IdentifierFormatException, FileFormatException,
-            MissingFileException, ArrayLengthException, LoggedException {
+    public AssetSchema(TracedPath path, AssetType type) throws LoggedException {
 
         this.type = type;
-        json = JSONOperator.retrieveJSON(path);
+
+        TracedDictionary json = JSONOperator.retrieveJSON(path);
         metadata = json.getAsMetadata("metadata", false).getValue();
 
         TracedEntry<TracedDictionary> schemaEntry = json.getAsDictionary("attributes", false);
-        schemaJson = schemaEntry.getValue();
-        attributeSet = getAttribute(schemaJson, true);
+        attributeSet = getAttributes(schemaEntry.getValue(), true);
 
         TracedEntry<TracedDictionary> attributeSetsEntry = json.getAsDictionary("attributeSets", true);
-
         if (attributeSetsEntry.containsValue()) {
 
             TracedDictionary attributeSetsJson = attributeSetsEntry.getValue();
@@ -170,13 +148,21 @@ public abstract class AssetSchema {
                 TracedEntry<TracedDictionary> attributeSetEntry = attributeSetsJson.getAsDictionary(attributeSetKey,
                         false);
                 TracedDictionary attributeSetJson = attributeSetEntry.getValue();
-                attributeSets.put(attributeSetKey, getAttribute(attributeSetJson, true));
+                attributeSets.put(attributeSetKey, getAttributes(attributeSetJson, true));
             }
+        }
+
+        TracedEntry<TracedDictionary> eventsEntry = json.getAsDictionary("events", true);
+        if (eventsEntry.containsValue()) {
+
+            // TODO Implement events system
+            // Should include methods for conditions (using TRScript system),
+            // adding/removing attribute sets, etc.
         }
     }
 
     /**
-     * Builds a attribute set of this <code>AssetSchema</code> instance.
+     * Builds an attribute set of this <code>AssetSchema</code> instance.
      * 
      * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build
      *                   the attribute set.
@@ -186,35 +172,28 @@ public abstract class AssetSchema {
      * @throws LoggedException Thrown if any exception is raised while building the
      *                         attribute set.
      */
-    private AssetSchemaAttributes getAttribute(TracedDictionary jsonSchema, boolean isBase) throws LoggedException {
+    private AssetSchemaAttributes getAttributes(TracedDictionary jsonSchema, boolean isBase) throws LoggedException {
 
-        return (isBase) ? buildBaseAttributeSet(jsonSchema) : buildAttributeSet(jsonSchema);
+        return buildAttributeSet(jsonSchema, isBase);
     }
 
     /**
-     * Builds the base attribute set of this <code>AssetSchema</code> instance.
+     * Builds an attribute set of this <code>AssetSchema</code> instance.
      * 
      * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build
      *                   the attribute set.
+     * @param isBase     <code>boolean</code>: Whether or not the attribute set is
+     *                   the base attribute set of this <code>AssetSchema</code>
+     *                   instance.
      * @return <code>AssetSchemaAttributes</code>: The generated attribute set.
      * @throws LoggedException Thrown if any exception is raised while building the
      *                         attribute set.
      */
-    public abstract AssetSchemaAttributes buildBaseAttributeSet(TracedDictionary jsonSchema) throws LoggedException;
+    public abstract AssetSchemaAttributes buildAttributeSet(TracedDictionary jsonSchema, boolean isBase)
+            throws LoggedException;
 
     /**
-     * Builds a attribute set of this <code>AssetSchema</code> instance.
-     * 
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build
-     *                   the attribute set.
-     * @return <code>AssetSchemaAttributes</code>: The generated attribute set.
-     * @throws LoggedException Thrown if any exception is raised while building the
-     *                         attribute set.
-     */
-    public abstract AssetSchemaAttributes buildAttributeSet(TracedDictionary jsonSchema) throws LoggedException;
-
-    /**
-     * Determines whether a attribute set is present in this
+     * Determines whether an attribute set is present in this
      * <code>AssetSchema</code> instance.
      * 
      * @param entry <code>TracedEntry&lt;String&gt;</code>: The attribute set to
@@ -236,18 +215,12 @@ public abstract class AssetSchema {
      * Adds a asset dependency to the map of dependencies present in this
      * <code>AssetSchema</code> instance.
      * 
-     * @param elementType <code>AssetType</code>: The type of dependency to be
-     *                    added.
-     * @param dependency  <code>TracedEntry&lt;Identifier&gt;</code>: The identifier
-     *                    of the dependency to be added.
+     * @param dependency <code>AssetPresets</code>: The dependency presets to be
+     *                   added.
      */
-    final void addElementDependency(AssetType elementType, TracedEntry<Identifier> dependency) {
+    protected final void addElementDependency(AssetPresets dependency) {
 
-        if (!assetDependencies.containsKey(elementType)) {
-
-            assetDependencies.put(elementType, new ArrayList<>());
-        }
-        assetDependencies.get(elementType).add(dependency);
+        assetDependencies.add(dependency);
     }
 
     /**
@@ -261,60 +234,64 @@ public abstract class AssetSchema {
 
         // If the asset is already processed, it does not need to be processed a second
         // time.
-        if (processed) {
+        if (validationState != UNPROCESSED) {
 
             return;
         }
-        processed = true;
+        validationState = VALIDATED;
 
         // Attempts to compile this pack.
         try {
 
             PackCompiler compiler = pack.getCompiler();
 
-            for (Map.Entry<AssetType, Collection<TracedEntry<Identifier>>> assetCollection : assetDependencies
-                    .entrySet()) {
+            for (AssetPresets assetPreset : assetDependencies) {
 
-                AssetType assetType = assetCollection.getKey();
-                for (TracedEntry<Identifier> assetEntry : assetCollection.getValue()) {
+                Identifier assetId = assetPreset.getIdentifier();
+                AssetType assetType = assetPreset.getType();
 
-                    Identifier assetId = assetEntry.getValue();
+                // If a dependency already has an asset which satisfies this asset dependency,
+                // the dependency is satisfied.
+                if (compiler.containsAsset(assetType, assetId)) {
 
-                    // If a dependency already has an asset which satisfies this asset dependency,
-                    // the dependency is satisfied
-                    if (compiler.containsAsset(assetType, assetId)) {
+                    continue;
+                }
 
-                        continue;
-                    }
+                AssetSchema asset = pack.getAsset(assetType, assetId);
+                boolean assetError = false;
 
-                    AssetSchema asset = pack.getAsset(assetType, assetId);
-                    boolean assetError = false;
+                // If the asset cannot be found, assert as such.
+                if (pack.containsAsset(assetType, assetId)) {
 
-                    // If the asset cannot be found, assert as such.
-                    if (pack.containsAsset(assetType, assetId)) {
+                    // Attempt to validate the asset dependency.
+                    asset.validate(pack);
 
-                        // Attempt to validate the asset dependency.
-                        asset.validate(pack);
+                    // This asset is a child of the asset being processed, so add this asset to the
+                    // parentTo list of the other asset.
+                    asset.parentTo.add(this);
 
-                        // This asset is a child of the asset being processed, so add this asset to the
-                        // parentTo list of the other asset.
-                        asset.parentTo.add(this);
-
-                        // If the validation failed, assert as such.
-                        if (asset.validationFailed()) {
-
-                            assetError = true;
-                        }
-                    } else {
+                    // If the validation failed, assert as such.
+                    if (asset.getValidationState() == INVALIDATED) {
 
                         assetError = true;
                     }
+                } else {
 
-                    // If the asset is invalid for any reason, throw an error stating the asset is
-                    // missing.
-                    if (assetError) {
+                    assetError = true;
+                }
 
-                        throw new MissingIdentifierException(assetEntry);
+                // If the asset is invalid for any reason, throw an error stating the asset is
+                // missing.
+                if (assetError) {
+
+                    throw new MissingIdentifierException(assetPreset.getIdentifierEntry());
+                }
+
+                for (TracedEntry<String> assetAttributeSet : assetPreset.getAttributeSets()) {
+
+                    if (!asset.attributeSets.containsKey(assetAttributeSet.getValue())) {
+
+                        throw new MissingAttributeSetException(assetAttributeSet);
                     }
                 }
             }
@@ -336,14 +313,14 @@ public abstract class AssetSchema {
      */
     public final void invalidate(Pack pack) {
 
-        validationFailed = true;
+        validationState = INVALIDATED;
         pack.addInvalidAsset(this);
 
         for (AssetSchema childAsset : parentTo) {
 
-            // TODO - check if this NOT operator should be here (I may have fucked up at
-            // some point idk)
-            if (childAsset.validationFailed) {
+            // If the validation has NOT failed yet, fail it.
+            // Otherwise, there is no reason to fail it a second time.
+            if (childAsset.validationState != INVALIDATED) {
 
                 childAsset.invalidate(pack);
             }
@@ -351,27 +328,14 @@ public abstract class AssetSchema {
     }
 
     /**
-     * Retrieves whether or not this <code>AssetSchema</code> instances has been
-     * processed.
+     * Retrieves the validation state of this <code>AssetSchema</code> instance.
      * 
-     * @return <code>boolean</code>: The <code>processed</code> field of this
+     * @return <code>int</code>: The <code>validationState</code> field of this
      *         <code>AssetSchema</code> instance.
      */
-    public final boolean processed() {
+    public final int getValidationState() {
 
-        return processed;
-    }
-
-    /**
-     * Retrieves whether or not the validation of this <code>AssetSchema</code>
-     * instances has failed.
-     * 
-     * @return <code>boolean</code>: The <code>validationFailed</code> field of this
-     *         <code>AssetSchema</code> instance.
-     */
-    public final boolean validationFailed() {
-
-        return validationFailed;
+        return validationState;
     }
 
     /**

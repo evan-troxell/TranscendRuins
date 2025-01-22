@@ -1,13 +1,11 @@
 package com.transcendruins.world.assetinstances;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.transcendruins.packcompiling.assetschemas.AssetSchema;
 import com.transcendruins.packcompiling.assetschemas.AssetSchemaAttributes;
-import com.transcendruins.packcompiling.assetschemas.AssetType;
-import com.transcendruins.utilities.exceptions.propertyexceptions.MissingAttributeSetException;
 import com.transcendruins.utilities.json.TracedEntry;
-import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 
 /**
@@ -49,16 +47,47 @@ public abstract class AssetInstance {
     /**
      * Creates a new instance of the <code>AssetInstance</code> class.
      * 
-     * @param schema <code>AssetSchema</code>: The schema used to generate this
-     *               <code>AssetInstance</code> instance.
-     * @param world  <code>World</code>: The world copy to assign to this
-     *               <code>AssetInstance</code> instance.
+     * @param presets <code>AssetPresets</code>: The presets used to generate this
+     *                <code>AssetInstance</code> instance.
+     * @param world   <code>World</code>: The world copy to assign to this
+     *                <code>AssetInstance</code> instance.
      */
-    public AssetInstance(AssetSchema schema, World world) {
+    public AssetInstance(AssetPresets presets, World world) {
 
-        this.assetSchema = schema;
         this.world = world;
+        this.assetSchema = world.getEnvironment().getSchema(presets.getType(), presets.getIdentifier());
+
+        for (TracedEntry<String> attributeSet : presets.getAttributeSets()) {
+
+            assetSchema.getAttributeSet(attributeSet.getValue());
+        }
+
+        addAttributeSets(TracedEntry.unboxValues(presets.getAttributeSets()));
         updateAttributes();
+    }
+
+    /**
+     * Adds a list of attribute sets to this <code>AssetInstance</code> instance.
+     * 
+     * @param attributeSets <code>List&lt;String&gt;</code>: The attribute sets to
+     *                      add.
+     */
+    public final void addAttributeSets(List<String> attributeSets) {
+
+        appliedAttributeSets.removeAll(attributeSets);
+        appliedAttributeSets.addAll(attributeSets);
+    }
+
+    /**
+     * Removes a list of attribute sets from this <code>AssetInstance</code>
+     * instance.
+     * 
+     * @param attributeSets <code>List&lt;String&gt;</code>: The attribute sets to
+     *                      remove.
+     */
+    public final void removeAttributeSets(List<String> attributeSets) {
+
+        appliedAttributeSets.removeAll(attributeSets);
     }
 
     /**
@@ -76,21 +105,7 @@ public abstract class AssetInstance {
     }
 
     /**
-     * Determines whether a attribute set is present in the schema of this
-     * <code>AssetInstance</code> instance.
-     * 
-     * @param entry <code>TracedEntry&lt;String&gt;</code>: The attribute set to
-     *              check for.
-     * @throws MissingAttributeSetException Thrown to indicate a reference to a
-     *                                      attribute group missing from the schema.
-     */
-    public final void containsAttributeSet(TracedEntry<String> entry) throws MissingAttributeSetException {
-
-        assetSchema.containsAttributeSet(entry);
-    }
-
-    /**
-     * Applies a attribute set to this <code>AssetInstance</code> instance.
+     * Applies an attribute set to this <code>AssetInstance</code> instance.
      * This method allows a first order child of the <code>AssetInstance</code>
      * class to safely apply its own attribute set before its own child attempts to
      * apply its attribute set.
@@ -104,23 +119,7 @@ public abstract class AssetInstance {
     }
 
     /**
-     * Retrieves an asset schema from the world copy of this
-     * <code>AssetInstance</code> instance.
-     * 
-     * @param type       <code>AssetType</code>: The type of asset schema to
-     *                   retrieve.
-     * @param identifier <code>Identifier</code>: The identifier of the asset schema
-     *                   to retrieve.
-     * @return <code>AssetSchema</code>: The asset schema retrieved from the current
-     *         environment state.
-     */
-    public final AssetSchema getSchema(AssetType type, Identifier identifier) {
-
-        return world.getEnvironment().getSchema(type, identifier);
-    }
-
-    /**
-     * Applies a attribute set to this <code>AssetInstance</code> instance.
+     * Applies an attribute set to this <code>AssetInstance</code> instance.
      * 
      * @param attributeSet <code>AssetSchemaAttributes</code>: The attribute set to
      *                     apply.

@@ -59,7 +59,16 @@ public final class TracedEntry<K> {
         this.value = value;
     }
 
-    public static <T> ArrayList<T> getValues(Collection<TracedEntry<T>> entries) {
+    /**
+     * Unboxes all of the values from within a collection of
+     * <code>TracedEntry&lt;T&gt;</code> values.
+     * 
+     * @param <T>     The type of the <code>entries</code> parameter to unbox.
+     * @param entries <code>Collection&lt;TracedEntry&lt;T&gt;&gt;</code>: The
+     *                entries to unbox.
+     * @return <code>ArrayList&lt;T&gt;</code>: The list of unboxed entries.
+     */
+    public static <T> ArrayList<T> unboxValues(Collection<TracedEntry<T>> entries) {
 
         ArrayList<T> values = new ArrayList<>(entries.size());
         for (TracedEntry<T> entry : entries) {

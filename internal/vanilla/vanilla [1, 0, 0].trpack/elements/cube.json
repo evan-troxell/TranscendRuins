@@ -4,12 +4,10 @@
     },
     "attributes": {
         "model": {
-            "identifier": "TranscendRuins:unitCube",
-            "rotation": {
-                "angle": 0,
-                "axisHeading": 0,
-                "axisPitch": 0
-            }
+            "model": "TranscendRuins:unitCube",
+            "angle": 0,
+            "axisHeading": 0,
+            "axisPitch": 0
         },
         "renderMaterial": "TranscendRuins:opaqueCulling"
     }

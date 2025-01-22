@@ -1,11 +1,10 @@
 package com.transcendruins.packcompiling.assetschemas;
 
-import org.json.simple.JSONObject;
-
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
-import com.transcendruins.utilities.json.TracedEntry;
-import com.transcendruins.utilities.metadata.Identifier;
+import com.transcendruins.world.assetinstances.animationcontrollers.AnimationControllerPresets;
+import com.transcendruins.world.assetinstances.models.ModelPresets;
+import com.transcendruins.world.assetinstances.rendermaterials.RenderMaterialPresets;
 
 /**
  * <code>ModelAssetSchemaAttributes</code>: A class which represents the
@@ -15,192 +14,97 @@ import com.transcendruins.utilities.metadata.Identifier;
 public abstract class ModelAssetSchemaAttributes extends AssetSchemaAttributes {
 
     /**
-     * <code>Identifier</code>: The model of this
+     * <code>ModelPresets</code>: The model presets of this
      * <code>ModelAssetSchemaAttributes</code> instance.
      */
-    private final Identifier modelIdentifier;
+    private final ModelPresets model;
 
     /**
-     * Retrieves the model identifier of this
+     * Retrieves the model presets of this
      * <code>ModelAssetSchemaAttributes</code> instance.
      * 
-     * @return <code>Identifier</code>: The <code>modelIdentifier</code> field of
+     * @return <code>ModelPresets</code>: The <code>model</code> field of
      *         this <code>ModelAssetSchemaAttributes</code> instance.
      */
-    public final Identifier getModelIdentifier() {
+    public final ModelPresets getModel() {
 
-        return modelIdentifier;
+        return model;
     }
 
     /**
-     * <code>Double</code>: The angle of this
+     * <code>RenderMaterialPresets</code>: The render material presets of this
      * <code>ModelAssetSchemaAttributes</code> instance.
      */
-    private final Double angle;
+    private final RenderMaterialPresets renderMaterial;
 
     /**
-     * Retrieves the rotational offset of this
+     * Retrieves the render material presets of this
      * <code>ModelAssetSchemaAttributes</code> instance.
      * 
-     * @return <code>double</code>: The <code>angle</code> field of this
-     *         <code>ModelAssetSchemaAttributes</code> instance.
-     */
-    public final Double getAngle() {
-
-        return angle;
-    }
-
-    /**
-     * <code>Double</code>: The heading of the axis of rotation of this
-     * <code>ModelAssetSchemaAttributes</code> instance.
-     */
-    private final Double axisHeading;
-
-    /**
-     * Retrieves the heading of the axis of rotation of this
-     * <code>ModelAssetSchemaAttributes</code> instance.
-     * 
-     * @return <code>double</code>: The <code>axisHeading</code> field of this
-     *         <code>ModelAssetSchemaAttributes</code> instance.
-     */
-    public final Double getAxisHeading() {
-
-        return axisHeading;
-    }
-
-    /**
-     * <code>Double</code>: The pitch of the axis of rotation of this
-     * <code>ModelAssetSchemaAttributes</code> instance.
-     */
-    private final Double axisPitch;
-
-    /**
-     * Retrieves the pitch of the axis of rotation of this
-     * <code>ModelAssetSchemaAttributes</code> instance.
-     * 
-     * @return <code>double</code>: The <code>axisPitch</code> field of this
-     *         <code>ModelAssetSchemaAttributes</code> instance.
-     */
-    public final Double getAxisPitch() {
-
-        return axisPitch;
-    }
-
-    /**
-     * <code>Identifier</code>: The render material of this
-     * <code>ModelAssetSchemaAttributes</code> instance.
-     */
-    private final Identifier renderMaterialIdentifier;
-
-    /**
-     * Retrieves the render material identifier of this
-     * <code>ModelAssetSchemaAttributes</code> instance.
-     * 
-     * @return <code>Identifier</code>: The <code>renderMaterialIdentifier</code>
+     * @return <code>RenderMaterialPresets</code>: The <code>renderMaterial</code>
      *         field of this <code>ModelAssetSchemaAttributes</code> instance.
      */
-    public final Identifier getRenderMaterialIdentifier() {
+    public final RenderMaterialPresets getRenderMaterial() {
 
-        return renderMaterialIdentifier;
+        return renderMaterial;
     }
 
     /**
-     * <code>Identifier</code>: The animation controller of this
+     * <code>AnimationControllerPresets</code>: The animation controller presets of
+     * this
      * <code>ModelAssetSchemaAttributes</code> instance.
      */
-    private final Identifier animationControllerIdentifier;
+    private final AnimationControllerPresets animationController;
 
     /**
-     * Retrieves the animation controller identifier of this
+     * Retrieves the animation controller presets of this
      * <code>ModelAssetSchemaAttributes</code> instance.
      * 
-     * @return <code>Identifier</code>: The
-     *         <code>animationControllerIdentifier</code> field of this
+     * @return <code>AnimationControllerPresets</code>: The
+     *         <code>animationController</code> field of this
      *         <code>ModelAssetSchemaAttributes</code> instance.
      */
-    public final Identifier getAnimationControllerIdentifier() {
+    public final AnimationControllerPresets getAnimationController() {
 
-        return animationControllerIdentifier;
+        return animationController;
     }
 
     /**
      * Compiles this <code>ModelAssetSchemaAttributes</code> instance into a
      * completed instance.
      * 
-     * @param schema     <code>AssetSchema</code>: The schema which created this
-     *                   <code>ModelAssetSchemaAttributes</code> instance.
-     * @param schemaJson <code>TracedDictionary</code>: The schema JSON used to
-     *                   compile this <code>ModelAssetSchemaAttributes</code>
-     *                   instance.
-     * @param isBase     <code>boolean</code>: Whether or not this
-     *                   <code>ModelAssetSchemaAttributes</code> instance is the
-     *                   base attribute set of an <code>AssetSchema</code> instance.
+     * @param schema <code>AssetSchema</code>: The schema which created this
+     *               <code>ModelAssetSchemaAttributes</code> instance.
+     * @param json   <code>TracedDictionary</code>: The schema JSON used to
+     *               compile this <code>ModelAssetSchemaAttributes</code>
+     *               instance.
+     * @param isBase <code>boolean</code>: Whether or not this
+     *               <code>ModelAssetSchemaAttributes</code> instance is the
+     *               base attribute set of an <code>AssetSchema</code> instance.
      * @throws LoggedException Thrown if an exception is raised while creating this
      *                         <code>ModelAssetSchemaAttributes</code> instance.
      */
-    public ModelAssetSchemaAttributes(AssetSchema schema, TracedDictionary schemaJson, boolean isBase)
+    public ModelAssetSchemaAttributes(AssetSchema schema, TracedDictionary json, boolean isBase)
             throws LoggedException {
 
-        super(schema, schemaJson, isBase);
+        super(schema, json, isBase);
 
-        TracedEntry<?> modelEntry = schemaJson.get("model", !isBase, null, String.class, JSONObject.class);
+        model = ModelPresets.createPresets(json, "model", !isBase);
+        if (model != null) {
 
-        if (modelEntry.getValue() instanceof TracedDictionary modelJson) {
-
-            TracedEntry<Identifier> modelIdentifierEntry = modelJson.getAsIdentifier("identifier", !isBase);
-            modelIdentifier = modelIdentifierEntry.getValue();
-            if (modelIdentifierEntry.containsValue()) {
-
-                addElementDependency(AssetType.MODEL, modelIdentifierEntry);
-            }
-
-            TracedEntry<TracedDictionary> rotationEntry = modelJson.getAsDictionary("rotation", true);
-
-            if (rotationEntry.containsValue()) {
-                TracedDictionary rotationJson = rotationEntry.getValue();
-
-                TracedEntry<Double> angleEntry = rotationJson.getAsDouble("angle", true, 0d);
-                angle = Math.toRadians(angleEntry.getValue());
-
-                TracedEntry<Double> axisHeadingEntry = rotationJson.getAsDouble("axisHeading", true, 0d);
-                axisHeading = Math.toRadians(axisHeadingEntry.getValue());
-
-                TracedEntry<Double> axisPitchEntry = rotationJson.getAsDouble("axisPitch", true, 0d);
-                axisPitch = Math.toRadians(axisPitchEntry.getValue());
-
-            } else {
-
-                angle = 0.0;
-                axisHeading = 0.0;
-                axisPitch = 0.0;
-            }
-        } else if (modelEntry.getValue() instanceof String) {
-
-            TracedEntry<Identifier> modelIdentifierEntry = schemaJson.getAsIdentifier("model", !isBase);
-            modelIdentifier = modelIdentifierEntry.getValue();
-            angle = 0.0;
-            axisHeading = 0.0;
-            axisPitch = 0.0;
-        } else {
-
-            modelIdentifier = null;
-            angle = null;
-            axisHeading = null;
-            axisPitch = null;
+            addElementDependency(model);
         }
 
-        TracedEntry<Identifier> renderMaterialEntry = schemaJson.getAsIdentifier("renderMaterial", !isBase);
-        renderMaterialIdentifier = renderMaterialEntry.getValue();
-        if (renderMaterialEntry.containsValue()) {
+        renderMaterial = RenderMaterialPresets.createPresets(json, "renderMaterial", !isBase);
+        if (renderMaterial != null) {
 
-            addElementDependency(AssetType.RENDER_MATERIAL, renderMaterialEntry);
+            addElementDependency(renderMaterial);
         }
 
-        TracedEntry<Identifier> animationControllerEntry = schemaJson.getAsIdentifier("animationController", true);
-        animationControllerIdentifier = animationControllerEntry.getValue();
-        if (animationControllerEntry.containsValue()) {
+        animationController = AnimationControllerPresets.createPresets(json, "animationController", true);
+        if (animationController != null) {
 
-            addElementDependency(AssetType.ANIMATION_CONTROLLER, animationControllerEntry);
+            addElementDependency(animationController);
         }
     }
 }

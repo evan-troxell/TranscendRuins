@@ -1,1 +1,0 @@
-jar cf transcendruinsTest.jar /Users/evantroxell/Desktop/TranscendRuins
