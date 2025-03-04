@@ -1,3 +1,19 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.graphics3d.geometry;
 
 /**
@@ -9,12 +25,7 @@ public final class Vector extends Matrix {
     /**
      * <code>Vector</code>: A vector with no magnitude or orientation.
      */
-    public static final Vector DEFAULT_VECTOR = new Vector(0, 0, 0);
-
-    /**
-     * <code>int</code>: A value representing 3 dimensions.
-     */
-    public static final int DIMENSION_3D = 3;
+    public static final Vector IDENTITY_VECTOR = new Vector(0, 0, 0);
 
     /**
      * <code>int</code>: The dimensions of this <code>Vector</code> instance.
@@ -63,14 +74,12 @@ public final class Vector extends Matrix {
     /**
      * Creates a new instance of the <code>Vector</code> class.
      * 
-     * @param matrix     <code>Matrix</code>: The <code>Matrix</code> instance from
-     *                   which this <code>Vector</code> instance should be created.
-     * @param use_column <code>boolean</code>: Whether or not the output matrix
-     *                   should utilize the first column instead of the first row.
+     * @param matrix <code>Matrix</code>: The <code>Matrix</code> instance from
+     *               which this <code>Vector</code> instance should be created.
      */
-    public Vector(Matrix matrix, boolean use_column) {
+    public Vector(Matrix matrix) {
 
-        this(use_column ? matrix.getCol(0) : matrix.getRow(0));
+        this(matrix.getRow(0));
     }
 
     /**
@@ -93,7 +102,7 @@ public final class Vector extends Matrix {
 
         Vector val = new Vector(sinV * cosH, cosV, sinV * sinH);
 
-        return val.multiplyScalar(1.0 / val.magnitude());
+        return val.multiply(1.0 / val.magnitude());
     }
 
     /**
@@ -166,7 +175,7 @@ public final class Vector extends Matrix {
 
             return null;
         }
-        return new Vector(vectorMatrix, false);
+        return new Vector(vectorMatrix);
     }
 
     /**
@@ -196,7 +205,7 @@ public final class Vector extends Matrix {
 
             return null;
         }
-        return new Vector(vectorMatrix, false);
+        return new Vector(vectorMatrix);
     }
 
     /**
@@ -211,7 +220,7 @@ public final class Vector extends Matrix {
      *               <code>Vector</code> instance.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
-    public Vector addVector(Vector vector) {
+    public Vector add(Vector vector) {
 
         if (vector == null) {
 
@@ -233,7 +242,7 @@ public final class Vector extends Matrix {
      *               <code>Vector</code> instance.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
-    public Vector subtractVector(Vector vector) {
+    public Vector subtract(Vector vector) {
 
         if (vector == null) {
 
@@ -251,15 +260,15 @@ public final class Vector extends Matrix {
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
     @Override
-    public Vector multiplyScalar(double scalar) {
+    public Vector multiply(double scalar) {
 
-        Matrix vectorMatrix = super.multiplyScalar(scalar);
+        Matrix vectorMatrix = super.multiply(scalar);
         if (vectorMatrix == null) {
 
             return null;
         }
 
-        return new Vector(vectorMatrix, false);
+        return new Vector(vectorMatrix);
     }
 
     /**
@@ -276,19 +285,19 @@ public final class Vector extends Matrix {
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
     @Override
-    public Vector multiplyMatrix(Matrix matrix) {
+    public Vector multiply(Matrix matrix) {
 
         if (matrix == null) {
 
             return null;
         }
 
-        Matrix vectorMatrix = super.multiplyMatrix(matrix);
+        Matrix vectorMatrix = super.multiply(matrix);
         if (vectorMatrix == null) {
 
             return null;
         }
-        return new Vector(vectorMatrix, false);
+        return new Vector(vectorMatrix);
     }
 
     /**
@@ -313,7 +322,7 @@ public final class Vector extends Matrix {
 
         double newValue = 0.0;
 
-        if (dimensions == DIMENSION_3D) {
+        if (dimensions == 3) {
 
             return getX() * vector.getX() + getY() * vector.getY() + getZ() * vector.getZ();
         }
@@ -341,23 +350,32 @@ public final class Vector extends Matrix {
      */
     public Vector cross3D(Vector vector) {
 
-        if (vector == null || dimensions != DIMENSION_3D || vector.dimensions != DIMENSION_3D) {
+        if (vector == null || dimensions != 3 || vector.dimensions != 3) {
 
             return null;
         }
 
-        Matrix skewSymmetric = new Matrix(DIMENSION_3D, DIMENSION_3D, new double[] {
+        Matrix skewSymmetric = new Matrix(3, 3, new double[] {
 
-                0, -getZ(), getY(),
-                getZ(), 0, -getX(),
-                -getY(), getX(), 0
+                0, -vector.getZ(), vector.getY(),
+                vector.getZ(), 0, -vector.getX(),
+                -vector.getY(), vector.getX(), 0
         });
 
-        Matrix returnMatrix = skewSymmetric.multiplyMatrix(vector.transpose());
+        return multiply(skewSymmetric);
+    }
 
-        // The resulting matrix will have the dimensions [1, 3], and thus the first
-        // column should be used instead of the first row.
-        return new Vector(returnMatrix, true);
+    /**
+     * Rotates this <code>Vector</code> instance about the origin.
+     * 
+     * @param quat <code>Quaternion</code>: The rotational quaternion to rotate
+     *             using.
+     * @return <code>Vector</code>: The resulting vector.
+     */
+    @Override
+    public Vector rotate(Quaternion quat) {
+
+        return quat.multiply(toQuaternion()).multiply(quat.toConjugate()).toVector();
     }
 
     /**
@@ -388,6 +406,24 @@ public final class Vector extends Matrix {
     public Quaternion toQuaternion() {
 
         return Quaternion.fromVector(this);
+    }
+
+    /**
+     * Computes the average position between a list of input vectors.
+     * 
+     * @param vectors <code>Vector...</code>: The vectors whose average to take.
+     * @return <code>Vector</code>: The resulting average.
+     */
+    public static Vector getAverage(Vector... vectors) {
+
+        Vector sum = IDENTITY_VECTOR;
+
+        for (Vector vector : vectors) {
+
+            sum = sum.add(vector);
+        }
+
+        return sum.multiply(1.0 / Math.max(vectors.length, 1));
     }
 
     /**

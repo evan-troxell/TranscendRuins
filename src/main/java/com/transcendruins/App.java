@@ -1,20 +1,28 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins;
 
 import java.util.ArrayList;
 
-import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.packcompiling.Pack;
-import com.transcendruins.packcompiling.PackProcessor;
-import com.transcendruins.rendering.RenderInstance;
-import com.transcendruins.ui.DisplayFrame;
-import com.transcendruins.ui.Render3D;
-import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.contentmodules.ModuleProcessor;
+import com.transcendruins.contentmodules.packs.Pack;
+import com.transcendruins.contentmodules.resources.Resource;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
-import com.transcendruins.world.assetinstances.elements.ElementInstance;
-import com.transcendruins.world.assetinstances.elements.ElementPresets;
-import com.transcendruins.world.assetinstances.entities.EntityInstance;
-import com.transcendruins.world.assetinstances.entities.EntityPresets;
 
 /**
  * <code>App</code>: Hello world!
@@ -30,15 +38,20 @@ public final class App {
      */
     public static void main(String[] args) throws Exception {
 
-        PackProcessor packProcessor = PackProcessor.getProcessor();
+        ModuleProcessor packProcessor = ModuleProcessor.getProcessor();
+        // packProcessor.addRoot();
 
-        Identifier vanillaId = Identifier.createTestIdentifier("TranscendRuins:vanilla", new long[] { 1, 0, 0 });
-        Pack vanillaPack = Pack.PACKS.get(vanillaId);
+        Identifier vanillaId = Identifier.createTestIdentifier("TranscendRuins:vanilla", new int[] { 1, 0, 0 });
+        Pack vanillaPack = Pack.getPack(vanillaId);
+
+        System.out.println(vanillaPack.getAssets());
 
         ArrayList<Pack> packs = new ArrayList<>();
         packs.add(vanillaPack);
 
-        World.buildWorld(packs);
+        ArrayList<Resource> resources = new ArrayList<>();
+
+        World.buildWorld(packs, resources);
         World world = World.getWorld();
         world.start();
 
@@ -49,62 +62,56 @@ public final class App {
 
         // ElementInstance pyramidInstance = new ElementInstance(pyramidSchema,
         // World.getWorld(), 0, 0, World.EAST,
-        // Vector.DEFAULT_VECTOR);
+        // Vector.IDENTITY_VECTOR);
 
         Identifier axesId = Identifier.createTestIdentifier("TranscendRuins:axes",
                 null);
 
-        ElementPresets axesPresets = new ElementPresets(new TracedEntry<>(null, axesId));
-
-        ElementInstance axesInstance = new ElementInstance(axesPresets,
-                world, 0, 0, World.EAST,
-                Vector.DEFAULT_VECTOR);
-
-        Identifier exampleId = Identifier.createTestIdentifier("TranscendRuins:example", null);
-        EntityPresets examplePresets = new EntityPresets(new TracedEntry<>(null, exampleId));
-
-        EntityInstance ex1 = new EntityInstance(examplePresets,
-                world, 0, 0, World.NORTH,
-                Vector.DEFAULT_VECTOR);
-
-        ex1.onUpdate();
-
-        EntityInstance ex2 = new EntityInstance(examplePresets,
-                world, 0, 0, World.NORTH,
-                Vector.DEFAULT_VECTOR);
-
-        double startTime = world.getRuntimeSeconds();
-
-        for (int i = 0; i < 1_000_000; i++) {
-
-            new ElementInstance(axesPresets,
-                    world, 0, 0, World.NORTH,
-                    Vector.DEFAULT_VECTOR);
-        }
-
-        System.out.println("ELAPSED TIME: " + (world.getRuntimeSeconds() - startTime));
-
-        ArrayList<RenderInstance> models;
-
-        DisplayFrame frame = new DisplayFrame();
-        Render3D renderer = (Render3D) frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
-
-        synchronized (TIMER) {
-            while (true) {
-                models = new ArrayList<>();
-
-                models.add(ex1.getRenderInstance());
-
-                models.add(ex2.getRenderInstance());
-
-                // axesInstance.onUpdate();
-                // models.add(axesInstance.getRenderInstance());
-
-                renderer.render(models);
-
-                TIMER.wait(20);
-            }
-        }
+        Identifier boxId = Identifier.createTestIdentifier("TranscendRuins:box", null);
+        /*
+         * ElementPresets examplePresets = new ElementPresets(new TracedEntry<>(null,
+         * boxId));
+         * ElementContext exampleContext = new ElementContext(examplePresets, world, 0,
+         * 0, 0);
+         * 
+         * ElementInstance example = new ElementInstance(exampleContext);
+         * example.update(world.getRuntimeSeconds());
+         * 
+         * // ElementInstance ex2 = new ElementInstance(examplePresets, world, 0, 0,
+         * // World.NORTH, Vector.IDENTITY_VECTOR);
+         * 
+         * double startTime = world.getRuntimeSeconds();
+         * 
+         * for (int i = 0; i < Short.MAX_VALUE; i++) {
+         * 
+         * new ElementInstance(new EntityPresets(new TracedEntry<>(null, axesId)),
+         * world, 0, 0, World.NORTH,
+         * Vector.IDENTITY_VECTOR);
+         * }
+         * 
+         * System.out.println("ELAPSED TIME: " + (world.getRuntimeSeconds() -
+         * startTime));
+         * 
+         * ArrayList<RenderInstance> models;
+         * 
+         * Camera3D camera = new Camera3D();
+         * 
+         * DisplayFrame frame = new DisplayFrame(camera);
+         * Render3D renderer = (Render3D)
+         * frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
+         * 
+         * models = new ArrayList<>();
+         * models.add(example);
+         * 
+         * synchronized (TIMER) {
+         * while (true) {
+         * 
+         * renderer.render(models, camera);
+         * 
+         * TIMER.wait(20);
+         * }
+         * }
+         */
     }
 
     /**

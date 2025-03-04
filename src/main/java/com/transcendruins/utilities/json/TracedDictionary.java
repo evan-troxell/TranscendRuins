@@ -1,25 +1,44 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.utilities.json;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.json.simple.JSONObject;
 
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
- * <code>TracedDictionary</code>: A class representing a dictionary whose <code>parent.get()</code> method has been traced.
+ * <code>TracedDictionary</code>: A class representing a dictionary whose
+ * <code>parent.get()</code> method has been traced.
  */
 public final class TracedDictionary extends TracedCollection {
 
     /**
-     * The stored JSON dictionary information which this </code>TracedDictionary</code> draws from.
+     * The stored JSON dictionary information which this
+     * </code>TracedDictionary</code> draws from.
      */
     private final JSONObject dictionary;
 
     /**
      * Creates a new instance of the <code>TracedDictionary</code> class.
-     * @param dictionary <code>TracedEntry&lt;?&gt;</code>: The dictionary to assign to this value.
+     * 
+     * @param dictionary <code>TracedEntry&lt;?&gt;</code>: The dictionary to assign
+     *                   to this value.
      */
     public TracedDictionary(TracedEntry<?> dictionary) {
 
@@ -28,9 +47,12 @@ public final class TracedDictionary extends TracedCollection {
     }
 
     /**
-     * Creates a new instance of the <code>TracedDictionary</code> class, tracing another key from a previously traced path.
-     * @param dictionary <code>JSONObject</code>: The dictionary to assign to this value.
-     * @param path <code>TracedPath</code>: The path to trace from.
+     * Creates a new instance of the <code>TracedDictionary</code> class, tracing
+     * another key from a previously traced path.
+     * 
+     * @param dictionary <code>JSONObject</code>: The dictionary to assign to this
+     *                   value.
+     * @param path       <code>TracedPath</code>: The path to trace from.
      */
     public TracedDictionary(JSONObject dictionary, TracedPath path) {
 
@@ -39,55 +61,45 @@ public final class TracedDictionary extends TracedCollection {
     }
 
     /**
-     * Retrieves a list containing all keys stored in this <code>TracedDictionary</code> instance.
-     * @return <code>List&lt;String&gt;</code>: All keys in this <code>TracedDictionary</code> instance.
+     * Retrieves a list containing all keys stored in this
+     * <code>TracedDictionary</code> instance.
+     * 
+     * @return <code>ArrayList&lt;String&gt;</code>: All keys in this
+     *         <code>TracedDictionary</code> instance.
      */
     @SuppressWarnings("unchecked")
-    public List<String> getKeys() {
+    public ArrayList<String> getKeys() {
 
         return new ArrayList<>(dictionary.keySet());
     }
 
-    /**
-     * Retrieves a value from this <code>TracedDictionary</code> instance using a specific key.
-     * @param key <code>Object</code>: The key to retrieve using.
-     * @return <code>Object</code>: The retrieved value.
-     */
     @Override
     public Object getValue(Object key) {
 
         return dictionary.get(key);
     }
 
-    /**
-     * Determines whether or not this <code>TracedDictionary</code> instance contains a specific key.
-     * @param key <code>Object</code>: The key to apply.
-     * @return <code>boolean</code>: Whether or not this <code>TracedDictionary</code> instance contains the applied key.
-     */
     @Override
     public boolean containsKey(Object key) {
 
         return dictionary.get(key) != null;
     }
 
-    /**
-     * Determines whether or not this <code>TracedDictionary</code> instance contains a specific value.
-     * @param value <code>Object</code>: The value to apply.
-     * @return <code>boolean</code>: Whether or not this <code>TracedDictionary</code> instance contains the applied value.
-     */
     @Override
     public boolean containsValue(Object value) {
 
         return dictionary.containsValue(value);
     }
 
-    /**
-     * Retrieves the dictionary object used as the collection method of this <code>TracedDictionary</code> instance.
-     * @return <code>JSONObject</code>: The <code>JSONObject</code> representing the stored dictionary of this collection.
-     */
     @Override
-    public JSONObject getCollection() {
+    public int size() {
 
-        return dictionary;
+        return dictionary.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+
+        return dictionary.isEmpty();
     }
 }

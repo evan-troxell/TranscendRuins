@@ -1,3 +1,19 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.utilities.json;
 
 import java.util.ArrayList;
@@ -45,6 +61,11 @@ public final class TracedEntry<K> {
         return value;
     }
 
+    public TracedCollection.JSONType getType() {
+
+        return TracedCollection.typeOf(value);
+    }
+
     /**
      * Creates a new instance of the <code>TracedEntry<K></code> class.
      * 
@@ -57,6 +78,11 @@ public final class TracedEntry<K> {
 
         this.pathway = pathway;
         this.value = value;
+    }
+
+    public static <K extends TracedCollection> TracedEntry<K> createEntry(K collection) {
+
+        return new TracedEntry<>(collection.getPathway(), collection);
     }
 
     /**
@@ -94,11 +120,11 @@ public final class TracedEntry<K> {
      * Returns the string representation of this <code>TracedEntry</code> instance.
      * 
      * @return <code>String</code>: The string representation of the
-     *         <code>value</code> field of this <code>TracedEntry</code> instance.
+     *         <code>pathway</code> field of this <code>TracedEntry</code> instance.
      */
     @Override
     public String toString() {
 
-        return value.toString();
+        return pathway.toString();
     }
 }

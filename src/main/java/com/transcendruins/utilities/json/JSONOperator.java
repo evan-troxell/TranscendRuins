@@ -1,3 +1,19 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.utilities.json;
 
 import java.io.IOException;
@@ -12,53 +28,55 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.transcendruins.utilities.exceptions.fileexceptions.FileFormatException;
-import com.transcendruins.utilities.exceptions.fileexceptions.MissingFileException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.MissingPropertyException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyTypeException;
+import com.transcendruins.utilities.exceptions.fileexceptions.MissingPathException;
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
- * <code>JSONOperator</code>: A set of operation methods to parse and process JSON information.
+ * <code>JSONOperator</code>: A set of operation methods to parse and process
+ * JSON information.
  */
 public final class JSONOperator {
 
     /**
      * Parses a JSON string into a <code>JSONObject</code>.
+     * 
      * @param jsonString <code>String</code>: The string to parse.
-     * @return <code>JSONObject</code>: The resulting JSON object.
+     * @return <code>Object</code>: The resulting object.
      * @throws ParseException Thrown when the JSON string is in an invalid format.
      */
-    public static JSONObject parseJSON(String jsonString) throws ParseException {
+    public static Object parseJSON(String jsonString) throws ParseException {
 
-        Object val = new JSONParser().parse(jsonString);
-        if (val instanceof JSONObject jsonObject) {
-
-            return jsonObject;
-        }
-        throw new ParseException(ParseException.ERROR_UNEXPECTED_EXCEPTION);
+        return new JSONParser().parse(jsonString);
     }
 
     /**
-     * Retrieves the contents of a file and parses its contents into a <code>JSONObject</code> formatted as a <code>TracedDictionary</code>.
+     * Retrieves the contents of a file and parses its contents into a
+     * <code>JSONObject</code> formatted as a <code>TracedDictionary</code>.
+     * 
      * @param path <code>TracedPath</code>: The path to search for.
-     * @return <code>TracedDictionary</code>: The resulting <code>JSONObject</code> formatted as a <code>TracedDictionary</code>.
-     * @throws FileFormatException Thrown when the file is in an invalid format.
-     * @throws MissingFileException Thrown when the file is missing or otherwise cannot be read.
+     * @return <code>TracedDictionary</code>: The resulting <code>JSONObject</code>
+     *         formatted as a <code>TracedDictionary</code>.
+     * @throws FileFormatException  Thrown when the file is in an invalid format.
+     * @throws MissingPathException Thrown when the file is missing or otherwise
+     *                              cannot be read.
      */
-    public static TracedDictionary retrieveJSON(TracedPath path) throws FileFormatException, MissingFileException {
+    public static TracedDictionary retrieveJSON(TracedPath path) throws FileFormatException, MissingPathException {
 
-        String jsonString = path.retrieveContents();
+        String jsonString = path.retrieve();
 
         // Raise an error if the string could not be retrieved.
         if (jsonString == null) {
 
-            throw new MissingFileException(path);
+            throw new MissingPathException(path, false);
         }
         try {
 
-            JSONObject parsedVal = parseJSON(jsonString);
+            if (parseJSON(jsonString) instanceof JSONObject json) {
 
-            return new TracedDictionary((JSONObject) parsedVal, path);
+                return new TracedDictionary(json, path);
+            }
+
+            throw new ParseException(ParseException.ERROR_UNEXPECTED_EXCEPTION);
         } catch (ParseException e) {
 
             throw new FileFormatException(path);
@@ -66,129 +84,105 @@ public final class JSONOperator {
     }
 
     /**
-     * Compares an entry against a list of classes, and raises an exception if it is not an instance of any of them.
-     * (Optionally) returns whether or not the object is NOT null - an exception will be thrown if the <code>nullCaseAllowed</code> perameter is set to false.
-     * @param entry <code>TracedEntry&lt;?&gt;</code>: The entry to compare against the list of classes.
-     * @param nullCaseAllowed <code>boolean</code>: Whether or not a null case will be permitted, or if an exception should be thrown.
-     * @param classes <code>Class...</code>: A list of classes which the input value should be checked against.
-     * @return <code>boolean</code>: Whether or not the input value is NOT null (note that this will always return true if nullCaseAllowed is <code>false</code>, as otherwise an exception will be thrown).
-     * @throws MissingPropertyException Thrown if the argument <code>nullCaseAllowed</code> is set to false and the input value is null.
-     * @throws PropertyTypeException Thrown if the input value is not an instance of any of the classes in the perameter <code>classes</code>.
+     * Retrieves the contents of a file and parses its contents into a
+     * <code>JSONArray</code> formatted as a <code>TracedArray</code>.
+     * 
+     * @param path <code>TracedPath</code>: The path to search for.
+     * @return <code>TracedArray</code>: The resulting <code>JSONArray</code>
+     *         formatted as a <code>TracedArray</code>.
+     * @throws FileFormatException  Thrown when the file is in an invalid format.
+     * @throws MissingPathException Thrown when the file is missing or otherwise
+     *                              cannot be read.
      */
-    public static boolean isRequiredClass(TracedEntry<?> entry, boolean nullCaseAllowed, Class<?>... classes) throws MissingPropertyException, PropertyTypeException {
+    public static TracedArray retrieveJSONArray(TracedPath path) throws FileFormatException, MissingPathException {
 
-        Object obj = entry.getValue();
+        String jsonString = path.retrieve();
 
-        if (obj == null) {
+        // Raise an error if the string could not be retrieved.
+        if (jsonString == null) {
 
-            // If a null case is allowed and the value is null, return as such.
-            if (nullCaseAllowed) {
+            throw new MissingPathException(path, false);
+        }
+        try {
 
-                return false;
+            if (parseJSON(jsonString) instanceof JSONArray json) {
+
+                return new TracedArray(json, path);
             }
-            throw new MissingPropertyException(entry);
-        }
 
-        if (!isExpectedClass(obj, classes)) {
+            throw new ParseException(ParseException.ERROR_UNEXPECTED_EXCEPTION);
+        } catch (ParseException e) {
 
-            throw new PropertyTypeException(entry);
+            throw new FileFormatException(path);
         }
-        return true;
     }
 
     /**
-     * Returns whether or not an object is an instance of any of a list of classes.
-     * @param obj <code>Object</code>: The object to compare against the list of classes.
-     * @param classes <code>Class...</code>: A list of classes which the input value should be checked against.
-     * @return <code>boolean</code>: Whether or not the input value is an instance of any class in the perameter <code>classes</code>.
-     */
-    public static boolean isExpectedClass(Object obj, Class<?>... classes) {
-
-        for (Class<?> c : classes) {
-
-            if (c.isInstance(obj)) {
-
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Converts a <code>Map&lt;String, Object&gt;</code> instance to a <code>JSONObject</code> instance.
-     * @param map <code>Map&lt;String, Object&gt;</code>: The map to process.
+     * Converts a map instance to a <code>JSONObject</code> instance.
+     * 
+     * @param map <code>Map&lt;String, ?&gt;</code>: The map to process.
      * @return <code>JSONObject</code>: The generated JSON Object.
      */
-    public static JSONObject toJSONObject(Map<String, ?> map) {
+    public static JSONObject toJSONObject(Map<?, ?> json) {
 
         HashMap<String, Object> recursionMap = new HashMap<>();
 
-        for (String key : map.keySet()) {
+        for (Map.Entry<?, ?> entry : json.entrySet()) {
 
-            Object value = map.get(key);
+            recursionMap.put(entry.getKey().toString(),
 
-            recursionMap.put(key, switch (value) {
-                case Map<?, ?> map1 -> {
+                    switch (entry.getValue()) {
 
-                    // Safely convert the new value to a perameterized map.
-                    HashMap<String, Object> valueMap = new HashMap<>();
-                    for (Map.Entry<?, ?> entry : map1.entrySet()) {
+                        case Map<?, ?> map -> toJSONObject(map);
 
-                        valueMap.put((String) entry.getKey(), entry.getValue());
-                    }
+                        case Collection<?> list -> toJSONArray(list);
 
-                    yield toJSONObject(valueMap);
-                }
-                case Collection<?> valueList -> toJSONArray(valueList);
+                        case Object[] array -> toJSONArray(Arrays.asList(array));
 
-                case Object[] valueList -> toJSONArray(Arrays.asList(valueList));
-
-                default -> value;
-            });
+                        default -> entry.getValue();
+                    });
         }
 
         return new JSONObject(recursionMap);
     }
 
     /**
-     * Converts a <code>Collection&lt;Object&gt;</code> instance to a <code>JSONArray</code> instance.
+     * Converts a <code>Collection&lt;Object&gt;</code> instance to a
+     * <code>JSONArray</code> instance.
+     * 
      * @param map <code>Collection&lt;Object&gt;</code>: The collection to process.
      * @return <code>JSONArray</code>: The generated JSON Array.
      */
     @SuppressWarnings("unchecked")
-    public static JSONArray toJSONArray(Collection<?> list) {
+    public static JSONArray toJSONArray(Collection<?> json) {
 
         JSONArray recursionList = new JSONArray();
 
-        for (Object value : list) {
+        for (Object value : json) {
 
-            recursionList.add(switch (value) {
-                case Map<?, ?> map -> {
+            recursionList.add(
+                    switch (value) {
+                        case Map<?, ?> map -> toJSONObject(map);
 
-                    // Safely convert the new value to a perameterized map.
-                    HashMap<String, Object> valueMap = new HashMap<>();
-                    for (Map.Entry<?, ?> entry : map.entrySet()) {
+                        case Collection<?> list -> toJSONArray(list);
 
-                        valueMap.put((String) entry.getKey(), entry.getValue());
-                    }
+                        case Object[] array -> toJSONArray(Arrays.asList(array));
 
-                    yield toJSONObject(valueMap);
-                }
-                case Collection<?> valueList -> toJSONArray(valueList);
-
-                case Object[] objects -> toJSONArray(Arrays.asList(objects));
-
-                default -> value;
-            });
+                        default -> value;
+                    });
         }
+
         return recursionList;
     }
 
     /**
-     * Writes the JSON information from a <code>JSONObject</code> to the designated file from a <code>TracedPath</code> directory.
+     * Writes the JSON information from a <code>JSONObject</code> to the designated
+     * file from a <code>TracedPath</code> directory.
+     * 
      * @param path <code>TracedPath</code>: The path to write to.
      * @param json <code>JSONObject</code>: The contents to write.
-     * @throws IOException Thrown if the designated file cannot be written to for any reason.
+     * @throws IOException Thrown if the designated file cannot be written to for
+     *                     any reason.
      */
     public static void writeTo(TracedPath path, JSONObject json) throws IOException {
 
@@ -197,10 +191,13 @@ public final class JSONOperator {
     }
 
     /**
-     * Writes the JSON information from a <code>Map</code> to the designated file from a <code>TracedPath</code> directory.
-     * @param path <code>TracedPath</code>: The path to write to.
+     * Writes the JSON information from a <code>Map</code> to the designated file
+     * from a <code>TracedPath</code> directory.
+     * 
+     * @param path   <code>TracedPath</code>: The path to write to.
      * @param values <code>Map&lt;String, ?&gt;</code>: The contents to write.
-     * @throws IOException Thrown if the designated file cannot be written to for any reason.
+     * @throws IOException Thrown if the designated file cannot be written to for
+     *                     any reason.
      */
     public static void writeTo(TracedPath path, Map<String, ?> values) throws IOException {
 
@@ -213,5 +210,6 @@ public final class JSONOperator {
     /**
      * Prevents the <code>JSONOperator</code> class from being instantiated.
      */
-    private JSONOperator() {}
+    private JSONOperator() {
+    }
 }

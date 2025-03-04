@@ -1,3 +1,19 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.ui;
 
 import java.awt.BorderLayout;
@@ -14,9 +30,9 @@ import java.util.HashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JLayeredPane;
 
+import com.transcendruins.graphics3d.Camera3D;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.rendering.Camera3D;
-import com.transcendruins.settings.GameSettings;
+import com.transcendruins.save.GameSettings;
 import com.transcendruins.ui.mappedcomponents.TRComponent;
 import com.transcendruins.ui.mappedcomponents.components.TRButton;
 import com.transcendruins.ui.mappedcomponents.components.TRLabel;
@@ -68,25 +84,9 @@ public final class DisplayFrame extends TRFrame {
     public static final String HEADER_PANEL = "headerPanel";
 
     /**
-     * <code>Camera3D</code>: The camera used to display 3D graphics.
-     */
-    private final Camera3D camera = new Camera3D(new Vector(0, 0, 0), 0, 0, false, 0);
-
-    /**
-     * Retrieves the camera of this <code>DisplayFrame</code> instance.
-     * 
-     * @return <code>Camera3D</code>: The <code>camera</code> field of this
-     *         <code>DisplayFrame</code> instance.
-     */
-    public Camera3D getCamera() {
-
-        return camera;
-    }
-
-    /**
      * Creates a new instance of the <code>DisplayFrame</code> class.
      */
-    public DisplayFrame() {
+    public DisplayFrame(Camera3D camera) {
 
         super("displayFrame", ComponentSettings.BACKGROUND_PANEL_SETTINGS);
         ImageIcon icon = TracedPath.LOCAL_ROOT_DIRECTORY.extend("internal", "frameIcon.png").retrieveImage();
@@ -100,11 +100,7 @@ public final class DisplayFrame extends TRFrame {
 
         addScreen(createMainScreen());
         addScreen(createWorldsScreen());
-        addScreen(createRenderDisplayScreen());
-
-        camera.setDimensions(getWidth(), getHeight());
-        camera.setPitchBounds(-90.0, 90.0, false);
-        camera.setZoomBounds(-Math.log(20), Math.log(20));
+        addScreen(createRenderDisplayScreen(camera));
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setVisible(true);
@@ -200,7 +196,7 @@ public final class DisplayFrame extends TRFrame {
      * 
      * @return <code>GraphicsPanel</code>: The generated panel.
      */
-    private GraphicsPanel createRenderDisplayScreen() {
+    private GraphicsPanel createRenderDisplayScreen(Camera3D camera) {
 
         ArrayList<TRComponent> statsPanelComponents = new ArrayList<>();
 
@@ -215,7 +211,7 @@ public final class DisplayFrame extends TRFrame {
                 ComponentSettings.HIDDEN_COMPONENT_SETTINGS, false);
         statsPanel.setBounds(0, 0, 150, getHeight());
 
-        Render3D renderDisplayScreen = new Render3D(RENDER_DISPLAY_SCREEN, camera) {
+        Render3D renderDisplayScreen = new Render3D(RENDER_DISPLAY_SCREEN) {
 
             private final int[] mousePosition = new int[2];
 
@@ -223,12 +219,7 @@ public final class DisplayFrame extends TRFrame {
 
             private boolean getKey(int key) {
 
-                if (keysDown.get(key) == null) {
-
-                    return false;
-                }
-
-                return keysDown.get(key);
+                return keysDown.getOrDefault(key, false);
             }
 
             @Override

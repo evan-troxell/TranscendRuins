@@ -1,10 +1,26 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.utilities.exceptions;
 
 import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 
-import com.transcendruins.settings.CacheOperator;
+import com.transcendruins.save.CacheOperator;
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
@@ -17,31 +33,33 @@ public class LoggedException extends Exception {
     /**
      * <code>String</code>: The absolute directory of the log cache.
      */
-    public static final TracedPath LOGS_DIRECTORY = CacheOperator.getCacheDirectory().extend("logs");
+    public static final TracedPath LOGS_DIRECTORY = CacheOperator.CACHE_DIRECTORY.extend("logs");
 
-    private final static TracedPath LOG_PATH = getLogPath();
+    private final static TracedPath LOG_PATH;
 
-    private static TracedPath getLogPath() {
+    static {
 
         Date date = new Date(System.currentTimeMillis());
-        String dateString = new SimpleDateFormat("MM-dd-yyyy").format(date);
 
-        TracedPath path = LOGS_DIRECTORY.extend("Log " + dateString + ".log");
-        String logs = path.exists() ? path.retrieveContents() + "\n\n\n" : "";
-        logs += "----------------------------------------\n";
-        logs += "         Log " + new SimpleDateFormat("HH:mm:ss").format(date) + "\n";
-        logs += "----------------------------------------\n\n";
+        LOG_PATH = LOGS_DIRECTORY.extend("Log %s.log".formatted(new SimpleDateFormat("MM-dd-yyyy").format(date)));
+        String logs = (LOG_PATH.exists() ? LOG_PATH.retrieve() + "\n\n\n" : "") + """
+                ----------------------------------------
+                         Log %s
+                ----------------------------------------
+
+                """.formatted(new SimpleDateFormat("HH:mm:ss").format(date));
         try {
 
-            if (!LOGS_DIRECTORY.exists())
+            if (!LOGS_DIRECTORY.exists()) {
+
                 LOGS_DIRECTORY.createFile(true);
-            path.writeTo(logs);
+            }
+
+            LOG_PATH.writeTo(logs);
         } catch (IOException e) {
 
             System.out.println(e);
         }
-
-        return path;
     }
 
     /**
@@ -60,6 +78,11 @@ public class LoggedException extends Exception {
     private final String errorCode;
 
     /**
+     * <code>Date</code>: The time at which this exception occurred.
+     */
+    private final Date time;
+
+    /**
      * Creates a new instance of the <code>LoggedException</code> exception.
      * 
      * @param path      <code>TracedPath</code>: The path to the exception.
@@ -71,24 +94,21 @@ public class LoggedException extends Exception {
         this.path = path;
         this.message = message;
         this.errorCode = errorCode;
+        time = new Date(System.currentTimeMillis());
+
+        print();
     }
 
-    /**
-     * Logs this <code>LoggedException</code> instance to the logs directory.
-     */
-    public final void logException() {
+    public final void print() {
 
-        Date date = new Date(System.currentTimeMillis());
-
-        String timeString = new SimpleDateFormat("HH:mm:ss").format(date);
+        String timeString = new SimpleDateFormat("HH:mm:ss").format(time);
         String errorMessage = "[" + errorCode + "] >>> ";
         errorMessage += path;
 
         errorMessage += " | " + timeString + " | ";
         errorMessage += message;
 
-        printStackTrace();
-        saveErrorMessage(errorMessage);
+        write(errorMessage);
     }
 
     /**
@@ -96,9 +116,9 @@ public class LoggedException extends Exception {
      * 
      * @param message <code>String</code>: The message to record to the file.
      */
-    private static void saveErrorMessage(String message) {
+    public static void write(String message) {
 
-        String logs = LOG_PATH.retrieveContents() + "\n\n\n" + message;
+        String logs = LOG_PATH.retrieve() + "\n\n\n" + message;
         try {
 
             if (!LOGS_DIRECTORY.exists())

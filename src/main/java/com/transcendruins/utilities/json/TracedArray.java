@@ -1,6 +1,27 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.utilities.json;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.simple.JSONArray;
+
+import com.transcendruins.utilities.files.TracedPath;
 
 /**
  * <code>TracedArray</code>: A class representing an array whose
@@ -15,19 +36,6 @@ public final class TracedArray extends TracedCollection {
     private final JSONArray array;
 
     /**
-     * Retrieves the JSONArray object used as the collection method of this
-     * <code>TracedArray</code> instance method.
-     * 
-     * @return <code>JSONArray</code>: The <code>JSONArray</code> representing the
-     *         stored list of this collection.
-     */
-    @Override
-    public JSONArray getCollection() {
-
-        return array;
-    }
-
-    /**
      * Creates a new instance of the <code>TracedArray</code> class.
      * 
      * @param array <code>TracedEntry&lt;?&gt;</code>: The array to assign to this
@@ -40,81 +48,65 @@ public final class TracedArray extends TracedCollection {
     }
 
     /**
-     * Retrieves an array containing all numerical indices stored in this
-     * <code>TracedArray</code> instance.
+     * Creates a new instance of the <code>TracedArray</code> class, tracing
+     * another key from a previously traced path.
      * 
-     * @return <code>int[]</code>: All indices in this <code>TracedArray</code>
-     *         instance.
+     * @param dictionary <code>JSONArray</code>: The array to assign to this
+     *                   value.
+     * @param path       <code>TracedPath</code>: The path to trace from.
      */
-    public int[] getIndices() {
+    public TracedArray(JSONArray array, TracedPath path) {
 
-        int n = size();
-        int[] indicesArray = new int[n];
-
-        for (int i = 0; i < n; i++) {
-            indicesArray[i] = i;
-        }
-
-        return indicesArray;
+        super(path);
+        this.array = array;
     }
 
     /**
-     * Retrieve a value from this <code>TracedArray</code> instance using a specific
-     * key.
+     * Retrieves an array containing all numerical indices stored in this
+     * <code>TracedArray</code> instance.
      * 
-     * @param key <code>Object</code>: The key to retrieve using.
-     * @return <code>Object</code>: The retrieved value.
+     * @return <code>List&lt;Integer&gt;</code>: All indices in this
+     *         <code>TracedArray</code>
+     *         instance.
      */
+    public List<Integer> getIndices() {
+
+        int n = size();
+        ArrayList<Integer> indices = new ArrayList<>(n);
+
+        for (int i = 0; i < n; i++) {
+
+            indices.add(i);
+        }
+
+        return indices;
+    }
+
     @Override
     public Object getValue(Object key) {
 
         return ((int) key < array.size()) ? array.get((int) key) : null;
     }
 
-    /**
-     * Determines whether or not this <code>TracedArray</code> instance contains a
-     * specific key.
-     * 
-     * @param key <code>Object</code>: The key to apply.
-     * @return <code>boolean</code>: Whether or not this <code>TracedArray</code>
-     *         instance contains the applied key.
-     */
     @Override
     public boolean containsKey(Object key) {
 
         return getValue(key) != null;
     }
 
-    /**
-     * Determines whether or not this <code>TracedArray</code> instance contains a
-     * specific value.
-     * 
-     * @param value <code>Object</code>: The value to apply.
-     * @return <code>boolean</code>: Whether or not this <code>TracedArray</code>
-     *         instance contains the applied value.
-     */
     @Override
     public boolean containsValue(Object value) {
 
         return array.contains(value);
     }
 
-    /**
-     * Retrieves the length of this array.
-     * 
-     * @return <code>int</code>: The length of this array.
-     */
+    @Override
     public int size() {
 
         return array.size();
     }
 
-    /**
-     * Determines whether or not this <code>TracedArray</code> instance is empty.
-     * 
-     * @return <code>boolean</code>: If the <code>array</code> field of this
-     *         <code>TracedArray</code> instance is empty.
-     */
+    @Override
     public boolean isEmpty() {
 
         return array.isEmpty();

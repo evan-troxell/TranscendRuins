@@ -1,3 +1,19 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.utilities.files;
 
 import java.io.File;
@@ -6,8 +22,12 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
+
+import com.transcendruins.utilities.sound.StoredSound;
 
 /**
  * <code>TracedPath</code>: A class representing a filepath which has been
@@ -16,9 +36,46 @@ import javax.swing.ImageIcon;
 public final class TracedPath {
 
     /**
+     * <code>int</code>: An enum constant representing an unrepresented file type.
+     */
+    public static final int OTHER = 0;
+
+    /**
+     * <code>int</code>: An enum constant representing an image file compatible with
+     * the built-in Java API.
+     */
+    public static final int IMAGE = 1;
+
+    /**
+     * <code>int</code>: An enum constant representing a sound file compatible with
+     * the built-in Java API.
+     */
+    public static final int SOUND = 2;
+
+    /**
+     * <code>int</code>: An enum constant representing a JSON file.
+     */
+    public static final int JSON = 3;
+
+    /**
+     * <code>int</code>: An enum constant representing a text file.
+     */
+    public static final int TEXT = 4;
+
+    /**
+     * <code>int</code>: An enum constant representing a pack file.
+     */
+    public static final int PACK = 5;
+
+    /**
+     * <code>int</code>: An enum constant representing a resource file.
+     */
+    public static final int RESOURCE = 6;
+
+    /**
      * <code>TracedPath</code>: The filepath of the project build.
      */
-    public static final TracedPath LOCAL_ROOT_DIRECTORY = new TracedPath(Path.of(System.getProperty("user.dir")));
+    public static final TracedPath LOCAL_ROOT_DIRECTORY = new TracedPath(System.getProperty("user.dir"));
 
     /**
      * <code>TracedPath</code>: The filepath of the internal directory.
@@ -28,7 +85,12 @@ public final class TracedPath {
     /**
      * <code>TracedPath</code>: The filepath of the home directory.
      */
-    public static final TracedPath HOME_DIRECTORY = new TracedPath(Path.of(System.getProperty("user.home")));
+    public static final TracedPath HOME_DIRECTORY = new TracedPath(System.getProperty("user.home"));
+
+    /**
+     * <code>String</code>: The standard file separator.
+     */
+    public static final String SEPARATOR = System.getProperty("file.separator");
 
     /**
      * <code>Path</code>: The directory this path is inherited from.
@@ -38,7 +100,8 @@ public final class TracedPath {
     /**
      * Retrieves the path pointed to by this <code>TracedPath</code> instance.
      * 
-     * @return <code>Path</code>: The <code>path</code> field of this <code>TracedPath</code> instance.
+     * @return <code>Path</code>: The <code>path</code> field of this
+     *         <code>TracedPath</code> instance.
      */
     public Path getPath() {
 
@@ -46,38 +109,164 @@ public final class TracedPath {
     }
 
     /**
-     * Creates a new instance of the <code>TracedPath</code> class.
+     * Retrieves the filename pointed to by this <code>TracedPath</code> instance.
      * 
-     * @param root <code>Path</code>: The root directory to initiate this
-     *             <code>TracedPath</code> from.
+     * @return <code>String</code>: The filename of the <code>path</code> field of
+     *         this <code>TracedPath</code> instance.
      */
-    public TracedPath(Path root) {
+    public String getFileName() {
 
-        path = root.toAbsolutePath();
+        return path.getFileName().toString();
+    }
+
+    public String getFileStem() {
+
+        String fileName = getFileName();
+        int dotIndex = fileName.lastIndexOf(".");
+
+        return (dotIndex != -1) ? fileName.substring(0, dotIndex) : fileName;
+    }
+
+    /**
+     * Retrieves the file extension pointed to by this <code>TracedPath</code>
+     * instance.
+     * 
+     * @return <code>String</code>: The file extension of the <code>path</code>
+     *         field of
+     *         this <code>TracedPath</code> instance.
+     */
+    public String getFileExtension() {
+
+        String fileName = getFileName();
+        int dotIndex = fileName.lastIndexOf(".");
+
+        return (dotIndex != -1) ? fileName.substring(dotIndex) : "";
+    }
+
+    /**
+     * Retrieves the file type of this <code>TracedPath</code> instance.
+     * 
+     * @return <code>int</code>: The file type of this <code>TracedPath</code>
+     *         instance represented by an <code>int</code> enum.
+     */
+    public int getFileType() {
+
+        String extension = getFileExtension().toLowerCase();
+
+        if (extension.isEmpty()) {
+
+            return OTHER;
+        }
+
+        if (extension.equals(".txt")) {
+
+            return TEXT;
+        }
+
+        if (extension.equals(".json")) {
+
+            return JSON;
+        }
+
+        if (extension.matches("\\.(jpg|jpeg|png|gif)")) {
+
+            if (isValidImage()) {
+
+                return IMAGE;
+            }
+        }
+
+        if (extension.matches("\\.(wav|au|aiff)")) {
+
+            if (isValidSound()) {
+
+                return SOUND;
+            }
+        }
+
+        if (extension.equals(".pack")) {
+
+            return PACK;
+        }
+
+        if (extension.equals(".resource")) {
+
+            return RESOURCE;
+        }
+
+        return OTHER;
+    }
+
+    /**
+     * Retrieves the size of the file pointed to by this <code>TracedPath</code>
+     * instance.
+     * 
+     * @return <code>long</code>: The size of the file, or <code>-1</code> if the
+     *         file could not be found.
+     */
+    public long getSize() {
+
+        try {
+
+            return Files.size(path);
+        } catch (IOException e) {
+
+            return -1;
+        }
+    }
+
+    /**
+     * Retrieves the bytes of the file pointed to by this <code>TracedPath</code>
+     * instance.
+     * 
+     * @return <code>byte[]</code>: The retrieved bytes.
+     * @throws IOException Thrown if the file could not be processed.
+     */
+    public byte[] getBytes() throws IOException {
+
+        return Files.readAllBytes(path);
+    }
+
+    /**
+     * Retrieves the file pointed to by this <code>TracedPath</code>
+     * instance.
+     * 
+     * @return <code>File</code>: The retrieved file.
+     */
+    public File toFile() {
+
+        return path.toFile();
     }
 
     /**
      * Creates a new instance of the <code>TracedPath</code> class.
      * 
-     * @param root       <code>TracedPath</code>: The root <code>TracedPath</code>
-     *                   to initiate this <code>TracedPath</code> from.
-     * @param pathString <code>String...</code>: The path to extend along.
+     * @param root <code>String</code>: The root directory to initiate this
+     *             <code>TracedPath</code> from.
+     * @param next <code>String...</code>: The path to initiate along.
      */
-    private TracedPath(TracedPath root, String... pathString) {
+    public TracedPath(String root, String... next) {
 
-        this.path = Path.of(root.path.toString(), pathString);
+        Path combined = Path.of(root);
+
+        for (String component : next) {
+
+            combined = combined.resolve(component).normalize();
+        }
+
+        path = combined;
     }
 
     /**
      * Extends this <code>TracedPath</code> object along a directory branch.
      * 
-     * @param pathString <code>String...</code>: The path to extend along.
+     * @param next <code>String...</code>: The path to extend along.
      * @return <code>TracedPath</code>: The generated <code>TracedPath</code>
      *         instance.
      */
-    public TracedPath extend(String... pathString) {
+    public TracedPath extend(String... next) {
 
-        return new TracedPath(this, pathString);
+        return new TracedPath(toString(), next);
     }
 
     /**
@@ -114,7 +303,7 @@ public final class TracedPath {
      * 
      * @return <code>String</code>: The retrieved file information.
      */
-    public String retrieveContents() {
+    public String retrieve() {
 
         if (!exists()) {
 
@@ -131,6 +320,18 @@ public final class TracedPath {
     }
 
     /**
+     * Determines whether or not the file pointed to by this <code>TracedPath</code>
+     * instance is a valid image.
+     * 
+     * @return <code>boolean</code>: Whether or not the image retrieved by this
+     *         <code>TracedPath</code> is a valid image.
+     */
+    public boolean isValidImage() {
+
+        return retrieveImage() != null;
+    }
+
+    /**
      * Retrieves an image from the file pointed to by this <code>TracedPath</code>
      * instance.
      * 
@@ -144,7 +345,36 @@ public final class TracedPath {
         }
         ImageIcon image = new ImageIcon(toString());
 
-        return image;
+        return (image.getIconWidth() > 0 && image.getIconHeight() > 0) ? image : null;
+    }
+
+    /**
+     * Determines whether or not the file pointed to by this <code>TracedPath</code>
+     * instance is a valid image.
+     * 
+     * @return <code>boolean</code>: Whether or not the image retrieved by this
+     *         <code>TracedPath</code> is a valid image.
+     */
+    public boolean isValidSound() {
+
+        return retrieveSound() != null;
+    }
+
+    /**
+     * Retrieves a sound from the file pointed to by this <code>TracedPath</code>
+     * instance.
+     * 
+     * @return <code>StoredSound</code>: The retrieved sound.
+     */
+    public StoredSound retrieveSound() {
+
+        try {
+
+            return new StoredSound(this);
+        } catch (UnsupportedAudioFileException | IOException e) {
+
+            return null;
+        }
     }
 
     /**
@@ -158,7 +388,7 @@ public final class TracedPath {
      */
     public boolean isFile(boolean isDirectory) {
 
-        File file = getPath().toFile();
+        File file = toFile();
         return isDirectory ? file.isDirectory() : file.isFile();
     }
 
@@ -170,7 +400,7 @@ public final class TracedPath {
      */
     public boolean exists() {
 
-        File file = getPath().toFile();
+        File file = toFile();
         return file.exists();
     }
 
@@ -205,52 +435,101 @@ public final class TracedPath {
      * Constructs a list of files contained within this <code>TracedPath</code>
      * instance.
      * 
-     * @param endsWith  <code>String</code>: A string with which all compiled
-     *                  directories must end with. If null, this will be ignored.
      * @param recursive <code>boolean</code>: Whether or not files in subsequent
      *                  child directories should be recursively checked.
      * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of
-     *         <code>TracedPath</code> corresponding to files within the root
-     *         directory.
+     *         <code>TracedPath</code> instances corresponding to files within the
+     *         root directory.
      */
-    public ArrayList<TracedPath> compileFileArray(String endsWith, boolean recursive) {
+    public ArrayList<TracedPath> compileFiles(boolean recursive) {
 
         ArrayList<TracedPath> paths = new ArrayList<>();
-        ArrayList<TracedPath> pathsUnprocessed = new ArrayList<>();
-        if (exists()) {
 
-            pathsUnprocessed.add(this);
+        if (!exists()) {
+
+            return paths;
         }
 
-        while (!pathsUnprocessed.isEmpty()) {
+        if (isFile(true) && recursive) {
 
-            TracedPath currentPath = pathsUnprocessed.get(0);
-            pathsUnprocessed.remove(0);
+            for (File file : toFile().listFiles()) {
 
-            File pathFile = currentPath.getPath().toFile();
-            if (pathFile.isFile()) {
+                TracedPath subPath = extend(file.getName());
+                paths.addAll(subPath.compileFiles(recursive));
+            }
+        } else {
 
-                if (endsWith != null && !pathFile.getName().endsWith(endsWith)) {
+            paths.add(this);
+        }
 
-                    continue;
-                }
-                paths.add(currentPath);
-            } else {
+        return paths;
+    }
 
-                if (!recursive) {
+    /**
+     * Constructs a list of files contained within this <code>TracedPath</code>
+     * instance.
+     * 
+     * @param fileType  <code>int</code>: The file type to match each file to.
+     * @param recursive <code>boolean</code>: Whether or not files in subsequent
+     *                  child directories should be recursively checked.
+     * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of
+     *         <code>TracedPath</code> instances corresponding to files within the
+     *         root directory.
+     */
+    public ArrayList<TracedPath> compileFiles(int fileType, boolean recursive) {
 
-                    continue;
-                }
+        return new ArrayList<>(compileFiles(recursive)
+                .stream()
+                .filter(n -> n.getFileType() == fileType)
+                .collect(Collectors.toList()));
+    }
 
-                File[] newFiles = pathFile.listFiles();
-                ArrayList<TracedPath> newFilesList = new ArrayList<>();
+    /**
+     * Constructs a list of files contained within this <code>TracedPath</code>
+     * instance.
+     * 
+     * @param regex     <code>String</code>: The regular expression to match each
+     *                  filename to.
+     * @param recursive <code>boolean</code>: Whether or not files in subsequent
+     *                  child directories should be recursively checked.
+     * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of
+     *         <code>TracedPath</code> instances corresponding to files within the
+     *         root directory.
+     */
+    public ArrayList<TracedPath> compileFiles(String regex, boolean recursive) {
 
-                for (File file : newFiles) {
+        return new ArrayList<>(compileFiles(recursive)
+                .stream()
+                .filter(n -> n.getFileName().matches(regex))
+                .collect(Collectors.toList()));
+    }
 
-                    newFilesList.add(currentPath.extend(file.getName()));
-                }
+    /**
+     * Constructs a list of directories contained within this
+     * <code>TracedPath</code> instance. This will NOT recursively check subsequent
+     * child directories.
+     * 
+     * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of
+     *         <code>TracedPath</code> instances corresponding to directories within
+     *         the root
+     *         directory.
+     */
+    public ArrayList<TracedPath> compileDirectories() {
 
-                pathsUnprocessed.addAll(newFilesList);
+        ArrayList<TracedPath> paths = new ArrayList<>();
+        if (!isFile(true)) {
+
+            return paths;
+        }
+
+        File[] newFiles = toFile().listFiles();
+
+        for (File subPath : newFiles) {
+
+            TracedPath newPath = extend(subPath.getName());
+            if (newPath.isFile(true)) {
+
+                paths.add(newPath);
             }
         }
 
@@ -262,37 +541,38 @@ public final class TracedPath {
      * <code>TracedPath</code> instance. This will NOT recursively check subsequent
      * child directories.
      * 
-     * @param endsWith <code>String</code>: A string with which all compiled
-     *                 directories must end with. If null, this will be ignored.
+     * @param fileType <code>int</code>: The file type to match each directory to.
      * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of
-     *         <code>TracedPath</code> corresponding to directories within the root
+     *         <code>TracedPath</code> instances corresponding to directories within
+     *         the root
      *         directory.
      */
-    public ArrayList<TracedPath> compileDirectoryArray(String endsWith) {
+    public ArrayList<TracedPath> compileDirectories(int fileType) {
 
-        ArrayList<TracedPath> paths = new ArrayList<>();
-        if (!exists() || isFile(false)) {
+        return new ArrayList<>(compileDirectories()
+                .stream()
+                .filter(n -> n.getFileType() == fileType)
+                .collect(Collectors.toList()));
+    }
 
-            return paths;
-        }
+    /**
+     * Constructs a list of directories contained within this
+     * <code>TracedPath</code> instance. This will NOT recursively check subsequent
+     * child directories.
+     * 
+     * @param regex <code>String</code>: The regular expression to match each
+     *              filename to.
+     * @return <code>ArrayList&lt;TracedPath&gt;</code>: A list of
+     *         <code>TracedPath</code> instances corresponding to directories within
+     *         the root
+     *         directory.
+     */
+    public ArrayList<TracedPath> compileDirectories(String regex) {
 
-        File[] newFiles = getPath().toFile().listFiles();
-
-        for (File subPath : newFiles) {
-
-            if (endsWith != null && !subPath.getName().endsWith(endsWith)) {
-
-                continue;
-            }
-
-            TracedPath newPath = extend(subPath.getName());
-            if (newPath.isFile(true)) {
-
-                paths.add(newPath);
-            }
-        }
-
-        return paths;
+        return new ArrayList<>(compileDirectories()
+                .stream()
+                .filter(n -> n.getFileName().matches(regex))
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -306,5 +586,27 @@ public final class TracedPath {
     public String toString() {
 
         return getPath().toString();
+    }
+
+    @Override
+    public int hashCode() {
+
+        return path.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (!(obj instanceof TracedPath)) {
+
+            return false;
+        }
+
+        if (this == obj) {
+
+            return true;
+        }
+
+        return path.equals(obj);
     }
 }

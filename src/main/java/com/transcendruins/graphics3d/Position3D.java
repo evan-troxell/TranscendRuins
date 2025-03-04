@@ -1,15 +1,29 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.graphics3d;
 
-import com.transcendruins.graphics3d.geometry.Matrix;
-import com.transcendruins.graphics3d.geometry.MatrixOperations;
+import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.ui.Render3D;
 
 /**
  * <code>Position3D</code>: A class representing a position and orientation in
  * 3D space.
  */
-public class Position3D {
+sealed public class Position3D permits Camera3D {
 
     /**
      * <code>Vector</code>: The position to render from.
@@ -88,21 +102,15 @@ public class Position3D {
     private Double[] pitchBounds = { Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
 
     /**
-     * <code>MatrixOperations</code>: The operations used to normalize a polygon to
-     * the position and orientation of this <code>Position3D</code> instance.
-     */
-    private MatrixOperations renderTransform;
-
-    /**
-     * Retrieves the <code>renderTransform</code> field of this
-     * <code>Position3D</code> instance, adjusted to be in the center of the frame.
+     * Retrieves the rotation of this <code>Position3D</code> instance.
      * 
-     * @return <code>MatrixOperations</code>: The operations used to normalize and
-     *         center a polygon onto the frame.
+     * @return <code>Quaternion</code>: The quaternion representation of the
+     *         <code>heading</code> and <code>pitch</code> fields of this
+     *         <code>Position3D</code> instance.
      */
-    public final MatrixOperations getRenderTransform() {
+    public Quaternion getRotation() {
 
-        return renderTransform;
+        return Quaternion.fromEulerCoordinates(getHeading(), -getPitch(), 0);
     }
 
     /**
@@ -140,7 +148,7 @@ public class Position3D {
      */
     public final Vector transformBy(Vector positionTransform) {
 
-        return setPosition(position.addVector(positionTransform));
+        return setPosition(position.add(positionTransform));
     }
 
     /**
@@ -190,7 +198,6 @@ public class Position3D {
 
         position = new Vector(x, y, z);
 
-        update();
         return position;
     }
 
@@ -214,7 +221,6 @@ public class Position3D {
         }
         heading = Math.min(headingBounds[1], Math.max(headingBounds[0], newHeading));
 
-        update();
         return getHeading();
     }
 
@@ -237,7 +243,6 @@ public class Position3D {
         }
         pitch = Math.min(pitchBounds[1], Math.max(pitchBounds[0], newPitch));
 
-        update();
         return getPitch();
     }
 
@@ -413,32 +418,5 @@ public class Position3D {
 
         return setHeadingBounds(minHeading, maxHeading, isRadians) && setHeadingBounds(minPitch, maxPitch, isRadians);
 
-    }
-
-    /**
-     * Updates the <code>renderTransform</code> field after any change to the
-     * position or orientation of this <code>Position3D</code> instance.
-     */
-    protected void update() {
-
-        // Creates the transform to rotate about the Y axis.
-        Matrix headingTransform = Matrix.getRotationalMatrix3X3(getHeading(), Matrix.Y_AXIS);
-
-        // Creates the transform to rotate about the X axis.
-        // Because the heading transform already accounted for rotation about the y
-        // axis, all vectors will now be adjusted to the x axis as if the x axis was
-        // orthagonal to the orientation.
-        // Thus, the only necessary transformation is rotation about the X axis to
-        // account for pitch.
-        Matrix pitchTransform = Matrix.getRotationalMatrix3X3(-getPitch(), Matrix.X_AXIS);
-
-        // Combines the 'headingTransform' and 'pitchTransform' matrices into a single
-        // axis-aligning matrix.
-        Matrix rotationalTransform = headingTransform.multiplyMatrix(pitchTransform);
-
-        renderTransform = new MatrixOperations()
-                .addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, Render3D.DISPLAY_TRANSFORM)
-                .addOperation(MatrixOperations.Operations.SUBTRACT_MATRIX, getPosition())
-                .addOperation(MatrixOperations.Operations.MULTIPLY_MATRIX, rotationalTransform);
     }
 }

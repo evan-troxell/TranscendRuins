@@ -1,9 +1,27 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.graphics3d.geometry;
 
 /**
  * <code>Quaternion</code>: A class representing a mathematical quaternion.
  */
 public final class Quaternion {
+
+    public static final Quaternion IDENTITY_QUATERNION = new Quaternion(1, 0, 0, 0);
 
     /**
      * <code>double</code>: The real (<code>r</code>)component of this
@@ -122,15 +140,44 @@ public final class Quaternion {
      */
     public static Quaternion fromEulerRotation(double theta, Vector u) {
 
-        double sin_half = Math.sin(theta / 2);
+        double magnitude = u.magnitude();
 
-        return new Quaternion(Math.cos(theta / 2), u.getX() * sin_half, u.getY() * sin_half, u.getZ() * sin_half);
+        if (theta % Math.TAU == 0 || magnitude == 0) {
+
+            return Quaternion.IDENTITY_QUATERNION;
+        }
+
+        u = u.multiply(1.0 / magnitude);
+
+        double sinHalf = Math.sin(theta / 2);
+
+        return new Quaternion(Math.cos(theta / 2), u.getX() * sinHalf, u.getY() * sinHalf, u.getZ() * sinHalf);
+    }
+
+    public static Quaternion fromHeading(double heading) {
+
+        return fromEulerRotation(heading, 0, 0);
+    }
+
+    public static Quaternion fromPitch(double pitch) {
+
+        return fromEulerRotation(pitch, 0, Math.PI / 2);
+    }
+
+    public static Quaternion fromRoll(double roll) {
+
+        return fromEulerRotation(roll, Math.PI / 2, Math.PI / 2);
+    }
+
+    public static Quaternion fromEulerCoordinates(double heading, double pitch, double roll) {
+
+        return fromRoll(roll).multiply(fromPitch(pitch)).multiply(fromHeading(heading));
     }
 
     /**
      * Creates a new <code>Quaternion</code> instance using the Euler quaternion
-     * rotational formula <code>e^(θ•[uX•i + uY•j + uZ•k])</code>.
-     * Note that the components <code>uX•i + uY•j + uZ•k</code> are calculated using
+     * rotational formula <code>e^(θ • [uXi + uYj + uZk])</code>.
+     * Note that the components <code>uXi + uYj + uZk</code> are calculated using
      * the provided horizontal and vertical unit sphere coordinates.
      * 
      * @param theta       <code>double</code>: The rotation component of this
@@ -144,17 +191,6 @@ public final class Quaternion {
     public static Quaternion fromEulerRotation(double theta, double axisHeading, double axisPitch) {
 
         return fromEulerRotation(theta, Vector.fromUnitSphere(axisHeading, axisPitch));
-    }
-
-    /**
-     * Multiplies this <code>Quaternion</code> by a scalar value.
-     * 
-     * @param scalar <code>double</code>: The scalar to multiply by.
-     * @return <code>Quaternion</code>: The resulting quaternion.
-     */
-    public Quaternion multiply(double scalar) {
-
-        return new Quaternion(getR() * scalar, getI() * scalar, getJ() * scalar, getK() * scalar);
     }
 
     /**
@@ -234,6 +270,29 @@ public final class Quaternion {
         return new Vector(getI(), getJ(), getK());
     }
 
+    public Vector rotate(Vector position) {
+
+        if (r == 1) {
+
+            return position;
+        }
+
+        Quaternion vec = position.toQuaternion();
+        return multiply(vec).multiply(toConjugate()).toVector();
+    }
+
+    public Matrix rotate(Matrix transform) {
+
+        if (r == 1) {
+
+            return transform;
+        }
+
+        Matrix rot = toMatrix();
+        Matrix rotT = rot.transpose();
+        return rot.multiply(transform).multiply(rotT);
+    }
+
     /**
      * <code>String</code>: Returns the string representation of this
      * <code>Quaternion</code> instance.
@@ -246,6 +305,30 @@ public final class Quaternion {
     @Override
     public String toString() {
 
-        return r + " + " + i + "i + " + j + "j + " + k + "k";
+        StringBuilder concat = new StringBuilder().append(r);
+
+        add(i, "i", concat);
+        add(j, "j", concat);
+        add(k, "k", concat);
+
+        return concat.toString();
+    }
+
+    private static void add(double num, String unit, StringBuilder concat) {
+
+        if (num == 0) {
+
+            return;
+        }
+
+        if (concat.length() > 0) {
+
+            concat.append(num > 0 ? " + " : " - ").append(Math.abs(num));
+        } else {
+
+            concat.append(num);
+        }
+
+        concat.append(unit);
     }
 }

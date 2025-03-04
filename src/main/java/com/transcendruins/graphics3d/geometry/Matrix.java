@@ -1,10 +1,28 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.graphics3d.geometry;
 
 /**
  * <code>Matrix</code>: A class representing a matrix of variable dimensions
  * with assignable values.
  */
-public class Matrix {
+sealed public class Matrix permits Vector {
+
+    public static final Matrix IDENTITY_3X3 = getScaledMatrix3X3(1, 1, 1);
 
     /**
      * <code>int</code>: An enum representing a rotation about the X axis.
@@ -80,71 +98,6 @@ public class Matrix {
 
     /**
      * Creates a new instance of the <code>Matrix</code> class which represents a
-     * rotation about the X, Y, or Z axis.
-     * 
-     * @param radians <code>double</code>: The angle, in radians, of the rotated
-     *                matrix.
-     * @param axis    <code>int</code>: The axis of the rotation, represented by the
-     *                enums <code>X_AXIS</code>, <code>Y_AXIS</code>, and
-     *                <code>Z_AXIS</code>.
-     * @return <code>Matrix</code>: The rotated <code>Matrix</code> instance.
-     */
-    public static final Matrix getRotationalMatrix3X3(double radians, int axis) {
-
-        // Create a different rotational matrix for each of the 3 axes.
-        return switch (axis) {
-            case X_AXIS -> new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
-
-                    1, 0, 0,
-                    0, Math.cos(radians), Math.sin(radians),
-                    0, -Math.sin(radians), Math.cos(radians)
-            });
-
-            case Y_AXIS -> new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
-
-                    Math.cos(radians), 0, -Math.sin(radians),
-                    0, 1, 0,
-                    Math.sin(radians), 0, Math.cos(radians)
-            });
-
-            case Z_AXIS -> new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
-
-                    Math.cos(radians), -Math.sin(radians), 0,
-                    Math.sin(radians), Math.cos(radians), 0,
-                    0, 0, 1
-            });
-
-            default -> null;
-        };
-    }
-
-    /**
-     * Creates a new instance of the <code>Matrix</code> class which represents a
-     * rotation about the X, Y, and Z axis.
-     * 
-     * @param radiansX <code>double</code>: The angle, in radians, of the matrix
-     *                 about the X axis.
-     * @param radiansY <code>double</code>: The angle, in radians, of the matrix
-     *                 about the Y axis.
-     * @param radiansZ <code>double</code>: The angle, in radians, of the matrix
-     *                 about the Z axis.
-     * @return <code>Matrix</code>: The rotated <code>Matrix</code> instance.
-     */
-    public static final Matrix getRotationalMatrix3X3(double radiansX, double radiansY, double radiansZ) {
-
-        // Create each axis from the input rotations.
-        Matrix xRotation = getRotationalMatrix3X3(radiansX, X_AXIS);
-        Matrix yRotation = getRotationalMatrix3X3(radiansY, Y_AXIS);
-        Matrix zRotation = getRotationalMatrix3X3(radiansZ, Z_AXIS);
-
-        // Combine the axis together before returning.
-        // Matrix multiplication is commutative, which means that given matrices A, B,
-        // and C, (A * B) * C = A * (B * C).
-        return xRotation.multiplyMatrix(yRotation).multiplyMatrix(zRotation);
-    }
-
-    /**
-     * Creates a new instance of the <code>Matrix</code> class which represents a
      * scalar multiplication along the X, Y, and Z axis.
      * 
      * @param xScale <code>double</code>: The scale of the matrix along the X axis.
@@ -156,7 +109,7 @@ public class Matrix {
 
         // Creates a matrix in which the X, Y, and Z axis are scaled by the input
         // perameters.
-        Matrix scale = new Matrix(Vector.DIMENSION_3D, Vector.DIMENSION_3D, new double[] {
+        Matrix scale = new Matrix(3, 3, new double[] {
 
                 xScale, 0, 0,
                 0, yScale, 0,
@@ -291,7 +244,7 @@ public class Matrix {
      * @param scalar <code>double</code>: The scalar value to multiply by.
      * @return <code>Matrix</code>: The generated <code>Matrix</code> instance.
      */
-    public Matrix multiplyScalar(double scalar) {
+    public Matrix multiply(double scalar) {
 
         double[] newValues = new double[cols * rows];
 
@@ -319,7 +272,7 @@ public class Matrix {
      *               multiply by.
      * @return <code>Matrix</code>: The generated <code>Matrix</code> instance.
      */
-    public Matrix multiplyMatrix(Matrix matrix) {
+    public Matrix multiply(Matrix matrix) {
 
         if (matrix == null || cols != matrix.rows) {
 
@@ -367,6 +320,20 @@ public class Matrix {
         }
 
         return new Matrix(rows, cols, newValues);
+    }
+
+    /**
+     * Rotates this <code>Matrix</code> instance about the origin.
+     * 
+     * @param quat <code>Quaternion</code>: The rotational quaternion to rotate
+     *             using.
+     * @return <code>Matrix</code>: The resulting matrix.
+     */
+    public Matrix rotate(Quaternion quat) {
+
+        Matrix rot = quat.toMatrix();
+
+        return rot.multiply(this).multiply(rot.transpose());
     }
 
     /**

@@ -1,12 +1,25 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.utilities.metadata;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 
-import com.transcendruins.utilities.Sorter;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.IdentifierFormatException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.identifierexceptions.IdentifierFormatException;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
@@ -15,57 +28,33 @@ import com.transcendruins.utilities.json.TracedEntry;
 public final class Identifier {
 
     /**
+     * <code>String</code>: The regular expression used to ensure all identifier are
+     * of the expected pattern.
+     */
+    private static final String IDENTIFIER_PATTERN = "^[^:]+:[^:]+$";
+
+    /**
      * <code>[String, Identifier]</code>: A set of identifiers to be retrieved in
      * order to produce equivalent identifiers.
      */
     private static final HashMap<String, Identifier> IDENTIFIERS = new HashMap<>();
 
     /**
-     * <code>Sorter&lt;Identifier&gt;</code>: A sorter of type
-     * <code>Identifier</code>, created to sort a collection of
-     * <code>Identifier</code> instances from highest to lowest.
+     * <code>TracedEntry&lt;String&gt;</code>: The identifier entry of this
+     * <code>Identifier</code> instance.
      */
-    public static final Sorter<Identifier> IDENTIFIER_SORTER = new Sorter<Identifier>() {
-
-        @Override
-        public Identifier sortSelector(Identifier newEntry, Identifier oldEntry) {
-
-            return newEntry.highestVersion(oldEntry);
-        }
-    };
+    private final TracedEntry<String> idEntry;
 
     /**
-     * <code>String</code>: The full string representation of this
-     * <code>Identifier</code>.
-     */
-    private final String full;
-
-    /**
-     * Retrieves the full identifier of this <code>Identifier</code> instance.
+     * Retrieves the identifier entry of this <code>Identifier</code> instance.
      * 
-     * @return <code>String</code>: The <code>full</code> field of this
-     *         <code>Identifier</code> instance.
+     * @return <code>TracedEntry&lt;String&gt;</code>: The
+     *         <code>idEntry</code> field of this <code>Identifier</code>
+     *         instance.
      */
-    public String getFull() {
+    public TracedEntry<String> getIdEntry() {
 
-        return full;
-    }
-
-    /**
-     * <code>String</code>: The namespace string of this <code>Identifier</code>
-     * instance.
-     */
-    private final String nameSpace;
-
-    /**
-     * Retrieves the namespace of this <code>Identifier</code> instance.
-     * 
-     * @return <code>String</code>: The <code>nameSpace</code> field of this
-     *         <code>Identifier</code> instance.
-     */
-    public String getNameSpace() {
-
-        return nameSpace;
+        return idEntry;
     }
 
     /**
@@ -134,26 +123,15 @@ public final class Identifier {
      */
     private Identifier(TracedEntry<String> entry, TracedEntry<Version> versionEntry) throws IdentifierFormatException {
 
-        full = entry.getValue();
+        this.idEntry = entry;
+        id = entry.getValue();
+
+        if (!id.matches(IDENTIFIER_PATTERN)) {
+
+            throw new IdentifierFormatException(entry);
+        }
         this.versionEntry = versionEntry;
         version = versionEntry == null ? null : versionEntry.getValue();
-
-        if (!full.contains(":")) {
-
-            throw new IdentifierFormatException(entry);
-        }
-        String[] splitIdentifier = full.split(":");
-
-        if (splitIdentifier.length != 2) {
-
-            throw new IdentifierFormatException(entry);
-        }
-        nameSpace = splitIdentifier[0];
-        id = splitIdentifier[1];
-        if (nameSpace.isEmpty() || id.isEmpty()) {
-
-            throw new IdentifierFormatException(entry);
-        }
     }
 
     /**
@@ -192,18 +170,18 @@ public final class Identifier {
      * 
      * @param identifier <code>String</code>: The identifier <code>String</code> to
      *                   parse into an <code>Identifier</code> instance.
-     * @param version    <code>long[3]</code>: The vector to parse into a version
+     * @param version    <code>int[3]</code>: The vector to parse into a version
      *                   code.
      * @return <code>Identifier</code> The generated <code>Identifier</code>
      *         instance.
      */
     @Deprecated
-    public static Identifier createTestIdentifier(String identifier, long[] version) {
+    public static Identifier createTestIdentifier(String identifier, int[] version) {
 
         try {
 
             return createIdentifier(new TracedEntry<>(null, identifier),
-                    new TracedEntry<>(null, version == null ? null : Version.createTestVersion(version)));
+                    version == null ? null : new TracedEntry<>(null, Version.createTestVersion(version)));
         } catch (LoggedException e) {
 
             return null;
@@ -279,20 +257,26 @@ public final class Identifier {
     }
 
     /**
-     * Sorts a <code>Collection</code> of <code>Identifier</code> instances by
-     * highest versions.
+     * Returns the generic version of this <code>Identifier</code> instance, i.e. an
+     * identifier without a version.
      * 
-     * @param identifiers <code>Collection&lt;Identifier&gt;</code>: The
-     *                    <code>Collection</code> of <code>Identifier</code>
-     *                    instances to sort.
-     * @return <code>Collection&lt;Identifier&gt;</code>: The sorted
-     *         <code>Collection</code> of <code>Identifier</code> instances.
+     * @return <code>Identifier</code>: A copy of this <code>Identifier</code>
+     *         instance without a version tag.
      */
-    public static Collection<Identifier> sortIdentifiersByHighestVersion(Collection<Identifier> identifiers) {
+    public Identifier toGeneric() {
 
-        // Convert the sorted list of identifiers into a map to strip duplicate
-        // elements.
-        return new LinkedHashSet<>(IDENTIFIER_SORTER.sort(identifiers));
+        if (version == null) {
+
+            return this;
+        }
+
+        try {
+
+            return createIdentifier(idEntry, null);
+        } catch (IdentifierFormatException e) {
+
+            return createTestIdentifier(id, null);
+        }
     }
 
     /**
@@ -302,12 +286,50 @@ public final class Identifier {
      *         following string representation: <br>
      *         "<code>namespace:identifier</code>"
      *         <br>
-     *         <b>OR</b> <br>
+     *         <b>OR</b>
+     *         <br>
      *         "<code>namespace:identifier [a, b, c]</code>"
      */
     @Override
     public String toString() {
 
-        return full + (getVersion() != null ? " " + getVersion() : "");
+        return id + (version != null ? " " + version : "");
+    }
+
+    @Override
+    public int hashCode() {
+
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object val) {
+
+        if (!(val instanceof Identifier) || !(val instanceof String)) {
+
+            return false;
+        }
+
+        if (val instanceof Identifier) {
+
+            return val == this;
+        }
+
+        return toString().equals(val);
+    }
+
+    public boolean compatible(Identifier identifier) {
+
+        if (identifier == null) {
+
+            return false;
+        }
+
+        if (identifier == this) {
+
+            return true;
+        }
+
+        return id.equals(identifier.id);
     }
 }

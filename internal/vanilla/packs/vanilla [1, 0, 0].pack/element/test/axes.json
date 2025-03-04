@@ -1,0 +1,13 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:axes"
+    },
+    "attributes": {
+        "model": {
+            "identifier": "TranscendRuins:axes",
+            "events": []
+        },
+        "renderMaterial": "TranscendRuins:opaque",
+        "animationController": "TranscendRuins:box"
+    }
+}

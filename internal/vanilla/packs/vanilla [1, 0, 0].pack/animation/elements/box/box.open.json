@@ -1,0 +1,65 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:box.open"
+    },
+    "attributes": {
+        "length": 2.5,
+        "loopMode": "hold",
+        "keyframes": {
+            "0.00": {
+                "armDown": {
+                    "rotation": {
+                        "interpolation": "easeInOut",
+                        "angle": 0,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                },
+                "armUp": {
+                    "rotation": {
+                        "interpolation": "easeInOut",
+                        "angle": 0,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                }
+            },
+            "1.75": {
+                "armDown": {
+                    "rotation": {
+                        "interpolation": "linear",
+                        "angle": -160,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                },
+                "armUp": {
+                    "rotation": {
+                        "interpolation": "linear",
+                        "angle": 160,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                }
+            },
+            "2.50": {
+                "armDown": {
+                    "rotation": {
+                        "interpolation": "easeInOut",
+                        "angle": -145,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                },
+                "armUp": {
+                    "rotation": {
+                        "interpolation": "easeInOut",
+                        "angle": 145,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                }
+            }
+        }
+    }
+}

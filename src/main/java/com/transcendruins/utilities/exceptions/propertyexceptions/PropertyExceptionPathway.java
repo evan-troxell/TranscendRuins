@@ -1,7 +1,27 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.utilities.exceptions.propertyexceptions;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.transcendruins.utilities.files.TracedPath;
-import com.transcendruins.utilities.json.TracedCollection;
+import com.transcendruins.utilities.immutable.ImmutableList;
 
 /**
  * <code>PropertyExceptionPathway</code>: A class representing the pathway of a
@@ -10,7 +30,7 @@ import com.transcendruins.utilities.json.TracedCollection;
 public final class PropertyExceptionPathway {
 
     /**
-     * <code>TracedPath</code>: The directory leading to the data structure
+     * <code>TracedPath</code>: The directory leading to the collection
      * containing this <code>PropertyExceptionPathway</code>.
      */
     private final TracedPath path;
@@ -27,56 +47,63 @@ public final class PropertyExceptionPathway {
     }
 
     /**
-     * <code>TracedCollection</code>: The collection from which this
-     * <code>PropertyExceptionPathway</code> was derived.
+     * <code>ImmutableList&lt;Object&gt;</code>: The internal path along which this
+     * <code>PropertyExceptionPathway</code> follows.
      */
-    private final TracedCollection collection;
+    private final ImmutableList<Object> internalPath;
 
     /**
-     * Retrieves the collection of this <code>PropertyExceptionPathway</code>
-     * instance.
+     * Retrieves the internal path along which this
+     * <code>PropertyExceptionPathway</code> follows.
      * 
-     * @return <code>TracedCollection</code>: The <code>collection</code> field of
-     *         this <code>PropertyExceptionPathway</code> instance.
-     */
-    public TracedCollection getCollection() {
-
-        return collection;
-    }
-
-    /**
-     * <code>Object</code>: The retrieved key which, if erroneous, is the final
-     * pointer to the element generating an error.
-     */
-    private final Object key;
-
-    /**
-     * Retrieves the key of this <code>PropertyExceptionPathway</code> instance.
-     * 
-     * @return <code>Object</code>: The <code>key</code> field of this
+     * @return <code>ImmutableList&lt;Object&gt;</code>: The
+     *         <code>internalPath</code> field of this
      *         <code>PropertyExceptionPathway</code> instance.
      */
-    public Object getKey() {
+    public final ImmutableList<Object> getInternalPath() {
 
-        return key;
+        return internalPath;
     }
 
     /**
      * Creates a new instance of the <code>TracedProperty</code> class.
      * 
-     * @param path       <code>TracedPath</code>: The directory leading to the data
-     *                   structure containing this
-     *                   <code>PropertyExceptionPathway</code>.
-     * @param collection <code>TracedCollection</code>: The collection from which
-     *                   this <code>PropertyExceptionPathway</code> was derived.
-     * @param key        <code>Object</code>: The retrieved key which, if erroneous,
-     *                   is the final pointer to the element generating an error.
+     * @param path <code>TracedPath</code>: The filepath leading to the
+     *             collection containing this <code>PropertyExceptionPathway</code>.
      */
-    public PropertyExceptionPathway(TracedPath path, TracedCollection collection, Object key) {
+    public PropertyExceptionPathway(TracedPath path) {
 
         this.path = path;
-        this.collection = collection;
-        this.key = key;
+
+        internalPath = new ImmutableList<>();
+    }
+
+    /**
+     * Creates a new instance of the <code>TracedProperty</code> class.
+     * 
+     * @param path <code>PropertyExceptionPathway</code>: The pathway leading to the
+     *             collection containing this <code>PropertyExceptionPathway</code>.
+     * @param key  <code>Object</code>: The retrieved key which, if erroneous,
+     *             is the final pointer to the element generating an error.
+     */
+    private PropertyExceptionPathway(PropertyExceptionPathway pathway, Object key) {
+
+        this.path = pathway.getPath();
+
+        ArrayList<Object> internalPathList = new ArrayList<>(pathway.getInternalPath());
+        internalPathList.add(key);
+        internalPath = new ImmutableList<>(internalPathList);
+    }
+
+    /**
+     * Creates a new instance of the <code>TracedProperty</code> class.
+     * 
+     * @param key <code>Object</code>: The retrieved key which, if erroneous,
+     *            is the final pointer to the element generating an error.
+     */
+    public PropertyExceptionPathway extend(Object key) {
+
+        return new PropertyExceptionPathway(this, key);
     }
 
     /**
@@ -90,6 +117,9 @@ public final class PropertyExceptionPathway {
     @Override
     public String toString() {
 
-        return collection.toString();
+        List<String> strings = internalPath.stream().map(Object::toString).collect(Collectors.toList());
+        String end = (!strings.isEmpty()) ? " -> " + strings.removeLast() : "";
+
+        return String.join(", ", strings) + end;
     }
 }
