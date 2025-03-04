@@ -1,0 +1,43 @@
+{
+
+    "metadata": {
+
+        "identifier": "TranscendRuins:player"
+    },
+    "attributes": {
+        "model": "TranscendRuins:person",
+        "animationController": "TranscendRuins:person",
+        "renderMaterial": "TranscendRuins:opaqueCulling",
+        "inventory": {
+            "grid": {
+                "slots": 15,
+                "acceptedTypes": "Any"
+            },
+            "named": {
+                "slots": {
+                    "helmet": {
+                        "acceptedTypes": ["helmet"]
+                    },
+                    "chestplate": {
+                        "acceptedTypes": ["chestplate"]
+                      },
+                    "pants": {
+                        "acceptedTypes": ["pants"]
+                      },
+                    "boots": {
+                        "acceptedTypes": ["boots"]
+                      },
+                    "backpack": {
+                        "acceptedTypes": ["backpack"]
+                    },
+                    "mainhand": {
+                        "acceptedTypes": ["weapon", "tool"]
+                    },
+                    "offhand": {
+                        "acceptedTypes": ["medical"]
+                    }
+                }
+            }
+        }
+    }
+}

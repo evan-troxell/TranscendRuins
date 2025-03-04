@@ -1,0 +1,29 @@
+namespace test;
+
+table BoolValue { value: boolean; }
+table IntValue { value: int; }
+table LongValue { value: long; }
+table FloatValue { value: float; }
+table DoubleValue { value: double; }
+table StringValue { value: string; }
+
+union ValueUnion { BoolValue, IntValue, LongValue, FloatValue, DoubleValue, StringValue, List, Dictionary }
+
+table ValueWrapper {
+    value: ValueUnion;
+}
+
+table List {
+    collection: [ValueWrapper]; // Wrap union inside a table
+}
+
+table KeyValuePair {
+    key: string;
+    entry: ValueWrapper; // Wrap union inside a table
+}
+
+table Dictionary {
+    collection: [KeyValuePair];
+}
+
+root_type Dictionary;

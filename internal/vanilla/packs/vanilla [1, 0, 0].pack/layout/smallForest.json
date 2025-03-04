@@ -1,0 +1,154 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:smallForest"
+    },
+    "attributes": {
+        "size": [400, 400],
+
+        "definitions": {
+            "layouts": {
+                "smallCabin": "TranscendRuins:smallCabin"
+            },
+            "elements": {
+                "campfire": "TranscendRuins:campfire",
+                "corpse": "TranscendRuins:roamerCorpse",
+                "tombstone": "TranscendRuins:tombstone"
+            },
+            "entities": {
+                "roamer": "TranscendRuins:roamer"
+            }
+        },
+
+        "generation": "distributed",
+
+        "iterationType": "collection",
+        "components": [
+            {
+                "generation": "layout",
+                "layout": "smallCabin",
+                
+                "count": {
+                    "min": 1,
+                    "max": 3
+                },
+
+                "placement": {
+                    "center": [200, 200],
+                    "distribution": "normal",
+
+                    "shape": {
+                        "shape": "rectangle",
+                        "width": 30,
+                        "length": 20
+                    }
+                }
+            },
+            {
+                "generation": "element",
+                "element": "campfire",
+
+                "count": {
+                    "min": 2,
+                    "max": 5
+                },
+
+                "placement": [
+                    {
+                        "center": {
+                            "type": "layout",
+                            "layout": "smallCabin"
+                        },
+                        "distribution": "uniform",
+
+                        "shape": {
+                            "shape": "circle",
+                            "radius": 25
+                        },
+
+                        "chance": 20,
+                        "limit": 3
+                    },
+                    {
+                        "center": "middle",
+                        "distribution": "uniform",
+
+                        "shape": {
+                            "shape": "ring",
+                            "radius": [15, 30]
+                        },
+
+                        "chance": 5,
+                        "limit": 1
+                    }
+                ],
+                "exclude": [
+                    {
+                        "center": {
+                            "type": "layout",
+                            "layout": "example"
+                        },
+
+                        "shape": {
+                            "shape": "circle",
+                            "radius": 25
+                        }
+                    }
+                ]
+            },
+            {
+                "generation": "distributed",
+
+                "count": {
+                    "min": 1,
+                    "max": 2
+                },
+
+                "iterationType": "selection",
+                "components": [
+                    {
+                        "element": "corpse",
+                        "count": {
+                            "min": 1,
+                            "max": 3
+                        },
+                        "limit": 1
+                    },
+                    {
+                        "element": "tombstone",
+                        "count": {
+                            "min": 1,
+                            "max": 3
+                        }
+                    },
+                    {
+                        "entity": "roamer",
+                        "count": {
+                            "min": 5,
+                            "max": 15
+                        }
+                    }
+                ],
+
+                "shape": {
+                    "shape": "circle",
+                    "radius": 10
+                },
+
+                "groupEntities": true,
+
+                "placement": {
+                    "center": {
+                        "type": "element",
+                        "element": "campfire"
+                    },
+                    "distribution": "normal",
+
+                    "shape": {
+                        "shape": "circle",
+                        "radius": 10
+                    }
+                }
+            }
+        ]
+    }
+}

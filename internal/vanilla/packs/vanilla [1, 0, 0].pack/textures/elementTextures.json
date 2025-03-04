@@ -1,0 +1,13 @@
+{
+    "box": "/element/box.png",
+    "crate": [
+        "/element/crate/crated1.png",
+        "/element/crate/crate2.png",
+        "/element/crate/crate3.png"
+    ],
+    "barrel": {
+        "/element/barrel/barrel1.png": 10.0,
+        "/element/barrel/barrel2.png": 5.0,
+        "/element/barrel/barrel3.png": 2.5
+    }
+}

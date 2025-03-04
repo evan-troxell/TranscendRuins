@@ -1,0 +1,41 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:axes"
+    },
+    "attributes": {
+        "model": {
+            "vertices": [
+                [0, 0, 0],
+                [10, 0, 0],
+                [0, 10, 0],
+                [0, 0, 10]
+            ],
+            "pivotPoint": [0, 0, 0],
+            "polygons": [
+                {
+                    "vertices": [0, 1, 3],
+                    "color": [255, 0, 0]
+                },
+                {
+                    "vertices": [0, 3, 2],
+                    "color": [0, 255, 0]
+                },
+                {
+                    "vertices": [0, 2, 1],
+                    "color": [0, 0, 255]
+                }
+            ],
+            "bones": {
+                "cube": {
+                    "pivotPoint": [0, 0, 0],
+                    "vertexWeights": {
+                        "0": 1.0,
+                        "1": 1.0,
+                        "2": 1.0,
+                        "3": 1.0
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:pyramid"
+    },
+    "attributes": {
+        "model": {
+            "vertices": [
+                [0, 10, 0],
+                [-10, 0, 10],
+                [10, 0, 10],
+                [10, 0, -10],
+                [-10, 0, -10]
+            ],
+            "pivotPoint": [0, 10, 0],
+            "polygons": [
+                {
+                    "vertices": [4, 2, 1],
+                    "color": [0, 0, 0, 128]
+                },
+                {
+                    "vertices": [2, 4, 3],
+                    "color": [0, 0, 0, 128]
+                },
+                {
+                    "vertices": [0, 1, 2],
+                    "color": [128, 0, 0, 128]
+                },
+                {
+                    "vertices": [0, 2, 3],
+                    "color": [0, 255, 0, 255]
+                },
+                {
+                    "vertices": [0, 3, 4],
+                    "color": [255, 0, 255, 255]
+                },
+                {
+                    "vertices": [0, 4, 1],
+                    "color": [0, 0, 255, 255]
+                }
+            ],
+            "bones": {}
+        }
+    }
+}

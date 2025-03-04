@@ -1,0 +1,31 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:example"
+    },
+    "attributes": {
+        "length": 10.0,
+        "loopMode": "cycle",
+        "keyframes": {
+            "0.0": {
+                "armUp": {
+                    "rotation": {
+                        "interpolation": "easeIn",
+                        "angle": 0,
+                        "axisHeading": 0,
+                        "axisPitch": 90
+                    }
+                }
+            },
+            "5.0": {
+                "armUp": {
+                    "rotation": {
+                        "interpolation": "easeOut",
+                        "angle": 90,
+                        "axisHeading": 0,
+                        "axisPitch": 90
+                    }
+                }
+            }
+        }
+    }
+}
