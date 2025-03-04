@@ -1,9 +1,0 @@
-{
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.debug.settings.onBuildFailureProceed": true,
-  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m -Xlog:disable",
-  "java.checkstyle.version": "10.21.1",
-
-  "editor.formatOnSave": true,
-  "java.format.enabled": true
-}
