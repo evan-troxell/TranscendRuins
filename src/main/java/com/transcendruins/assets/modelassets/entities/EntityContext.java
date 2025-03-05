@@ -17,6 +17,7 @@
 package com.transcendruins.assets.modelassets.entities;
 
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.world.World;
 
@@ -92,7 +93,7 @@ public final class EntityContext extends AssetContext {
     /**
      * Creates a new instance of the <code>EntityContext</code> class.
      * 
-     * @param presets  <code>EntityPresets</code>: The presets containing schema and
+     * @param presets  <code>AssetPresets</code>: The presets containing schema and
      *                 instantiation information of this <code>EntityContext</code>
      *                 instance.
      * @param world    <code>World</code>: The <code>World</code> instance to assign
@@ -100,7 +101,7 @@ public final class EntityContext extends AssetContext {
      * @param position <code>Vector</code>: The position of this
      *                 <code>EntityContext</code> instance.
      */
-    public EntityContext(EntityPresets presets, World world, Vector position) {
+    public EntityContext(AssetPresets presets, World world, Vector position) {
 
         super(presets, world);
 

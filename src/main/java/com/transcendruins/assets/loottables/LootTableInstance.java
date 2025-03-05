@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.Range;
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.modelassets.items.ItemContext;
-import com.transcendruins.assets.modelassets.items.ItemPresets;
 import com.transcendruins.assets.scripts.TRScriptValue;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -38,7 +38,7 @@ public final class LootTableInstance extends AssetInstance {
 
     private LootInstance loot;
 
-    private ImmutableList<ItemPresets> items;
+    private ImmutableList<AssetPresets> items;
 
     public List<ItemContext> evaluateLoot() {
 
@@ -176,7 +176,7 @@ public final class LootTableInstance extends AssetInstance {
 
     public final class LootValueInstance extends LootInstance {
 
-        private final ItemPresets item;
+        private final AssetPresets item;
 
         public LootValueInstance(LootTableAttributes.LootValueSchema schema) {
 

@@ -21,12 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import static com.transcendruins.assets.AssetType.ELEMENT;
+import static com.transcendruins.assets.AssetType.ENTITY;
+import static com.transcendruins.assets.AssetType.LAYOUT;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.extra.Range;
-import com.transcendruins.assets.modelassets.elements.ElementPresets;
-import com.transcendruins.assets.modelassets.entities.EntityPresets;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
@@ -134,7 +135,7 @@ public final class LayoutAttributes extends AssetAttributes {
                 TracedDictionary layoutsJson = layoutsEntry.getValue();
                 for (String key : layoutsJson.getKeys()) {
 
-                    LayoutPresets layout = LayoutPresets.createPresets(layoutsJson, key, false);
+                    AssetPresets layout = LAYOUT.createPresets(layoutsJson, key, false);
                     addAssetDependency(layout);
 
                     layouts.put(key, layout);
@@ -147,7 +148,7 @@ public final class LayoutAttributes extends AssetAttributes {
                 TracedDictionary elementsJson = elementsEntry.getValue();
                 for (String key : elementsJson.getKeys()) {
 
-                    ElementPresets element = ElementPresets.createPresets(elementsJson, key, false);
+                    AssetPresets element = ELEMENT.createPresets(elementsJson, key, false);
                     addAssetDependency(element);
 
                     elements.put(key, element);
@@ -160,7 +161,7 @@ public final class LayoutAttributes extends AssetAttributes {
                 TracedDictionary entitiesJson = entitiesEntries.getValue();
                 for (String key : entitiesJson.getKeys()) {
 
-                    EntityPresets entity = EntityPresets.createPresets(entitiesJson, key, false);
+                    AssetPresets entity = ENTITY.createPresets(entitiesJson, key, false);
                     addAssetDependency(entity);
 
                     entities.put(key, entity);
@@ -262,11 +263,11 @@ public final class LayoutAttributes extends AssetAttributes {
 
                 presets = switch (type) {
 
-                    case LAYOUT -> LayoutPresets.createPresets(json, key, false);
+                    case LAYOUT -> LAYOUT.createPresets(json, key, false);
 
-                    case ELEMENT -> ElementPresets.createPresets(json, key, false);
+                    case ELEMENT -> ELEMENT.createPresets(json, key, false);
 
-                    case ENTITY -> EntityPresets.createPresets(json, key, false);
+                    case ENTITY -> ENTITY.createPresets(json, key, false);
 
                     default -> null;
                 };

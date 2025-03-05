@@ -22,7 +22,7 @@ public abstract class GenerationShapeInstance {
 
     public abstract boolean isValidPlacement(int x, int y, int centerX, int centerY);
 
-    public static final GenerationShapeInstance buildShape(GenerationShapeSchema schema, World world) {
+    public static final GenerationShapeInstance createShape(GenerationShapeSchema schema, World world) {
 
         return switch (schema) {
 

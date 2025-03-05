@@ -78,9 +78,24 @@ public final class TracedPath {
     public static final TracedPath LOCAL_ROOT_DIRECTORY = new TracedPath(System.getProperty("user.dir"));
 
     /**
-     * <code>TracedPath</code>: The filepath of the internal directory.
+     * <code>TracedPath</code>: The filepath of the game directory.
      */
-    public static final TracedPath INTERNAL_DIRECTORY = LOCAL_ROOT_DIRECTORY.extend("internal");
+    public static final TracedPath GAME_DIRECTORY = LOCAL_ROOT_DIRECTORY.extend("game");
+
+    /**
+     * <code>TracedPath</code>: The filepath of the data directory.
+     */
+    public static final TracedPath DATA_DIRECTORY = GAME_DIRECTORY.extend("data");
+
+    /**
+     * <code>TracedPath</code>: The filepath of the custom assets directory.
+     */
+    public static final TracedPath CUSTOM_DIRECTORY = DATA_DIRECTORY.extend("custom");
+
+    /**
+     * <code>TracedPath</code>: The filepath of the internal assets directory.
+     */
+    public static final TracedPath INTERNAL_DIRECTORY = DATA_DIRECTORY.extend("internal");
 
     /**
      * <code>TracedPath</code>: The filepath of the home directory.

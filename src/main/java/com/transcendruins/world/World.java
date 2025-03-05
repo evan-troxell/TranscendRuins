@@ -205,7 +205,7 @@ public final class World {
      *                  used to create the new <code>World</code> instance.
      * @return <code>World</code>: The generated world.
      */
-    public static World buildWorld(List<Pack> packs, List<Resource> resources) {
+    public static World createWorld(List<Pack> packs, List<Resource> resources) {
 
         world = new World(packs, resources);
         return world;

@@ -32,6 +32,8 @@ import static com.transcendruins.utilities.exceptions.propertyexceptions.depende
 import static com.transcendruins.utilities.exceptions.propertyexceptions.dependencyexceptions.DependencyException.versionHierarchyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.identifierexceptions.DuplicateIdentifierException;
 import com.transcendruins.utilities.files.TracedPath;
+import static com.transcendruins.utilities.files.TracedPath.CUSTOM_DIRECTORY;
+import static com.transcendruins.utilities.files.TracedPath.INTERNAL_DIRECTORY;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.metadata.Identifier;
 
@@ -40,12 +42,6 @@ import com.transcendruins.utilities.metadata.Identifier;
  * directory into complete <code>Pack</code> instances.
  */
 public final class ModuleProcessor {
-
-    /**
-     * <code>TracedPath</code>: The filepath of the directory containing all vanilla
-     * versions.
-     */
-    public static final TracedPath VANILLA_DIRECTORY = TracedPath.INTERNAL_DIRECTORY.extend("vanilla");
 
     /**
      * <code>TracedPath</code>: The filepath of the directory containing all
@@ -95,7 +91,8 @@ public final class ModuleProcessor {
      */
     private ModuleProcessor() {
 
-        process(VANILLA_DIRECTORY);
+        process(INTERNAL_DIRECTORY);
+        process(CUSTOM_DIRECTORY);
         process(CACHE_MODULES);
     }
 
@@ -148,6 +145,7 @@ public final class ModuleProcessor {
             // If the resource could not be processed for any reason, log the error.
         } catch (LoggedException e) {
 
+            e.print();
         }
     }
 
@@ -187,6 +185,7 @@ public final class ModuleProcessor {
             // If the pack could not be processed for any reason, log the error.
         } catch (LoggedException e) {
 
+            e.print();
         }
     }
 
@@ -203,6 +202,8 @@ public final class ModuleProcessor {
                 validatePack(unvalidated.keySet().iterator().next());
 
             } catch (DependencyException e) {
+
+                e.print();
             }
         }
     }
@@ -255,6 +256,8 @@ public final class ModuleProcessor {
                     validatePack(candidate);
                     matchFound = true;
                 } catch (LoggedException e) {
+
+                    e.print();
                 }
             }
 
@@ -339,7 +342,7 @@ public final class ModuleProcessor {
     /**
      * Recursively iterates through the dependencies of a validated pack and
      * compiles them,
-     * generating a complete list of dependencies to build the final
+     * generating a complete list of dependencies to create the final
      * <code>Pack</code> from.
      * 
      * @param identifier <code>Identifier</code>: The identifier of the pack to

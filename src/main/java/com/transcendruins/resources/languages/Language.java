@@ -46,6 +46,8 @@ public final class Language {
                 TracedEntry<String> mappingEntry = json.getAsString(key, false, null);
                 map.put(key, mappingEntry.getValue());
             } catch (LoggedException e) {
+
+                e.print();
             }
         }
 

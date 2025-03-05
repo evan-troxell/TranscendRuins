@@ -21,10 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.transcendruins.assets.AssetType;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.extra.Range;
-import com.transcendruins.assets.modelassets.items.ItemPresets;
 import com.transcendruins.assets.scripts.TRScriptValue;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
@@ -61,19 +62,21 @@ public final class LootTableAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ImmutableList&lt;ItemPresets&gt;</code>: All items which can be dropped
+     * <code>ImmutableList&lt;AssetPresets&gt;</code>: All items which can be
+     * dropped
      * by this <code>LootTableAttributes</code> instance.
      */
-    private final ImmutableList<ItemPresets> items;
+    private final ImmutableList<AssetPresets> items;
 
     /**
      * Retrieves all items which can be dropped by this
      * <code>LootTableAttributes</code> instance.
      * 
-     * @return <code>ImmutableList&lt;ItemPresets&gt;</code>: The <code>items</code>
+     * @return <code>ImmutableList&lt;AssetPresets&gt;</code>: The
+     *         <code>items</code>
      *         field of this <code>LootTableAttributes</code> instance.
      */
-    public ImmutableList<ItemPresets> getItems() {
+    public ImmutableList<AssetPresets> getItems() {
 
         return items;
     }
@@ -218,14 +221,14 @@ public final class LootTableAttributes extends AssetAttributes {
             count = Range.createRange(json, "count", true, true, num -> num >= 1);
         }
 
-        public abstract List<ItemPresets> getItems();
+        public abstract List<AssetPresets> getItems();
     }
 
     public final class LootValueSchema extends LootSchema {
 
-        private final ItemPresets item;
+        private final AssetPresets item;
 
-        public ItemPresets getItem() {
+        public AssetPresets getItem() {
 
             return item;
         }
@@ -233,13 +236,14 @@ public final class LootTableAttributes extends AssetAttributes {
         public LootValueSchema(TracedDictionary json) throws LoggedException {
 
             super(json);
-
-            item = ItemPresets.createPresets(json, "item", false);
+            AssetType type = AssetType.ITEM;
+            type.createPresets(json, "item", false);
+            item = AssetType.ITEM.createPresets(json, "item", false);
             addAssetDependency(item);
         }
 
         @Override
-        public List<ItemPresets> getItems() {
+        public List<AssetPresets> getItems() {
 
             return List.of(item);
         }
@@ -290,7 +294,7 @@ public final class LootTableAttributes extends AssetAttributes {
         }
 
         @Override
-        public List<ItemPresets> getItems() {
+        public List<AssetPresets> getItems() {
 
             return pools.keySet().stream().flatMap(pool -> pool.getItems().stream()).collect(Collectors.toList());
         }

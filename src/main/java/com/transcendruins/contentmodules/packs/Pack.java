@@ -205,20 +205,20 @@ public final class Pack extends ContentModule {
         this.resources = schema.getResources();
 
         HashMap<AssetType, ImmutableMap<Identifier, AssetSchema>> assetMap = new HashMap<>();
-        HashMap<AssetType, HashSet<Identifier>> missingAssetsMap = AssetType.buildAssetMap(_ -> new HashSet<>());
+        HashMap<AssetType, HashSet<Identifier>> missingAssetsMap = AssetType.createAssetMap(_ -> new HashSet<>());
 
         HashMap<AssetType, Set<Identifier>> dependencyAssets = AssetType
-                .buildAssetMap(type -> assetDependencies.stream()
+                .createAssetMap(type -> assetDependencies.stream()
                         .map(Pack::getPack) // Convert from an identifier to a pack.
                         .flatMap(dependency -> dependency.getAssets().get(type).keySet().stream()) // Flatten identifier
                                                                                                    // keys.
                         .collect(Collectors.toSet())); // Collect in a set.
 
         HashMap<AssetType, HashMap<Identifier, AssetSchema>> unvalidatedAssets = AssetType
-                .buildAssetMap(type -> new HashMap<>(schema.getAssets().get(type)));
+                .createAssetMap(type -> new HashMap<>(schema.getAssets().get(type)));
 
         HashMap<AssetType, HashMap<Identifier, AssetSchema>> validatedAssets = AssetType
-                .buildAssetMap(_ -> new HashMap<>());
+                .createAssetMap(_ -> new HashMap<>());
 
         for (Map.Entry<AssetType, HashMap<Identifier, AssetSchema>> typeEntry : unvalidatedAssets.entrySet()) {
 
@@ -232,6 +232,8 @@ public final class Pack extends ContentModule {
                     validateAsset(typeMap.keySet().iterator().next(), type, unvalidatedAssets, validatedAssets,
                             dependencyAssets, missingAssetsMap);
                 } catch (ReferenceWithoutDefinitionException e) {
+
+                    e.print();
                 }
             }
 
@@ -277,6 +279,8 @@ public final class Pack extends ContentModule {
 
                     matchFound = true;
                 } catch (ReferenceWithoutDefinitionException e) {
+
+                    e.print();
                 }
             }
 

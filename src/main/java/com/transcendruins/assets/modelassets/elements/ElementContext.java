@@ -17,6 +17,7 @@
 package com.transcendruins.assets.modelassets.elements;
 
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.world.World;
 
@@ -123,7 +124,7 @@ public final class ElementContext extends AssetContext {
     /**
      * Creates a new instance of the <code>ElementContext</code> class.
      * 
-     * @param presets     <code>ElementPresets</code>: The presets containing schema
+     * @param presets     <code>AssetPresets</code>: The presets containing schema
      *                    and
      *                    instantiation information of this
      *                    <code>ElementContext</code>
@@ -138,7 +139,7 @@ public final class ElementContext extends AssetContext {
      * @param orientation <code>double</code>: The orientation of this
      *                    <code>ElementContext</code> instance in degrees.
      */
-    public ElementContext(ElementPresets presets, World world, long tileX, long tileZ, double orientation) {
+    public ElementContext(AssetPresets presets, World world, long tileX, long tileZ, double orientation) {
 
         super(presets, world);
 

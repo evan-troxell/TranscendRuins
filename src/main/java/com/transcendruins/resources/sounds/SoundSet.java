@@ -38,7 +38,7 @@ public final class SoundSet {
     /**
      * <code>TracedPath</code>: The path to the placeholder sound.
      */
-    public static final TracedPath MISSING_SOUND = TracedPath.INTERNAL_DIRECTORY.extend("missingSound.wav");
+    public static final TracedPath MISSING_SOUND = TracedPath.DATA_DIRECTORY.extend("missingSound.wav");
 
     /**
      * <code>TracedPath</code>: The path which leads to this <code>SoundSet</code>
@@ -87,7 +87,7 @@ public final class SoundSet {
 
         ArrayList<TracedPath> soundPaths = path.compileFiles(TracedPath.SOUND, true);
 
-        sounds = new ImmutableMap<>(AssetType.buildAssetMap(type -> compileSet(type, soundPaths)));
+        sounds = new ImmutableMap<>(AssetType.createAssetMap(type -> compileSet(type, soundPaths)));
     }
 
     /**
@@ -122,6 +122,7 @@ public final class SoundSet {
                                     new Sound(json, sound, path, soundPaths));
                         } catch (LoggedException e) {
 
+                            e.print();
                             return null;
                         }
                     })
@@ -133,6 +134,7 @@ public final class SoundSet {
                             HashMap::new)));
         } catch (LoggedException e) {
 
+            e.print();
             return new ImmutableMap<>();
         }
     }

@@ -195,7 +195,7 @@ public final class EnvironmentState {
 
         this.packs = new ImmutableList<>(packs);
 
-        HashMap<AssetType, ImmutableMap<Identifier, AssetSchema>> assetsMap = AssetType.buildAssetMap(type -> {
+        HashMap<AssetType, ImmutableMap<Identifier, AssetSchema>> assetsMap = AssetType.createAssetMap(type -> {
 
             return new ImmutableMap<>(packs.stream()
                     .map(pack -> pack.getAssets().get(type)) // Retrieve the map of assets.

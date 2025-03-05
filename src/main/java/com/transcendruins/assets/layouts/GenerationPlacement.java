@@ -84,7 +84,7 @@ public final class GenerationPlacement {
 
         public GenerationShapeInstance getShape(World world) {
 
-            return GenerationShapeInstance.buildShape(shape.get(world.nextRandom()), world);
+            return GenerationShapeInstance.createShape(shape.get(world.nextRandom()), world);
         }
 
         private Placement() {
@@ -116,7 +116,8 @@ public final class GenerationPlacement {
                             double weight = changeEntry.getValue();
 
                             generations
-                                    .add(new WeightedRoll.Entry<>(GenerationShapeSchema.buildShape(shapeJson), weight));
+                                    .add(new WeightedRoll.Entry<>(GenerationShapeSchema.createShape(shapeJson),
+                                            weight));
                         }
 
                         return new WeightedRoll<>(generations);
@@ -125,7 +126,7 @@ public final class GenerationPlacement {
 
                         TracedDictionary shapeJson = entry.getValue();
 
-                        return new WeightedRoll<>(GenerationShapeSchema.buildShape(shapeJson));
+                        return new WeightedRoll<>(GenerationShapeSchema.createShape(shapeJson));
                     })));
         }
     }

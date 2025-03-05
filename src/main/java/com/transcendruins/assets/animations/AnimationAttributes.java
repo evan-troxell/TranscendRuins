@@ -464,7 +464,7 @@ public final class AnimationAttributes extends AssetAttributes {
          * @param timestamp    <code>double</code>: The timestamp of this
          *                     <code>AnimationAttributes.KeyFrame</code> instance.
          * @throws LoggedException Thrown to indicate any raised exception while
-         *                         building this key frame.
+         *                         createing this key frame.
          */
         private KeyFrame(TracedDictionary keyframeJson, double timestamp) throws LoggedException {
 

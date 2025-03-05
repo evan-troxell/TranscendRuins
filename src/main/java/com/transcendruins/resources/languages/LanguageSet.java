@@ -62,6 +62,7 @@ public final class LanguageSet {
                 languagesMap.put(subPath.getFileStem(), new Language(subPath));
             } catch (LoggedException e) {
 
+                e.print();
             }
         }
 

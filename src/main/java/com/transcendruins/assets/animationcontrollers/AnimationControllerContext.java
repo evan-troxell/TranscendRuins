@@ -16,9 +16,10 @@
 
 package com.transcendruins.assets.animationcontrollers;
 
-import com.transcendruins.world.World;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.world.World;
 
 public final class AnimationControllerContext extends AssetContext {
 
@@ -40,7 +41,7 @@ public final class AnimationControllerContext extends AssetContext {
         return parent;
     }
 
-    public AnimationControllerContext(AnimationControllerPresets presets, World world, AssetInstance parent) {
+    public AnimationControllerContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world);
         this.parent = parent;

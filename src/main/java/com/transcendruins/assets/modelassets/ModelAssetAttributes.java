@@ -18,12 +18,13 @@ package com.transcendruins.assets.modelassets;
 
 import java.util.HashSet;
 
-import com.transcendruins.assets.animationcontrollers.AnimationControllerPresets;
+import static com.transcendruins.assets.AssetType.ANIMATION_CONTROLLER;
+import static com.transcendruins.assets.AssetType.MODEL;
+import static com.transcendruins.assets.AssetType.RENDER_MATERIAL;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.modelassets.inventory.InventorySchema;
-import com.transcendruins.assets.models.ModelPresets;
-import com.transcendruins.assets.rendermaterials.RenderMaterialPresets;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -75,56 +76,56 @@ public abstract class ModelAssetAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ModelPresets</code>: The model presets of this
+     * <code>AssetPresets</code>: The model presets of this
      * <code>ModelAssetAttributes</code> instance.
      */
-    private final ModelPresets model;
+    private final AssetPresets model;
 
     /**
      * Retrieves the model presets of this
      * <code>ModelAssetAttributes</code> instance.
      * 
-     * @return <code>ModelPresets</code>: The <code>model</code> field of
+     * @return <code>AssetPresets</code>: The <code>model</code> field of
      *         this <code>ModelAssetAttributes</code> instance.
      */
-    public final ModelPresets getModel() {
+    public final AssetPresets getModel() {
 
         return model;
     }
 
     /**
-     * <code>RenderMaterialPresets</code>: The render material presets of this
+     * <code>AssetPresets</code>: The render material presets of this
      * <code>ModelAssetAttributes</code> instance.
      */
-    private final RenderMaterialPresets renderMaterial;
+    private final AssetPresets renderMaterial;
 
     /**
      * Retrieves the render material presets of this
      * <code>ModelAssetAttributes</code> instance.
      * 
-     * @return <code>RenderMaterialPresets</code>: The <code>renderMaterial</code>
+     * @return <code>AssetPresets</code>: The <code>renderMaterial</code>
      *         field of this <code>ModelAssetAttributes</code> instance.
      */
-    public final RenderMaterialPresets getRenderMaterial() {
+    public final AssetPresets getRenderMaterial() {
 
         return renderMaterial;
     }
 
     /**
-     * <code>AnimationControllerPresets</code>: The animation controller presets of
+     * <code>AssetPresets</code>: The animation controller presets of
      * this <code>ModelAssetAttributes</code> instance.
      */
-    private final AnimationControllerPresets animationController;
+    private final AssetPresets animationController;
 
     /**
      * Retrieves the animation controller presets of this
      * <code>ModelAssetAttributes</code> instance.
      * 
-     * @return <code>AnimationControllerPresets</code>: The
+     * @return <code>AssetPresets</code>: The
      *         <code>animationController</code> field of this
      *         <code>ModelAssetAttributes</code> instance.
      */
-    public final AnimationControllerPresets getAnimationController() {
+    public final AssetPresets getAnimationController() {
 
         return animationController;
     }
@@ -189,19 +190,19 @@ public abstract class ModelAssetAttributes extends AssetAttributes {
         TracedEntry<String> textureEntry = json.getAsString("texture", !isBase, null);
         texture = textureEntry.getValue();
 
-        model = ModelPresets.createPresets(json, "model", !isBase);
+        model = MODEL.createPresets(json, "model", !isBase);
         if (model != null) {
 
             addAssetDependency(model);
         }
 
-        renderMaterial = RenderMaterialPresets.createPresets(json, "renderMaterial", !isBase);
+        renderMaterial = RENDER_MATERIAL.createPresets(json, "renderMaterial", !isBase);
         if (renderMaterial != null) {
 
             addAssetDependency(renderMaterial);
         }
 
-        animationController = AnimationControllerPresets.createPresets(json, "animationController", true);
+        animationController = ANIMATION_CONTROLLER.createPresets(json, "animationController", true);
         if (animationController != null) {
 
             addAssetDependency(animationController);

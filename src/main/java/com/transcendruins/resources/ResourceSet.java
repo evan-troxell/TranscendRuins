@@ -84,19 +84,20 @@ public class ResourceSet {
             List<ResourceSet> resources) {
 
         return new ImmutableMap<>(
-                AssetType.buildAssetMap(type -> new ImmutableMap<>(resources.stream().map(resource -> resource.textures)
-                        .flatMap(textureSet -> textureSet.getTextures().get(type).entrySet().stream())
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                Map.Entry::getValue,
-                                (_, replacement) -> replacement,
-                                HashMap::new)))));
+                AssetType
+                        .createAssetMap(type -> new ImmutableMap<>(resources.stream().map(resource -> resource.textures)
+                                .flatMap(textureSet -> textureSet.getTextures().get(type).entrySet().stream())
+                                .collect(Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        Map.Entry::getValue,
+                                        (_, replacement) -> replacement,
+                                        HashMap::new)))));
     }
 
     public static ImmutableMap<AssetType, ImmutableMap<String, Sound>> compileSounds(List<ResourceSet> resources) {
 
         return new ImmutableMap<>(
-                AssetType.buildAssetMap(type -> new ImmutableMap<>(resources.stream().map(resource -> resource.sounds)
+                AssetType.createAssetMap(type -> new ImmutableMap<>(resources.stream().map(resource -> resource.sounds)
                         .flatMap(soundSet -> soundSet.getSounds().get(type).entrySet().stream())
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,

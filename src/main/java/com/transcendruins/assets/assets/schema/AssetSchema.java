@@ -200,7 +200,7 @@ public final class AssetSchema {
         identifier = identifierEntry.getValue();
 
         TracedEntry<TracedDictionary> schemaEntry = json.getAsDict("attributes", false);
-        attributes = buildAttributes(schemaEntry.getValue(), true);
+        attributes = createAttributes(schemaEntry.getValue(), true);
 
         HashMap<String, AssetAttributes> permutationsMap = new HashMap<>();
 
@@ -213,7 +213,7 @@ public final class AssetSchema {
                 TracedEntry<TracedDictionary> permutationEntry = permutationsJson.getAsDict(permutationKey,
                         false);
                 TracedDictionary permutationJson = permutationEntry.getValue();
-                permutationsMap.put(permutationKey, buildAttributes(permutationJson, false));
+                permutationsMap.put(permutationKey, createAttributes(permutationJson, false));
             }
         }
 
@@ -307,19 +307,20 @@ public final class AssetSchema {
     }
 
     /**
-     * Builds an attribute set of this <code>AssetSchema</code> instance.
+     * Creates an attribute set of this <code>AssetSchema</code> instance.
      * 
-     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to build
+     * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to
+     *                   create
      *                   the attribute set.
      * @param isBase     <code>boolean</code>: Whether or not the attributes being
      *                   built are
      * @return <code>AssetAttributes</code>: The generated attribute set.
-     * @throws LoggedException Thrown if any exception is raised while building the
+     * @throws LoggedException Thrown if any exception is raised while createing the
      *                         attribute set.
      */
-    private AssetAttributes buildAttributes(TracedDictionary jsonSchema, boolean isBase) throws LoggedException {
+    private AssetAttributes createAttributes(TracedDictionary jsonSchema, boolean isBase) throws LoggedException {
 
-        return type.buildAttributes(this, jsonSchema, isBase);
+        return type.createAttributes(this, jsonSchema, isBase);
     }
 
     /**

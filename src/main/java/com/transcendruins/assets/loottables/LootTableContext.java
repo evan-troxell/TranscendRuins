@@ -17,11 +17,12 @@
 package com.transcendruins.assets.loottables;
 
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
 public final class LootTableContext extends AssetContext {
 
-    public LootTableContext(LootTablePresets presets, World world) {
+    public LootTableContext(AssetPresets presets, World world) {
 
         super(presets, world);
     }

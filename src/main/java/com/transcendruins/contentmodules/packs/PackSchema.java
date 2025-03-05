@@ -198,10 +198,10 @@ public final class PackSchema extends ContentModule {
                 .collect(Collectors.toMap(path -> path.getFileName(), path -> path.compileFiles(TracedPath.JSON, true),
                         (val, _) -> val, HashMap::new));
 
-        assets = new ImmutableMap<>(AssetType.buildAssetMap(type -> buildSchemas(type, paths)));
+        assets = new ImmutableMap<>(AssetType.createAssetMap(type -> createSchemas(type, paths)));
     }
 
-    private ImmutableMap<Identifier, AssetSchema> buildSchemas(AssetType assetType,
+    private ImmutableMap<Identifier, AssetSchema> createSchemas(AssetType assetType,
             HashMap<String, ArrayList<TracedPath>> paths) {
 
         HashMap<Identifier, AssetSchema> schemaMap = paths
@@ -210,12 +210,13 @@ public final class PackSchema extends ContentModule {
 
                     try {
 
-                        // Attempt to build the schema.
-                        return assetType.buildSchema(path);
+                        // Attempt to create the schema.
+                        return assetType.createSchema(path);
                     } catch (LoggedException e) {
 
                         // If the schema could not be built, log the exception and return an empty
                         // value.
+                        e.print();
                         return null;
                     }
                 })
@@ -227,7 +228,14 @@ public final class PackSchema extends ContentModule {
 
                             // If a duplicate is found, log a duplication exception and ignore the
                             // duplicate value.
-                            new DuplicateIdentifierException(child.getIdentifierEntry());
+                            try {
+
+                                throw new DuplicateIdentifierException(child.getIdentifierEntry());
+                            } catch (DuplicateIdentifierException e) {
+
+                                e.print();
+                            }
+
                             return parent;
                         },
                         HashMap::new));

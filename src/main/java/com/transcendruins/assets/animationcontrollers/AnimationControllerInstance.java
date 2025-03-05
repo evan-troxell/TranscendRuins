@@ -24,8 +24,8 @@ import java.util.Map;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animations.AnimationContext;
 import com.transcendruins.assets.animations.AnimationInstance;
-import com.transcendruins.assets.animations.AnimationPresets;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.assets.scripts.TRScriptValue;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -149,7 +149,7 @@ public final class AnimationControllerInstance extends AssetInstance {
         timestamp = time;
 
         AnimationControllerAttributes.AnimationStateSchema schema = states.get(state);
-        for (AnimationPresets animationPresets : schema.getStateAnimations()) {
+        for (AssetPresets animationPresets : schema.getStateAnimations()) {
 
             AnimationContext animationContext = new AnimationContext(animationPresets, getWorld(),
                     AnimationControllerInstance.this);

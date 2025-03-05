@@ -17,11 +17,12 @@
 package com.transcendruins.assets.rendermaterials;
 
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
 public final class RenderMaterialContext extends AssetContext {
 
-    public RenderMaterialContext(RenderMaterialPresets presets, World world) {
+    public RenderMaterialContext(AssetPresets presets, World world) {
 
         super(presets, world);
     }

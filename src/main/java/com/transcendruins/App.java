@@ -51,7 +51,7 @@ public final class App {
 
         ArrayList<Resource> resources = new ArrayList<>();
 
-        World.buildWorld(packs, resources);
+        World.createWorld(packs, resources);
         World world = World.getWorld();
         world.start();
 

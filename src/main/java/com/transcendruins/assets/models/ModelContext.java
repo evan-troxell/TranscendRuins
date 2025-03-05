@@ -16,9 +16,10 @@
 
 package com.transcendruins.assets.models;
 
-import com.transcendruins.world.World;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.world.World;
 
 public final class ModelContext extends AssetContext {
 
@@ -40,7 +41,7 @@ public final class ModelContext extends AssetContext {
         return parent;
     }
 
-    public ModelContext(ModelPresets presets, World world, AssetInstance parent) {
+    public ModelContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world);
         this.parent = parent;

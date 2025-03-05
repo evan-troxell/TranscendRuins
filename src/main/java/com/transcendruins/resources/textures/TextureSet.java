@@ -38,7 +38,7 @@ public final class TextureSet {
     /**
      * <code>TracedPath</code>: The path to the placeholder texture.
      */
-    public static final TracedPath MISSING_TEXTURE = TracedPath.INTERNAL_DIRECTORY.extend("missingTexture.png");
+    public static final TracedPath MISSING_TEXTURE = TracedPath.DATA_DIRECTORY.extend("missingTexture.png");
 
     /**
      * <code>TracedPath</code>: The path which leads to this <code>TextureSet</code>
@@ -87,7 +87,7 @@ public final class TextureSet {
 
         ArrayList<TracedPath> texturePaths = path.compileFiles(TracedPath.IMAGE, true);
 
-        textures = new ImmutableMap<>(AssetType.buildAssetMap(type -> compileSet(type, texturePaths)));
+        textures = new ImmutableMap<>(AssetType.createAssetMap(type -> compileSet(type, texturePaths)));
     }
 
     /**
@@ -122,6 +122,7 @@ public final class TextureSet {
                                     new Texture(json, texture, path, texturePaths));
                         } catch (LoggedException e) {
 
+                            e.print();
                             return null;
                         }
                     })
@@ -133,6 +134,7 @@ public final class TextureSet {
                             HashMap::new)));
         } catch (LoggedException e) {
 
+            e.print();
             return new ImmutableMap<>();
         }
     }

@@ -95,8 +95,6 @@ public class LoggedException extends Exception {
         this.message = message;
         this.errorCode = errorCode;
         time = new Date(System.currentTimeMillis());
-
-        print();
     }
 
     public final void print() {

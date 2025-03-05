@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.transcendruins.assets.animations.AnimationPresets;
+import static com.transcendruins.assets.AssetType.ANIMATION;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.scripts.TRScriptValue;
@@ -159,12 +160,12 @@ public final class AnimationControllerAttributes extends AssetAttributes {
         private final TracedEntry<TracedDictionary> transitionsEntry;
 
         /**
-         * <code>ImmutableList&lt;AnimationPresets&gt;</code>: The animations
+         * <code>ImmutableList&lt;AssetPresets&gt;</code>: The animations
          * of this
          * <code>AnimationControllerAttributes.AnimationStateSchema</code>
          * instance.
          */
-        private final ImmutableList<AnimationPresets> stateAnimations;
+        private final ImmutableList<AssetPresets> stateAnimations;
 
         /**
          * <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>: The
@@ -194,10 +195,10 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
                 TracedArray animationsJson = animationsEntry.getValue();
 
-                ArrayList<AnimationPresets> stateAnimationsList = new ArrayList<>();
+                ArrayList<AssetPresets> stateAnimationsList = new ArrayList<>();
                 for (int i : animationsJson.getIndices()) {
 
-                    AnimationPresets animationPresets = AnimationPresets.createPresets(animationsJson, i, false);
+                    AssetPresets animationPresets = ANIMATION.createPresets(animationsJson, i, false);
 
                     stateAnimationsList.add(animationPresets);
                     addAssetDependency(animationPresets);
@@ -244,12 +245,12 @@ public final class AnimationControllerAttributes extends AssetAttributes {
          * <code>AnimationControllerAttributes.AnimationStateSchema</code>
          * instance.
          * 
-         * @return <code>ImmutableList&lt;AnimationPresets&gt;</code>: The
+         * @return <code>ImmutableList&lt;AssetPresets&gt;</code>: The
          *         <code>stateAnimations</code> field of this
          *         <code>AnimationControllerAttributes.AnimationStateSchema</code>
          *         instance.
          */
-        public ImmutableList<AnimationPresets> getStateAnimations() {
+        public ImmutableList<AssetPresets> getStateAnimations() {
 
             return stateAnimations;
         }

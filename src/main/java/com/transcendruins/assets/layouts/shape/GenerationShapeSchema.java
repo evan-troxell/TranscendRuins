@@ -29,7 +29,7 @@ public abstract class GenerationShapeSchema {
     private static final class DefaultSchema extends GenerationShapeSchema {
     }
 
-    public static final GenerationShapeSchema buildShape(TracedDictionary json)
+    public static final GenerationShapeSchema createShape(TracedDictionary json)
             throws LoggedException {
 
         TracedEntry<String> shapeEntry = json.getAsString("shape", true, null);

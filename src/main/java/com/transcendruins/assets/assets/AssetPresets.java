@@ -35,7 +35,7 @@ import com.transcendruins.utilities.metadata.Identifier;
  * asset type, including but not limited to: layouts, elements, entities,
  * items, and more.
  */
-public abstract class AssetPresets {
+public final class AssetPresets {
 
     /**
      * <code>TracedEntry&lt;Identifier&gt;</code>: The identifier of this
@@ -134,7 +134,7 @@ public abstract class AssetPresets {
      * @throws LoggedException Thrown if any exception is raised while creating this
      *                         <code>AssetPresets</code> instance.
      */
-    protected AssetPresets(TracedCollection collection, Object key, AssetType type)
+    public AssetPresets(TracedCollection collection, Object key, AssetType type)
             throws LoggedException {
 
         this.type = type;

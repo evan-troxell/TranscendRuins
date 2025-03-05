@@ -17,6 +17,7 @@
 package com.transcendruins.assets.modelassets.items;
 
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
 /**
@@ -44,7 +45,7 @@ public final class ItemContext extends AssetContext {
     /**
      * Creates a new instance of the <code>ItemContext</code> class.
      * 
-     * @param presets   <code>ItemPresets</code>: The presets containing schema
+     * @param presets   <code>AssetPresets</code>: The presets containing schema
      *                  and instantiation information of this
      *                  <code>ItemContext</code> instance.
      * @param world     <code>World</code>: The <code>World</code> instance to
@@ -52,7 +53,7 @@ public final class ItemContext extends AssetContext {
      * @param stackSize <code>int</code>: The stack size of this
      *                  <code>ItemContext</code> instance.
      */
-    public ItemContext(ItemPresets presets, World world, int stackSize) {
+    public ItemContext(AssetPresets presets, World world, int stackSize) {
 
         super(presets, world);
 

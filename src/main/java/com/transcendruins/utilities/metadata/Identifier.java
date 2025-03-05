@@ -184,6 +184,7 @@ public final class Identifier {
                     version == null ? null : new TracedEntry<>(null, Version.createTestVersion(version)));
         } catch (LoggedException e) {
 
+            e.print();
             return null;
         }
     }
@@ -275,6 +276,7 @@ public final class Identifier {
             return createIdentifier(idEntry, null);
         } catch (IdentifierFormatException e) {
 
+            e.print();
             return createTestIdentifier(id, null);
         }
     }
