@@ -16,6 +16,8 @@
 
 package com.transcendruins.utilities.json;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -23,6 +25,8 @@ import java.util.stream.Stream;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import com.transcendruins.assets.AssetType;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
@@ -32,6 +36,7 @@ import com.transcendruins.utilities.exceptions.propertyexceptions.VersionBoundsE
 import com.transcendruins.utilities.exceptions.propertyexceptions.identifierexceptions.IdentifierFormatException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.PropertyTypeException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.utilities.metadata.Version;
@@ -57,8 +62,7 @@ public abstract class TracedCollection {
      * Retrieves the path to this <code>TracedCollection</code> instance.
      * 
      * @return <code>PropertyExceptionPathway</code>: The <code>pathway</code> field
-     *         of
-     *         this <code>TracedCollection</code> instance.
+     *         of this <code>TracedCollection</code> instance.
      */
     public PropertyExceptionPathway getPathway() {
 
@@ -102,19 +106,19 @@ public abstract class TracedCollection {
 
         return switch (val) {
 
-            case null -> JSONType.NULL;
+        case null -> JSONType.NULL;
 
-            case Boolean _ -> JSONType.BOOLEAN;
+        case Boolean _ -> JSONType.BOOLEAN;
 
-            case Long _ -> JSONType.LONG;
-            case Double _ -> JSONType.DOUBLE;
+        case Long _ -> JSONType.LONG;
+        case Double _ -> JSONType.DOUBLE;
 
-            case String _ -> JSONType.STRING;
+        case String _ -> JSONType.STRING;
 
-            case JSONObject _ -> JSONType.DICT;
-            case JSONArray _ -> JSONType.ARRAY;
+        case JSONObject _ -> JSONType.DICT;
+        case JSONArray _ -> JSONType.ARRAY;
 
-            default -> JSONType.NULL;
+        default -> JSONType.NULL;
         };
     }
 
@@ -142,8 +146,8 @@ public abstract class TracedCollection {
     }
 
     /**
-     * <code>TypeCase</code>: An abstract class representing a type case for
-     * retrieving and processing entries from a <code>TracedCollection</code>.
+     * <code>TypeCase&lt;K, T&gt;</code>: An abstract class representing a type case
+     * for retrieving and processing entries from a <code>TracedCollection</code>.
      * 
      * @param <K> <code>Object</code>: The type of the key.
      * @param <T> <code>Object</code>: The type of the value.
@@ -194,13 +198,11 @@ public abstract class TracedCollection {
      * @param onCall   <code>EntryOperator&lt;Boolean, T&gt;</code>: The operator to
      *                 apply to the entry.
      * @param getEntry <code>EntryBuilder&lt;Boolean&gt;</code>: The builder to
-     *                 create
-     *                 the entry.
+     *                 create the entry.
      * @return <code>TypeCase&lt;Boolean, T&gt;</code>: The created boolean type
      *         case.
      */
-    public <T> TypeCase<Boolean, T> booleanCase(EntryOperator<Boolean, T> onCall,
-            EntryBuilder<Boolean> getEntry) {
+    public <T> TypeCase<Boolean, T> booleanCase(EntryOperator<Boolean, T> onCall, EntryBuilder<Boolean> getEntry) {
 
         return new TypeCase<>(onCall, getEntry) {
 
@@ -233,8 +235,7 @@ public abstract class TracedCollection {
      * @param onCall   <code>EntryOperator&lt;Double, T&gt;</code>: The operator to
      *                 apply to the entry.
      * @param getEntry <code>EntryBuilder&lt;Double&gt;</code>: The builder to
-     *                 create
-     *                 the entry.
+     *                 create the entry.
      * @return <code>TypeCase&lt;Double, T&gt;</code>: The created double type case.
      */
     public <T> TypeCase<Double, T> doubleCase(EntryOperator<Double, T> onCall, EntryBuilder<Double> getEntry) {
@@ -254,8 +255,7 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;Double, T&gt;</code>: The operator to
-     *               apply
-     *               to the entry.
+     *               apply to the entry.
      * @return <code>TypeCase&lt;Double, T&gt;</code>: The created double type case.
      */
     public <T> TypeCase<Double, T> doubleCase(EntryOperator<Double, T> onCall) {
@@ -290,8 +290,7 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;Float, T&gt;</code>: The operator to
-     *               apply
-     *               to the entry.
+     *               apply to the entry.
      * @return <code>TypeCase&lt;Float, T&gt;</code>: The created float type case.
      */
     public <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall) {
@@ -304,11 +303,9 @@ public abstract class TracedCollection {
      * 
      * @param <T>      <code>Object</code>: The type of the value.
      * @param onCall   <code>EntryOperator&lt;Long, T&gt;</code>: The operator to
-     *                 apply
-     *                 to the entry.
+     *                 apply to the entry.
      * @param getEntry <code>EntryBuilder&lt;Long&gt;</code>: The builder to create
-     *                 the
-     *                 entry.
+     *                 the entry.
      * @return <code>TypeCase&lt;Long, T&gt;</code>: The created long type case.
      */
     public <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall, EntryBuilder<Long> getEntry) {
@@ -328,8 +325,7 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;Long, T&gt;</code>: The operator to
-     *               apply
-     *               to the entry.
+     *               apply to the entry.
      * @return <code>TypeCase&lt;Long, T&gt;</code>: The created long type case.
      */
     public <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall) {
@@ -344,8 +340,7 @@ public abstract class TracedCollection {
      * @param onCall   <code>EntryOperator&lt;Integer, T&gt;</code>: The operator to
      *                 apply to the entry.
      * @param getEntry <code>EntryBuilder&lt;Integer&gt;</code>: The builder to
-     *                 create
-     *                 the entry.
+     *                 create the entry.
      * @return <code>TypeCase&lt;Integer, T&gt;</code>: The created integer type
      *         case.
      */
@@ -366,8 +361,7 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;Integer, T&gt;</code>: The operator to
-     *               apply
-     *               to the entry.
+     *               apply to the entry.
      * @return <code>TypeCase&lt;Integer, T&gt;</code>: The created integer type
      *         case.
      */
@@ -383,8 +377,7 @@ public abstract class TracedCollection {
      * @param onCall   <code>EntryOperator&lt;String, T&gt;</code>: The operator to
      *                 apply to the entry.
      * @param getEntry <code>EntryBuilder&lt;String&gt;</code>: The builder to
-     *                 create
-     *                 the entry.
+     *                 create the entry.
      * @return <code>TypeCase&lt;String, T&gt;</code>: The created string type case.
      */
     public <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall, EntryBuilder<String> getEntry) {
@@ -404,8 +397,7 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;String, T&gt;</code>: The operator to
-     *               apply
-     *               to the entry.
+     *               apply to the entry.
      * @return <code>TypeCase&lt;String, T&gt;</code>: The created string type case.
      */
     public <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall) {
@@ -418,8 +410,7 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;Object, T&gt;</code>: The operator to
-     *               apply
-     *               to the entry.
+     *               apply to the entry.
      * @return <code>TypeCase&lt;Object, T&gt;</code>: The created scalar type case.
      */
     public <T> TypeCase<Object, T> scalarCase(EntryOperator<Object, T> onCall) {
@@ -440,11 +431,9 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;TracedDictionary, T&gt;</code>: The
-     *               operator
-     *               to apply to the entry.
+     *               operator to apply to the entry.
      * @return <code>TypeCase&lt;TracedDictionary, T&gt;</code>: The created
-     *         dictionary
-     *         type case.
+     *         dictionary type case.
      */
     public <T> TypeCase<TracedDictionary, T> dictCase(EntryOperator<TracedDictionary, T> onCall) {
 
@@ -463,8 +452,7 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;TracedArray, T&gt;</code>: The operator
-     *               to
-     *               apply to the entry.
+     *               to apply to the entry.
      * @return <code>TypeCase&lt;TracedArray, T&gt;</code>: The created array type
      *         case.
      */
@@ -485,11 +473,9 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;TracedCollection, T&gt;</code>: The
-     *               operator
-     *               to apply to the entry.
+     *               operator to apply to the entry.
      * @return <code>TypeCase&lt;TracedCollection, T&gt;</code>: The created
-     *         collection
-     *         type case.
+     *         collection type case.
      */
     public <T> TypeCase<TracedCollection, T> collectionCase(EntryOperator<TracedCollection, T> onCall) {
 
@@ -510,8 +496,7 @@ public abstract class TracedCollection {
      * @param onCall   <code>EntryOperator&lt;Vector, T&gt;</code>: The operator to
      *                 apply to the entry.
      * @param getEntry <code>EntryBuilder&lt;Vector&gt;</code>: The builder to
-     *                 create
-     *                 the entry.
+     *                 create the entry.
      * @return <code>TypeCase&lt;Vector, T&gt;</code>: The created vector type case.
      */
     public <T> TypeCase<Vector, T> vectorCase(EntryOperator<Vector, T> onCall, EntryBuilder<Vector> getEntry) {
@@ -531,13 +516,11 @@ public abstract class TracedCollection {
      * 
      * @param <T>      <code>Object</code>: The type of the value.
      * @param onCall   <code>EntryOperator&lt;Identifier, T&gt;</code>: The operator
-     *                 to
-     *                 apply to the entry.
+     *                 to apply to the entry.
      * @param getEntry <code>EntryBuilder&lt;Identifier&gt;</code>: The builder to
      *                 create the entry.
      * @return <code>TypeCase&lt;Identifier, T&gt;</code>: The created identifier
-     *         type
-     *         case.
+     *         type case.
      */
     public <T> TypeCase<Identifier, T> identifierCase(EntryOperator<Identifier, T> onCall,
             EntryBuilder<Identifier> getEntry) {
@@ -559,13 +542,11 @@ public abstract class TracedCollection {
      * @param onCall   <code>EntryOperator&lt;Version, T&gt;</code>: The operator to
      *                 apply to the entry.
      * @param getEntry <code>EntryBuilder&lt;Version&gt;</code>: The builder to
-     *                 create
-     *                 the entry.
+     *                 create the entry.
      * @return <code>TypeCase&lt;Version, T&gt;</code>: The created version type
      *         case.
      */
-    public <T> TypeCase<Version, T> versionCase(EntryOperator<Version, T> onCall,
-            EntryBuilder<Version> getEntry) {
+    public <T> TypeCase<Version, T> versionCase(EntryOperator<Version, T> onCall, EntryBuilder<Version> getEntry) {
 
         return new TypeCase<>(onCall, getEntry) {
 
@@ -578,12 +559,33 @@ public abstract class TracedCollection {
     }
 
     /**
+     * Creates an asset presets type case.
+     * 
+     * @param <T>    <code>Object</code>: The type of the value.
+     * @param onCall <code>EntryOperator&lt;AssetPresets, T&gt;</code>: The operator
+     *               to apply to the entry.
+     * @param type   <code>AssetType</code>: The type of asset presets to retrieve.
+     * @return <code>TypeCase&lt;AssetPresets, T&gt;</code>: The asset presets type
+     *         case.
+     */
+    public <T> TypeCase<AssetPresets, T> presetsCase(EntryOperator<AssetPresets, T> onCall, AssetType type) {
+
+        return new TypeCase<>(onCall, key -> getAsPresets(key, false, type)) {
+
+            @Override
+            protected boolean isValid(JSONType compare) {
+
+                return compare == JSONType.STRING || compare == JSONType.DICT;
+            }
+        };
+    }
+
+    /**
      * Creates a null type case.
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;Void, T&gt;</code>: The operator to
-     *               apply
-     *               to the entry.
+     *               apply to the entry.
      * @return <code>TypeCase&lt;Void, T&gt;</code>: The created null type case.
      */
     public <T> TypeCase<Void, T> nullCase(EntryOperator<Void, T> onCall) {
@@ -601,8 +603,7 @@ public abstract class TracedCollection {
      * 
      * @param <T>    <code>Object</code>: The type of the value.
      * @param onCall <code>EntryOperator&lt;Object, T&gt;</code>: The operator to
-     *               apply
-     *               to the entry.
+     *               apply to the entry.
      * @return <code>TypeCase&lt;Object, T&gt;</code>: The created default type
      *         case.
      */
@@ -616,7 +617,38 @@ public abstract class TracedCollection {
         };
     }
 
-    public <T> T get(Object key, List<TypeCase<?, T>> cases) throws LoggedException {
+    /**
+     * Retrieves a field from this <code>TracedCollection</code> instance.
+     * 
+     * @param key <code>Object</code>: The key whose entry to retrieve in this
+     *            <code>TracedCollection</code> instance.
+     * @return <code>TracedEntry&lt;?&gt;</code>: The field retrieved from this
+     *         <code>TracedCollection</code> instance.
+     */
+    public final TracedEntry<?> getEntry(Object key) {
+
+        PropertyExceptionPathway extended = extend(key);
+        Object value = getValue(key);
+
+        return new TracedEntry<>(extended, value);
+    }
+
+    /**
+     * Retrieves a field from this <code>TracedCollection</code> instance, handling
+     * each separate type case in the provided list of cases.
+     * 
+     * @param <T>   The type of the value to retrieve.
+     * @param key   <code>Object</code>: The key whose entry to retrieve in this
+     *              <code>TracedCollection</code> instance.
+     * @param cases <code>List&lt;TypeCase&lt;?, T&gt;&gt;</code>: The list of type
+     *              cases to handle the retrieval of the entry.
+     * @return <code>T</code>: The value retrieved from this
+     *         <code>TracedCollection</code> instance.
+     * @throws LoggedException Thrown if none of the type cases are valid for the
+     *                         retrieved value or if an applied case raised an
+     *                         exception.
+     */
+    public final <T> T get(Object key, List<TypeCase<?, T>> cases) throws LoggedException {
 
         JSONType type = getType(key);
         for (TypeCase<?, T> typeCase : cases) {
@@ -630,16 +662,28 @@ public abstract class TracedCollection {
         throw new PropertyTypeException(get(key, false, null));
     }
 
-    public void operate(Object key, List<TypeCase<?, Void>> cases) throws LoggedException {
+    /**
+     * Computes a function using field from this <code>TracedCollection</code>
+     * instance, handling each separate type case in the provided list of cases.
+     * 
+     * @param key   <code>Object</code>: The key whose entry to compute in this
+     *              <code>TracedCollection</code> instance.
+     * @param cases <code>List&lt;TypeCase&lt;?, T&gt;&gt;</code>: The list of type
+     *              cases to handle the computation of the entry.
+     * @throws LoggedException Thrown if none of the type cases are valid for the
+     *                         retrieved value or if an applied case raised an
+     *                         exception.
+     */
+    public final void compute(Object key, List<TypeCase<?, Void>> cases) throws LoggedException {
 
         get(key, cases);
     }
 
     /**
      * Retrieves a field from this <code>TracedCollection</code> instance,
-     * optionally checking for a <code>null</code> case or an invalid class.
-     * Returns the value of the <code>ifNull</code>
-     * perameter if the retrieved value in this collection is <code>null</code>.
+     * optionally checking for a <code>null</code> case or an invalid class. Returns
+     * the value of the <code>ifNull</code> perameter if the retrieved value in this
+     * collection is <code>null</code>.
      * 
      * @param key             <code>Object</code>: The key whose entry to retrieve
      *                        in this <code>TracedCollection</code> instance.
@@ -661,13 +705,10 @@ public abstract class TracedCollection {
     private TracedEntry<Object> get(Object key, boolean nullCaseAllowed, Object ifNull, JSONType... types)
             throws MissingPropertyException, PropertyTypeException {
 
-        // Retrieve the pathway and value which will be used to parse into a new entry.
-        PropertyExceptionPathway extended = extend(key);
-
         Object value = getValue(key);
         JSONType type = typeOf(value);
 
-        TracedEntry<Object> entry = new TracedEntry<>(extended, value != null ? value : ifNull);
+        TracedEntry<Object> entry = getEntry(key).cast(value != null ? value : ifNull);
 
         // Check for a null case so another error is not thrown.
         if (type == JSONType.NULL) {
@@ -711,7 +752,7 @@ public abstract class TracedCollection {
         // Retrieves the value associated with the key.
         TracedEntry<?> entry = get(key, nullCaseAllowed, null, JSONType.DICT);
 
-        return new TracedEntry<>(entry.getPathway(), entry.containsValue() ? new TracedDictionary(entry) : null);
+        return entry.cast(entry.containsValue() ? new TracedDictionary(entry) : null);
     }
 
     /**
@@ -736,7 +777,7 @@ public abstract class TracedCollection {
         // Retrieves the value associated with the key.
         TracedEntry<?> entry = get(key, nullCaseAllowed, null, JSONType.ARRAY);
 
-        return new TracedEntry<>(entry.getPathway(), entry.containsValue() ? new TracedArray(entry) : null);
+        return entry.cast(entry.containsValue() ? new TracedArray(entry) : null);
     }
 
     public final TracedEntry<TracedCollection> getAsCollection(Object key, boolean nullCaseAllowed)
@@ -748,7 +789,7 @@ public abstract class TracedCollection {
                 : getAsArray(key, nullCaseAllowed);
         TracedCollection collection = entry.getValue();
 
-        return new TracedEntry<>(entry.getPathway(), collection);
+        return entry.cast(collection);
     }
 
     /**
@@ -761,12 +802,11 @@ public abstract class TracedCollection {
      *                        <code>null</code> case should cause an exception.
      * @param dimensions      <code>int</code>: The dimensions of the vector to
      *                        retrieve.
-     * @return <code>TracedEntry&lt;Vector&gt;</code>: The vector retrieved
-     *         from this <code>TracedCollection</code> instance.
+     * @return <code>TracedEntry&lt;Vector&gt;</code>: The vector retrieved from
+     *         this <code>TracedCollection</code> instance.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  <code>JSONArray</code> class.
-     * @throws MissingPropertyException Thrown if the retrieved field is missing
-     *                                  and
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and
      *                                  the <code>nullCaseAllowed</code> perameter
      *                                  is <code>false</code>.
      * @throws CollectionSizeException  Thrown if the retrieved array does not have
@@ -783,7 +823,7 @@ public abstract class TracedCollection {
         // and thus a null entry may be returned.
         if (!retrievedVal.containsValue()) {
 
-            return new TracedEntry<>(retrievedVal.getPathway(), null);
+            return retrievedVal.cast(null);
         }
 
         TracedArray array = retrievedVal.getValue();
@@ -801,7 +841,7 @@ public abstract class TracedCollection {
             vectorList[i] = vectorEntry.getValue();
         }
 
-        return new TracedEntry<>(retrievedVal.getPathway(), new Vector(vectorList));
+        return retrievedVal.cast(new Vector(vectorList));
     }
 
     public final TracedEntry<Vector> getAsVector(Object key, boolean nullCaseAllowed, int dimensions, Vector min,
@@ -815,7 +855,7 @@ public abstract class TracedCollection {
         // and thus a null entry may be returned.
         if (!retrievedVal.containsValue()) {
 
-            return new TracedEntry<>(retrievedVal.getPathway(), null);
+            return retrievedVal.cast(null);
         }
 
         TracedArray array = retrievedVal.getValue();
@@ -836,7 +876,7 @@ public abstract class TracedCollection {
             vectorList[i] = vectorEntry.getValue();
         }
 
-        return new TracedEntry<>(retrievedVal.getPathway(), new Vector(vectorList));
+        return retrievedVal.cast(new Vector(vectorList));
     }
 
     /**
@@ -868,10 +908,10 @@ public abstract class TracedCollection {
         // and thus a null entry may be returned.
         if (retrievedVal.getValue() == null) {
 
-            return new TracedEntry<>(retrievedVal.getPathway(), ifNull);
+            return retrievedVal.cast(ifNull);
         }
 
-        return new TracedEntry<>(retrievedVal.getPathway(), (Boolean) retrievedVal.getValue());
+        return retrievedVal.cast((Boolean) retrievedVal.getValue());
     }
 
     /**
@@ -903,10 +943,49 @@ public abstract class TracedCollection {
         // and thus a null entry may be returned.
         if (retrievedVal.getValue() == null) {
 
-            return new TracedEntry<>(retrievedVal.getPathway(), ifNull);
+            return retrievedVal.cast(ifNull);
         }
 
-        return new TracedEntry<>(retrievedVal.getPathway(), (String) retrievedVal.getValue());
+        return retrievedVal.cast((String) retrievedVal.getValue());
+    }
+
+    /**
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses
+     * it into a <code>ZonedDateTime</code> value.
+     * 
+     * @param key             <code>Object</code>: The key whose entry to retrieve
+     *                        in this <code>TracedCollection</code> instance.
+     * @param nullCaseAllowed <code>boolean</code>: Whether or not a
+     *                        <code>null</code> case should cause an exception.
+     * @return <code>TracedEntry&lt;ZonedDateTime&gt;</code>: The date retrieved
+     *         from this <code>TracedCollection</code> instance.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and
+     *                                  the <code>nullCaseAllowed</code> perameter
+     *                                  is <code>false</code>.
+     * @throws PropertyTypeException    Thrown if the retrieved field is not of the
+     *                                  expected type.
+     * @throws UnexpectedValueException Thrown if the retrieved field is not a valid
+     *                                  date.
+     */
+    public final TracedEntry<ZonedDateTime> getAsTimestamp(Object key, boolean nullCaseAllowed)
+            throws MissingPropertyException, PropertyTypeException, UnexpectedValueException {
+
+        TracedEntry<String> retrievedVal = getAsString(key, nullCaseAllowed, null);
+
+        if (!retrievedVal.containsValue()) {
+
+            return retrievedVal.cast(null);
+        }
+
+        String date = retrievedVal.getValue();
+        try {
+
+            ZonedDateTime zonedDateTime = java.time.ZonedDateTime.parse(date);
+            return retrievedVal.cast(zonedDateTime);
+        } catch (DateTimeParseException e) {
+
+            throw new UnexpectedValueException(retrievedVal);
+        }
     }
 
     public final <T extends Number> TracedEntry<T> getAsNumber(Object key, boolean nullCaseAllowed, T ifNull,
@@ -917,7 +996,7 @@ public abstract class TracedCollection {
 
         if (!retrievedVal.containsValue()) {
 
-            return new TracedEntry<>(retrievedVal.getPathway(), ifNull);
+            return retrievedVal.cast(ifNull);
         }
 
         Number num = (Number) retrievedVal.getValue();
@@ -925,10 +1004,10 @@ public abstract class TracedCollection {
 
         if (!isInRange.apply(val)) {
 
-            throw new NumberBoundsException(new TracedEntry<>(retrievedVal.getPathway(), num));
+            throw new NumberBoundsException(retrievedVal.cast(num));
         }
 
-        return new TracedEntry<>(retrievedVal.getPathway(), val);
+        return retrievedVal.cast(val);
     }
 
     /**
@@ -944,8 +1023,7 @@ public abstract class TracedCollection {
      *                        retrieved from this <code>TracedCollection</code>
      *                        instance is <code>null</code>.
      * @param generator       <code>Function&lt;Number, T&gt;</code>: The function
-     *                        to
-     *                        generate the number.
+     *                        to generate the number.
      * @return <code>TracedEntry&lt;T&gt;</code>: The number retrieved from this
      *         <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
@@ -974,12 +1052,11 @@ public abstract class TracedCollection {
      * @param ifNull          <code>Long</code>: The value to return if the value
      *                        retrieved from this <code>TracedCollection</code>
      *                        instance is <code>null</code>.
-     * @return <code>TracedEntry&lt;Long&gt;</code>: The long retrieved from
-     *         this <code>TracedCollection</code> instance.
+     * @return <code>TracedEntry&lt;Long&gt;</code>: The long retrieved from this
+     *         <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
      *                                  the <code>nullCaseAllowed</code> parameter
-     *                                  is
-     *                                  <code>false</code>.
+     *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  expected type.
      * @throws NumberBoundsException    Thrown if the retrieved field is out of the
@@ -1013,8 +1090,7 @@ public abstract class TracedCollection {
      *         this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
      *                                  the <code>nullCaseAllowed</code> parameter
-     *                                  is
-     *                                  <code>false</code>.
+     *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  expected type.
      * @throws NumberBoundsException    Thrown if the retrieved field is out of the
@@ -1048,8 +1124,7 @@ public abstract class TracedCollection {
      *         <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
      *                                  the <code>nullCaseAllowed</code> parameter
-     *                                  is
-     *                                  <code>false</code>.
+     *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  expected type.
      * @throws NumberBoundsException    Thrown if the retrieved field is out of the
@@ -1080,12 +1155,10 @@ public abstract class TracedCollection {
      *                        retrieved from this <code>TracedCollection</code>
      *                        instance is <code>null</code>.
      * @return <code>TracedEntry&lt;Double&gt;</code>: The double retrieved from
-     *         this
-     *         <code>TracedCollection</code> instance.
+     *         this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
      *                                  the <code>nullCaseAllowed</code> parameter
-     *                                  is
-     *                                  <code>false</code>.
+     *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  expected type.
      * @throws NumberBoundsException    Thrown if the retrieved field is out of the
@@ -1116,12 +1189,10 @@ public abstract class TracedCollection {
      *                        retrieved from this <code>TracedCollection</code>
      *                        instance is <code>null</code>.
      * @return <code>TracedEntry&lt;Object&gt;</code>: The scalar value retrieved
-     *         from
-     *         this <code>TracedCollection</code> instance.
+     *         from this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
      *                                  the <code>nullCaseAllowed</code> parameter
-     *                                  is
-     *                                  <code>false</code>.
+     *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  expected type.
      */
@@ -1133,10 +1204,10 @@ public abstract class TracedCollection {
 
         if (retrievedVal.getValue() == null) {
 
-            return new TracedEntry<>(retrievedVal.getPathway(), ifNull);
+            return retrievedVal.cast(ifNull);
         }
 
-        return new TracedEntry<>(retrievedVal.getPathway(), retrievedVal.getValue());
+        return retrievedVal.cast(retrievedVal.getValue());
     }
 
     /**
@@ -1151,10 +1222,8 @@ public abstract class TracedCollection {
      * @return <code>TracedEntry&lt;Identifier&gt;</code>: The metadata value
      *         retrieved from this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException  Thrown if the retrieved field is missing
-     *                                   and
-     *                                   the <code>nullCaseAllowed</code> parameter
-     *                                   is
-     *                                   <code>false</code>.
+     *                                   and the <code>nullCaseAllowed</code>
+     *                                   parameter is <code>false</code>.
      * @throws PropertyTypeException     Thrown if the retrieved field is not of the
      *                                   expected type.
      * @throws CollectionSizeException   Thrown if the retrieved field is not of the
@@ -1166,26 +1235,24 @@ public abstract class TracedCollection {
      * @throws IdentifierFormatException Thrown if the retrieved field is in an
      *                                   improper format.
      */
-    public final TracedEntry<Identifier> getAsMetadata(Object key, boolean nullCaseAllowed,
-            boolean versionRequired) throws LoggedException {
+    public final TracedEntry<Identifier> getAsMetadata(Object key, boolean nullCaseAllowed, boolean versionRequired)
+            throws LoggedException {
 
-        return get(key, List.of(
-                dictCase(entry -> {
+        return get(key, List.of(dictCase(entry -> {
 
-                    TracedDictionary json = entry.getValue();
-                    TracedEntry<Version> versionEntry = json.getAsVersion("version",
-                            !json.containsKey("identifier") || !versionRequired);
-                    return json.getAsIdentifier("identifier", nullCaseAllowed, versionEntry);
-                }),
-                identifierCase(entry -> {
+            TracedDictionary json = entry.getValue();
+            TracedEntry<Version> versionEntry = json.getAsVersion("version",
+                    !json.containsKey("identifier") || !versionRequired);
+            return json.getAsIdentifier("identifier", nullCaseAllowed, versionEntry);
+        }), identifierCase(entry -> {
 
-                    if (!versionRequired) {
+            if (!versionRequired) {
 
-                        return getAsIdentifier(key, nullCaseAllowed, null);
-                    }
+                return getAsIdentifier(key, nullCaseAllowed, null);
+            }
 
-                    throw new PropertyTypeException(entry);
-                }, _ -> getAsIdentifier(key, false, null))));
+            throw new PropertyTypeException(entry);
+        }, _ -> getAsIdentifier(key, false, null))));
     }
 
     /**
@@ -1219,11 +1286,11 @@ public abstract class TracedCollection {
         // and thus a null entry may be returned.
         if (retrievedVal.getValue() == null) {
 
-            return new TracedEntry<>(retrievedVal.getPathway(), null);
+            return retrievedVal.cast(null);
         }
 
         // Parses the string into an identifier instance.
-        return new TracedEntry<>(retrievedVal.getPathway(), Identifier.createIdentifier(retrievedVal, version));
+        return retrievedVal.cast(Identifier.createIdentifier(retrievedVal, version));
     }
 
     /**
@@ -1232,12 +1299,10 @@ public abstract class TracedCollection {
      * MUST be of the <code>JSONArray</code> class with a length of 3 and cannot be
      * null.
      * 
-     * @param key             <code>Object</code>: The key whose entry
-     *                        to retrieve in this
-     *                        <code>TracedCollection</code> instance.
+     * @param key             <code>Object</code>: The key whose entry to retrieve
+     *                        in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a
-     *                        <code>null</code> case should cause an
-     *                        exception.
+     *                        <code>null</code> case should cause an exception.
      * @return <code>TracedEntry&lt;Version&gt;</code>: The version retrieved from
      *         this <code>TracedCollection</code> instance.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
@@ -1245,15 +1310,13 @@ public abstract class TracedCollection {
      * @throws PropertyTypeException    Thrown if an index of the version vector is
      *                                  of the <code>Long</code> class.
      * @throws MissingPropertyException Thrown if the retrieved field is missing.
-     * @throws CollectionSizeException  Thrown if the version vector does not have
-     *                                  a
+     * @throws CollectionSizeException  Thrown if the version vector does not have a
      *                                  length of 3.
      * @throws VersionBoundsException   Thrown if any vector value in the generated
      *                                  <code>Version</code> instance is negative.
      */
-    public final TracedEntry<Version> getAsVersion(Object key, boolean nullCaseAllowed)
-            throws CollectionSizeException, MissingPropertyException,
-            PropertyTypeException, NumberBoundsException, VersionBoundsException {
+    public final TracedEntry<Version> getAsVersion(Object key, boolean nullCaseAllowed) throws CollectionSizeException,
+            MissingPropertyException, PropertyTypeException, NumberBoundsException, VersionBoundsException {
 
         // Retrieves the array value associated with the key.
         TracedEntry<TracedArray> retrievedVal = getAsArray(key, nullCaseAllowed);
@@ -1263,7 +1326,7 @@ public abstract class TracedCollection {
         // and thus a null entry may be returned.
         if (!retrievedVal.containsValue()) {
 
-            return new TracedEntry<>(retrievedVal.getPathway(), null);
+            return retrievedVal.cast(null);
         }
 
         if (array.size() != 3) {
@@ -1272,8 +1335,28 @@ public abstract class TracedCollection {
         }
 
         // Parses the array into a version instance.
-        return new TracedEntry<>(retrievedVal.getPathway(),
-                Version.createVersion(retrievedVal));
+        return retrievedVal.cast(Version.createVersion(retrievedVal));
+    }
+
+    /**
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses
+     * it into a new <code>AssetPresets</code> instance.
+     * 
+     * @param key             <code>Object</code>: The key whose entry to retrieve
+     *                        in this <code>TracedCollection</code> instance.
+     * @param nullCaseAllowed <code>boolean</code>: Whether or not a
+     *                        <code>null</code> case should cause an exception.
+     * @return <code>TracedEntry&lt;AssetPresets&gt;</code>: The presets retrieved
+     *         from this <code>TracedCollection</code> instance.
+     * @throws LoggedException Thrown if there are any issues processing the asset
+     *                         presets.
+     */
+    public final TracedEntry<AssetPresets> getAsPresets(Object key, boolean nullCaseAllowed, AssetType type)
+            throws LoggedException {
+
+        AssetPresets presets = (nullCaseAllowed && !containsKey(key)) ? null : new AssetPresets(this, key, type);
+
+        return getEntry(key).cast(presets);
     }
 
     /**

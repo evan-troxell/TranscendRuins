@@ -34,6 +34,13 @@ public abstract class AssetContext {
         return world;
     }
 
+    private final AssetInstance parent;
+
+    public final AssetInstance getParent() {
+
+        return parent;
+    }
+
     /**
      * <code>double</code>: The randomized ID of this <code>AssetContext</code>
      * instance, in the range of <code>[0.0, 1.0]</code>.
@@ -68,11 +75,23 @@ public abstract class AssetContext {
         return runtimeSeconds;
     }
 
-    public AssetContext(AssetPresets presets, World world) {
+    /**
+     * Creates a new instance of the <code>AssetContext</code> class.
+     * 
+     * @param presets <code>AssetPresets</code>: The presets containing schema and
+     *                instantiation information of this <code>AssetContext</code>
+     *                instance.
+     * @param world   <code>World</code>: The world copy of this
+     *                <code>AssetContext</code> instance.
+     * @param parent  <code>AssetInstance</code>: The parent to assign to this
+     *                <code>AssetContext</code> instance.
+     */
+    public AssetContext(AssetPresets presets, World world, AssetInstance parent) {
 
         this.presets = presets;
 
         this.world = world;
+        this.parent = parent;
         this.randomId = world.nextRandom();
 
         this.runtimeSeconds = world.getRuntimeSeconds();

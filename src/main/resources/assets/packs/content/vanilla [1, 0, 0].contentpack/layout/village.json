@@ -1,0 +1,55 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:village"
+    },
+    "attributes": {
+        "size": [400, 400],
+
+        "definitions": {
+            "layouts": {
+                "smallCabin": "TranscendRuins:smallCabin",
+                "townHall": "TranscendRuins:townHall"
+            },
+            "elements": {
+                "campfire": "TranscendRuins:campfire",
+                "corpse": "TranscendRuins:roamerCorpse",
+                "tombstone": "TranscendRuins:tombstone"
+            },
+            "entities": {
+                "roamer": "TranscendRuins:roamer"
+            }
+        },
+
+        "generation": "distributed",
+
+        "iterationType": "sequential",
+        "components": [
+            {
+                "generation": "grid",
+
+                "gridDimensions": [6, 8],
+                "cellDimensions": [16, 16],
+
+                "spacing": 10,
+
+                "iterationType": "sequential",
+                "components": [
+                    {
+                        "tileDimensions": [2, 2],
+
+                        "generation": "layout",
+                        "layout": "townHall",
+                        "limit": 1
+                    },
+                    {
+                        "tileDimensions": [1, 1],
+
+                        "generation": "layout",
+                        "layout": "townHall",
+                        "chance": 50
+                    }
+                ]
+            }
+        ]
+    }
+}

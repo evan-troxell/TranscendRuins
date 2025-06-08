@@ -17,6 +17,8 @@
 package com.transcendruins.utilities.json;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 import org.json.simple.JSONObject;
 
@@ -26,7 +28,7 @@ import com.transcendruins.utilities.files.TracedPath;
  * <code>TracedDictionary</code>: A class representing a dictionary whose
  * <code>parent.get()</code> method has been traced.
  */
-public final class TracedDictionary extends TracedCollection {
+public final class TracedDictionary extends TracedCollection implements Iterable<String> {
 
     /**
      * The stored JSON dictionary information which this
@@ -60,19 +62,6 @@ public final class TracedDictionary extends TracedCollection {
         this.dictionary = dictionary;
     }
 
-    /**
-     * Retrieves a list containing all keys stored in this
-     * <code>TracedDictionary</code> instance.
-     * 
-     * @return <code>ArrayList&lt;String&gt;</code>: All keys in this
-     *         <code>TracedDictionary</code> instance.
-     */
-    @SuppressWarnings("unchecked")
-    public ArrayList<String> getKeys() {
-
-        return new ArrayList<>(dictionary.keySet());
-    }
-
     @Override
     public Object getValue(Object key) {
 
@@ -101,5 +90,29 @@ public final class TracedDictionary extends TracedCollection {
     public boolean isEmpty() {
 
         return dictionary.isEmpty();
+    }
+
+    /**
+     * Retrieves an array containing all keys stored in this
+     * <code>TracedDictionary</code> instance.
+     * 
+     * @return <code>ArrayList&lt;String&gt;</code>: All keys in this
+     *         <code>TracedDictionary</code> instance.
+     */
+    @SuppressWarnings("unchecked")
+    public ArrayList<String> getKeys() {
+
+        return new ArrayList<>(dictionary.keySet());
+    }
+
+    public Stream<String> stream() {
+
+        return getKeys().stream();
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+
+        return getKeys().iterator();
     }
 }

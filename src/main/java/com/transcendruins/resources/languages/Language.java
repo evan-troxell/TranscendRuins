@@ -39,15 +39,13 @@ public final class Language {
         HashMap<String, String> map = new HashMap<>();
         TracedDictionary json = JSONOperator.retrieveJSON(path);
 
-        for (String key : json.getKeys()) {
+        for (String key : json) {
 
             try {
 
                 TracedEntry<String> mappingEntry = json.getAsString(key, false, null);
                 map.put(key, mappingEntry.getValue());
-            } catch (LoggedException e) {
-
-                e.print();
+            } catch (LoggedException _) {
             }
         }
 

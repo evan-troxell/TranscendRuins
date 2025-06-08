@@ -1,0 +1,40 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:stairwell"
+    },
+    "attributes": {
+        "model": "TranscendRuins:stairwell",
+        "animationController": "TranscendRuins:stairwell",
+        "renderMaterial": "TranscendRuins:opaque",
+        "texture": "element.stairwell"
+    },
+
+    "permutations": {
+        "passagewayInteract": {
+            "interact": {
+                "type": "passageway"
+            }
+        },
+
+        "destroy": {
+        }
+    },
+    "events": {
+        "destroy": {
+            "permutations": {
+                "add": [ "destroy" ],
+                "remove": [ "passagewayInteract" ]
+            }
+        },
+
+        "TranscendRuins:onInteract": {
+            "run": [ "destroy" ]
+        },
+
+        "TranscendRuins:onInitialized": {
+            "permutations": {
+                "add": [ "passagewayInteract" ]
+            }
+        }
+    }
+}

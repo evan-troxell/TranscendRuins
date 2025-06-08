@@ -28,19 +28,40 @@ import java.util.ListIterator;
  */
 public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
 
+    /**
+     * <code>boolean</code>: Whether or not this <code>ImmutableList</code> instance
+     * has been finalized yet.
+     */
     private boolean finalized = false;
 
+    /**
+     * Creates a new, empty instance of the <code>ImmutableList</code> class.
+     */
     public ImmutableList() {
 
         finalized = true;
     }
 
+    /**
+     * Creates a new instance of the <code>ImmutableList</code> class with a single
+     * value.
+     * 
+     * @param val <code>E</code>: The value to add to this
+     *            <code>ImmutableList</code> instance.
+     */
     public ImmutableList(E val) {
 
         super(Arrays.asList(val));
         finalized = true;
     }
 
+    /**
+     * Creates a new instance of the <code>ImmutableList</code> class using a set of
+     * values.
+     * 
+     * @param elements <code>E...</code>: The values to add to this
+     *                 <code>ImmutableList</code> instance.
+     */
     @SuppressWarnings("unchecked")
     public ImmutableList(E... elements) {
 
@@ -48,12 +69,23 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         finalized = true;
     }
 
+    /**
+     * Creates a new instance of the <code>ImmutableList</code> class using a set of
+     * values.
+     * 
+     * @param collection <code>Collection&lt;E&gt;</code>: The values to add to this
+     *                   <code>ImmutableList</code> instance.
+     */
     public ImmutableList(Collection<E> collection) {
 
         super(collection);
         finalized = true;
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean add(E e) {
 
@@ -61,6 +93,10 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return super.add(e);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public void add(int index, E element) {
 
@@ -68,6 +104,10 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         super.add(index, element);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean addAll(java.util.Collection<? extends E> c) {
 
@@ -75,6 +115,10 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return super.addAll(c);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean addAll(int index, java.util.Collection<? extends E> c) {
 
@@ -82,6 +126,10 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return super.addAll(index, c);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean remove(Object o) {
 
@@ -89,6 +137,10 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return super.remove(o);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public E remove(int index) {
 
@@ -96,6 +148,10 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return super.remove(index);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean removeAll(java.util.Collection<?> c) {
 
@@ -103,6 +159,10 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return super.removeAll(c);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean retainAll(java.util.Collection<?> c) {
 
@@ -110,6 +170,10 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return super.retainAll(c);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public void clear() {
 
@@ -117,6 +181,10 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         super.clear();
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableList</code> class and
+     * will raise an exception.
+     */
     @Override
     public E set(int index, E element) {
 
@@ -124,8 +192,15 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return super.set(index, element);
     }
 
+    /**
+     * Creates an immutable iterator which cannot modify this
+     * <code>ImmutableList</code> instance.
+     * 
+     * @return <code>Iterator&lt;E&gt;</code>: The immutable iterator.
+     */
     @Override
     public Iterator<E> iterator() {
+
         Iterator<E> originalIterator = super.iterator();
 
         return new Iterator<>() {
@@ -151,6 +226,12 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         };
     }
 
+    /**
+     * Creates an immutable list iterator which cannot modify this
+     * <code>ImmutableList</code> instance.
+     * 
+     * @return <code>ListIterator&lt;E&gt;</code>: The immutable list iterator.
+     */
     @Override
     public ListIterator<E> listIterator() {
 
@@ -158,6 +239,13 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return createReadOnlyListIterator(originalIterator);
     }
 
+    /**
+     * Creates an immutable list iterator which cannot modify this
+     * <code>ImmutableList</code> instance, starting at a set index in the list.
+     * 
+     * @param index <code>int</code>: The index to start at.
+     * @return <code>ListIterator&lt;E&gt;</code>: The immutable list iterator.
+     */
     @Override
     public ListIterator<E> listIterator(int index) {
 
@@ -165,6 +253,14 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
         return createReadOnlyListIterator(originalIterator);
     }
 
+    /**
+     * Converts a list iterator into its immutable (read-only) counterpart.
+     * 
+     * @param originalIterator <code>ListIterator&lt;E&gt;</code>: The mutable list
+     *                         iterator.
+     * @return <code>ListIterator&lt;E&gt;</code>: The resulting immutable list
+     *         iterator.
+     */
     private ListIterator<E> createReadOnlyListIterator(ListIterator<E> originalIterator) {
 
         return new ListIterator<>() {

@@ -149,11 +149,11 @@ public final class RenderedPixel {
 
     /**
      * Merges the RGBA values of two color channels into a single one, using one as
-     * the foreground color and the other as the background color.
-     * This method will combine the alpha values such that the background alpha
-     * value will be limited to the maximum value of (1.0 - foregroundAlpha). The
-     * background RGB channels will be merged to the foreground RGB channels
-     * according to the remaining alpha values.
+     * the foreground color and the other as the background color. This method will
+     * combine the alpha values such that the background alpha value will be limited
+     * to the maximum value of (1.0 - foregroundAlpha). The background RGB channels
+     * will be merged to the foreground RGB channels according to the remaining
+     * alpha values.
      * 
      * @param foregroundRGBA <code>int</code>: The RGBA color associated with the
      *                       foreground pixel.

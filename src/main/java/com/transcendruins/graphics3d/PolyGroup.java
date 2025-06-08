@@ -72,8 +72,7 @@ public final class PolyGroup {
     public static final Comparator<Triangle> Z_SORTER = Comparator.comparing(triangle -> triangle.getCenter().getZ());
 
     /**
-     * <code>Map&lt;Triangle, Triangle&gt;</code>: The polygons to construct
-     * polygon
+     * <code>Map&lt;Triangle, Triangle&gt;</code>: The polygons to construct polygon
      * groups from.
      */
     private final Map<Triangle, Triangle> polygons;
@@ -91,15 +90,14 @@ public final class PolyGroup {
         Quaternion cameraRotation = camera.getRotation();
         Matrix displayTransform = Render3D.DISPLAY_TRANSFORM.multiply(camera.getZoom());
 
-        Vector positionAdjust = new Vector(frameWidth / 2, frameHeight / 2)
+        Vector positionAdjust = new Vector(frameWidth / 2, frameHeight / 2, 0)
                 .subtract(cameraPosition.rotate(cameraRotation).multiply(displayTransform));
 
         HashSet<RenderTriangle> adjustedPolygons = new HashSet<>();
 
         for (Triangle poly : polygons.keySet()) {
 
-            Triangle adjusted = poly.rotate(cameraRotation.toConjugate())
-                    .multiply(displayTransform)
+            Triangle adjusted = poly.rotate(cameraRotation.toConjugate()).multiply(displayTransform)
                     .add(positionAdjust);
 
             if (adjusted.getMaxX() < 0 || adjusted.getMaxY() < 0 || adjusted.getMinX() >= frameWidth
@@ -123,8 +121,8 @@ public final class PolyGroup {
     /**
      * Retrieves the render properties of this <code>PolyGroup</code> instance.
      * 
-     * @return <code>RenderInstance</code>: The <code>render</code>
-     *         field of this <code>PolyGroup</code> instance.
+     * @return <code>RenderInstance</code>: The <code>render</code> field of this
+     *         <code>PolyGroup</code> instance.
      */
     public RenderInstance getRender() {
 
@@ -152,10 +150,9 @@ public final class PolyGroup {
     /**
      * Creates a new instance of the <code>PolyGroup</code> class.
      * 
-     * @param polygons <code>Map&lt;Triangle, Triangle&gt;</code>: The
-     *                 polygons to construct polygon groups from.
-     * @param render   <code>RenderInstance</code>: The render
-     *                 properties of this
+     * @param polygons <code>Map&lt;Triangle, Triangle&gt;</code>: The polygons to
+     *                 construct polygon groups from.
+     * @param render   <code>RenderInstance</code>: The render properties of this
      *                 <code>PolyGroup</code> instance.
      */
     public PolyGroup(Map<Triangle, Triangle> polygons, RenderInstance render) {
@@ -163,18 +160,9 @@ public final class PolyGroup {
         this.polygons = polygons;
         this.render = render;
 
-        sortedX = polygons.keySet()
-                .stream()
-                .sorted(X_SORTER)
-                .collect(Collectors.toList());
-        sortedY = polygons.keySet()
-                .stream()
-                .sorted(Y_SORTER)
-                .collect(Collectors.toList());
-        sortedZ = polygons.keySet()
-                .stream()
-                .sorted(Z_SORTER)
-                .collect(Collectors.toList());
+        sortedX = polygons.keySet().stream().sorted(X_SORTER).collect(Collectors.toList());
+        sortedY = polygons.keySet().stream().sorted(Y_SORTER).collect(Collectors.toList());
+        sortedZ = polygons.keySet().stream().sorted(Z_SORTER).collect(Collectors.toList());
     }
 
     /**

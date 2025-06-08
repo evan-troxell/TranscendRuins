@@ -34,15 +34,14 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>AnimationControllerAttributes</code>: A class which represents
- * the attributes of an <code>AnimationControllerSchema</code> instance.
+ * <code>AnimationControllerAttributes</code>: A class which represents the
+ * attributes of an <code>AnimationControllerSchema</code> instance.
  */
 public final class AnimationControllerAttributes extends AssetAttributes {
 
     /**
      * <code>ImmutableMap&lt;String, AnimationStateSchema&gt;</code>: The map of all
-     * animation states of this <code>AnimationControllerAttributes</code>
-     * instance.
+     * animation states of this <code>AnimationControllerAttributes</code> instance.
      */
     private final ImmutableMap<String, AnimationStateSchema> states;
 
@@ -51,8 +50,8 @@ public final class AnimationControllerAttributes extends AssetAttributes {
      * instance.
      * 
      * @return <code>ImmutableMap&lt;String, AnimationStateSchema&gt;</code>: The
-     *         <code>states</code> field of this
-     *         <code>AnimationAttributes</code> instance.
+     *         <code>states</code> field of this <code>AnimationAttributes</code>
+     *         instance.
      */
     public ImmutableMap<String, AnimationStateSchema> getStates() {
 
@@ -78,24 +77,22 @@ public final class AnimationControllerAttributes extends AssetAttributes {
     }
 
     /**
-     * Compiles this <code>AnimationControllerAttributes</code> instance into
-     * a completed instance.
+     * Compiles this <code>AnimationControllerAttributes</code> instance into a
+     * completed instance.
      * 
      * @param schema <code>AssetSchema</code>: The schema which created this
      *               <code>AnimationControllerAttributes</code> instance.
-     * @param json   <code>TracedDictionary</code>: The schema JSON used to
-     *               compile this
-     *               <code>AnimationControllerAttributes</code> instance.
+     * @param json   <code>TracedDictionary</code>: The schema JSON used to compile
+     *               this <code>AnimationControllerAttributes</code> instance.
      * @param isBase <code>boolean</code>: Whether or not this
-     *               <code>AnimationControllerAttributes</code> instance
-     *               is the base attribute set of an <code>AnimationSchema</code>
-     *               instance.
+     *               <code>AnimationControllerAttributes</code> instance is the base
+     *               attribute set of an <code>AnimationSchema</code> instance.
      * @throws LoggedException Thrown if an exception is raised while processing
      *                         this <code>AnimationControllerAttributes</code>
      *                         instance.
      */
-    public AnimationControllerAttributes(AssetSchema schema, TracedDictionary json,
-            boolean isBase) throws LoggedException {
+    public AnimationControllerAttributes(AssetSchema schema, TracedDictionary json, boolean isBase)
+            throws LoggedException {
 
         super(schema, json, isBase);
 
@@ -105,7 +102,7 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
             if (!isBase) {
 
-                throw new KeyNameException("states", statesEntry);
+                throw new KeyNameException(json, "states");
             }
 
             HashMap<String, AnimationStateSchema> statesMap = new HashMap<>();
@@ -117,7 +114,7 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
             statesJson.getAsDict(defaultState, false);
 
-            for (String stateName : statesJson.getKeys()) {
+            for (String stateName : statesJson) {
 
                 TracedEntry<TracedDictionary> stateEntry = statesJson.getAsDict(stateName, false);
                 TracedDictionary stateJson = stateEntry.getValue();
@@ -145,8 +142,8 @@ public final class AnimationControllerAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>AnimationControllerAttributes.AnimationStateSchema</code>: A
-     * subclass representing a specific state of this
+     * <code>AnimationControllerAttributes.AnimationStateSchema</code>: A subclass
+     * representing a specific state of this
      * <code>AnimationControllerAttributes</code> instance.
      */
     public final class AnimationStateSchema {
@@ -154,24 +151,20 @@ public final class AnimationControllerAttributes extends AssetAttributes {
         /**
          * <code>TracedEntry&lt;TracedDictionary&gt;</code>: The dictionary entry of all
          * transitions in this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code>
-         * instance.
+         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
          */
         private final TracedEntry<TracedDictionary> transitionsEntry;
 
         /**
-         * <code>ImmutableList&lt;AssetPresets&gt;</code>: The animations
-         * of this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code>
-         * instance.
+         * <code>ImmutableList&lt;AssetPresets&gt;</code>: The animations of this
+         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
          */
         private final ImmutableList<AssetPresets> stateAnimations;
 
         /**
          * <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>: The
          * transitions of this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code>
-         * instance.
+         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
          */
         private final ImmutableMap<String, ImmutableList<TRScriptValue>> stateTransitions;
 
@@ -196,12 +189,13 @@ public final class AnimationControllerAttributes extends AssetAttributes {
                 TracedArray animationsJson = animationsEntry.getValue();
 
                 ArrayList<AssetPresets> stateAnimationsList = new ArrayList<>();
-                for (int i : animationsJson.getIndices()) {
+                for (int i : animationsJson) {
 
-                    AssetPresets animationPresets = ANIMATION.createPresets(animationsJson, i, false);
+                    TracedEntry<AssetPresets> animationEntry = animationsJson.getAsPresets(i, false, ANIMATION);
+                    AssetPresets animation = animationEntry.getValue();
 
-                    stateAnimationsList.add(animationPresets);
-                    addAssetDependency(animationPresets);
+                    stateAnimationsList.add(animation);
+                    addAssetDependency(animation);
                 }
 
                 stateAnimations = new ImmutableList<>(stateAnimationsList);
@@ -218,14 +212,14 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
                 HashMap<String, ImmutableList<TRScriptValue>> stateTransitionsMap = new HashMap<>();
 
-                for (String stateName : transitionsJson.getKeys()) {
+                for (String stateName : transitionsJson) {
 
                     ArrayList<TRScriptValue> transitionsMap = new ArrayList<>();
 
                     TracedEntry<TracedArray> stateTransitionsEntry = transitionsJson.getAsArray(stateName, false);
                     TracedArray stateTransitionsJson = stateTransitionsEntry.getValue();
 
-                    for (int i : stateTransitionsJson.getIndices()) {
+                    for (int i : stateTransitionsJson) {
 
                         transitionsMap.add(new TRScriptValue(stateTransitionsJson, i));
                     }
@@ -242,8 +236,7 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
         /**
          * Retrieves the animations of this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code>
-         * instance.
+         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
          * 
          * @return <code>ImmutableList&lt;AssetPresets&gt;</code>: The
          *         <code>stateAnimations</code> field of this
@@ -257,8 +250,7 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
         /**
          * Retrieves the state transitions of this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code>
-         * instance.
+         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
          * 
          * @return <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>:
          *         The <code>stateTransitions</code> field of this

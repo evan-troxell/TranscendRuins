@@ -29,6 +29,7 @@ import org.json.simple.parser.ParseException;
 
 import com.transcendruins.utilities.exceptions.fileexceptions.FileFormatException;
 import com.transcendruins.utilities.exceptions.fileexceptions.MissingPathException;
+import com.transcendruins.utilities.files.ExternalPath;
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
@@ -133,13 +134,13 @@ public final class JSONOperator {
 
                     switch (entry.getValue()) {
 
-                        case Map<?, ?> map -> toJSONObject(map);
+                    case Map<?, ?> map -> toJSONObject(map);
 
-                        case Collection<?> list -> toJSONArray(list);
+                    case Collection<?> list -> toJSONArray(list);
 
-                        case Object[] array -> toJSONArray(Arrays.asList(array));
+                    case Object[] array -> toJSONArray(Arrays.asList(array));
 
-                        default -> entry.getValue();
+                    default -> entry.getValue();
                     });
         }
 
@@ -160,16 +161,15 @@ public final class JSONOperator {
 
         for (Object value : json) {
 
-            recursionList.add(
-                    switch (value) {
-                        case Map<?, ?> map -> toJSONObject(map);
+            recursionList.add(switch (value) {
+            case Map<?, ?> map -> toJSONObject(map);
 
-                        case Collection<?> list -> toJSONArray(list);
+            case Collection<?> list -> toJSONArray(list);
 
-                        case Object[] array -> toJSONArray(Arrays.asList(array));
+            case Object[] array -> toJSONArray(Arrays.asList(array));
 
-                        default -> value;
-                    });
+            default -> value;
+            });
         }
 
         return recursionList;
@@ -177,14 +177,14 @@ public final class JSONOperator {
 
     /**
      * Writes the JSON information from a <code>JSONObject</code> to the designated
-     * file from a <code>TracedPath</code> directory.
+     * file from an <code>ExternalPath</code> directory.
      * 
-     * @param path <code>TracedPath</code>: The path to write to.
+     * @param path <code>ExternalPath</code>: The path to write to.
      * @param json <code>JSONObject</code>: The contents to write.
      * @throws IOException Thrown if the designated file cannot be written to for
      *                     any reason.
      */
-    public static void writeTo(TracedPath path, JSONObject json) throws IOException {
+    public static void writeTo(ExternalPath path, JSONObject json) throws IOException {
 
         String outputString = json.toJSONString();
         path.writeTo(outputString);
@@ -192,14 +192,14 @@ public final class JSONOperator {
 
     /**
      * Writes the JSON information from a <code>Map</code> to the designated file
-     * from a <code>TracedPath</code> directory.
+     * from an <code>ExternalPath</code> directory.
      * 
-     * @param path   <code>TracedPath</code>: The path to write to.
+     * @param path   <code>ExternalPath</code>: The path to write to.
      * @param values <code>Map&lt;String, ?&gt;</code>: The contents to write.
      * @throws IOException Thrown if the designated file cannot be written to for
      *                     any reason.
      */
-    public static void writeTo(TracedPath path, Map<String, ?> values) throws IOException {
+    public static void writeTo(ExternalPath path, Map<String, ?> values) throws IOException {
 
         JSONObject json = toJSONObject(values);
 

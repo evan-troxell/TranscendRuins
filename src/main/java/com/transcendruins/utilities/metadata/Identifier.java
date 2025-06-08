@@ -31,7 +31,7 @@ public final class Identifier {
      * <code>String</code>: The regular expression used to ensure all identifier are
      * of the expected pattern.
      */
-    private static final String IDENTIFIER_PATTERN = "^[^:]+:[^:]+$";
+    private static final String IDENTIFIER_PATTERN = "^[^: ]+:[^: ]+$";
 
     /**
      * <code>[String, Identifier]</code>: A set of identifiers to be retrieved in
@@ -48,9 +48,8 @@ public final class Identifier {
     /**
      * Retrieves the identifier entry of this <code>Identifier</code> instance.
      * 
-     * @return <code>TracedEntry&lt;String&gt;</code>: The
-     *         <code>idEntry</code> field of this <code>Identifier</code>
-     *         instance.
+     * @return <code>TracedEntry&lt;String&gt;</code>: The <code>idEntry</code>
+     *         field of this <code>Identifier</code> instance.
      */
     public TracedEntry<String> getIdEntry() {
 
@@ -112,11 +111,9 @@ public final class Identifier {
      * Creates a new instance of the <code>Identifier</code> class.
      * 
      * @param entry        <code>TracedEntry&lt;String&gt;</code>: The entry from
-     *                     which
-     *                     to create this <code>Identifier</code> instance.
+     *                     which to create this <code>Identifier</code> instance.
      * @param versionEntry <code>Version&lt;Version&gt;</code>: The entry
-     *                     representing
-     *                     the version of this <code>Identifier</code>
+     *                     representing the version of this <code>Identifier</code>
      *                     instance.
      * @throws IdentifierFormatException Thrown if the <code>identifier</code>
      *                                   perameter is in an improper format.
@@ -182,9 +179,8 @@ public final class Identifier {
 
             return createIdentifier(new TracedEntry<>(null, identifier),
                     version == null ? null : new TracedEntry<>(null, Version.createTestVersion(version)));
-        } catch (LoggedException e) {
+        } catch (LoggedException _) {
 
-            e.print();
             return null;
         }
     }
@@ -274,9 +270,8 @@ public final class Identifier {
         try {
 
             return createIdentifier(idEntry, null);
-        } catch (IdentifierFormatException e) {
+        } catch (IdentifierFormatException _) {
 
-            e.print();
             return createTestIdentifier(id, null);
         }
     }
@@ -286,10 +281,8 @@ public final class Identifier {
      * 
      * @return <code>String</code>: This <code>Identifier</code> instance in the
      *         following string representation: <br>
-     *         "<code>namespace:identifier</code>"
-     *         <br>
-     *         <b>OR</b>
-     *         <br>
+     *         "<code>namespace:identifier</code>" <br>
+     *         <b>OR</b> <br>
      *         "<code>namespace:identifier [a, b, c]</code>"
      */
     @Override
@@ -320,6 +313,13 @@ public final class Identifier {
         return toString().equals(val);
     }
 
+    /**
+     * Determines if the full identifier string of the other <code>Identifier</code>
+     * instance matches that of this <code>Identifier</code> instance.
+     * 
+     * @param identifier <code>Identifier</code>: The identifier to compare.
+     * @return <code>boolean</code>: If the other identifier is compatible.
+     */
     public boolean compatible(Identifier identifier) {
 
         if (identifier == null) {

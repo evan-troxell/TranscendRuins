@@ -17,7 +17,9 @@
 package com.transcendruins.utilities.json;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.json.simple.JSONArray;
 
@@ -27,7 +29,7 @@ import com.transcendruins.utilities.files.TracedPath;
  * <code>TracedArray</code>: A class representing an array whose
  * <code>parent.get()</code> method has been traced.
  */
-public final class TracedArray extends TracedCollection {
+public final class TracedArray extends TracedCollection implements Iterable<Integer> {
 
     /**
      * The stored JSON array information which this </code>TracedArray</code> draws
@@ -48,38 +50,16 @@ public final class TracedArray extends TracedCollection {
     }
 
     /**
-     * Creates a new instance of the <code>TracedArray</code> class, tracing
-     * another key from a previously traced path.
+     * Creates a new instance of the <code>TracedArray</code> class, tracing another
+     * key from a previously traced path.
      * 
-     * @param dictionary <code>JSONArray</code>: The array to assign to this
-     *                   value.
+     * @param dictionary <code>JSONArray</code>: The array to assign to this value.
      * @param path       <code>TracedPath</code>: The path to trace from.
      */
     public TracedArray(JSONArray array, TracedPath path) {
 
         super(path);
         this.array = array;
-    }
-
-    /**
-     * Retrieves an array containing all numerical indices stored in this
-     * <code>TracedArray</code> instance.
-     * 
-     * @return <code>List&lt;Integer&gt;</code>: All indices in this
-     *         <code>TracedArray</code>
-     *         instance.
-     */
-    public List<Integer> getIndices() {
-
-        int n = size();
-        ArrayList<Integer> indices = new ArrayList<>(n);
-
-        for (int i = 0; i < n; i++) {
-
-            indices.add(i);
-        }
-
-        return indices;
     }
 
     @Override
@@ -110,5 +90,36 @@ public final class TracedArray extends TracedCollection {
     public boolean isEmpty() {
 
         return array.isEmpty();
+    }
+
+    /**
+     * Retrieves an array containing all numerical indices stored in this
+     * <code>TracedArray</code> instance.
+     * 
+     * @return <code>List&lt;Integer&gt;</code>: All indices in this
+     *         <code>TracedArray</code> instance.
+     */
+    public List<Integer> getIndices() {
+
+        int n = size();
+        ArrayList<Integer> indices = new ArrayList<>(n);
+
+        for (int i = 0; i < n; i++) {
+
+            indices.add(i);
+        }
+
+        return indices;
+    }
+
+    public Stream<Integer> stream() {
+
+        return getIndices().stream();
+    }
+
+    @Override
+    public Iterator<Integer> iterator() {
+
+        return getIndices().iterator();
     }
 }

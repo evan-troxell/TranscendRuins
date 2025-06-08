@@ -21,8 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.PropertyHolder;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -53,11 +54,11 @@ final class TRScriptOperator {
     }
 
     /**
-     * <code>(ArrayList&lt;TRScriptValue&gt;, AssetInstance) -> Object</code>: The
+     * <code>(ArrayList&lt;TRScriptValue&gt;, PropertyHolder) -> Object</code>: The
      * expression by which this <code>TRScriptOperator</code> instance should be
      * evaluated.
      */
-    private final BiFunction<ArrayList<TRScriptValue>, AssetInstance, Object> evaluate;
+    private final BiFunction<ArrayList<TRScriptValue>, PropertyHolder, Object> evaluate;
 
     /**
      * <code>(Integer) -> Boolean</code>: The expression by which the validity of
@@ -68,7 +69,7 @@ final class TRScriptOperator {
     /**
      * Creates a new instance of the <code>TRScriptOperator</code> class.
      * 
-     * @param evaluate    <code>(ArrayList&lt;TRScriptValue&gt;, AssetInstance) -> Object)</code>:
+     * @param evaluate    <code>(ArrayList&lt;TRScriptValue&gt;, PropertyHolder) -> Object)</code>:
      *                    The expression by which this <code>TRScriptOperator</code>
      *                    instance should be evaluated.
      * @param invalidArgs <code>(Integer) -> Boolean)</code>: The expression by
@@ -76,7 +77,7 @@ final class TRScriptOperator {
      *                    <code>TRScriptOperator</code> instance should be
      *                    evaluated.
      */
-    public TRScriptOperator(BiFunction<ArrayList<TRScriptValue>, AssetInstance, Object> evaluate,
+    public TRScriptOperator(BiFunction<ArrayList<TRScriptValue>, PropertyHolder, Object> evaluate,
             Function<Integer, Boolean> invalidArgs) {
 
         this.evaluate = evaluate;
@@ -88,10 +89,10 @@ final class TRScriptOperator {
      * 
      * @param args  <code>ArrayList&lt;TRScriptValue&gt;</code>: The arguments of
      *              this <code>TRScriptOperator</code> instance.
-     * @param asset <code>AssetInstance</code>: The asset context to use.
+     * @param asset <code>PropertyHolder</code>: The asset context to use.
      * @return <code>Object</code>: The resulting value.
      */
-    public Object evaluate(ArrayList<TRScriptValue> args, AssetInstance asset) {
+    public Object evaluate(ArrayList<TRScriptValue> args, PropertyHolder asset) {
 
         return evaluate.apply(args, asset);
     }
@@ -114,8 +115,7 @@ final class TRScriptOperator {
      * Creates the operators of this <code>TRScriptOperator</code> instance.
      * 
      * @return <code>ImmutableMap&lt;String, TRScriptOperator&gt;</code>: The
-     *         resulting
-     *         operators.
+     *         resulting operators.
      */
     private static ImmutableMap<String, TRScriptOperator> createOperators() {
 
@@ -163,12 +163,28 @@ final class TRScriptOperator {
 
         createOperator("==", (args, asset) -> {
 
-            return args.get(0).evaluateDouble(asset) == args.get(1).evaluateDouble(asset);
+            Object first = args.get(0).evaluate(asset);
+            Object second = args.get(1).evaluate(asset);
+
+            if (first == null || second == null) {
+
+                return first == second;
+            }
+
+            return first.equals(second);
         }, argsLength -> argsLength != 2, operatorsMap);
 
         createOperator("!=", (args, asset) -> {
 
-            return args.get(0).evaluateDouble(asset) != args.get(1).evaluateDouble(asset);
+            Object first = args.get(0).evaluate(asset);
+            Object second = args.get(1).evaluate(asset);
+
+            if (first == null || second == null) {
+
+                return first != second;
+            }
+
+            return !first.equals(second);
         }, argsLength -> argsLength != 2, operatorsMap);
 
         createOperator("<", (args, asset) -> {
@@ -350,12 +366,12 @@ final class TRScriptOperator {
 
             return switch (args.size()) {
 
-                case 1 -> Math.atan(args.get(0).evaluateDouble(asset));
+            case 1 -> Math.atan(args.get(0).evaluateDouble(asset));
 
-                case 2 -> Math.atan2(args.get(0).evaluateDouble(asset), args.get(1).evaluateDouble(asset));
+            case 2 -> Math.atan2(args.get(0).evaluateDouble(asset), args.get(1).evaluateDouble(asset));
 
-                default -> Math.atan2(args.get(0).evaluateDouble(asset) - args.get(2).evaluateDouble(asset),
-                        args.get(1).evaluateDouble(asset) - args.get(3).evaluateDouble(asset));
+            default -> Math.atan2(args.get(0).evaluateDouble(asset) - args.get(2).evaluateDouble(asset),
+                    args.get(1).evaluateDouble(asset) - args.get(3).evaluateDouble(asset));
             };
         }, argsLength -> argsLength != 1 && argsLength != 2 && argsLength != 4, operatorsMap);
 
@@ -424,28 +440,31 @@ final class TRScriptOperator {
 
             return switch (args.size()) {
 
-                case 2 -> {
+            case 2 -> {
 
-                    double first = args.get(0).evaluateDouble(asset);
+                double first = args.get(0).evaluateDouble(asset);
 
-                    yield first + Math.random() * (args.get(1).evaluateDouble(asset) - first);
-                }
+                yield first + Math.random() * (args.get(1).evaluateDouble(asset) - first);
+            }
 
-                case 1 -> Math.random() * args.get(0).evaluateDouble(asset);
+            case 1 -> Math.random() * args.get(0).evaluateDouble(asset);
 
-                default -> Math.random();
+            default -> Math.random();
             };
         }, argsLength -> argsLength > 2, operatorsMap);
 
         createOperator("getProperty", (args, asset) -> {
 
-            return asset.getProperty(args.get(0).evaluateString(asset));
-        }, argsLength -> argsLength != 1, operatorsMap);
+            String property = String.join(".",
+                    args.stream().map(value -> value.evaluateString(asset)).collect(Collectors.toList()));
+            return asset.getProperty(property);
+        }, argsLength -> argsLength == 0, operatorsMap);
 
         return new ImmutableMap<>(operatorsMap);
     }
 
-    private static void createOperator(String key, BiFunction<ArrayList<TRScriptValue>, AssetInstance, Object> operator,
+    private static void createOperator(String key,
+            BiFunction<ArrayList<TRScriptValue>, PropertyHolder, Object> operator,
             Function<Integer, Boolean> invalidLength, Map<String, TRScriptOperator> operators) {
 
         operators.put(key, new TRScriptOperator(operator, invalidLength));

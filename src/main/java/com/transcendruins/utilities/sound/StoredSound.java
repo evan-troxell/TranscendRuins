@@ -16,9 +16,19 @@
 
 package com.transcendruins.utilities.sound;
 
-import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-import java.io.*;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.transcendruins.utilities.files.TracedPath;
 
@@ -65,6 +75,13 @@ public final class StoredSound {
         sound = isLargeFile ? new StreamSound() : new ClipSound();
     }
 
+    public double toDecibels(double volumePct) {
+
+        if (volumePct < 0.0)
+            volumePct = 0.0;
+        return 20.0 * Math.log10(volumePct / 100.0);
+    }
+
     /**
      * Plays this <code>StoredSound</code> instance.
      * 
@@ -73,7 +90,21 @@ public final class StoredSound {
      */
     public boolean play() {
 
-        return sound.run();
+        return sound.run(0);
+    }
+
+    /**
+     * Plays this <code>StoredSound</code> instance.
+     * 
+     * @param volumePct <code>double</code>: The volume percent to play this
+     *                  <code>StoredSound</code> instance at, ranging from 0% to
+     *                  200%.
+     * @return <code>boolean</code>: Whether or not this <code>StoredSound</code>
+     *         played.
+     */
+    public boolean play(double volumePct) {
+
+        return sound.run((float) toDecibels(volumePct));
     }
 
     /**
@@ -85,10 +116,12 @@ public final class StoredSound {
         /**
          * Runs this <code>StoredSound.PlayableSound</code> instance.
          * 
+         * @param decibels <code>float</code>: The decibel volume of the sound to play,
+         *                 beginning at <code>0.0</code> for the original volume.
          * @return <code>boolean</code>: If the sound successfully ran without
          *         exception.
          */
-        public boolean run();
+        public boolean run(float decibels);
     }
 
     /**
@@ -119,8 +152,8 @@ public final class StoredSound {
          */
         public ClipSound() throws IOException, UnsupportedAudioFileException {
 
-            File soundFile = path.toFile();
-            try (AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile)) {
+            try (InputStream inputStream = path.getInputStream();
+                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(inputStream)) {
 
                 format = audioStream.getFormat();
                 audioData = path.getBytes();
@@ -128,12 +161,20 @@ public final class StoredSound {
         }
 
         @Override
-        public boolean run() {
+        public boolean run(float decibels) {
 
             try (AudioInputStream audioStream = new AudioInputStream(new ByteArrayInputStream(audioData), format,
                     audioData.length / format.getFrameSize()); Clip clip = AudioSystem.getClip();) {
 
                 clip.open(audioStream);
+
+                if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+
+                    FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                    decibels = Math.clamp(decibels, gainControl.getMinimum(), gainControl.getMaximum());
+                    gainControl.setValue(decibels);
+                }
+
                 clip.start();
 
                 return true;
@@ -151,14 +192,21 @@ public final class StoredSound {
     private final class StreamSound implements PlayableSound {
 
         @Override
-        public boolean run() {
+        public boolean run(float decibels) {
 
-            try (AudioInputStream audioStream = AudioSystem.getAudioInputStream(path.toFile());
+            try (InputStream inputStream = path.getInputStream();
+                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(inputStream);
                     SourceDataLine line = (SourceDataLine) AudioSystem
                             .getLine(new DataLine.Info(SourceDataLine.class, audioStream.getFormat()))) {
 
                 AudioFormat format = audioStream.getFormat();
                 line.open(format);
+                if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+
+                    FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+                    decibels = Math.clamp(decibels, gainControl.getMinimum(), gainControl.getMaximum());
+                    gainControl.setValue(decibels);
+                }
                 line.start();
 
                 byte[] buffer = new byte[4096];

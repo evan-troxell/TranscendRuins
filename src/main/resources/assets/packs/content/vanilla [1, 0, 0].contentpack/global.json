@@ -1,0 +1,289 @@
+{
+    "location": {
+        "home": {
+            "location": "TranscendRuins:home",
+            
+            "coordinates": {
+                "x": 0,
+                "y": 0
+            }
+        },
+
+        "settlement": {
+            "location": "TranscendRuins:settlement",
+
+            "event": {
+                "retainLocationData": false
+            },
+
+            "coordinates": {
+                "x": 100,
+                "y": 100
+            }
+        },
+
+        "carnival": {
+            "location": "TranscendRuins:carnival",
+
+            "event": {
+                "duration": 720,
+                "retainLocationData": true
+            },
+
+            "coordinates": {
+                "x": 100,
+                "y": 100
+            }
+        },
+
+        "pineSmall": {
+            "location": "TranscendRuins:pineSmall",
+            
+            "reset": {
+                "duration": 0
+            },
+
+            "coordinates": {
+                "x": 300,
+                "y": 400
+            }
+        },
+        "pineMedium": {
+            "location": "TranscendRuins:pineMedium",
+            
+            "reset": {
+                "duration": 0
+            },
+
+            "coordinates": {
+                "x": 350,
+                "y": 500
+            }
+        },
+        "pineLarge": {
+            "location": "TranscendRuins:pineLarge",
+   
+            "reset": {
+                "duration": 0
+            },
+
+            "coordinates": {
+                "x": 300,
+                "y": 600
+            }
+        },
+
+        "bunkerAlfa": {
+            "location": "TranscendRuins:bunkerAlfa",
+
+            "reset": {
+                "duration": 2880
+            },
+            
+            "coordinates": {
+                "x": 500,
+                "y": 0
+            }
+        },
+
+        "convoy": {
+            "location": "TranscendRuins:convoy",
+
+            "event": {
+                "duration": 120
+            },
+
+            "coordinates": {
+                "x": 700,
+                "y": 800
+            }
+        },
+        "survivorHome": {
+            "location": "TranscendRuins:survivorHome",
+
+            "event": {
+                "duration": 1440,
+                "endOnExit": true
+            },
+
+            "coordinates": {
+                "x": 600,
+                "y": 700
+            }
+        },
+
+        "eventLocation": {
+            "location": "TranscendRuins:eventLocation",
+
+            "duration": 30,
+
+            "event": {
+                "duration": 720
+            },
+
+            "coordinates": {
+                "x": 700,
+                "y": 800
+            }
+        }
+    },
+    "events": {
+        "convoy": {
+            "name": "events.convoy",
+            "description": "events.convoy.description",
+
+            "locations": {
+                "activate": [
+                    "convoy"
+                ],
+                "deactivate": []
+            },
+
+            "conditions": {
+                "operator": "&&",
+                "args": [
+                    {
+                        "operator": "||",
+                        "args": [
+                            {
+                                "operator": "==",
+                                "args": [
+                                    {
+                                        "operator": "getProperty",
+                                        "args": "location"
+                                    },
+                                    "home"
+                                ]
+                            },
+                            {
+                                "operator": "==",
+                                "args": [
+                                    {
+                                        "operator": "getProperty",
+                                        "args": "location"
+                                    },
+                                    "bunkerAlfa"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "operator": ">=",
+                        "args": [
+                            {
+                                "operator": "getProperty",
+                                "args": "events.convoy.kills.TranscendRuins:roamer"
+                            },
+                            20
+                        ]
+                    }
+                ]
+            }
+        },
+        "raiders": {
+            "name": "events.raiders",
+            "description": "events.raiders.description",
+
+            "locations": {
+                "activate": [
+                    "survivorHome"
+                ]
+            },
+
+            "tasks": {
+                "required": 5,
+                "active": 5,
+
+                "tasks": [
+                    {
+                        "name": "events.raiders.task1",
+                        "description": "events.raiders.task1.description",
+
+                        "location": "home"
+                    }
+                ]
+            },
+
+            "conditions": {
+                "operator": ">=",
+                "args": [
+                    {
+                        "operator": "getProperty",
+                        "args": "player.level"
+                    },
+                    100
+                ]
+            }
+        },
+        "example": {
+            "name": "events.example",
+            "description": "events.example.description",
+
+            "locations": {
+                "activate": [],
+                "deactivate": []
+            },
+            "events": {
+                "global": [
+                    "example"
+                ],
+                "local": [
+                    {
+                        "location": "exampleLocation",
+                        "event": "example"
+                    }
+                ]
+            },
+
+            "duration": 1440,
+            "cooldown": 120,
+
+            "tasks": {
+                "required": 15,
+
+                "active": 3,
+                "duration": 1440,
+                "cooldown": 120,
+
+                "tasks": [
+                    {
+                        "name": "events.example.task1",
+                        "description": "events.example.task1.description",
+                        "chance": 10,
+
+                        "location": "exampleLocation",
+
+                        "conditions": {
+                            "operator": ">=",
+                            "args": [
+                                {
+                                    "operator": "getProperty",
+                                    "args": "events.example.kills.TranscendRuins:roamer"
+                                },
+                                20
+                            ]
+                        },
+                        "counter": {
+                            "value": {
+                                "operator": "getProperty",
+                                "args": "events.example.kills.TranscendRuins:roamer"
+                            },
+                            "target": 20
+                        }
+                    }
+                ]
+            },
+
+            "conditions": {
+                "operator": "==",
+                "args": [
+                    {
+                        "operator": "getProperty",
+                        "args": "location"
+                    },
+                    "home"
+                ]
+            }
+        }
+    }
+}

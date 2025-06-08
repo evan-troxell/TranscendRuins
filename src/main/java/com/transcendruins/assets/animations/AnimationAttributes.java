@@ -35,8 +35,8 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>AnimationAttributes</code>: A class which represents the
- * attributes of an <code>AnimationSchema</code> instance.
+ * <code>AnimationAttributes</code>: A class which represents the attributes of
+ * an <code>AnimationSchema</code> instance.
  */
 public final class AnimationAttributes extends AssetAttributes {
 
@@ -53,8 +53,7 @@ public final class AnimationAttributes extends AssetAttributes {
     private final Double startingTimestamp;
 
     /**
-     * Retrieves the starting timestamp of this
-     * <code>AnimationAttributes</code>
+     * Retrieves the starting timestamp of this <code>AnimationAttributes</code>
      * instance.
      * 
      * @return <code>Double</code>: The <code>startingTimestamp</code> field of this
@@ -66,17 +65,17 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>Boolean</code>: Whether or not this
-     * <code>AnimationAttributes</code> instance plays in reverse.
+     * <code>Boolean</code>: Whether or not this <code>AnimationAttributes</code>
+     * instance plays in reverse.
      */
     private final Boolean reversed;
 
     /**
-     * Retrieves whether or not this <code>AnimationAttributes</code> instance
-     * plays in reverse.
+     * Retrieves whether or not this <code>AnimationAttributes</code> instance plays
+     * in reverse.
      * 
-     * @return <code>Boolean</code>: The <code>reversed</code> field of
-     *         this <code>AnimationAttributes</code> instance.
+     * @return <code>Boolean</code>: The <code>reversed</code> field of this
+     *         <code>AnimationAttributes</code> instance.
      */
     public Boolean getReversed() {
 
@@ -119,9 +118,8 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>Boolean</code>: Whether or not this
-     * <code>AnimationAttributes</code> instance should hold on its final
-     * frame upon finishing.
+     * <code>Boolean</code>: Whether or not this <code>AnimationAttributes</code>
+     * instance should hold on its final frame upon finishing.
      */
     private final Boolean holdOnFinish;
 
@@ -138,8 +136,8 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>Boolean</code>: Whether or not this
-     * <code>AnimationAttributes</code> instance should loop upon finishing.
+     * <code>Boolean</code>: Whether or not this <code>AnimationAttributes</code>
+     * instance should loop upon finishing.
      */
     private final Boolean loopOnFinish;
 
@@ -156,8 +154,8 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>Boolean</code>: Whether or not this
-     * <code>AnimationAttributes</code> instance should cycle upon finishing.
+     * <code>Boolean</code>: Whether or not this <code>AnimationAttributes</code>
+     * instance should cycle upon finishing.
      */
     private final Boolean cycleOnFinish;
 
@@ -175,14 +173,13 @@ public final class AnimationAttributes extends AssetAttributes {
 
     /**
      * <code>ImmutableList&lt;ImmutableMap&lt;String, AnimationAttributes.KeyFrame&gt;&gt;</code>:
-     * The key frame time stamps of this <code>AnimationAttributes</code>
-     * instance paired with the key frames of the bone actors.
+     * The key frame time stamps of this <code>AnimationAttributes</code> instance
+     * paired with the key frames of the bone actors.
      */
     private final ImmutableList<ImmutableMap<String, KeyFrame>> keyframes;
 
     /**
-     * Retrieves the keyframes of this <code>AnimationAttributes</code>
-     * instance.
+     * Retrieves the keyframes of this <code>AnimationAttributes</code> instance.
      * 
      * @return <code>ImmutableList&lt;ImmutableMap&lt;String, KeyFrame&gt;&gt;</code>:
      *         The <code>keyframes</code> field of this
@@ -200,8 +197,8 @@ public final class AnimationAttributes extends AssetAttributes {
     private final ImmutableList<Double> timestamps;
 
     /**
-     * Retrieves the sorted timestamps of this
-     * <code>AnimationAttributes</code> instance.
+     * Retrieves the sorted timestamps of this <code>AnimationAttributes</code>
+     * instance.
      * 
      * @return <code>ImmutableList&lt;Double&gt;</code>: The
      *         <code>timestampsSorted</code> field of this
@@ -230,22 +227,20 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * Compiles this <code>AnimationAttributes</code> instance into a
-     * completed instance.
+     * Compiles this <code>AnimationAttributes</code> instance into a completed
+     * instance.
      * 
      * @param schema <code>AssetSchema</code>: The schema which created this
      *               <code>AnimationAttributes</code> instance.
-     * @param json   <code>TracedDictionary</code>: The schema JSON used to
-     *               compile this <code>AnimationAttributes</code>
-     *               instance.
+     * @param json   <code>TracedDictionary</code>: The schema JSON used to compile
+     *               this <code>AnimationAttributes</code> instance.
      * @param isBase <code>boolean</code>: Whether or not this
-     *               <code>AnimationAttributes</code> instance is the base
-     *               attribute set of an <code>AnimationSchema</code> instance.
+     *               <code>AnimationAttributes</code> instance is the base attribute
+     *               set of an <code>AnimationSchema</code> instance.
      * @throws LoggedException Thrown if an exception is raised while processing
      *                         this <code>AnimationAttributes</code> instance.
      */
-    public AnimationAttributes(AssetSchema schema, TracedDictionary json, boolean isBase)
-            throws LoggedException {
+    public AnimationAttributes(AssetSchema schema, TracedDictionary json, boolean isBase) throws LoggedException {
 
         super(schema, json, isBase);
 
@@ -264,35 +259,35 @@ public final class AnimationAttributes extends AssetAttributes {
 
             switch (loopModeEntry.getValue()) {
 
-                case "once" -> {
+            case "once" -> {
 
-                    holdOnFinish = false;
-                    loopOnFinish = false;
-                    cycleOnFinish = false;
-                }
+                holdOnFinish = false;
+                loopOnFinish = false;
+                cycleOnFinish = false;
+            }
 
-                case "hold" -> {
+            case "hold" -> {
 
-                    holdOnFinish = true;
-                    loopOnFinish = false;
-                    cycleOnFinish = false;
-                }
+                holdOnFinish = true;
+                loopOnFinish = false;
+                cycleOnFinish = false;
+            }
 
-                case "loop" -> {
+            case "loop" -> {
 
-                    holdOnFinish = true;
-                    loopOnFinish = true;
-                    cycleOnFinish = false;
-                }
+                holdOnFinish = true;
+                loopOnFinish = true;
+                cycleOnFinish = false;
+            }
 
-                case "cycle" -> {
+            case "cycle" -> {
 
-                    holdOnFinish = true;
-                    loopOnFinish = true;
-                    cycleOnFinish = true;
-                }
+                holdOnFinish = true;
+                loopOnFinish = true;
+                cycleOnFinish = true;
+            }
 
-                default -> throw new UnexpectedValueException(loopModeEntry);
+            default -> throw new UnexpectedValueException(loopModeEntry);
             }
         } else {
 
@@ -309,7 +304,7 @@ public final class AnimationAttributes extends AssetAttributes {
 
             if (!isBase) {
 
-                throw new KeyNameException("keyframes", keyframesEntry);
+                throw new KeyNameException(json, "keyframes");
             }
 
             TracedDictionary keyframesJson = keyframesEntry.getValue();
@@ -324,15 +319,12 @@ public final class AnimationAttributes extends AssetAttributes {
 
             HashMap<Double, ImmutableMap<String, KeyFrame>> tempKeyframes = new HashMap<>();
 
-            for (String keyframe : keyframesJson.getKeys()) {
-
-                TracedEntry<TracedDictionary> keyframeBoneMapEntry = keyframesJson.getAsDict(keyframe, false);
-                TracedDictionary keyframeBoneMapJson = keyframeBoneMapEntry.getValue();
+            for (String keyframe : keyframesJson) {
 
                 // If the keyframe cannot be converted to a double value, raise an exception.
                 if (!keyframe.matches(KEYFRAME_PATTERN)) {
 
-                    throw new KeyNameException(keyframe, keyframeBoneMapEntry);
+                    throw new KeyNameException(keyframesJson, keyframe);
                 }
 
                 // Generates the timestamp of the keyframe.
@@ -343,8 +335,11 @@ public final class AnimationAttributes extends AssetAttributes {
                 if (keyframeTimestamp < 0.0 || keyframeTimestamp > length
                         || tempKeyframes.containsKey(keyframeTimestamp)) {
 
-                    throw new KeyNameException(keyframe, keyframeBoneMapEntry);
+                    throw new KeyNameException(keyframesJson, keyframe);
                 }
+
+                TracedEntry<TracedDictionary> keyframeBoneMapEntry = keyframesJson.getAsDict(keyframe, false);
+                TracedDictionary keyframeBoneMapJson = keyframeBoneMapEntry.getValue();
 
                 // Adds the timestamp to the sorted list of timestamps
                 timestampsList.add(keyframeTimestamp);
@@ -355,7 +350,7 @@ public final class AnimationAttributes extends AssetAttributes {
                 bonesList.addAll(keyframeBoneMapJson.getKeys());
 
                 // Iterate through each bone and process its key frame.
-                for (String bone : keyframeBoneMapJson.getKeys()) {
+                for (String bone : keyframeBoneMapJson) {
 
                     TracedEntry<TracedDictionary> keyframeEntry = keyframeBoneMapJson.getAsDict(bone, false);
                     TracedDictionary keyframeJson = keyframeEntry.getValue();
@@ -368,9 +363,7 @@ public final class AnimationAttributes extends AssetAttributes {
             bones = new ImmutableList<>(bonesList);
 
             // Sort the list of timestamps and apply it to this attribute set.
-            timestamps = new ImmutableList<>(timestampsList.stream()
-                    .sorted()
-                    .collect(Collectors.toList()));
+            timestamps = new ImmutableList<>(timestampsList.stream().sorted().collect(Collectors.toList()));
 
             ArrayList<ImmutableMap<String, KeyFrame>> keyframesList = new ArrayList<>();
             for (double timestamp : timestamps) {
@@ -432,8 +425,8 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>AnimationAttributes.KeyFrame</code>: A subclass representing a
-     * keyframe in an animation.
+     * <code>AnimationAttributes.KeyFrame</code>: A subclass representing a keyframe
+     * in an animation.
      */
     public final class KeyFrame {
 
@@ -458,13 +451,13 @@ public final class AnimationAttributes extends AssetAttributes {
          * Creates a new instance of the <code>AnimationAttributes.KeyFrame</code>
          * class.
          * 
-         * @param keyframeJson <code>TracedDictionary</code>: The json from which this
-         *                     <code>AnimationAttributes.KeyFrame</code> instance
-         *                     should be constructed.
+         * @param keyframeJson <code>TracedDictionary</code>: The JSON from which this
+         *                     <code>AnimationAttributes.KeyFrame</code> instance should
+         *                     be constructed.
          * @param timestamp    <code>double</code>: The timestamp of this
          *                     <code>AnimationAttributes.KeyFrame</code> instance.
          * @throws LoggedException Thrown to indicate any raised exception while
-         *                         createing this key frame.
+         *                         creating this key frame.
          */
         private KeyFrame(TracedDictionary keyframeJson, double timestamp) throws LoggedException {
 
@@ -479,8 +472,7 @@ public final class AnimationAttributes extends AssetAttributes {
                     : null;
 
             TracedEntry<TracedDictionary> scaleEntry = keyframeJson.getAsDict("scale", true);
-            ScaleFrame scale = scaleEntry.containsValue()
-                    ? new ScaleFrame(scaleEntry.getValue(), timestamp, length)
+            ScaleFrame scale = scaleEntry.containsValue() ? new ScaleFrame(scaleEntry.getValue(), timestamp, length)
                     : null;
 
             base = new PermutationFrame(position, rotation, scale);

@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.transcendruins.assets.AssetType;
 import com.transcendruins.resources.languages.Language;
 import com.transcendruins.resources.languages.LanguageSet;
 import com.transcendruins.resources.sounds.Sound;
@@ -32,13 +32,28 @@ import com.transcendruins.resources.textures.TextureSet;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 
-public class ResourceSet {
+public final class ResourceSet {
 
     private final LanguageSet languages;
 
+    public LanguageSet getLanguages() {
+
+        return languages;
+    }
+
     private final SoundSet sounds;
 
+    public SoundSet getSounds() {
+
+        return sounds;
+    }
+
     private final TextureSet textures;
+
+    public TextureSet getTextures() {
+
+        return textures;
+    }
 
     public ResourceSet(TracedPath path) {
 
@@ -52,8 +67,7 @@ public class ResourceSet {
         textures = new TextureSet(texturePath);
     }
 
-    public static ImmutableMap<String, ImmutableMap<String, String>> compileLanguages(
-            List<ResourceSet> resources) {
+    public static ImmutableMap<String, ImmutableMap<String, String>> compileLanguages(List<ResourceSet> resources) {
 
         HashMap<String, ArrayList<Language>> stack = new HashMap<>();
 
@@ -80,29 +94,25 @@ public class ResourceSet {
         return new ImmutableMap<>(compiled);
     }
 
-    public static ImmutableMap<AssetType, ImmutableMap<String, Texture>> compileTextures(
-            List<ResourceSet> resources) {
+    public static ImmutableMap<String, Texture> compileTextures(List<ResourceSet> resources) {
 
-        return new ImmutableMap<>(
-                AssetType
-                        .createAssetMap(type -> new ImmutableMap<>(resources.stream().map(resource -> resource.textures)
-                                .flatMap(textureSet -> textureSet.getTextures().get(type).entrySet().stream())
-                                .collect(Collectors.toMap(
-                                        Map.Entry::getKey,
-                                        Map.Entry::getValue,
-                                        (_, replacement) -> replacement,
-                                        HashMap::new)))));
+        return new ImmutableMap<>(resources.stream().map(resource -> resource.textures)
+                .flatMap(textures -> textures.getTextures().entrySet().stream()).collect(Collectors
+                        .toMap(Map.Entry::getKey, Map.Entry::getValue, (_, replacement) -> replacement, HashMap::new)));
     }
 
-    public static ImmutableMap<AssetType, ImmutableMap<String, Sound>> compileSounds(List<ResourceSet> resources) {
+    public static ImmutableMap<String, Sound> compileSounds(List<ResourceSet> resources) {
+
+        return new ImmutableMap<>(resources.stream().map(resource -> resource.sounds)
+                .flatMap(sounds -> sounds.getSounds().entrySet().stream()).collect(Collectors.toMap(Map.Entry::getKey,
+                        Map.Entry::getValue, (_, replacement) -> replacement, HashMap::new)));
+    }
+
+    public static ImmutableMap<String, TracedPath> compilePaths(List<ResourceSet> resources,
+            Function<ResourceSet, ? extends Map<String, TracedPath>> pathFunction) {
 
         return new ImmutableMap<>(
-                AssetType.createAssetMap(type -> new ImmutableMap<>(resources.stream().map(resource -> resource.sounds)
-                        .flatMap(soundSet -> soundSet.getSounds().get(type).entrySet().stream())
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                Map.Entry::getValue,
-                                (_, replacement) -> replacement,
-                                HashMap::new)))));
+                resources.stream().map(pathFunction).flatMap(map -> map.entrySet().stream()).collect(Collectors
+                        .toMap(Map.Entry::getKey, Map.Entry::getValue, (_, replacement) -> replacement, HashMap::new)));
     }
 }

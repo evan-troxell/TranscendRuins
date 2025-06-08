@@ -35,11 +35,11 @@ import com.transcendruins.utilities.json.TracedEntry;
  */
 public final class AssetEvent {
 
-    public static final String ON_INITIALIZATION = "TranscendRuins:onInitialization";
+    public static final String ON_INITIALIZATION = "TranscendRuins:onInitialized";
 
     public static final String ON_TICK = "TranscendRuins:onTick";
 
-    public static final String ON_DESTRUCTION = "TranscendRuins:onDestruction";
+    public static final String ON_DESTRUCTION = "TranscendRuins:onDestroyed";
 
     /**
      * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be
@@ -122,7 +122,7 @@ public final class AssetEvent {
 
             TracedArray conditionsJson = conditionsEntry.getValue();
 
-            for (int i : conditionsJson.getIndices()) {
+            for (int i : conditionsJson) {
 
                 conditionsList.add(new TRScriptValue(conditionsJson, i));
             }
@@ -133,7 +133,7 @@ public final class AssetEvent {
         ArrayList<TracedEntry<String>> addList = new ArrayList<>();
         ArrayList<TracedEntry<String>> removeList = new ArrayList<>();
 
-        TracedEntry<TracedDictionary> permutationsEntry = json.getAsDict("permutations", false);
+        TracedEntry<TracedDictionary> permutationsEntry = json.getAsDict("permutations", true);
         if (permutationsEntry.containsValue()) {
 
             TracedDictionary permutationsJson = permutationsEntry.getValue();
@@ -142,7 +142,7 @@ public final class AssetEvent {
             if (addEntry.containsValue()) {
 
                 TracedArray addJson = addEntry.getValue();
-                for (int i : addJson.getIndices()) {
+                for (int i : addJson) {
 
                     TracedEntry<String> permutationEntry = addJson.getAsString(i, false, null);
                     addList.add(permutationEntry);
@@ -153,7 +153,7 @@ public final class AssetEvent {
             if (removeEntry.containsValue()) {
 
                 TracedArray removeJson = removeEntry.getValue();
-                for (int i : removeJson.getIndices()) {
+                for (int i : removeJson) {
 
                     TracedEntry<String> permutationEntry = removeJson.getAsString(i, false, null);
                     removeList.add(permutationEntry);
@@ -171,7 +171,7 @@ public final class AssetEvent {
 
             TracedArray runJson = runEntry.getValue();
 
-            for (int i : runJson.getIndices()) {
+            for (int i : runJson) {
 
                 runList.add(runJson.getAsString(i, false, null));
             }
@@ -185,7 +185,7 @@ public final class AssetEvent {
         if (setEntry.containsValue()) {
 
             TracedDictionary setJson = setEntry.getValue();
-            for (String key : setJson.getKeys()) {
+            for (String key : setJson) {
 
                 setMap.put(key, setJson.getAsScalar(key, true, null).getValue());
             }

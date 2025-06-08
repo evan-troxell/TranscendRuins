@@ -17,14 +17,14 @@
 package com.transcendruins.resources.sounds;
 
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.transcendruins.assets.AssetType;
 import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.files.InternalPath;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.json.JSONOperator;
@@ -36,9 +36,9 @@ import com.transcendruins.utilities.json.TracedDictionary;
 public final class SoundSet {
 
     /**
-     * <code>TracedPath</code>: The path to the placeholder sound.
+     * <code>InternalPath</code>: The path to the placeholder sound.
      */
-    public static final TracedPath MISSING_SOUND = TracedPath.DATA_DIRECTORY.extend("missingSound.wav");
+    public static final InternalPath MISSING_SOUND = TracedPath.INTERNAL_DATA_DIRECTORY.extend("missingSound.wav");
 
     /**
      * <code>TracedPath</code>: The path which leads to this <code>SoundSet</code>
@@ -58,19 +58,35 @@ public final class SoundSet {
     }
 
     /**
-     * <code>ImmutableMap&lt;AssetType, ImmutableMap&lt;String, Sound&gt;&gt;</code>:
-     * The map of sounds of this <code>SoundSet</code> instance.
+     * <code>ImmutableMap&lt;String, TracedPath&gt;</code>: The paths of this
+     * <code>SoundSet</code> instance.
      */
-    private final ImmutableMap<AssetType, ImmutableMap<String, Sound>> sounds;
+    private final ImmutableMap<String, TracedPath> paths;
+
+    /**
+     * Retrieves the paths of this <code>SoundSet</code> instance.
+     * 
+     * @return <code>ImmutableMap&lt;String, TracedPath&gt;</code>: The
+     *         <code>paths</code> field of this <code>SoundSet</code> instance.
+     */
+    public ImmutableMap<String, TracedPath> getPaths() {
+
+        return paths;
+    }
+
+    /**
+     * <code>ImmutableMap&lt;String, Sound&gt;</code>: The map of sounds of this
+     * <code>SoundSet</code> instance.
+     */
+    private final ImmutableMap<String, Sound> sounds;
 
     /**
      * Retrieves the sounds of this <code>SoundSet</code> instance.
      * 
-     * @return <code>ImmutableMap&lt;AssetType, ImmutableMap&lt;String, Sound&gt;&gt;</code>:
-     *         The <code>sounds</code> field of this <code>SoundSet</code>
-     *         instance.
+     * @return <code>ImmutableMap&lt;String, Sound&gt;</code>: The
+     *         <code>sounds</code> field of this <code>SoundSet</code> instance.
      */
-    public ImmutableMap<AssetType, ImmutableMap<String, Sound>> getSounds() {
+    public ImmutableMap<String, Sound> getSounds() {
 
         return sounds;
     }
@@ -85,57 +101,39 @@ public final class SoundSet {
 
         this.path = path;
 
-        ArrayList<TracedPath> soundPaths = path.compileFiles(TracedPath.SOUND, true);
+        List<TracedPath> soundPaths = path.listRecursiveFiles(TracedPath.AUDIO);
+        paths = new ImmutableMap<>(soundPaths.stream().collect(
+                Collectors.toMap(p -> p.toString(path), p -> p, (_, replacement) -> replacement, HashMap::new)));
 
-        sounds = new ImmutableMap<>(AssetType.createAssetMap(type -> compileSet(type, soundPaths)));
-    }
+        TracedPath jsonPath = path.extend("sounds.json");
+        if (jsonPath.exists()) {
 
-    /**
-     * Compiles a JSON sound set of this <code>SoundSet</code> instance.
-     * 
-     * @param fileName   <code>String</code>: The file to compile at.
-     * @param soundPaths <code>ArrayList&lt;TracedPath&gt;</code>: The sound
-     *                   paths to compile using.
-     * @return <code>ImmutableMap&lt;String, Sound&gt;</code>: The resulting
-     *         sound set.
-     * @throws LoggedException Thrown if an error occurs while compiling the sound
-     *                         set.
-     */
-    private ImmutableMap<String, Sound> compileSet(AssetType type, ArrayList<TracedPath> soundPaths) {
+            HashMap<String, Sound> soundsMap;
+            try {
 
-        String fileName = type + "Sounds.json";
+                TracedDictionary json = JSONOperator.retrieveJSON(jsonPath);
 
-        TracedPath extendedPath = path.extend(fileName);
-        if (!extendedPath.exists()) {
+                soundsMap = json.stream().map(sound -> {
+                    try {
 
-            return new ImmutableMap<>();
-        }
+                        return new AbstractMap.SimpleEntry<>(sound, new Sound(json, sound));
+                    } catch (LoggedException _) {
 
-        try {
+                        return null;
+                    }
+                }).filter(Objects::nonNull) // Remove null entries.
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (existing, _) -> existing,
+                                HashMap::new));
 
-            TracedDictionary json = JSONOperator.retrieveJSON(extendedPath);
-            return new ImmutableMap<>(json.getKeys().stream()
-                    .map(sound -> {
-                        try {
+            } catch (LoggedException e) {
 
-                            return new AbstractMap.SimpleEntry<>(sound,
-                                    new Sound(json, sound, path, soundPaths));
-                        } catch (LoggedException e) {
+                soundsMap = new HashMap<>();
+            }
 
-                            e.print();
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull) // Remove null entries.
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            (existing, _) -> existing,
-                            HashMap::new)));
-        } catch (LoggedException e) {
+            sounds = new ImmutableMap<>(soundsMap);
+        } else {
 
-            e.print();
-            return new ImmutableMap<>();
+            sounds = new ImmutableMap<>();
         }
     }
 }

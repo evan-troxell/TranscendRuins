@@ -89,7 +89,7 @@ public final class DisplayFrame extends TRFrame {
     public DisplayFrame(Camera3D camera) {
 
         super("displayFrame", ComponentSettings.BACKGROUND_PANEL_SETTINGS);
-        ImageIcon icon = TracedPath.DATA_DIRECTORY.extend("frameIcon.png").retrieveImage();
+        ImageIcon icon = TracedPath.INTERNAL_DATA_DIRECTORY.extend("frameIcon.png").retrieveImage();
         if (icon != null)
             setIconImage(icon.getImage());
         setName("Transcend Ruins V2");

@@ -16,8 +16,18 @@
 
 package com.transcendruins.utilities.immutable;
 
+/**
+ * <code>Immutable</code>: An interface representing an immutable data
+ * structure.
+ */
 public interface Immutable {
 
+    /**
+     * Raises an error if the data structure has been finalized.
+     * 
+     * @param finalized <code>boolean</code>: Whether or not the data structure has
+     *                  been finalized yet.
+     */
     default void raiseError(boolean finalized) {
 
         if (finalized) {

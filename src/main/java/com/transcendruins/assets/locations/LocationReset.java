@@ -1,0 +1,82 @@
+/* Copyright 2025 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package com.transcendruins.assets.locations;
+
+import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.json.TracedDictionary;
+import com.transcendruins.utilities.json.TracedEntry;
+
+/**
+ * <code>LocationReset</code>: A class representing the reset settings of a
+ * global location.
+ */
+public final class LocationReset {
+
+    /**
+     * <code>double</code>: The duration of this <code>LocationReset</code>
+     * instance, in minutes. This value is guaranteed to be greater than or equal to
+     * 0.0, except for values of -1 which represent no countdown.
+     */
+    private final double duration;
+
+    /**
+     * Retrieves the duration of this <code>LocationReset</code> instance, in
+     * minutes.
+     *
+     * @return <code>double</code>: The <code>duration</code> field of this
+     *         <code>LocationReset</code> instance.
+     */
+    public double getDuration() {
+
+        return duration;
+    }
+
+    /**
+     * <code>boolean</code>: Whether or not this <code>LocationReset</code> instance
+     * should display the countdown timer.
+     */
+    private final boolean displayCountdownTimer;
+
+    /**
+     * Retrieves whether or not this <code>LocationReset</code> instance should
+     * display the countdown timer.
+     * 
+     * @return <code>boolean</code>: The <code>displayCountdownTimer</code> field of
+     *         this <code>LocationReset</code> instance.
+     */
+    public boolean getDisplayCountdownTimer() {
+
+        return displayCountdownTimer;
+    }
+
+    /**
+     * Creates a new instance of the <code>LocationReset</code> class.
+     * 
+     * @param json <code>TracedDictionary</code>: The JSON to parse into this
+     *             <code>LocationReset</code> instance.
+     * @throws LoggedException Thrown if there are any issues or missing fields when
+     *                         parsing the JSON.
+     */
+    public LocationReset(TracedDictionary json) throws LoggedException {
+
+        TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, -1.0, num -> num >= 0 || num == -1);
+        duration = durationEntry.getValue();
+
+        TracedEntry<Boolean> displayCountdownTimerEntry = json.getAsBoolean("displayCountdownTimer", true, true);
+        displayCountdownTimer = displayCountdownTimerEntry.getValue();
+    }
+}

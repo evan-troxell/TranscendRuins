@@ -17,11 +17,15 @@
 package com.transcendruins.assets.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.transcendruins.assets.Attributes;
+import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.assets.models.ModelAttributes.IndexedPolygon;
@@ -36,32 +40,94 @@ import com.transcendruins.utilities.immutable.ImmutableMap;
  */
 public final class ModelInstance extends AssetInstance {
 
+    /**
+     * <code>int</code>: The width of the texture used by this
+     * <code>ModelInstance</code> instance.
+     */
     private int textureWidth;
 
+    /**
+     * Retrieves the width of the texture used by this <code>ModelInstance</code>
+     * instance.
+     * 
+     * @return <code>int</code>: The <code>textureWidth</code> field of this
+     *         <code>ModelInstance</code> instance.
+     */
     public int getTextureWidth() {
 
         return textureWidth;
     }
 
+    /**
+     * <code>int</code>: The height of the texture used by this
+     * <code>ModelInstance</code> instance.
+     */
     private int textureHeight;
 
+    /**
+     * Retrieves the height of the texture used by this <code>ModelInstance</code>
+     * instance.
+     * 
+     * @return <code>int</code>: The <code>textureHeight</code> field of this
+     *         <code>ModelInstance</code> instance.
+     */
     public int getTextureHeight() {
 
         return textureHeight;
     }
 
+    /**
+     * <code>Vector</code>: The origin of this <code>ModelInstance</code> instance.
+     * This is the pivot point of the model, which is used to center the model at
+     * the origin when rendering.
+     */
     private Vector origin;
 
+    /**
+     * <code>ImmutableList&lt;ModelAttributes.WeightedVertex&gt;</code>: The
+     * vertices of this <code>ModelInstance</code> instance. These vertices are
+     * weighted by the bones of the model, allowing for smooth animations and
+     * deformations.
+     */
     private ImmutableList<ModelAttributes.WeightedVertex> vertices;
 
+    /**
+     * <code>ImmutableList&lt;ModelAttributes.IndexedPolygon&gt;</code>: The
+     * polygons of this <code>ModelInstance</code> instance. These polygons are used
+     * to render the model, and are defined by the vertices of the model.
+     */
     private ImmutableList<ModelAttributes.IndexedPolygon> polygons;
 
+    /**
+     * <code>ImmutableMap&lt;String, ModelAttributes.Bone&gt;</code>: The bones of
+     * this <code>ModelInstance</code> instance. These bones are used to animate the
+     * model, allowing for complex movements and deformations.
+     */
     private ImmutableMap<String, ModelAttributes.Bone> bones;
 
+    /**
+     * Retrieves a bone from this <code>ModelInstance</code> instance by its name.
+     * 
+     * @param bone <code>String</code>: The name of the bone to retrieve.
+     * @return <code>ModelAttributes.Bone</code>: The bone retrieved from this
+     *         <code.ModelInstance</code> instance.
+     */
     public ModelAttributes.Bone getBone(String bone) {
 
         return bones.get(bone);
     }
+
+    /**
+     * <code>ImmutableList&lt;String&gt;</code>: The list of bones to hide when
+     * rendering this <code>ModelInstance</code> instance.
+     */
+    private ImmutableList<String> hideBones;
+
+    /**
+     * <code>ImmutableList&lt;String&gt;</code>: The list of bone tags to hide when
+     * rendering this <code>ModelInstance</code> instance.
+     */
+    private ImmutableList<String> hideTags;
 
     /**
      * Creates a new instance of the <code>ModelInstance</code> class.
@@ -69,18 +135,18 @@ public final class ModelInstance extends AssetInstance {
      * @param context <code>ModelContext</code>: The context used to generate this
      *                <code>ModelInstance</code> instance.
      */
-    public ModelInstance(ModelContext context) {
+    public ModelInstance(AssetContext assetContext, Object key) {
 
-        super(context);
-        setParent(context.getParent());
+        super(assetContext, key);
+
+        ModelContext context = (ModelContext) assetContext;
     }
 
     /**
      * Retrieves the vertices of this <code>ModelInstance</code> instance.
      * 
-     * @param boneActors <code>BoneActorSet</code>: The bone actors used
-     *                   to model the bones of this <code>ModelInstance</code>
-     *                   instance.
+     * @param boneActors <code>BoneActorSet</code>: The bone actors used to model
+     *                   the bones of this <code>ModelInstance</code> instance.
      * @return <code>ArrayList&lt;Vector&gt;</code>: The retrieved vertices of this
      *         <code>ModelSchema</code> instance.
      */
@@ -102,11 +168,10 @@ public final class ModelInstance extends AssetInstance {
 
         for (int i = 0; i < vertices.size(); i++) {
 
-            verticesModified
-                    .add(vertices.get(i) // Retrieve the raw vertex.
-                            .getWeightedVertex(boneWeights.get(i)) // Apply the vertex weights.
-                            .subtract(origin) // Adjust so the pivot point of the model is the origin.
-                    );
+            verticesModified.add(vertices.get(i) // Retrieve the raw vertex.
+                    .getWeightedVertex(boneWeights.get(i)) // Apply the vertex weights.
+                    .subtract(origin) // Adjust so the pivot point of the model is the origin.
+            );
         }
 
         return verticesModified;
@@ -140,9 +205,8 @@ public final class ModelInstance extends AssetInstance {
      *                         this <code>ModelInstance</code> with.
      * @param parentBoneActors <code>BoneActorSet</code>: The bone actors of the
      *                         parent animation. These will <b>NOT</b>
-     * @param bone             <code>ModelAttributes.Bone</code>: The bone at
-     *                         which to position this <code>ModelInstance</code>
-     *                         instance.
+     * @param bone             <code>ModelAttributes.Bone</code>: The bone at which
+     *                         to position this <code>ModelInstance</code> instance.
      * @param position         <code>Vector</code>: The position to center the
      *                         vertices at. This should effectively be the position
      *                         of the parent which this <code>ModelInstance</code>
@@ -175,13 +239,11 @@ public final class ModelInstance extends AssetInstance {
 
             for (String boneActor : parent.getBonePathway()) {
 
-                if (!bones.containsKey(boneActor)) {
+                if (bones.containsKey(boneActor)) {
 
-                    continue;
+                    verticesModified = parentBoneActors.apply(verticesModified, boneActor,
+                            bones.get(boneActor).getPivotPoint());
                 }
-
-                verticesModified = parentBoneActors.apply(verticesModified, boneActor,
-                        bones.get(boneActor).getPivotPoint());
             }
 
             return getPolygons(verticesModified, position, rotation);
@@ -195,8 +257,7 @@ public final class ModelInstance extends AssetInstance {
      * vertices.
      * 
      * @param vertices <code>List&lt;Vector&gt;</code>: The vertices to model using.
-     * @param position <code>Vector</code>: The position to center the polygons
-     *                 at.
+     * @param position <code>Vector</code>: The position to center the polygons at.
      * @param rotation <code>Quaternion</code>: The rotation to apply to the
      *                 polygons.
      * @return <code>HashMap&lt;Triangle, Triangle&gt;</code>: The generated map of
@@ -205,6 +266,38 @@ public final class ModelInstance extends AssetInstance {
     private HashMap<Triangle, Triangle> getPolygons(List<Vector> vertices, Vector position, Quaternion rotation) {
 
         ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
+
+        HashSet<Integer> hideVertices = new HashSet<>();
+
+        for (String boneName : hideBones) {
+
+            if (bones.containsKey(boneName)) {
+
+                ModelAttributes.Bone bone = bones.get(boneName);
+                Set<Integer> boneVertices = bone.getVertexWeights().keySet();
+
+                hideVertices.addAll(boneVertices);
+            }
+        }
+
+        for (Map.Entry<String, ModelAttributes.Bone> boneEntry : bones.entrySet()) {
+
+            if (hideBones.contains(boneEntry.getKey())) {
+
+                continue; // Skip hidden bones.
+            }
+
+            ModelAttributes.Bone bone = boneEntry.getValue();
+
+            ImmutableList<String> tags = bone.getTags();
+
+            // If there any any hidden tags in this bone, hide the vertices.
+            if (!tags.isEmpty() && !Collections.disjoint(hideTags, tags)) {
+
+                Set<Integer> boneVertices = bone.getVertexWeights().keySet();
+                hideVertices.addAll(boneVertices);
+            }
+        }
 
         for (Vector vertex : vertices) {
 
@@ -216,7 +309,13 @@ public final class ModelInstance extends AssetInstance {
         HashMap<Triangle, Triangle> finalizedPolygons = new HashMap<>(polygons.size());
         for (IndexedPolygon polygon : polygons) {
 
-            finalizedPolygons.put(polygon.getPolygon(verticesModified), polygon.getUvs());
+            Triangle rendered = polygon.getPolygon(verticesModified, hideVertices);
+
+            // Skip polygons which are hidden.
+            if (rendered != null) {
+
+                finalizedPolygons.put(rendered, polygon.getUvs());
+            }
         }
 
         return finalizedPolygons;
@@ -245,6 +344,12 @@ public final class ModelInstance extends AssetInstance {
 
         polygons = calculateAttribute(attributes.getPolygons(), polygons);
         vertices = calculateAttribute(attributes.getVertices(), vertices);
+
+        hideBones = calculateAttribute(attributes.getHideBones(), hideBones, attributes, new ImmutableList<>());
+        setProperty("hideBones", hideBones);
+
+        hideTags = calculateAttribute(attributes.getHideTags(), hideTags, attributes, new ImmutableList<>());
+        setProperty("hideTags", hideTags);
     }
 
     @Override

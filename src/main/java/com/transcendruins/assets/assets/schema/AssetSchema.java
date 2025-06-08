@@ -39,8 +39,7 @@ import com.transcendruins.utilities.metadata.Identifier;
 
 /**
  * <code>AssetSchema</code>: A class representing any asset schema type,
- * including but not limited to: layouts, elements, entities, items, and
- * more.
+ * including but not limited to: layouts, elements, entities, items, and more.
  */
 public final class AssetSchema {
 
@@ -70,8 +69,8 @@ public final class AssetSchema {
      * Retrieves the identifier entry of this <code>AssetSchema</code> instance.
      * 
      * @return <code>TracedEntry&lt;Identifier&gt;</code>: The
-     *         <code>identifierEntry</code> field of this
-     *         <code>AssetSchema</code> instance.
+     *         <code>identifierEntry</code> field of this <code>AssetSchema</code>
+     *         instance.
      */
     public TracedEntry<Identifier> getIdentifierEntry() {
 
@@ -104,8 +103,8 @@ public final class AssetSchema {
     /**
      * Retrieves the base attribute set of this <code>AssetSchema</code> instance.
      * 
-     * @return <code>AssetAttributes</code>: The <code>attributes</code>
-     *         field of this <code>AssetSchema</code> instance.
+     * @return <code>AssetAttributes</code>: The <code>attributes</code> field of
+     *         this <code>AssetSchema</code> instance.
      */
     public AssetAttributes calculateAttributes() {
 
@@ -113,8 +112,8 @@ public final class AssetSchema {
     }
 
     /**
-     * <code>ImmutableMap&lt;String, AssetAttributes&gt;</code>: The
-     * permutations of this <code>AssetSchema</code> instance.
+     * <code>ImmutableMap&lt;String, AssetAttributes&gt;</code>: The permutations of
+     * this <code>AssetSchema</code> instance.
      */
     private final ImmutableMap<String, AssetAttributes> permutations;
 
@@ -122,8 +121,8 @@ public final class AssetSchema {
      * Retrieves a permutation from this <code>AssetSchema</code> instance.
      * 
      * @param permutation <code>String</code>: The permutation to retrieve.
-     * @return <code>AssetAttributes</code>: The retrieved permutation of
-     *         this <code>AssetSchema</code> instance.
+     * @return <code>AssetAttributes</code>: The retrieved permutation of this
+     *         <code>AssetSchema</code> instance.
      */
     public AssetAttributes getPermutation(String permutation) {
 
@@ -132,10 +131,22 @@ public final class AssetSchema {
 
     /**
      * <code>ImmutableMap&lt;String, ImmutableList&lt;AssetEvent&gt;&gt;</code>: The
-     * events of this
-     * <code>AssetSchema</code> instance.
+     * events of this <code>AssetSchema</code> instance.
      */
     private final ImmutableMap<String, ImmutableList<AssetEvent>> events;
+
+    /**
+     * Determines whether or not this <code>AssetSchema</code> instance contains an
+     * event.
+     * 
+     * @param event <code>String</code>: The event to check for.
+     * @return <code>boolean</code>: If the <code>events</code> field of this
+     *         <code>AssetSchema</code> contains the event.
+     */
+    public boolean containsEvent(String event) {
+
+        return events.containsKey(event);
+    }
 
     /**
      * Retrieves an event from this <code>AssetSchema</code> instance.
@@ -146,7 +157,7 @@ public final class AssetSchema {
      */
     public ImmutableList<AssetEvent> getEvent(String event) {
 
-        return events.getOrDefault(event, new ImmutableList<>());
+        return events.get(event);
     }
 
     /**
@@ -208,10 +219,9 @@ public final class AssetSchema {
         if (permutationsEntry.containsValue()) {
 
             TracedDictionary permutationsJson = permutationsEntry.getValue();
-            for (String permutationKey : permutationsJson.getKeys()) {
+            for (String permutationKey : permutationsJson) {
 
-                TracedEntry<TracedDictionary> permutationEntry = permutationsJson.getAsDict(permutationKey,
-                        false);
+                TracedEntry<TracedDictionary> permutationEntry = permutationsJson.getAsDict(permutationKey, false);
                 TracedDictionary permutationJson = permutationEntry.getValue();
                 permutationsMap.put(permutationKey, createAttributes(permutationJson, false));
             }
@@ -228,22 +238,21 @@ public final class AssetSchema {
 
             HashMap<String, ImmutableList<AssetEvent>> eventsMap = new HashMap<>();
 
-            for (String eventKey : eventsJson.getKeys()) {
+            for (String eventKey : eventsJson) {
 
                 ArrayList<AssetEvent> eventSet = new ArrayList<>();
 
-                eventsJson.operate(eventKey, List.of(
-                        eventsJson.dictCase(entry -> {
+                eventsJson.compute(eventKey, List.of(eventsJson.dictCase(entry -> {
 
-                            TracedDictionary eventJson = entry.getValue();
-                            eventSet.add(new AssetEvent(eventJson));
-                            return null;
-                        }),
+                    TracedDictionary eventJson = entry.getValue();
+                    eventSet.add(new AssetEvent(eventJson));
+                    return null;
+                }),
 
                         eventsJson.arrayCase(entry -> {
                             TracedArray eventJson = entry.getValue();
 
-                            for (int i : eventJson.getIndices()) {
+                            for (int i : eventJson) {
 
                                 eventSet.add(new AssetEvent(eventJson.getAsDict(i, false).getValue()));
                             }
@@ -310,12 +319,11 @@ public final class AssetSchema {
      * Creates an attribute set of this <code>AssetSchema</code> instance.
      * 
      * @param jsonSchema <code>TracedDictionary</code>: The dictionary used to
-     *                   create
-     *                   the attribute set.
+     *                   create the attribute set.
      * @param isBase     <code>boolean</code>: Whether or not the attributes being
      *                   built are
      * @return <code>AssetAttributes</code>: The generated attribute set.
-     * @throws LoggedException Thrown if any exception is raised while createing the
+     * @throws LoggedException Thrown if any exception is raised while creating the
      *                         attribute set.
      */
     private AssetAttributes createAttributes(TracedDictionary jsonSchema, boolean isBase) throws LoggedException {

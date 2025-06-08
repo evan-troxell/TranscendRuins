@@ -17,17 +17,35 @@
 package com.transcendruins.world;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import com.transcendruins.contentmodules.packs.Pack;
-import com.transcendruins.contentmodules.resources.Resource;
+import javax.swing.ImageIcon;
+
+import com.transcendruins.PropertyHolder;
+import com.transcendruins.assets.AssetType;
+import com.transcendruins.assets.assets.schema.AssetSchema;
+import com.transcendruins.packs.content.ContentPack;
+import com.transcendruins.packs.resources.ResourcePack;
+import com.transcendruins.resources.ResourceSet;
+import com.transcendruins.resources.sounds.Sound;
+import com.transcendruins.resources.sounds.SoundSet;
+import com.transcendruins.resources.textures.Texture;
+import com.transcendruins.resources.textures.TextureSet;
+import com.transcendruins.utilities.files.TracedPath;
+import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.utilities.immutable.ImmutableMap;
+import com.transcendruins.utilities.metadata.Identifier;
+import com.transcendruins.utilities.sound.StoredSound;
 
 /**
  * <code>World</code>: A class representing a loaded world environment.
  */
-public final class World {
+public final class World extends PropertyHolder {
 
     /**
      * <code>int</code>: The length and width of a unit tile.
@@ -87,23 +105,6 @@ public final class World {
     public UUID getUuid() {
 
         return uuid;
-    }
-
-    /**
-     * <code>EnvironmentState</code>: The environment state of this
-     * <code>World</code> instance.
-     */
-    private final EnvironmentState environment;
-
-    /**
-     * Retrieves the current environment state of this <code>World</code> instance.
-     * 
-     * @return <code>EnvironmentState</code>: The <code>environment</code> field of
-     *         this <code>World</code> instance.
-     */
-    public EnvironmentState getEnvironment() {
-
-        return environment;
     }
 
     /**
@@ -167,18 +168,149 @@ public final class World {
         return getRuntimeMillis() / 1000.0;
     }
 
-    /**
-     * Creates a new instance of the <code>World</code> class.
-     * 
-     * @param packs     <code>List&lt;Pack&gt;</code>: The packs used to create
-     *                  this <code>World</code> instance.
-     * @param resources <code>List&lt;Resource&gt;</code>: The resources
-     *                  used to create this <code>World</code> instance.
-     */
-    private World(List<Pack> packs, List<Resource> resources) {
+    private final ImmutableList<ContentPack> packs;
 
-        environment = new EnvironmentState(packs, resources);
-        uuid = UUID.randomUUID();
+    /**
+     * <code>ImmutableMap&lt;AssetType, ImmutableMap&lt;Identifier, AssetSchema&gt;&gt;</code>:
+     * The merged asset schemas of this <code>World</code> instance.
+     */
+    private final ImmutableMap<AssetType, ImmutableMap<Identifier, AssetSchema>> assets;
+
+    /**
+     * <code>ImmutableMap&lt;String, ImmutableMap&lt;String, String&gt;&gt;</code>:
+     * The merged languages of this <code>World</code> instance.
+     */
+    private ImmutableMap<String, ImmutableMap<String, String>> languages;
+
+    /**
+     * Checks whether or not this <code>World</code> instance contains a specific
+     * text.
+     * 
+     * @param language <code>String</code>: The language to check for.
+     * @param text     <code>String</code>: The text to check for.
+     * @return <code>boolean</code>: Whether or not the text was found.
+     */
+    public boolean containsText(String language, String text) {
+
+        return languages.getOrDefault(language, new ImmutableMap<>()).containsKey(text);
+    }
+
+    /**
+     * Retreives a specific text from this <code>World</code> instance.
+     * 
+     * @param language <code>String</code>: The language to check for.
+     * @param text     <code>String</code>: The text to check for.
+     * @return <code>String</code>: The resulting text.
+     */
+    public String getText(String language, String text) {
+
+        if (!containsText(language, text)) {
+
+            return text;
+        }
+
+        return languages.get(language).get(text);
+    }
+
+    /**
+     * <code>ImmutableMap&lt;String, Sound&gt;</code>: The merged sounds of this
+     * <code>World</code> instance.
+     */
+    private ImmutableMap<String, Sound> sounds;
+
+    /**
+     * <code>ImmutableMap&lt;String, TracedPath&gt;</code>: The paths of the sounds
+     * of this <code>World</code> instance.
+     */
+    private ImmutableMap<String, TracedPath> soundPaths;
+
+    /**
+     * Checks whether or not this <code>World</code> instance contains a specific
+     * sound.
+     * 
+     * @param sound <code>String</code>: The sound to check for.
+     * @return <code>boolean</code>: Whether or not the sound was found.
+     */
+    public boolean containsSound(String sound) {
+
+        return sounds.containsKey(sound);
+    }
+
+    /**
+     * Retreives a specific sound from this <code>World</code> instance.
+     * 
+     * @param sound  <code>String</code>: The sound to check for.
+     * @param random <code>double</code>: The random ID key to use, in the range of
+     *               <code>[0.0, 1.0]</code>.
+     * @return <code>StoredSound</code>: The resulting sound.
+     */
+    public StoredSound getSound(String sound, double random) {
+
+        if (!containsSound(sound)) {
+
+            return SoundSet.MISSING_SOUND.retrieveAudio();
+        }
+
+        StoredSound audio = sounds.get(sound).getSound(random, soundPaths);
+        return audio != null ? audio : SoundSet.MISSING_SOUND.retrieveAudio();
+    }
+
+    /**
+     * <code>ImmutableMap&lt;String, Texture&gt;</code>: The merged textures of this
+     * <code>World</code> instance.
+     */
+    private ImmutableMap<String, Texture> textures;
+
+    /**
+     * <code>ImmutableMap&lt;String, TracedPath&gt;</code>: The paths of the
+     * textures of this <code>World</code> instance.
+     */
+    private ImmutableMap<String, TracedPath> texturePaths;
+
+    /**
+     * Checks whether or not this <code>World</code> instance contains a specific
+     * texture.
+     * 
+     * @param texture <code>String</code>: The texture to check for.
+     * @return <code>boolean</code>: Whether or not the texture was found.
+     */
+    public boolean containsTexture(String texture) {
+
+        return textures.containsKey(texture);
+    }
+
+    /**
+     * Retreives a specific texture from this <code>World</code> instance.
+     * 
+     * @param texture <code>String</code>: The texture to check for.
+     * @param random  <code>double</code>: The random key to use, in the range of
+     *                <code>[0.0, 1.0]</code>.
+     * @return <code>Image</code>: The resulting texture.
+     */
+    public ImageIcon getTexture(String texture, double random) {
+
+        if (!containsTexture(texture)) {
+
+            return TextureSet.MISSING_TEXTURE.retrieveImage();
+        }
+
+        ImageIcon icon = textures.get(texture).getTexture(random, texturePaths);
+        return icon != null ? icon : TextureSet.MISSING_TEXTURE.retrieveImage();
+    }
+
+    /**
+     * Retrieves an asset schema from this <code>World</code> instance.
+     * 
+     * @param type       <code>AssetType</code>: The type of asset schema to
+     *                   retrieve.
+     * @param identifier <code>Identifier</code>: The identifier of the asset schema
+     *                   to retrieve.
+     * @return <code>AssetSchema</code>: The asset schema retrieved from the
+     *         <code>mergedAssets</code> field of this <code>World</code> instance.
+     */
+    public AssetSchema getSchema(AssetType type, Identifier identifier) {
+
+        return assets.get(type).get(identifier);
     }
 
     private boolean initialized = false;
@@ -196,16 +328,63 @@ public final class World {
     }
 
     /**
+     * Creates a new instance of the <code>World</code> class.
+     * 
+     * @param packs     <code>List&lt;Pack&gt;</code>: The packs used to create this
+     *                  <code>World</code> instance.
+     * @param resources <code>List&lt;Resource&gt;</code>: The resources used to
+     *                  create this <code>World</code> instance.
+     */
+    private World(List<ContentPack> packs, List<ResourcePack> resources) {
+
+        uuid = UUID.randomUUID();
+
+        this.packs = new ImmutableList<>(packs);
+
+        HashMap<AssetType, ImmutableMap<Identifier, AssetSchema>> assetsMap = AssetType.createAssetMap(type -> {
+
+            return new ImmutableMap<>(packs.stream().map(pack -> pack.getAssets().get(type)) // Retrieve the map of
+                                                                                             // assets.
+                    .flatMap(map -> map.entrySet().stream()) // Flatten the asset maps.
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (_, replacement) -> replacement
+            // If the same asset is contained in multiple packs, use the highest one on the
+            // stack.
+            )));
+        });
+
+        assets = new ImmutableMap<>(assetsMap);
+
+        applyResources(resources);
+
+        setProperty("test", "test");
+        setProperty("test2", new ImmutableMap<>(Map.of("test", "test2")));
+    }
+
+    public void applyResources(List<ResourcePack> resources) {
+
+        List<ResourceSet> stack = packs.stream().map(pack -> pack.getResources()).collect(Collectors.toList());
+        stack.addAll(packs.stream().map(pack -> pack.getResources()).collect(Collectors.toList()));
+
+        languages = ResourceSet.compileLanguages(stack);
+
+        sounds = ResourceSet.compileSounds(stack);
+        soundPaths = ResourceSet.compilePaths(stack, pack -> pack.getSounds().getPaths());
+
+        textures = ResourceSet.compileTextures(stack);
+        texturePaths = ResourceSet.compilePaths(stack, pack -> pack.getTextures().getPaths());
+    }
+
+    /**
      * Creates a new instance of the <code>World</code> class and assigns it to the
      * <code>world</code> field
      * 
-     * @param packs     <code>List&lt;Pack&gt;</code>: The packs used to create
-     *                  the new <code>World</code> instance.
-     * @param resources <code>List&lt;Resource&gt;</code>: The resources
-     *                  used to create the new <code>World</code> instance.
+     * @param packs     <code>List&lt;Pack&gt;</code>: The packs used to create the
+     *                  new <code>World</code> instance.
+     * @param resources <code>List&lt;Resource&gt;</code>: The resources used to
+     *                  create the new <code>World</code> instance.
      * @return <code>World</code>: The generated world.
      */
-    public static World createWorld(List<Pack> packs, List<Resource> resources) {
+    public static World createWorld(List<ContentPack> packs, List<ResourcePack> resources) {
 
         world = new World(packs, resources);
         return world;

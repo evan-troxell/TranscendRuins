@@ -40,26 +40,25 @@ import com.transcendruins.graphics3d.PolyGroup;
 import com.transcendruins.graphics3d.RenderedPixel;
 import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.RenderTriangle;
+import com.transcendruins.graphics3d.geometry.Triangle;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 
 /**
  * <code>Render3D</code>: A class representing the game display object of the
  * program.
  */
-non-sealed public abstract class Render3D extends GraphicsPanel
+public abstract non-sealed class Render3D extends GraphicsPanel
         implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
     /**
      * <code>Matrix</code>: A matrix transform used to standardize the X, Y, and Z
-     * coordinates.
-     * Current status: X axis: regular, Y axis: inverted, Z axis: regular.
+     * coordinates. Current status: X axis: regular, Y axis: inverted, Z axis:
+     * regular.
      */
     public static final Matrix DISPLAY_TRANSFORM = new Matrix(3, 3, new double[] {
 
-            1, 0, 0,
-            0, -1, 0,
-            0, 0, -1
-    });
+            1, 0, 0, 0, -1, 0, 0, 0, -1 });
 
     /**
      * <code>boolean</code>: Whether or not this <code>Render3D</code> instance is
@@ -144,7 +143,7 @@ non-sealed public abstract class Render3D extends GraphicsPanel
 
         super.paintComponent(g);
 
-        if (active) {
+        if (active && renderImage != null) {
 
             Graphics2D g2D = (Graphics2D) g;
             synchronized (renderLock) {
@@ -158,12 +157,10 @@ non-sealed public abstract class Render3D extends GraphicsPanel
      * Renders a polygon group onto the <code>pixelDepths</code> array.
      * 
      * @param polygonGroup <code>PolyGroup</code>: The polygon group to render.
-     * @param pixelDepths  <code>RenderedPixel[frameWidth * frameHeight]</code>:
-     *                     An array of the mapped pixel distances to add onto.
-     * @param frameWidth   <code>int</code>: The width of the frame to center
-     *                     on.
-     * @param frameHeight  <code>int</code>: The height of the frame to center
-     *                     on.
+     * @param pixelDepths  <code>RenderedPixel[frameWidth * frameHeight]</code>: An
+     *                     array of the mapped pixel distances to add onto.
+     * @param frameWidth   <code>int</code>: The width of the frame to center on.
+     * @param frameHeight  <code>int</code>: The height of the frame to center on.
      */
     public final void renderPolygonGroup(Collection<RenderTriangle> polygons, RenderInstance render) {
 
@@ -184,35 +181,41 @@ non-sealed public abstract class Render3D extends GraphicsPanel
             int minX = Math.max(0, (int) polygon.getMinX());
             int maxX = Math.min(width - 1, (int) polygon.getMaxX());
 
+            int minY = Math.max(0, (int) polygon.getMinY());
+            int maxY = Math.min(height - 1, (int) polygon.getMaxY());
+            // If the triangle is outside of the bounds of the screen, move on.
+            if (minX > maxX || minY > maxY) {
+
+                continue;
+            }
+
             double fresnelFactor = Math.pow(1 - Math.pow(polygon.getViewCosine(), 2), 8);
             double opaqueFactor = renderMaterial.opaque() ? 1 : (renderMaterial.fresnelEffect() ? fresnelFactor : 0);
 
             // Applies face dimming to the polygon.
             double faceDimmingFactor = 1 - renderMaterial.faceDimmingFactor() * fresnelFactor;
 
+            double area = polygon.getArea();
+
+            Vector v1 = polygon.getVertex1();
+            Vector v2 = polygon.getVertex2();
+            Vector v3 = polygon.getVertex3();
+
             // Iterate through the box with the bounds of the minimum and maximum X and Y
             // values previously layed out.
             for (int x = minX; x <= maxX; x++) {
 
-                int[] yBounds = polygon.findYBoundsAtX(x);
-
-                // Sets the Y bounds to iterate through.
-                int minY = Math.max(yBounds[0], 0);
-                int maxY = Math.min(yBounds[1], height);
-
-                if (minY == maxY) {
-
-                    continue;
-                }
-
                 // Render each pixel at point X from the minimum to the maximum Y values.
                 for (int y = minY; y <= maxY; y++) {
 
-                    int[] xBounds = polygon.findXBoundsAtY(y);
-                    int minX2 = Math.max(xBounds[0], 0);
-                    int maxX2 = Math.min(xBounds[1], width);
+                    Vector pixel = new Vector(x, y, 0);
+                    double a1 = Triangle.calculateArea(pixel, v1, v2);
+                    double a2 = Triangle.calculateArea(pixel, v2, v3);
+                    double a3 = Triangle.calculateArea(pixel, v3, v1);
+                    double a = a1 + a2 + a3;
 
-                    if (minX2 == maxX2) {
+                    // If the pixel is not inside the triangle, move on.
+                    if (a < area - 0.0001 || area + 0.0001 < a) {
 
                         continue;
                     }
@@ -231,44 +234,6 @@ non-sealed public abstract class Render3D extends GraphicsPanel
                     if (renderMaterial.antiAliasing()) {
 
                         double alphaMultiplier = 1.0;
-
-                        // If the pixel intercepts the top X bounds, adjust the alpha accordingly.
-                        if (x == xBounds[0]) {
-
-                            double pixelPct = 1.0;
-                            alphaMultiplier *= pixelPct;
-                        }
-
-                        // If the pixel intercepts the bottom X bounds, adjust the alpha accordingly.
-                        if (x == xBounds[1]) {
-
-                            double pixelPct = 1.0;
-                            alphaMultiplier *= pixelPct;
-                        }
-
-                        // If the pixel intercepts the bottom X bounds, adjust the alpha accordingly.
-                        if (y == yBounds[0]) {
-
-                            double pixelPct = 1.0;
-                            alphaMultiplier *= pixelPct;
-                        }
-
-                        // If the pixel intercepts the bottom X bounds, adjust the alpha accordingly.
-                        if (y == yBounds[1]) {
-
-                            double pixelPct = 1.0;
-                            alphaMultiplier *= pixelPct;
-                        }
-
-                        if (alphaMultiplier > 1) {
-
-                            alphaMultiplier = 1;
-                        }
-                        if (alphaMultiplier < 0) {
-
-                            alphaMultiplier = 0;
-                        }
-
                         alpha *= alphaMultiplier;
                     }
 
@@ -310,6 +275,7 @@ non-sealed public abstract class Render3D extends GraphicsPanel
             ArrayList<PolyGroup> polygonGroups = new ArrayList<>();
             for (RenderInstance render : models) {
 
+                render.evaluateAnimations();
                 polygonGroups.addAll(render.getPolygons());
             }
 
@@ -387,8 +353,7 @@ non-sealed public abstract class Render3D extends GraphicsPanel
 
     /**
      * <code>Render3D.RenderTask</code>: A class representing a thread which can be
-     * sent
-     * polygon lists to render, used to assist in rendering a main image.
+     * sent polygon lists to render, used to assist in rendering a main image.
      */
     private final class RenderTask implements Callable<Void> {
 
@@ -405,9 +370,8 @@ non-sealed public abstract class Render3D extends GraphicsPanel
         /**
          * Creates a new instance of the <code>Render3D.RenderTask</code> class.
          * 
-         * @param polygons <code>Collection&lt;RenderTriangle&gt;</code>: The
-         *                 polygons to
-         *                 render.
+         * @param polygons <code>Collection&lt;RenderTriangle&gt;</code>: The polygons
+         *                 to render.
          * @param render   <code>RenderInstance</code>: The context to render using.
          */
         public RenderTask(Collection<RenderTriangle> polygons, RenderInstance render) {

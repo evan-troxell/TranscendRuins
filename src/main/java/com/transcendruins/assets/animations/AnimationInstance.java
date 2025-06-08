@@ -24,6 +24,7 @@ import com.transcendruins.assets.animations.AnimationAttributes.KeyFrame;
 import com.transcendruins.assets.animations.interpolation.PositionFrame;
 import com.transcendruins.assets.animations.interpolation.RotationFrame;
 import com.transcendruins.assets.animations.interpolation.ScaleFrame;
+import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.extra.BoneActor;
 import com.transcendruins.assets.extra.BoneActorSet;
@@ -116,13 +117,14 @@ public final class AnimationInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
      * 
-     * @param context <code>AnimationContext</code>: The context used to
-     *                generate this <code>AnimationInstance</code> instance.
+     * @param context <code>AnimationContext</code>: The context used to generate
+     *                this <code>AnimationInstance</code> instance.
      */
-    public AnimationInstance(AnimationContext context) {
+    public AnimationInstance(AssetContext assetContext, Object key) {
 
-        super(context);
-        setParent(context.getParent());
+        super(assetContext, key);
+
+        AnimationContext context = (AnimationContext) assetContext;
     }
 
     @Override
@@ -131,33 +133,27 @@ public final class AnimationInstance extends AssetInstance {
         AnimationAttributes attributes = (AnimationAttributes) attributeSet;
 
         // Updates the startingTimestamp field.
-        startingTimestamp = calculateAttribute(attributes.getStartingTimestamp(), startingTimestamp, attributes,
-                0.0);
+        startingTimestamp = calculateAttribute(attributes.getStartingTimestamp(), startingTimestamp, attributes, 0.0);
         setProperty("startingTimestamp", startingTimestamp);
 
         // Updates the reversed field.
-        reversed = calculateAttribute(attributes.getReversed(), reversed, attributes,
-                false);
+        reversed = calculateAttribute(attributes.getReversed(), reversed, attributes, false);
         setProperty("reversed", reversed);
 
         // Updates the playbackSpeed field.
-        playbackSpeed = calculateAttribute(attributes.getPlaybackSpeed(), playbackSpeed, attributes,
-                1.0);
+        playbackSpeed = calculateAttribute(attributes.getPlaybackSpeed(), playbackSpeed, attributes, 1.0);
         setProperty("playbackSpeed", playbackSpeed);
 
         // Updates the holdOnFinish field.
-        holdOnFinish = calculateAttribute(attributes.getHoldOnFinish(), holdOnFinish, attributes,
-                false);
+        holdOnFinish = calculateAttribute(attributes.getHoldOnFinish(), holdOnFinish, attributes, false);
         setProperty("holdOnFinish", holdOnFinish);
 
         // Updates the loopOnFinish field.
-        loopOnFinish = calculateAttribute(attributes.getLoopOnFinish(), loopOnFinish, attributes,
-                false);
+        loopOnFinish = calculateAttribute(attributes.getLoopOnFinish(), loopOnFinish, attributes, false);
         setProperty("loopOnFinish", loopOnFinish);
 
-        // Updates the loopOnFinish field.
-        cycleOnFinish = calculateAttribute(attributes.getCycleOnFinish(), cycleOnFinish, attributes,
-                false);
+        // Updates the cycleOnFinish field.
+        cycleOnFinish = calculateAttribute(attributes.getCycleOnFinish(), cycleOnFinish, attributes, false);
         setProperty("cycleOnFinish", cycleOnFinish);
 
         // Updates the length field.
@@ -237,11 +233,9 @@ public final class AnimationInstance extends AssetInstance {
             lowerIndex = cycleOnFinish ? timestampsSorted.size() - 1 : null;
         }
 
-        ImmutableMap<String, KeyFrame> higherKeyframes = higherIndex == null ? null
-                : keyframes.get(higherIndex);
+        ImmutableMap<String, KeyFrame> higherKeyframes = higherIndex == null ? null : keyframes.get(higherIndex);
 
-        ImmutableMap<String, KeyFrame> lowerKeyframes = lowerIndex == null ? null
-                : keyframes.get(lowerIndex);
+        ImmutableMap<String, KeyFrame> lowerKeyframes = lowerIndex == null ? null : keyframes.get(lowerIndex);
 
         // Retrieve all bone keys retrieved while processing the key frames.
 

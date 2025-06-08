@@ -20,24 +20,39 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.transcendruins.App;
 import com.transcendruins.assets.animationcontrollers.AnimationControllerAttributes;
+import com.transcendruins.assets.animationcontrollers.AnimationControllerInstance;
 import com.transcendruins.assets.animations.AnimationAttributes;
-import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.animations.AnimationInstance;
+import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes;
+import com.transcendruins.assets.interfaces.InterfaceInstance;
+import com.transcendruins.assets.items.ItemAttributes;
+import com.transcendruins.assets.items.ItemInstance;
 import com.transcendruins.assets.layouts.LayoutAttributes;
+import com.transcendruins.assets.layouts.LayoutInstance;
+import com.transcendruins.assets.locations.LocationAttributes;
+import com.transcendruins.assets.locations.LocationInstance;
 import com.transcendruins.assets.loottables.LootTableAttributes;
-import com.transcendruins.assets.modelassets.elements.ElementAttributes;
-import com.transcendruins.assets.modelassets.entities.EntityAttributes;
-import com.transcendruins.assets.modelassets.items.ItemAttributes;
+import com.transcendruins.assets.loottables.LootTableInstance;
 import com.transcendruins.assets.models.ModelAttributes;
+import com.transcendruins.assets.models.ModelInstance;
+import com.transcendruins.assets.primaryassets.elements.ElementAttributes;
+import com.transcendruins.assets.primaryassets.elements.ElementInstance;
+import com.transcendruins.assets.primaryassets.entities.EntityAttributes;
+import com.transcendruins.assets.primaryassets.entities.EntityInstance;
 import com.transcendruins.assets.recipes.RecipeAttributes;
+import com.transcendruins.assets.recipes.RecipeInstance;
 import com.transcendruins.assets.rendermaterials.RenderMaterialAttributes;
+import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.files.TracedPath;
-import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;
 
 /**
@@ -46,59 +61,64 @@ import com.transcendruins.utilities.json.TracedDictionary;
 public enum AssetType {
 
     /**
-     * <code>AssetType</code>: An enum representing animation controllers.
+     * <code>AssetType</code>: An asset type representing elements.
      */
-    ANIMATION_CONTROLLER(AnimationControllerAttributes::new),
+    ELEMENT(ElementAttributes::new, ElementInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing animations.
+     * <code>AssetType</code>: An asset type representing entities.
      */
-    ANIMATION(AnimationAttributes::new),
+    ENTITY(EntityAttributes::new, EntityInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing elements.
+     * <code>AssetType</code>: An asset type representing animation controllers.
      */
-    ELEMENT(ElementAttributes::new),
+    ANIMATION_CONTROLLER(AnimationControllerAttributes::new, AnimationControllerInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing entities.
+     * <code>AssetType</code>: An asset type representing animations.
      */
-    ENTITY(EntityAttributes::new),
+    ANIMATION(AnimationAttributes::new, AnimationInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing items.
+     * <code>AssetType</code>: An asset type representing models.
      */
-    ITEM(ItemAttributes::new),
+    MODEL(ModelAttributes::new, ModelInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing models.
+     * <code>AssetType</code>: An asset type representing render materials.
      */
-    MODEL(ModelAttributes::new),
+    RENDER_MATERIAL(RenderMaterialAttributes::new, RenderMaterialInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing render materials.
+     * <code>AssetType</code>: An asset type representing items.
      */
-    RENDER_MATERIAL(RenderMaterialAttributes::new),
+    ITEM(ItemAttributes::new, ItemInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing layouts.
+     * <code>AssetType</code>: An asset type representing loot tables.
      */
-    LAYOUT(LayoutAttributes::new),
+    LOOT_TABLE(LootTableAttributes::new, LootTableInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing interfaces.
+     * <code>AssetType</code>: An asset type representing recipes.
      */
-    INTERFACE(InterfaceAttributes::new),
+    RECIPE(RecipeAttributes::new, RecipeInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing loot tables.
+     * <code>AssetType</code>: An asset type representing layouts.
      */
-    LOOT_TABLE(LootTableAttributes::new),
+    LAYOUT(LayoutAttributes::new, LayoutInstance::new),
 
     /**
-     * <code>AssetType</code>: An enum representing recipes.
+     * <code>AssetType</code>: An asset type representing locations.
      */
-    RECIPE(RecipeAttributes::new);
+    LOCATION(LocationAttributes::new, LocationInstance::new),
+
+    /**
+     * <code>AssetType</code>: An asset type representing interfaces.
+     */
+    INTERFACE(InterfaceAttributes::new, InterfaceInstance::new);
 
     /**
      * Maps each of the asset types to an associated icon.
@@ -110,16 +130,18 @@ public enum AssetType {
      */
     public static final <K> HashMap<AssetType, K> createAssetMap(Function<AssetType, K> mapper) {
 
-        return Arrays.stream(values()).collect(Collectors.toMap(
-                type -> type,
-                mapper::apply,
-                (value, _) -> value,
-                HashMap::new));
+        Stream<AssetType> assets = Arrays.stream(values());
+        HashMap<AssetType, K> map = assets
+                .collect(Collectors.toMap(type -> type, mapper::apply, (value, _) -> value, HashMap::new));
+
+        return map;
     }
+
+    private static final Object KEY = new Object();
 
     /**
      * <code>SchemaAttributeCreater</code>: A functional interface representing the
-     * constructor for a schema attribute set
+     * constructor for a schema attribute set.
      */
     @FunctionalInterface
     interface SchemaAttributeCreater {
@@ -128,18 +150,16 @@ public enum AssetType {
          * Creates a new asset schema attribute set.
          * 
          * @param schema     <code>AssetSchema</code>: The schema to create the
-         *                   attribute
-         *                   set using.
+         *                   attribute set using.
          * @param jsonSchema <code>TracedDictionary</code>: The JSON dictionary to
          *                   parse.
          * @param isBase     <code>boolean</code>: Whether or not the attribute set is
          *                   the base set.
          * @return <code>AssetSchema</code>: The constructed attribute set.
-         * @throws LoggedException Thrown if any exception is raised while createing the
+         * @throws LoggedException Thrown if any exception is raised while creating the
          *                         schema attributes.
          */
-        AssetAttributes apply(AssetSchema schema, TracedDictionary jsonSchema, boolean isBase)
-                throws LoggedException;
+        AssetAttributes apply(AssetSchema schema, TracedDictionary jsonSchema, boolean isBase) throws LoggedException;
     }
 
     /**
@@ -153,45 +173,64 @@ public enum AssetType {
      * this <code>AssetType</code> instance.
      * 
      * @param schema     <code>AssetSchema</code>: The schema to create the
-     *                   attribute
-     *                   set using.
+     *                   attribute set using.
      * @param jsonSchema <code>TracedDictionary</code>: The JSON dictionary to
      *                   parse.
      * @param isBase     <code>boolean</code>: Whether or not the attribute set is
      *                   the base set.
-     * @return <code>AssetSchema</code>: The constructed attribute set.
-     * @throws LoggedException Thrown if any exception is raised while createing the
+     * @return <code>AssetAttributes</code>: The constructed attribute set.
+     * @throws LoggedException Thrown if any exception is raised while creating the
      *                         schema attributes.
      */
-    public final AssetAttributes createAttributes(AssetSchema schema, TracedDictionary jsonSchema,
-            boolean isBase)
+    public final AssetAttributes createAttributes(AssetSchema schema, TracedDictionary jsonSchema, boolean isBase)
             throws LoggedException {
 
         return attributeCreater.apply(schema, jsonSchema, isBase);
     }
 
     /**
-     * Creates a new asset preset from this <code>AssetType</code> instance.
+     * Creates a new asset schema from this <code>AssetType</code> instance.
      * 
-     * @param collection      <code>TracedCollection</code>: The collection whose
-     *                        value to retrieve.
-     * @param key             <code>Object</code>: The key to retrieve from the
-     *                        collection.
-     * @param nullCaseAllowed <code>boolean</code>: Whether or not a null case is
-     *                        allowed.
-     * @return <code>AssetPresets</code>: The constructed asset presets.
-     * @throws LoggedException Thrown if any exception is raised while createing the
-     *                         asset presets.
+     * @param path <code>AssetSchema</code>: The path to the schema.
+     * @return <code>AssetSchema</code>: The constructed schema.
+     * @throws LoggedException Thrown if any exception is raised while creating the
+     *                         schema.
      */
-    public final AssetPresets createPresets(TracedCollection collection, Object key, boolean nullCaseAllowed)
-            throws LoggedException {
+    public final AssetSchema createSchema(TracedPath path) throws LoggedException {
 
-        if (!collection.containsKey(key) && nullCaseAllowed) {
+        return new AssetSchema(path, this);
+    }
 
-            return null;
-        }
+    /**
+     * <code>InstanceCreater</code>: A functional interface representing the
+     * constructor for an asset instance.
+     */
+    @FunctionalInterface
+    interface InstanceCreater {
 
-        return new AssetPresets(collection, key, this);
+        /**
+         * Creates a new asset instance.
+         * 
+         * @param context <code>AssetContext</code>: The context with which to create
+         *                the new asset.
+         * @param key     <code>Object</code>: The key used to create the new asset.
+         * @return <code>AssetInstance</code>: The constructed asset instance.
+         */
+        AssetInstance apply(AssetContext assetContext, Object key);
+    }
+
+    /**
+     * <code>InstanceCreater</code>: The asset instancer creater of this
+     * <code>AssetType</code> instance.
+     */
+    private final InstanceCreater instanceCreater;
+
+    public final AssetInstance createAsset(AssetContext assetContext) {
+
+        AssetInstance asset = instanceCreater.apply(assetContext, KEY);
+        asset.initialize();
+
+        return asset;
     }
 
     /**
@@ -201,26 +240,24 @@ public enum AssetType {
     private final String name;
 
     /**
+     * <code>String>/code>: The sentence-case version of this <code>AssetType</code>
+     * instance.
+     */
+    private final String sentenceName;
+
+    /**
      * Creates a new instance of the <code>AssetType</code> enum class.
      * 
      * @param attributeCreater <code>SchemaAttributeCreater</code>: The schema
      *                         creater of this <code>AssetType</code> instance.
      */
-    private AssetType(SchemaAttributeCreater attributeCreater) {
+    private AssetType(SchemaAttributeCreater attributeCreater, InstanceCreater instanceCreater) {
 
         this.attributeCreater = attributeCreater;
+        this.instanceCreater = instanceCreater;
 
-        String[] tokens = name().toLowerCase().split("_");
-        name = tokens[0] + Arrays.stream(tokens, 1, tokens.length).map(
-                token -> {
-
-                    return Character.toUpperCase(token.charAt(0)) + token.substring(1);
-                }).collect(Collectors.joining());
-    }
-
-    public final AssetSchema createSchema(TracedPath path) throws LoggedException {
-
-        return new AssetSchema(path, this);
+        name = App.toCamelCase(name());
+        sentenceName = App.toSentenceCase(name());
     }
 
     /**
@@ -234,5 +271,10 @@ public enum AssetType {
     public String toString() {
 
         return name;
+    }
+
+    public String toSentenceString() {
+
+        return sentenceName;
     }
 }

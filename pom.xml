@@ -18,6 +18,14 @@
         <jacoco.unit-tests.limit.method-complexity>5</jacoco.unit-tests.limit.method-complexity>
     </properties>
     <dependencies>
+
+        <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>4.8.179</version>
+        </dependency>
+
+
         <!-- https://mvnrepository.com/artifact/com.google.flatbuffers/flatbuffers-java -->
         <dependency>
             <groupId>com.google.flatbuffers</groupId>
@@ -43,6 +51,11 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

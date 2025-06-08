@@ -32,13 +32,18 @@ def file_contains_license(file_path):
 # List to store files missing the license header
 files_missing_license = []
 
+count = 0
+
 # Walk through the project directory
 for subdir, _, files in os.walk(root_dir):
     for file in files:
         if file.endswith(".java"):  # Check only Java files
+            count += 1
             file_path = os.path.join(subdir, file)
             if not file_contains_license(file_path):
                 files_missing_license.append(file_path)
+
+print(f"{count} java files checked.")
 
 # Print the files missing the license header
 if files_missing_license:

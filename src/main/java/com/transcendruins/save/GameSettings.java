@@ -23,6 +23,7 @@ import java.util.Set;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.FileFormatException;
 import com.transcendruins.utilities.exceptions.fileexceptions.MissingPathException;
+import com.transcendruins.utilities.files.ExternalPath;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.json.JSONOperator;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -52,9 +53,22 @@ public final class GameSettings {
     public static final String UI = "UI";
 
     /**
-     * <code>TracedPath</code>: The filepath of the settings JSON file.
+     * <code>ExternalPath</code>: The filepath of the settings JSON file.
      */
-    public static final TracedPath SETTINGS_DIRECTORY = CacheOperator.CACHE_DIRECTORY.extend("settings.json");
+    public static final ExternalPath SETTINGS_DIRECTORY;
+
+    static {
+
+        SETTINGS_DIRECTORY = TracedPath.LIBRARY_DIRECTORY.extend("settings.json");
+
+        try {
+
+            SETTINGS_DIRECTORY.createFile();
+        } catch (IOException e) {
+
+            System.out.println("Settings directory could not be generated. Proceeding...");
+        }
+    }
 
     /**
      * <code>HashMap&lt;String, HashMap&lt;String, Object&gt;&gt;</code>: The map of
@@ -170,12 +184,11 @@ public final class GameSettings {
 
                 HashMap<String, Object> menuSettingsMap = new HashMap<>();
 
-                for (String setting : menuSettingsJson.getKeys()) {
+                for (String setting : menuSettingsJson) {
 
                     try {
 
-                        menuSettingsMap.put(setting,
-                                menuSettingsJson.getAsScalar(setting, true, null).getValue());
+                        menuSettingsMap.put(setting, menuSettingsJson.getAsScalar(setting, true, null).getValue());
                     } catch (LoggedException _) {
                     }
                 }

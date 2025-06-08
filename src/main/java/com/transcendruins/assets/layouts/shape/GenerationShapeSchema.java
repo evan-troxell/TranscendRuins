@@ -16,46 +16,98 @@
 
 package com.transcendruins.assets.layouts.shape;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.transcendruins.assets.extra.Range;
+import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.json.TracedArray;
+import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 public abstract class GenerationShapeSchema {
 
-    public static final GenerationShapeSchema DEFAULT_SHAPE = new DefaultSchema();
+    public static final WeightedRoll<GenerationShapeSchema> DEFAULT_SHAPE = new WeightedRoll<>(
+            new GenerationShapeSchema() {
+            });
 
-    private static final class DefaultSchema extends GenerationShapeSchema {
+    private final double chance;
+
+    public final double getChance() {
+
+        return chance;
     }
 
-    public static final GenerationShapeSchema createShape(TracedDictionary json)
+    protected GenerationShapeSchema() {
+
+        chance = 100.0;
+    }
+
+    protected GenerationShapeSchema(TracedDictionary json) throws LoggedException {
+
+        TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
+        chance = chanceEntry.getValue();
+    }
+
+    public static final WeightedRoll<GenerationShapeSchema> createShape(TracedCollection collection, Object key)
             throws LoggedException {
 
-        TracedEntry<String> shapeEntry = json.getAsString("shape", true, null);
-        if (!shapeEntry.containsValue()) {
+        return collection.get(key, List.of(
 
-            return DEFAULT_SHAPE;
-        }
+                collection.arrayCase(entry -> {
+
+                    TracedArray array = entry.getValue();
+
+                    ArrayList<WeightedRoll.Entry<GenerationShapeSchema>> entries = new ArrayList<>();
+
+                    for (int i : array) {
+
+                        TracedEntry<TracedDictionary> shapeEntry = array.getAsDict(i, false);
+                        TracedDictionary shapeJson = shapeEntry.getValue();
+
+                        GenerationShapeSchema shape = createShape(shapeJson);
+
+                        entries.add(new WeightedRoll.Entry<>(shape, shape.getChance()));
+                    }
+
+                    return new WeightedRoll<>(entry, array, entries);
+                }),
+
+                collection.dictCase(entry -> new WeightedRoll<>(createShape(entry.getValue()))),
+
+                collection.nullCase(_ -> DEFAULT_SHAPE)));
+    }
+
+    private static GenerationShapeSchema createShape(TracedDictionary json) throws LoggedException {
+
+        TracedEntry<String> shapeEntry = json.getAsString("shape", false, null);
 
         String shape = shapeEntry.getValue();
         return switch (shape) {
 
-            case "point" -> new PointSchema();
+        case "point" -> new PointSchema(json);
 
-            case "square" -> new SquareSchema(json);
+        case "square" -> new SquareSchema(json);
 
-            case "rectangle" -> new RectangleSchema(json);
+        case "rectangle" -> new RectangleSchema(json);
 
-            case "circle" -> new CircleSchema(json);
+        case "circle" -> new CircleSchema(json);
 
-            case "ring" -> new RingSchema(json);
+        case "ring" -> new RingSchema(json);
 
-            default -> DEFAULT_SHAPE;
+        default -> throw new UnexpectedValueException(shapeEntry);
         };
     }
 
     public static final class PointSchema extends GenerationShapeSchema {
+
+        public PointSchema(TracedDictionary json) throws LoggedException {
+
+            super(json);
+        }
     }
 
     public static final class SquareSchema extends GenerationShapeSchema {
@@ -67,10 +119,11 @@ public abstract class GenerationShapeSchema {
             return width;
         }
 
-        protected SquareSchema(TracedDictionary json)
-                throws LoggedException {
+        protected SquareSchema(TracedDictionary json) throws LoggedException {
 
-            width = Range.createRange(json, "width", false, true, num -> num >= 1);
+            super(json);
+
+            width = Range.createRange(json, "width", false, num -> num >= 1);
         }
     }
 
@@ -83,19 +136,19 @@ public abstract class GenerationShapeSchema {
             return width;
         }
 
-        private final Range height;
+        private final Range length;
 
-        public Range getHeight() {
+        public Range getLength() {
 
-            return height;
+            return length;
         }
 
-        protected RectangleSchema(TracedDictionary json)
-                throws LoggedException {
+        protected RectangleSchema(TracedDictionary json) throws LoggedException {
 
-            width = Range.createRange(json, "width", false, true, num -> num >= 1);
-            height = json.containsKey("height") ? Range.createRange(json, "height", false, true, num -> num >= 1)
-                    : width;
+            super(json);
+
+            width = Range.createRange(json, "width", false, num -> num >= 1);
+            length = json.containsKey("length") ? Range.createRange(json, "length", false, num -> num >= 1) : width;
         }
     }
 
@@ -108,10 +161,11 @@ public abstract class GenerationShapeSchema {
             return radius;
         }
 
-        protected CircleSchema(TracedDictionary json)
-                throws LoggedException {
+        protected CircleSchema(TracedDictionary json) throws LoggedException {
 
-            radius = Range.createRange(json, "radius", false, true, num -> num >= 1);
+            super(json);
+
+            radius = Range.createRange(json, "radius", false, num -> num >= 1);
         }
     }
 
@@ -131,14 +185,15 @@ public abstract class GenerationShapeSchema {
             return outer;
         }
 
-        protected RingSchema(TracedDictionary json)
-                throws LoggedException {
+        protected RingSchema(TracedDictionary json) throws LoggedException {
+
+            super(json);
 
             TracedEntry<TracedArray> radiusEntry = json.getAsArray("radius", false);
             TracedArray radiusJson = radiusEntry.getValue();
 
-            inner = Range.createRange(radiusJson, 0, false, true, num -> num >= 1);
-            outer = Range.createRange(radiusJson, 1, false, true, num -> num >= inner.getMax() + 1);
+            inner = Range.createRange(radiusJson, 0, false, num -> num >= 1);
+            outer = Range.createRange(radiusJson, 1, false, num -> num > inner.getMax());
         }
     }
 }

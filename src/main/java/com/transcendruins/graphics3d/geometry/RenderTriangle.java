@@ -34,6 +34,17 @@ public final class RenderTriangle extends Triangle {
     private final double area;
 
     /**
+     * Retrieves the area of this <code>RenderTriangle</code> instance.
+     * 
+     * @return <code>double</code>: The <code>area</code> field of this
+     *         <code>RenderTriangle</code> instance.
+     */
+    public double getArea() {
+
+        return area;
+    }
+
+    /**
      * <code>double</code>: The plane shift used to represent the plane formed by
      * this <code>RenderTriangle</code> instance.
      */
@@ -42,8 +53,7 @@ public final class RenderTriangle extends Triangle {
     /**
      * <code>double</code>: The cosine value of the angle between the normal of the
      * plane formed by the vertices of this <code>RenderTriangle</code> and the
-     * viewing
-     * vector.
+     * viewing vector.
      */
     private final double viewCosine;
 
@@ -138,8 +148,7 @@ public final class RenderTriangle extends Triangle {
 
     /**
      * Retrieves the depth of this <code>RenderTriangle</code> instance in 3D space
-     * at a
-     * specific point.
+     * at a specific point.
      * 
      * @param x <code>int</code>: The X coordinate of the point to retrieve.
      * @param y <code>int</code>: The Y coordinate of the point to retrieve.
@@ -152,66 +161,6 @@ public final class RenderTriangle extends Triangle {
         // (px, py, pz) is a point on the plane and the vector <nx, ny, nz> is normal
         // (orthoganol) to the plane. Adjust the formula to isolate Z.
         return -(x * normalX + y * normalY + planeShift) / normalZ;
-    }
-
-    /**
-     * Retrieves the Y bounds of this <code>RenderTriangle</code> instance at input
-     * X.
-     * 
-     * @param x <code>int</code>: The X coordinate whose Y bounds should be found.
-     * @return <code>int[2]</code>: The Y bounds of this <code>RenderTriangle</code>
-     *         instance at input X.
-     */
-    public int[] findYBoundsAtX(int x) {
-
-        Vector v1 = getVertex1();
-        Vector v2 = getVertex2();
-        Vector v3 = getVertex3();
-
-        // Find the Y value on the line v1v2 at point X.
-        Double boundV1V2 = getYAtX(x, v1.getX(), v1.getY(), v2.getX(), v2.getY());
-
-        // Find the Y value on the line v2v3 at point X.
-        Double boundV2V3 = getYAtX(x, v2.getX(), v2.getY(), v3.getX(), v3.getY());
-
-        // Find the Y value on the line v3v1 at point X.
-        Double boundV3V1 = getYAtX(x, v3.getX(), v3.getY(), v1.getX(), v1.getY());
-
-        // Find the minimum and maximum Y values of the triangle at point X.
-        int[] newValues = { min(boundV1V2, min(boundV2V3, boundV3V1)).intValue(),
-                (int) max(boundV1V2, max(boundV2V3, boundV3V1)).intValue() };
-
-        return newValues;
-    }
-
-    /**
-     * Retrieves the X bounds of this <code>RenderTriangle</code> instance at input
-     * Y.
-     * 
-     * @param y <code>int</code>: The Y coordinate whose X bounds should be found.
-     * @return <code>int[2]</code>: The X bounds of this <code>RenderTriangle</code>
-     *         instance at input Y.
-     */
-    public int[] findXBoundsAtY(int y) {
-
-        Vector v1 = getVertex1();
-        Vector v2 = getVertex2();
-        Vector v3 = getVertex3();
-
-        // Find the X value on the line v1v2 at point Y.
-        Double boundV1V2 = getYAtX(y, v1.getY(), v1.getX(), v2.getY(), v2.getX());
-
-        // Find the X value on the line v2v3 at point Y.
-        Double boundV2V3 = getYAtX(y, v2.getY(), v2.getX(), v3.getY(), v3.getX());
-
-        // Find the X value on the line v3v1 at point Y.
-        Double boundV3V1 = getYAtX(y, v3.getY(), v3.getX(), v1.getY(), v1.getX());
-
-        // Find the minimum and maximum X values of the triangle at point Y.
-        int[] newValues = { min(boundV1V2, min(boundV2V3, boundV3V1)).intValue(),
-                (int) max(boundV1V2, max(boundV2V3, boundV3V1)).intValue() };
-
-        return newValues;
     }
 
     /**
@@ -276,8 +225,8 @@ public final class RenderTriangle extends Triangle {
     }
 
     /**
-     * Returns the larger of two <code>Double</code> values, with the possibility
-     * of a <code>null</code> value in either value.
+     * Returns the larger of two <code>Double</code> values, with the possibility of
+     * a <code>null</code> value in either value.
      * 
      * @param val1 <code>Double</code>: The first value to check.
      * @param val2 <code>Double</code>: The second value to check.
@@ -327,24 +276,8 @@ public final class RenderTriangle extends Triangle {
         double u = w1 * uv1.getX() + w2 * uv2.getX() + w3 * uv3.getX();
         double v = w1 * uv1.getY() + w2 * uv2.getY() + w3 * uv3.getY();
 
+        System.out.println(w1 + ", " + w2 + ", " + w3);
+
         return new double[] { u, v };
-    }
-
-    /**
-     * Calculates the area of a triangle formed by 3 vectors.
-     * 
-     * @param a <code>Vector</code>: The vector forming the first vertex of the
-     *          triangle.
-     * @param b <code>Vector</code>: The vector forming the second vertex of the
-     *          triangle.
-     * @param c <code>Vector</code>: The vector forming the third vertex of the
-     *          triangle.
-     * @return <code>double</code>: The resulting area.
-     */
-    private static double calculateArea(Vector a, Vector b, Vector c) {
-
-        return Math.abs((a.getX() * (b.getY() - c.getY()) +
-                b.getX() * (c.getY() - a.getY()) +
-                c.getX() * (a.getY() - b.getY())) / 2.0);
     }
 }

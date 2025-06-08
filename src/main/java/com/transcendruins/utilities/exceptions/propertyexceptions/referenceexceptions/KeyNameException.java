@@ -17,7 +17,7 @@
 package com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions;
 
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
-import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.json.TracedDictionary;
 
 /**
  * <code>KeyNameException</code>: An exception thrown to indicate an invalid
@@ -28,11 +28,12 @@ public final class KeyNameException extends PropertyException {
     /**
      * Creates a new instance of the <code>KeyNameException</code> exception.
      *
-     * @param key   <code>String</code>: The invalid key.
-     * @param entry <code>TracedEntry&lt;?&gt;</code>: The entry pathway to log.
+     * @param json <code>TracedDictionary</code>: The parent dictionary of the
+     *             invalid key.
+     * @param key  <code>String</code>: The invalid key.
      */
-    public KeyNameException(String key, TracedEntry<?> entry) {
+    public KeyNameException(TracedDictionary json, String key) {
 
-        super("The key name \"%s\" is invalid.".formatted(key), entry, "Key Name Exception");
+        super("The key name \"%s\" is invalid.".formatted(key), json.getEntry(key), "Key Name Exception");
     }
 }

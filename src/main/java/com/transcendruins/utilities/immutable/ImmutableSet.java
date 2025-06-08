@@ -22,18 +22,45 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 /**
- * <code>ImmutableSet&lt;E&gt;</code>: A set which can be declared 'final',
- * after which no modifications can be made.
+ * <code>ImmutableSet&lt;E&gt;</code>: A <code>HashSet</code> which is
+ * immutable.
  */
 public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
 
+    /**
+     * <code>boolean</code>: Whether or not this <code>ImmutableSet</code> instance
+     * has been finalized yet.
+     */
     private boolean finalized = false;
 
+    /**
+     * Creates a new, empty instance of the <code>ImmutableSet</code> class.
+     */
     public ImmutableSet() {
 
         finalized = true;
     }
 
+    /**
+     * Creates a new instance of the <code>ImmutableSet</code> class with a single
+     * value.
+     * 
+     * @param val <code>E</code>: The value to add to this <code>ImmutableSet</code>
+     *            instance.
+     */
+    public ImmutableSet(E val) {
+
+        super(Arrays.asList(val));
+        finalized = true;
+    }
+
+    /**
+     * Creates a new instance of the <code>ImmutableSet</code> class using a set of
+     * values.
+     * 
+     * @param elements <code>E...</code>: The values to add to this
+     *                 <code>ImmutableSet</code> instance.
+     */
     @SuppressWarnings("unchecked")
     public ImmutableSet(E... elements) {
 
@@ -41,12 +68,23 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
         finalized = true;
     }
 
+    /**
+     * Creates a new instance of the <code>ImmutableSet</code> class using a set of
+     * values.
+     * 
+     * @param collection <code>Collection&lt;E&gt;</code>: The values to add to this
+     *                   <code>ImmutableSet</code> instance.
+     */
     public ImmutableSet(Collection<E> collection) {
 
         super(collection);
         finalized = true;
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableSet</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean add(E e) {
 
@@ -54,6 +92,10 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
         return super.add(e);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableSet</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean addAll(java.util.Collection<? extends E> c) {
 
@@ -61,6 +103,10 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
         return super.addAll(c);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableSet</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean remove(Object o) {
 
@@ -68,6 +114,10 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
         return super.remove(o);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableSet</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean removeAll(java.util.Collection<?> c) {
 
@@ -75,6 +125,10 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
         return super.removeAll(c);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableSet</code> class and
+     * will raise an exception.
+     */
     @Override
     public boolean retainAll(java.util.Collection<?> c) {
 
@@ -82,6 +136,10 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
         return super.retainAll(c);
     }
 
+    /**
+     * This method is not implemented in the <code>ImmutableSet</code> class and
+     * will raise an exception.
+     */
     @Override
     public void clear() {
 
@@ -89,6 +147,12 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
         super.clear();
     }
 
+    /**
+     * Creates an immutable iterator which cannot modify this
+     * <code>ImmutableSet</code> instance.
+     * 
+     * @return <code>Iterator&lt;E&gt;</code>: The immutable iterator.
+     */
     @Override
     public Iterator<E> iterator() {
 

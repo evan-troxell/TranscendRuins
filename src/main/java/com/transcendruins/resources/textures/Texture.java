@@ -19,14 +19,12 @@ package com.transcendruins.resources.textures;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -36,83 +34,58 @@ public final class Texture {
 
     public static final Color BLANK = new Color(0);
 
-    private final WeightedRoll<TracedPath> entries;
+    private final WeightedRoll<String> entries;
 
-    public Texture(TracedDictionary json, String key, TracedPath root, List<TracedPath> texturePaths)
-            throws LoggedException {
+    public Texture(TracedDictionary json, String key) throws LoggedException {
 
         entries = json.get(key, List.of(
 
                 json.arrayCase(entry -> {
 
                     TracedArray textureJson = entry.getValue();
-                    if (textureJson.isEmpty()) {
 
-                        throw new CollectionSizeException(entry, textureJson);
-                    }
+                    ArrayList<WeightedRoll.Entry<String>> jsonEntries = new ArrayList<>();
 
-                    ArrayList<WeightedRoll.Entry<TracedPath>> jsonEntries = new ArrayList<>();
-
-                    for (int i : textureJson.getIndices()) {
+                    for (int i : textureJson) {
 
                         TracedEntry<String> pathEntry = textureJson.getAsString(i, false, null);
-                        TracedPath path = root.extend(pathEntry.getValue());
-
-                        if (!texturePaths.contains(path)) {
-
-                            throw new ReferenceWithoutDefinitionException(pathEntry, "Path");
-                        }
+                        String path = pathEntry.getValue();
 
                         jsonEntries.add(new WeightedRoll.Entry<>(path));
                     }
 
-                    return new WeightedRoll<>(jsonEntries);
+                    return new WeightedRoll<>(entry, textureJson, jsonEntries);
                 }),
 
                 json.dictCase(entry -> {
 
                     TracedDictionary textureJson = entry.getValue();
 
-                    if (textureJson.getKeys().isEmpty()) {
+                    ArrayList<WeightedRoll.Entry<String>> jsonEntries = new ArrayList<>();
 
-                        throw new MissingPropertyException(entry);
-                    }
+                    for (String pathString : textureJson) {
 
-                    ArrayList<WeightedRoll.Entry<TracedPath>> jsonEntries = new ArrayList<>();
-
-                    for (String pathString : textureJson.getKeys()) {
-
-                        TracedPath path = root.extend(pathString);
+                        String path = pathString;
                         TracedEntry<Double> weightEntry = textureJson.getAsDouble(pathString, false, null,
                                 num -> num > 0);
-
-                        if (!texturePaths.contains(path)) {
-
-                            throw new ReferenceWithoutDefinitionException(path, weightEntry, "Path");
-                        }
 
                         jsonEntries.add(new WeightedRoll.Entry<>(path, weightEntry.getValue()));
                     }
 
-                    return new WeightedRoll<>(jsonEntries);
+                    return new WeightedRoll<>(entry, textureJson, jsonEntries);
                 }),
 
                 json.stringCase(entry -> {
-                    TracedPath path = root.extend(entry.getValue());
 
-                    if (!texturePaths.contains(path)) {
-
-                        throw new ReferenceWithoutDefinitionException(entry, "Path");
-                    }
-
+                    String path = entry.getValue();
                     return new WeightedRoll<>(path);
                 })));
     }
 
-    public ImageIcon getTexture(double random) {
+    public ImageIcon getTexture(double random, Map<String, TracedPath> paths) {
 
-        TracedPath path = entries.get(random);
+        String path = entries.get(random);
 
-        return path != null ? path.retrieveImage() : null;
+        return paths.containsKey(path) ? paths.get(path).retrieveImage() : null;
     }
 }

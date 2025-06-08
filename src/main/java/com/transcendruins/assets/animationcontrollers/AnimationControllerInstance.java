@@ -21,9 +21,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animations.AnimationContext;
 import com.transcendruins.assets.animations.AnimationInstance;
+import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.BoneActorSet;
@@ -88,12 +90,11 @@ public final class AnimationControllerInstance extends AssetInstance {
      *                generate this <code>AnimationControllerInstance</code>
      *                instance.
      */
-    public AnimationControllerInstance(AnimationControllerContext context) {
+    public AnimationControllerInstance(AssetContext assetContext, Object key) {
 
-        super(context);
-        setParent(context.getParent());
+        super(assetContext, key);
 
-        setState(defaultState, context.getRuntimeSeconds());
+        AnimationControllerContext context = (AnimationControllerContext) assetContext;
     }
 
     @Override
@@ -111,6 +112,10 @@ public final class AnimationControllerInstance extends AssetInstance {
     @Override
     protected void onUpdate(double time) {
 
+        if (state == null) {
+
+            setState(defaultState, time);
+        }
         state = calculateAttribute(evaluateTransitions(), newstate -> setState(newstate, time), state);
         setProperty("state", state);
 
@@ -148,12 +153,13 @@ public final class AnimationControllerInstance extends AssetInstance {
         timeOfCreation = time;
         timestamp = time;
 
+        animations = new ArrayList<>();
+
         AnimationControllerAttributes.AnimationStateSchema schema = states.get(state);
         for (AssetPresets animationPresets : schema.getStateAnimations()) {
 
-            AnimationContext animationContext = new AnimationContext(animationPresets, getWorld(),
-                    AnimationControllerInstance.this);
-            animations.add(new AnimationInstance(animationContext));
+            AnimationContext animationContext = new AnimationContext(animationPresets, getWorld(), this);
+            animations.add((AnimationInstance) AssetType.ANIMATION.createAsset(animationContext));
         }
 
         transitions = schema.getStateTransitions();
@@ -189,8 +195,7 @@ public final class AnimationControllerInstance extends AssetInstance {
      * Evaluates the animations of this <code>AnimationControllerInstance</code>
      * instance, generating a set of bone actors.
      * 
-     * @return <code>BoneActorSet</code>: The constructed map of
-     *         bone actors.
+     * @return <code>BoneActorSet</code>: The constructed map of bone actors.
      */
     public BoneActorSet evaluatePose() {
 

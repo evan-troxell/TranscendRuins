@@ -16,11 +16,12 @@
 
 package com.transcendruins.assets.assets;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.swing.ImageIcon;
 
@@ -29,16 +30,14 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Instance;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.utilities.immutable.ImmutableList;
-import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 
 /**
  * <code>AssetInstance</code>: A class representing a generated instance of any
- * asset type, including but not limited to: layouts, elements, entities,
- * items, and more.
+ * asset type, including but not limited to: layouts, elements, entities, items,
+ * and more.
  */
 public abstract class AssetInstance extends Instance {
 
@@ -47,6 +46,12 @@ public abstract class AssetInstance extends Instance {
      * <code>AssetInstance</code> instance.
      */
     private final AssetSchema assetSchema;
+
+    /**
+     * <code>AssetPresets</code>: The presets used to generate this
+     * <code>AssetInstance</code> instance.
+     */
+    private final AssetPresets assetPresets;
 
     /**
      * <code>World</code>: The world copy of this <code>AssetInstance</code>
@@ -80,6 +85,22 @@ public abstract class AssetInstance extends Instance {
     public final double getRandomId() {
 
         return randomId;
+    }
+
+    /**
+     * Creates a randomizer based on the <code>randomId</code> field of this
+     * <code>AssetInstance</code> instance.
+     * 
+     * @return <code>Random</code>: A randomizer based on the <code>randomId</code>
+     *         field of this <code>AssetInstance</code> instance.
+     */
+    public final Random createAssetRandomizer() {
+
+        final double TWO_64_DEG = Math.pow(2, 64);
+
+        // Map the [0, 1) range of randomId to the range of [Long.MIN_VALUE,
+        // Long.MAX_VALUE].
+        return new Random((long) (randomId * TWO_64_DEG + Long.MIN_VALUE));
     }
 
     /**
@@ -117,232 +138,29 @@ public abstract class AssetInstance extends Instance {
     }
 
     /**
+     * Sets the parent of this <code>PropertyHolder</code> instance to another
+     * asset, or the <code>World</code> instance if another parent asset is not
+     * provided.
+     * 
+     * @param parent <code>AssetInstance</code>: The parent of this
+     *               <code>AssetInstance</code> instance.
+     */
+    public final void setParent(AssetInstance parent) {
+
+        super.setParent(parent == null ? parent : world);
+    }
+
+    /**
      * <code>ArrayList&lt;String&gt;</code>: The list of currently applied attribute
      * sets.
      */
     private final ArrayList<String> appliedPermutations = new ArrayList<>();
 
     /**
-     * <code>HashMap&lt;String, Object&gt;</code>: The set of private properties of
-     * this
-     * <code>AssetInstance</code> instance.
+     * <code>boolean</code>: Whether or not this <code>AssetInstance</code> has been
+     * initialized yet.
      */
-    private final HashMap<String, Object> privateProperties = new HashMap<>();
-
-    protected final void setProperty(String property, boolean value) {
-
-        privateProperties.put(property, value);
-    }
-
-    protected final void setProperty(String property, int value) {
-
-        privateProperties.put(property, value);
-    }
-
-    protected final void setProperty(String property, long value) {
-
-        privateProperties.put(property, value);
-    }
-
-    protected final void setProperty(String property, float value) {
-
-        privateProperties.put(property, value);
-    }
-
-    protected final void setProperty(String property, double value) {
-
-        privateProperties.put(property, value);
-    }
-
-    protected final void setProperty(String property, String value) {
-
-        privateProperties.put(property, value);
-    }
-
-    protected final void setProperty(String property, ImmutableList<?> value) {
-
-        privateProperties.put(property, value);
-    }
-
-    protected final void setProperty(String property, ImmutableMap<String, ?> value) {
-
-        privateProperties.put(property, value);
-    }
-
-    /**
-     * <code>HashMap&lt;String, Object&gt;</code>: The set of public properties of
-     * this
-     * <code>AssetInstance</code> instance.
-     */
-    private final HashMap<String, Object> publicProperties = new HashMap<>();
-
-    /**
-     * Sets a public property of this <code>AssetInstance</code> instance.
-     * 
-     * @param property <code>String</code>: The property to set.
-     * @param value    <code>Object</code>: The value to set.
-     */
-    public final void setPublicProperty(String property, Object value) {
-
-        publicProperties.put(property, value);
-    }
-
-    /**
-     * Determines whether or not this <code>AssetInstance</code> instance contains a
-     * property.
-     * 
-     * @param property <code>String</code>: The property to check for.
-     * @return <code>boolean</code>: Whether or not the property is contained within
-     *         the <code>privateProperties</code> field of this
-     *         <code>AssetInstance</code>
-     *         instance.
-     */
-    public final boolean hasProperty(String property) {
-
-        return privateProperties.containsKey(property) || publicProperties.containsKey(property);
-    }
-
-    /**
-     * Retrieves a property from an asset, dictionary, or list using a pathway of
-     * token values.
-     * 
-     * @param val    <code>Object</code>: The object whose value to retrieve. If the
-     *               <code>tokens</code> parameter is empty, this is the value which
-     *               will be returned; otherwise, if this is an asset, dictionary,
-     *               or list, its property will be returned, and if it is NOT an
-     *               indexable item, a <code>null</code> value will be returned.
-     * @param tokens <code>String[]</code>: The token pathway to follow. If this has
-     *               a length of <code>0</code>, the <code>val</code> parameter will
-     *               be returned; otherwise, this pathway will be traced.
-     * @return <code>Object</code>: The retrieved property.
-     */
-    private static Object getProperty(Object val, String[] tokens) {
-
-        if (val == null || tokens.length == 0) {
-
-            return val;
-        }
-
-        return switch (val) {
-
-            case AssetInstance asset -> {
-
-                yield asset.getProperty(tokens);
-            }
-
-            case Map<?, ?> mapVal -> {
-
-                String next = tokens[0];
-
-                yield getProperty(mapVal.get(next), Arrays.copyOfRange(tokens, 1, tokens.length));
-            }
-
-            case List<?> listVal -> {
-
-                String next = tokens[0];
-                int nextIndex;
-
-                try {
-
-                    nextIndex = Integer.parseInt(next);
-                } catch (NumberFormatException e) {
-
-                    yield null;
-                }
-
-                yield getProperty(listVal.get(nextIndex), Arrays.copyOfRange(tokens, 1, tokens.length));
-            }
-
-            default -> null;
-
-        };
-    }
-
-    /**
-     * Retrieves a property from this <code>AssetInstance</code> following a
-     * property path.
-     * 
-     * @param tokens <code>String[]</code>: The property pathway to follow, split
-     *               into tokens between the '<code>.</code>' character.
-     * @return <code>Object</code>: The retrieved property.
-     */
-    private Object getProperty(String[] tokens) {
-
-        if (tokens.length == 0) {
-
-            return null;
-        }
-
-        String property = tokens[0];
-        Object propertyVal = privateProperties.getOrDefault(property, publicProperties.get(property));
-
-        // Check the parent value if the property could not be found.
-        if (propertyVal == null && hasParent()) {
-
-            return parent.getProperty(tokens);
-        }
-
-        String[] nextTokens = Arrays.copyOfRange(tokens, 1, tokens.length);
-        return getProperty(propertyVal, nextTokens);
-    }
-
-    /**
-     * Retrieves a property from this <code>AssetInstance</code> instance.
-     * 
-     * @param property <code>String</code>: The property to retrieve.
-     * @return <code>Object</code>: The retrieved property
-     */
-    public final Object getProperty(String property) {
-
-        String[] tokens = property.split("\\.");
-
-        if (tokens.length == 0) {
-
-            return null;
-        }
-
-        return getProperty(tokens);
-    }
-
-    /**
-     * <code>AssetInstance</code>: The parent asset to this
-     * <code>AssetInstance</code> instance. This is not required to hold a value.
-     */
-    private AssetInstance parent;
-
-    /**
-     * Sets the parent of this <code>AssetInstance</code> instance.
-     * 
-     * @param parent <code>AssetInstance</code>: The parent of this
-     *               <code>AssetInstance</code> instance.
-     */
-    protected final void setParent(AssetInstance parent) {
-
-        this.parent = parent;
-    }
-
-    /**
-     * Determines whether or not this <code>AssetInstance</code> instance has a
-     * parent asset.
-     * 
-     * @return <code>boolean</code>: Whether or not the <code>parent</code> field of
-     *         this <code>AssetInstance</code> instance is not null.
-     */
-    public final boolean hasParent() {
-
-        return parent != null;
-    }
-
-    /**
-     * Retrieves the parent asset to this <code>AssetInstance</code> instance.
-     * 
-     * @return <code>AssetInstance</code>: The <code>parent</code> field of this
-     *         <code>AssetInstance</code> instance.
-     */
-    public final AssetInstance getParent() {
-
-        return parent;
-    }
+    private boolean isInitialized = false;
 
     /**
      * Creates a new instance of the <code>AssetInstance</code> class.
@@ -350,49 +168,69 @@ public abstract class AssetInstance extends Instance {
      * @param context <code>AssetContext</code>: The context used to generate this
      *                <code>AssetInstance</code> instance.
      */
-    public AssetInstance(AssetContext context) {
+    public AssetInstance(AssetContext assetContext, Object key) {
 
-        AssetPresets presets = context.getPresets();
-        publicProperties.putAll(presets.getPublicProperties());
-        privateProperties.putAll(presets.getPrivateProperties());
+        assetPresets = assetContext.getPresets();
+        for (Map.Entry<String, Object> entry : assetPresets.getPublicProperties().entrySet()) {
+            String property = entry.getKey();
+            Object value = entry.getValue();
+            setPublicProperty(property, value);
+        }
 
-        world = context.getWorld();
-        // setProperty("world", world);
+        world = assetContext.getWorld();
+        setProperty("world", world);
 
-        randomId = context.getRandomId();
+        setParent(assetContext.getParent());
 
-        type = presets.getType();
+        randomId = assetContext.getRandomId();
+
+        type = assetPresets.getType();
         setProperty("type", type.toString());
 
-        identifier = presets.getIdentifier();
+        identifier = assetPresets.getIdentifier();
         setProperty("identifier", identifier.toString());
 
-        assetSchema = world.getEnvironment().getSchema(type, identifier);
+        assetSchema = world.getSchema(type, identifier);
+    }
+
+    public final void initialize() {
+
+        if (isInitialized) {
+
+            return;
+        }
+
+        isInitialized = true;
 
         updateAttributes();
         executeEvent(AssetEvent.ON_INITIALIZATION);
 
-        for (TracedEntry<String> eventEntry : presets.getEvents()) {
+        for (TracedEntry<String> eventEntry : assetPresets.getEvents()) {
 
             String event = eventEntry.getValue();
             executeEvent(event);
         }
     }
 
+    public final void reload() {
+
+        isInitialized = false;
+        initialize();
+    }
+
     /**
      * Adds a list of permutations to this <code>AssetInstance</code> instance.
      * 
-     * @param permutations <code>List&lt;String&gt;</code>: The permutations to
-     *                     add.
+     * @param permutations <code>List&lt;String&gt;</code>: The permutations to add.
      */
     public final void addPermutations(List<String> permutations) {
 
+        appliedPermutations.removeAll(permutations);
         appliedPermutations.addAll(permutations);
     }
 
     /**
-     * Removes a list of permutations from this <code>AssetInstance</code>
-     * instance.
+     * Removes a list of permutations from this <code>AssetInstance</code> instance.
      * 
      * @param permutations <code>List&lt;String&gt;</code>: The permutations to
      *                     remove.
@@ -412,6 +250,11 @@ public abstract class AssetInstance extends Instance {
     public final boolean executeEvent(String eventName) {
 
         boolean executed = false;
+
+        if (!assetSchema.containsEvent(eventName)) {
+
+            return executed;
+        }
 
         for (AssetEvent event : assetSchema.getEvent(eventName)) {
 
@@ -455,7 +298,7 @@ public abstract class AssetInstance extends Instance {
     }
 
     /**
-     * Performs all instance updates of this <code>ModelAssetInstance</code>
+     * Performs all instance updates of this <code>PrimaryAssetInstance</code>
      * instance.
      * 
      * @param time <code>double</code> The time since the world was created.
@@ -470,9 +313,35 @@ public abstract class AssetInstance extends Instance {
      * @return <code>ImageIcon</code>: The retrieved texture icon. Note that this
      *         value is NOT shared between any other asset instances.
      */
-    public ImageIcon getTexture(String texture) {
+    public final ImageIcon getTexture(String texture) {
 
-        return getWorld().getEnvironment().getTexture(type, texture, randomId);
+        return getWorld().getTexture(texture, randomId);
+    }
+
+    /**
+     * Retrieves a texture based on the random ID and type of this
+     * <code>AssetInstance</code> instance and maps it into a new
+     * <code>BufferedImage</code> instance.
+     * 
+     * @param texture   <code>String</code>: The texture to retrieve.
+     * @param imageType <code>int</code>: The image type to parse the image into.
+     *                  This should be a constant from the
+     *                  <code>BufferedImage</code> class, such as
+     *                  <code>BufferedImage.TYPE_INT_ARGB</code>.
+     * @return <code>BufferedImage</code>: The retrieved texture icon. Note that
+     *         this value is NOT shared between any other asset instances.
+     */
+    public final BufferedImage getTextureAsBufferedImage(String texture, int imageType) {
+
+        ImageIcon icon = getTexture(texture);
+
+        BufferedImage bufferedImage = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), imageType);
+
+        Graphics g = bufferedImage.getGraphics();
+        g.drawImage(icon.getImage(), 0, 0, null);
+        g.dispose();
+
+        return bufferedImage;
     }
 
     /**
@@ -484,7 +353,7 @@ public abstract class AssetInstance extends Instance {
      *         <code>identifier</code> fields of this <code>AssetInstance</code>
      *         instance match those of the <code>asset</code> parameter.
      */
-    public boolean isLikeAsset(AssetInstance asset) {
+    public final boolean isLikeAsset(AssetInstance asset) {
 
         return type == asset.getType() && identifier == asset.getIdentifier();
     }

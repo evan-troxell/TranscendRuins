@@ -18,34 +18,32 @@ package com.transcendruins.assets.layouts;
 
 import java.util.List;
 
-import com.transcendruins.assets.extra.Range;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;
-import com.transcendruins.world.World;
 
 public final class LayoutDimension {
 
-    private final Range width;
+    private final int width;
 
-    public int getWidth(World world) {
+    public int getWidth() {
 
-        return width.getIntegerValue(world.nextRandom());
+        return width;
     }
 
-    private final Range height;
+    private final int length;
 
-    public int getHeight(World world) {
+    public int getLength() {
 
-        return height.getIntegerValue(world.nextRandom());
+        return length;
     }
 
     public LayoutDimension(TracedCollection collection, Object key, boolean variableSizeAllowed)
             throws LoggedException {
 
-        Range[] dimensions = collection.get(key, List.of(
+        int[] dimensions = collection.get(key, List.of(
 
                 collection.arrayCase(entry -> {
 
@@ -55,23 +53,19 @@ public final class LayoutDimension {
                         throw new CollectionSizeException(entry, sizeJson);
                     }
 
-                    return new Range[] {
-                            Range.createRange(sizeJson, 0, false, variableSizeAllowed, num -> num >= 1),
-                            Range.createRange(sizeJson, 1, false, variableSizeAllowed, num -> num >= 1)
-                    };
+                    return new int[] { sizeJson.getAsInteger(0, false, null, num -> num >= 1).getValue(),
+                            sizeJson.getAsInteger(1, false, null, num -> num >= 1).getValue() };
                 }),
 
                 collection.dictCase(entry -> {
 
                     TracedDictionary sizeJson = entry.getValue();
 
-                    return new Range[] {
-                            Range.createRange(sizeJson, "width", false, variableSizeAllowed, num -> num >= 1),
-                            Range.createRange(sizeJson, "height", false, variableSizeAllowed, num -> num >= 1)
-                    };
+                    return new int[] { sizeJson.getAsInteger("width", false, null, num -> num >= 1).getValue(),
+                            sizeJson.getAsInteger("length", false, null, num -> num >= 1).getValue(), };
                 })));
 
         width = dimensions[0];
-        height = dimensions[1];
+        length = dimensions[1];
     }
 }

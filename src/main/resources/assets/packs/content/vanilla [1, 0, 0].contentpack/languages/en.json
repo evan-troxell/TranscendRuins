@@ -1,0 +1,33 @@
+{
+    "location.home": "Home",
+    "location.home.description": "A small patch of land, sparsely dotted with pines and limestone ridges - the perfect place for a home in this desolate world.",
+
+    "location.pineSmall": "Pine Clearing",
+    "location.pineSmall.description": "A still clearing dotted with pine trees and a heavy silence only broken by the rustling wind.",
+
+    "location.pineMedium": "Pine Forest",
+    "location.pineMedium.description": "A dense forest filled with pine trees, strong gusts muffling an unsettling murmur in the distance.",
+
+    "location.pineLarge": "Pine Grove",
+    "location.pineLarge.description": "An imposing grove of towering pines, their dense canopy and swirling fog concealing all but faint whispers.",
+
+    "location.bunkerAlfa": "Bunker Alfa",
+    "location.bunkerAlfa.description": "A dilapidated bunker, its rusting doors and crumbling walls hinting at its recent demise. Though its many floors and thick walls are filled with weapons and supplies, maybe it is best to leave them be.",
+
+    "location.convoy": "Abandoned Convoy",
+    "location.convoy.description": "A distant roar cuts through the still air as you receive a distress signal on the radio.",
+    
+
+    "events.convoy": "Abandoned Convoy",
+    "events.convoy.description": "A convoy of abandoned vehicles, their rusting frames and shattered glass hinting at an unsettling recent past.",
+
+    "events.raiders": "Raider Message",
+    "events.raiders.description": "An unfamiliar voice crackles over the radio, requesting the location of survivors. Maybe you should listen...",
+    "events.raiders.task1": "",
+    "events.raiders.task1.description": "",
+
+    "events.example": "Example Event",
+    "events.example.description": "This is an example event.",
+    "events.example.task1": "Example Task",
+    "events.example.task1.description": "This is an example task."
+}

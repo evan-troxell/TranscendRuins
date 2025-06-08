@@ -61,6 +61,12 @@ public final class TracedEntry<K> {
         return value;
     }
 
+    /**
+     * Retrieves the type of this <code>TracedEntry&lt;K&gt;</code> instance.
+     * 
+     * @return <code>TracedCollection.JSONType</code>: The type of this
+     *         <code>TracedEntry&lt;K&gt;</code> instance.
+     */
     public TracedCollection.JSONType getType() {
 
         return TracedCollection.typeOf(value);
@@ -80,9 +86,18 @@ public final class TracedEntry<K> {
         this.value = value;
     }
 
-    public static <K extends TracedCollection> TracedEntry<K> createEntry(K collection) {
+    /**
+     * Creates a new instance of the <code>TracedEntry&lt;T&gt;</code> class,
+     * casting the value to the specified type.
+     * 
+     * @param <T> The type to cast the value to.
+     * @param val <code>T</code>: The value to cast.
+     * @return <code>TracedEntry&lt;T&gt;</code>: The new entry with the specified
+     *         value.
+     */
+    public <T> TracedEntry<T> cast(T val) {
 
-        return new TracedEntry<>(collection.getPathway(), collection);
+        return new TracedEntry<>(pathway, val);
     }
 
     /**

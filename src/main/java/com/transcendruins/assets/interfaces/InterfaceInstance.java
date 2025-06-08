@@ -17,13 +17,15 @@
 package com.transcendruins.assets.interfaces;
 
 import com.transcendruins.assets.Attributes;
+import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 
 public final class InterfaceInstance extends AssetInstance {
 
-    public InterfaceInstance(InterfaceContext context) {
+    public InterfaceInstance(AssetContext assetContext, Object key) {
 
-        super(context);
+        super(assetContext, key);
+        InterfaceContext context = (InterfaceContext) assetContext;
     }
 
     @Override

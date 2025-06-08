@@ -31,9 +31,9 @@ import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 
 /**
- * <code>AssetPresets</code>: A class representing the presets of any
- * asset type, including but not limited to: layouts, elements, entities,
- * items, and more.
+ * <code>AssetPresets</code>: A class representing the presets of any asset
+ * type, including but not limited to: layouts, elements, entities, items, and
+ * more.
  */
 public final class AssetPresets {
 
@@ -47,8 +47,8 @@ public final class AssetPresets {
      * Retrieves the identifier entry of this <code>AssetPresets</code> instance.
      * 
      * @return <code>TracedEntry&lt;Identifier&gt;</code>: The
-     *         <code>identifierEntry</code> field of this
-     *         <code>AssetPresets</code> instance.
+     *         <code>identifierEntry</code> field of this <code>AssetPresets</code>
+     *         instance.
      */
     public TracedEntry<Identifier> getIdentifierEntry() {
 
@@ -65,8 +65,8 @@ public final class AssetPresets {
      * Retrieves the identifier of this <code>AssetPresets</code> instance.
      * 
      * @return <code>Identifier</code>: The value of the
-     *         <code>identifierEntry</code> field of this
-     *         <code>AssetPresets</code> instance.
+     *         <code>identifierEntry</code> field of this <code>AssetPresets</code>
+     *         instance.
      */
     public Identifier getIdentifier() {
 
@@ -100,8 +100,7 @@ public final class AssetPresets {
      * Retrieves the initial events of this <code>AssetPresets</code> instance.
      * 
      * @return <code>ImmutableList&lt;TracedEntry&lt;String&gt;&gt;</code>: The
-     *         <code>events</code> field of this <code>AssetPresets</code>
-     *         instance.
+     *         <code>events</code> field of this <code>AssetPresets</code> instance.
      */
     public final ImmutableList<TracedEntry<String>> getEvents() {
 
@@ -115,11 +114,18 @@ public final class AssetPresets {
         return publicProperties;
     }
 
-    private final ImmutableMap<String, Object> privateProperties;
+    @Deprecated
+    public AssetPresets(Identifier identifier, AssetType type) {
 
-    public final ImmutableMap<String, Object> getPrivateProperties() {
+        this.type = type;
+        this.identifierEntry = new TracedEntry<>(null, identifier);
+        this.identifier = identifierEntry.getValue();
 
-        return privateProperties;
+        ArrayList<TracedEntry<String>> eventsList = new ArrayList<>();
+        HashMap<String, Object> propertiesMap = new HashMap<>();
+
+        events = new ImmutableList<>(eventsList);
+        publicProperties = new ImmutableMap<>(propertiesMap);
     }
 
     /**
@@ -134,8 +140,7 @@ public final class AssetPresets {
      * @throws LoggedException Thrown if any exception is raised while creating this
      *                         <code>AssetPresets</code> instance.
      */
-    public AssetPresets(TracedCollection collection, Object key, AssetType type)
-            throws LoggedException {
+    public AssetPresets(TracedCollection collection, Object key, AssetType type) throws LoggedException {
 
         this.type = type;
         this.identifierEntry = collection.getAsMetadata(key, false, false);
@@ -154,7 +159,7 @@ public final class AssetPresets {
 
                 TracedArray eventsJson = eventsEntry.getValue();
 
-                for (int i : eventsJson.getIndices()) {
+                for (int i : eventsJson) {
 
                     eventsList.add(eventsJson.getAsString(i, false, null));
                 }
@@ -164,7 +169,7 @@ public final class AssetPresets {
             if (propertiesEntry.containsValue()) {
 
                 TracedDictionary propertiesJson = propertiesEntry.getValue();
-                for (String property : propertiesJson.getKeys()) {
+                for (String property : propertiesJson) {
 
                     propertiesMap.put(property, propertiesJson.getAsScalar(property, true, null));
                 }
@@ -173,7 +178,5 @@ public final class AssetPresets {
 
         events = new ImmutableList<>(eventsList);
         publicProperties = new ImmutableMap<>(propertiesMap);
-
-        privateProperties = new ImmutableMap<>();
     }
 }

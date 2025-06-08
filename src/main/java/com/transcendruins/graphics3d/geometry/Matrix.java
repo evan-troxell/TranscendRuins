@@ -111,10 +111,7 @@ sealed public class Matrix permits Vector {
         // perameters.
         Matrix scale = new Matrix(3, 3, new double[] {
 
-                xScale, 0, 0,
-                0, yScale, 0,
-                0, 0, zScale
-        });
+                xScale, 0, 0, 0, yScale, 0, 0, 0, zScale });
 
         return scale;
     }

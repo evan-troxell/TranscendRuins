@@ -17,13 +17,14 @@
 package com.transcendruins.assets.layouts;
 
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
 public final class LayoutContext extends AssetContext {
 
-    public LayoutContext(AssetPresets presets, World world) {
+    public LayoutContext(AssetPresets presets, World world, AssetInstance parent) {
 
-        super(presets, world);
+        super(presets, world, parent);
     }
 }

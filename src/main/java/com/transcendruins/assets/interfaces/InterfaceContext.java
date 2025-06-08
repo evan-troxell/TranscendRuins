@@ -17,13 +17,14 @@
 package com.transcendruins.assets.interfaces;
 
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
 public final class InterfaceContext extends AssetContext {
 
-    public InterfaceContext(AssetPresets presets, World world) {
+    public InterfaceContext(AssetPresets presets, World world, AssetInstance parent) {
 
-        super(presets, world);
+        super(presets, world, parent);
     }
 }

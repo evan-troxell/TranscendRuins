@@ -19,11 +19,13 @@ package com.transcendruins.assets;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.transcendruins.PropertyHolder;
+
 /**
  * <code>Instance</code>: A class representing any structure which should be
  * updated through the attribute stack system.
  */
-public abstract class Instance {
+public abstract class Instance extends PropertyHolder {
 
     /**
      * Generated an updated attribute, optionally returning a default value if the
@@ -32,18 +34,16 @@ public abstract class Instance {
      * @param <K>        The input value type.
      * @param <T>        The output value type.
      * @param value      <code>K</code>: The input value to apply.
-     * @param generator  <code>Function&lt;K, T&gt;</code>: The standard
-     *                   generation method to use. This will only be used if
-     *                   the <code>value</code> parameter is not
-     *                   <code>null</code>.
+     * @param generator  <code>Function&lt;K, T&gt;</code>: The standard generation
+     *                   method to use. This will only be used if the
+     *                   <code>value</code> parameter is not <code>null</code>.
      * @param ifNull     <code>T</code>: The value to return if the
      *                   <code>value</code> parameter is null.
      * @param attributes <code>Attributes</code>: The attributes from which the
      *                   attribute originated.
      * @param ifBase     <code>T</code>: The value to return if the
-     *                   <code>value</code>
-     *                   parameter is null and the base attribute set is attempting
-     *                   to apply the attribute.
+     *                   <code>value</code> parameter is null and the base attribute
+     *                   set is attempting to apply the attribute.
      * @return <code>T</code>: The resulting value.
      */
     public <K, T> T calculateAttribute(K value, Function<K, T> generator, T ifNull, Attributes attributes, T ifBase) {
@@ -63,10 +63,9 @@ public abstract class Instance {
      * @param <K>       The input value type.
      * @param <T>       The output value type.
      * @param value     <code>K</code>: The input value to apply.
-     * @param generator <code>Function&lt;K, T&gt;</code>: The standard
-     *                  generation method to use. This will only be used if
-     *                  the <code>value</code> parameter is not
-     *                  <code>null</code>.
+     * @param generator <code>Function&lt;K, T&gt;</code>: The standard generation
+     *                  method to use. This will only be used if the
+     *                  <code>value</code> parameter is not <code>null</code>.
      * @param ifNull    <code>T</code>: The value to return if the
      *                  <code>value</code> parameter is null.
      * @return <code>T</code>: The resulting value.
@@ -92,9 +91,8 @@ public abstract class Instance {
      * @param attributes <code>Attributes</code>: The attributes from which the
      *                   attribute originated.
      * @param ifBase     <code>K</code>: The value to return if the
-     *                   <code>value</code>
-     *                   parameter is null and the base attribute set is attempting
-     *                   to apply the attribute.
+     *                   <code>value</code> parameter is null and the base attribute
+     *                   set is attempting to apply the attribute.
      * @return <code>K</code>: The resulting value.
      */
     public <K> K calculateAttribute(K value, K ifNull, Attributes attributes, K ifBase) {
@@ -113,8 +111,8 @@ public abstract class Instance {
      * 
      * @param <K>    The value type.
      * @param value  <code>K</code>: The input value to apply.
-     * @param ifNull <code>K</code>: The value to return if the
-     *               <code>value</code> parameter is null.
+     * @param ifNull <code>K</code>: The value to return if the <code>value</code>
+     *               parameter is null.
      * @return <code>K</code>: The resulting value.
      */
     public <K> K calculateAttribute(K value, K ifNull) {

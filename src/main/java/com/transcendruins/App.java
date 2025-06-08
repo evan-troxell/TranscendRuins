@@ -17,10 +17,20 @@
 package com.transcendruins;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
-import com.transcendruins.contentmodules.ModuleProcessor;
-import com.transcendruins.contentmodules.packs.Pack;
-import com.transcendruins.contentmodules.resources.Resource;
+import com.transcendruins.assets.AssetType;
+import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.extra.RenderInstance;
+import com.transcendruins.assets.primaryassets.elements.ElementContext;
+import com.transcendruins.assets.primaryassets.elements.ElementInstance;
+import com.transcendruins.graphics3d.Camera3D;
+import com.transcendruins.packs.PackProcessor;
+import com.transcendruins.packs.content.ContentPack;
+import com.transcendruins.packs.resources.ResourcePack;
+import com.transcendruins.ui.DisplayFrame;
+import com.transcendruins.ui.Render3D;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 
@@ -38,22 +48,43 @@ public final class App {
      */
     public static void main(String[] args) throws Exception {
 
-        ModuleProcessor packProcessor = ModuleProcessor.getProcessor();
+        PackProcessor packProcessor = PackProcessor.getProcessor();
         // packProcessor.addRoot();
 
         Identifier vanillaId = Identifier.createTestIdentifier("TranscendRuins:vanilla", new int[] { 1, 0, 0 });
-        Pack vanillaPack = Pack.getPack(vanillaId);
+        ContentPack vanillaPack = ContentPack.getPack(vanillaId);
 
         System.out.println(vanillaPack.getAssets());
 
-        ArrayList<Pack> packs = new ArrayList<>();
+        ArrayList<ContentPack> packs = new ArrayList<>();
         packs.add(vanillaPack);
 
-        ArrayList<Resource> resources = new ArrayList<>();
+        ArrayList<ResourcePack> resources = new ArrayList<>();
 
         World.createWorld(packs, resources);
         World world = World.getWorld();
         world.start();
+
+        // System.out.println(cache);
+
+        // long size = 0;
+        // int count = 0;
+
+        // System.out.println(TracedPath.formatSize(size));
+
+        // for (TracedPath path : cache.listFiles()) {
+
+        // count++;
+
+        // long fileSize = path.getSize();
+        // size += fileSize;
+
+        // System.out.println();
+        // System.out.println(path + " : " + TracedPath.formatSize(fileSize));
+        // System.out.println(TracedPath.formatSize(size));
+        // }
+        // System.out.println(count + " files. Average size: " +
+        // TracedPath.formatSize(size / count));
 
         // Identifier pyramidId =
         // Identifier.createTestIdentifier("TranscendRuins:pyramid", null);
@@ -64,54 +95,64 @@ public final class App {
         // World.getWorld(), 0, 0, World.EAST,
         // Vector.IDENTITY_VECTOR);
 
-        Identifier axesId = Identifier.createTestIdentifier("TranscendRuins:axes",
-                null);
+        Identifier axesId = Identifier.createTestIdentifier("TranscendRuins:axes", null);
 
         Identifier boxId = Identifier.createTestIdentifier("TranscendRuins:box", null);
-        /*
-         * ElementPresets examplePresets = new ElementPresets(new TracedEntry<>(null,
-         * boxId));
-         * ElementContext exampleContext = new ElementContext(examplePresets, world, 0,
-         * 0, 0);
-         * 
-         * ElementInstance example = new ElementInstance(exampleContext);
-         * example.update(world.getRuntimeSeconds());
-         * 
-         * // ElementInstance ex2 = new ElementInstance(examplePresets, world, 0, 0,
-         * // World.NORTH, Vector.IDENTITY_VECTOR);
-         * 
-         * double startTime = world.getRuntimeSeconds();
-         * 
-         * for (int i = 0; i < Short.MAX_VALUE; i++) {
-         * 
-         * new ElementInstance(new EntityPresets(new TracedEntry<>(null, axesId)),
-         * world, 0, 0, World.NORTH,
-         * Vector.IDENTITY_VECTOR);
-         * }
-         * 
-         * System.out.println("ELAPSED TIME: " + (world.getRuntimeSeconds() -
-         * startTime));
-         * 
-         * ArrayList<RenderInstance> models;
-         * 
-         * Camera3D camera = new Camera3D();
-         * 
-         * DisplayFrame frame = new DisplayFrame(camera);
-         * Render3D renderer = (Render3D)
-         * frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
-         * 
-         * models = new ArrayList<>();
-         * models.add(example);
-         * 
-         * synchronized (TIMER) {
-         * while (true) {
-         * 
-         * renderer.render(models, camera);
-         * 
-         * TIMER.wait(20);
-         * }
-         * }
-         */
+
+        AssetPresets examplePresets = new AssetPresets(boxId, AssetType.ELEMENT);
+        ElementContext exampleContext = new ElementContext(examplePresets, world, null, 0, 0, 0);
+
+        ElementInstance example = (ElementInstance) AssetType.ELEMENT.createAsset(exampleContext);
+        example.update(world.getRuntimeSeconds());
+
+        // ElementInstance ex2 = new ElementInstance(examplePresets, world, 0, 0, //
+
+        double startTime = world.getRuntimeSeconds();
+
+        System.out.println("ELAPSED TIME: " + (world.getRuntimeSeconds() - startTime));
+
+        ArrayList<RenderInstance> models;
+
+        Camera3D camera = new Camera3D();
+
+        DisplayFrame frame = new DisplayFrame(camera);
+        Render3D renderer = (Render3D) frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
+
+        models = new ArrayList<>();
+        models.add(example);
+
+        synchronized (TIMER) {
+            while (true) {
+
+                renderer.render(models, camera);
+
+                TIMER.wait(20);
+            }
+        }
+    }
+
+    /**
+     * Converts a snake-case string (ex_string) into camel-case (exString).
+     * 
+     * @param string <code>String</code>: The string to convert.
+     * @return <code>String</code>: The resulting camel-case string.
+     */
+    public static final String toCamelCase(String string) {
+
+        String[] tokens = string.toLowerCase().split("_");
+        return tokens[0] + Arrays.stream(tokens, 1, tokens.length).map(token -> {
+
+            return Character.toUpperCase(token.charAt(0)) + token.substring(1);
+        }).collect(Collectors.joining());
+    }
+
+    public static final String toSentenceCase(String string) {
+
+        String[] tokens = string.toLowerCase().split("_");
+        return Arrays.stream(tokens).map(token -> {
+
+            return Character.toUpperCase(token.charAt(0)) + token.substring(1);
+        }).collect(Collectors.joining());
     }
 
     /**

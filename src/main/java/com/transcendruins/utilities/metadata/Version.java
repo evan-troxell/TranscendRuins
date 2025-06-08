@@ -57,9 +57,8 @@ public final class Version {
     /**
      * Creates a new instance of the <code>Version</code> class.
      * 
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>:
-     *              The entry from which to create this
-     *              <code>Version</code> instance.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The entry from
+     *              which to create this <code>Version</code> instance.
      * @throws CollectionSizeException  Thrown if the length of the
      *                                  <code>version</code> perameter is not 3.
      * @throws MissingPropertyException Thrown if any of the indices of the
@@ -70,8 +69,8 @@ public final class Version {
      * @throws NumberBoundsException    Thrown if any vector value in this
      *                                  <code>Version</code> instance is negative.
      */
-    private Version(TracedEntry<TracedArray> entry) throws CollectionSizeException,
-            MissingPropertyException, PropertyTypeException, VersionBoundsException, NumberBoundsException {
+    private Version(TracedEntry<TracedArray> entry) throws CollectionSizeException, MissingPropertyException,
+            PropertyTypeException, VersionBoundsException, NumberBoundsException {
 
         TracedArray list = entry.getValue();
         if (list.size() != 3) {
@@ -79,7 +78,7 @@ public final class Version {
             throw new CollectionSizeException(entry, list);
         }
 
-        for (int i : list.getIndices()) {
+        for (int i : list) {
 
             TracedEntry<Integer> numEntry = list.getAsInteger(i, false, null, num -> num >= 0);
             vector[i] = numEntry.getValue();
@@ -91,9 +90,8 @@ public final class Version {
      * generated, its instance will be used to represent that version vector from
      * then on.
      * 
-     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>:
-     *              The entry from which to create this
-     *              <code>Version</code> instance.
+     * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The entry from
+     *              which to create this <code>Version</code> instance.
      * @return <code>Version</code>: The generated <code>Version</code> instance.
      * @throws CollectionSizeException  Thrown if the length of the
      *                                  <code>version</code> perameter is not 3.
@@ -105,9 +103,8 @@ public final class Version {
      * @throws VersionBoundsException   Thrown if any vector value in this
      *                                  <code>Version</code> instance is negative.
      */
-    public static Version createVersion(TracedEntry<TracedArray> entry)
-            throws CollectionSizeException, MissingPropertyException, PropertyTypeException, VersionBoundsException,
-            NumberBoundsException {
+    public static Version createVersion(TracedEntry<TracedArray> entry) throws CollectionSizeException,
+            MissingPropertyException, PropertyTypeException, VersionBoundsException, NumberBoundsException {
 
         Version newVersion = new Version(entry);
         String versionString = newVersion.toString();
@@ -159,7 +156,7 @@ public final class Version {
      * 
      * @param version <code>Version</code>: The version to compare.
      * @return <code>boolean</code>: If the inequality
-     *         <code>this &lt; version </code> holds true.
+     *         <code>this &lt; version</code> holds true.
      */
     public boolean lessThan(Version version) {
 
@@ -185,8 +182,8 @@ public final class Version {
     }
 
     /**
-     * Determines whether or not this <code>Version</code> is less than or equal
-     * to another version.
+     * Determines whether or not this <code>Version</code> is less than or equal to
+     * another version.
      * 
      * @param version <code>Version</code>: The version to compare.
      * @return <code>boolean</code>: If the inequality

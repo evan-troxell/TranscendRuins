@@ -17,6 +17,7 @@
 package com.transcendruins.assets.rendermaterials;
 
 import com.transcendruins.assets.Attributes;
+import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 
 /**
@@ -70,9 +71,11 @@ public final class RenderMaterialInstance extends AssetInstance {
      * @param context <code>RenderMaterialContext</code>: The context used to
      *                generate this <code>RenderMaterialInstance</code> instance.
      */
-    public RenderMaterialInstance(RenderMaterialContext context) {
+    public RenderMaterialInstance(AssetContext assetContext, Object key) {
 
-        super(context);
+        super(assetContext, key);
+
+        RenderMaterialContext context = (RenderMaterialContext) assetContext;
     }
 
     @Override

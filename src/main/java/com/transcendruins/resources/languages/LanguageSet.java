@@ -55,14 +55,12 @@ public final class LanguageSet {
 
         HashMap<String, Language> languagesMap = new HashMap<>();
 
-        for (TracedPath subPath : path.compileFiles(TracedPath.JSON, true)) {
+        for (TracedPath subPath : path.listRecursiveFiles(TracedPath.JSON)) {
 
             try {
 
                 languagesMap.put(subPath.getFileStem(), new Language(subPath));
-            } catch (LoggedException e) {
-
-                e.print();
+            } catch (LoggedException _) {
             }
         }
 

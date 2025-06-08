@@ -80,7 +80,7 @@ public final class Range {
      * @param entry <code>TracedEntry&lt;Double&gt;</code>: The entry to assign to
      *              the range.
      */
-    public Range(TracedEntry<Double> entry) {
+    private Range(TracedEntry<Double> entry) {
 
         min = entry.getValue();
         max = entry.getValue();
@@ -89,7 +89,7 @@ public final class Range {
     /**
      * Creates a new instance of the <code>Range</code> class.
      * 
-     * @param json <code>TracedDictionary</code>: The json whose value to parse into
+     * @param json <code>TracedDictionary</code>: The JSON whose value to parse into
      *             a range.
      * @param min  <code>Double</code>: The minimum allowed value for this
      *             <code>Range</code> instance.
@@ -101,7 +101,7 @@ public final class Range {
      * @throws NumberBoundsException    Thrown if the retrieved field is out of the
      *                                  specified bounds.
      */
-    public Range(TracedDictionary json, Function<Double, Boolean> inRange)
+    private Range(TracedDictionary json, Function<Double, Boolean> inRange)
             throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
         TracedEntry<Double> minEntry = json.getAsDouble("min", false, null, inRange);
@@ -118,20 +118,16 @@ public final class Range {
      * Creates a new range based on the value found in a collection.
      * 
      * @param collection      <code>TracedCollection</code>: The collection to
-     *                        retrieve
-     *                        from.
+     *                        retrieve from.
      * @param key             <code>Object</code>: The key from the collection to
-     *                        parse
-     *                        into a new <code>Range</code> instance.
+     *                        parse into a new <code>Range</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a null case is
-     *                        allowed when creating the new
-     *                        <code>Range</code> instance.
+     *                        allowed when creating the new <code>Range</code>
+     *                        instance.
      * @param min             <code>Double</code>: The minimum allowed value for the
-     *                        new
-     *                        <code>Range</code> instance.
+     *                        new <code>Range</code> instance.
      * @param max             <code>Double</code>: The maximum allowed value for the
-     *                        new
-     *                        <code>Range</code> instance.
+     *                        new <code>Range</code> instance.
      * @param inclusiveMax    <code>boolean</code>: Whether the maximum value is
      *                        inclusive.
      * @return <code>Range</code>: The generated range.
@@ -139,17 +135,12 @@ public final class Range {
      *                         new <code>Range</code> instance.
      */
     public static Range createRange(TracedCollection collection, Object key, boolean nullCaseAllowed,
-            boolean variableRangeAllowed, Function<Double, Boolean> inRange)
-            throws LoggedException {
+            Function<Double, Boolean> inRange) throws LoggedException {
 
         return collection.get(key, List.of(
 
                 collection.dictCase(entry -> {
 
-                    if (!variableRangeAllowed) {
-
-                        throw new PropertyTypeException(entry);
-                    }
                     TracedDictionary json = entry.getValue();
                     return new Range(json, inRange);
                 }),
@@ -160,6 +151,7 @@ public final class Range {
                 }, _ -> collection.getAsDouble(key, false, null, inRange)),
 
                 collection.nullCase(entry -> {
+
                     if (!nullCaseAllowed) {
 
                         throw new MissingPropertyException(entry);
@@ -169,7 +161,7 @@ public final class Range {
     }
 
     /**
-     * Retrieves a double value of this <code>Range</code> instance.
+     * Retrieves a double value from this <code>Range</code> instance.
      * 
      * @param random <code>double</code>: The random value to use.
      * @return <code>double</code>: The retrieved <code>double</code> value.
@@ -185,7 +177,7 @@ public final class Range {
     }
 
     /**
-     * Retrieves an int value of this <code>Range</code> instance.
+     * Retrieves an int value from this <code>Range</code> instance.
      * 
      * @param random <code>double</code>: The random value to use.
      * @return <code>int</code>: The retrieved <code>int</code> value.

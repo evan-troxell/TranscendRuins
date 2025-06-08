@@ -17,14 +17,14 @@
 package com.transcendruins.resources.textures;
 
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.transcendruins.assets.AssetType;
 import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.files.InternalPath;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.json.JSONOperator;
@@ -36,9 +36,9 @@ import com.transcendruins.utilities.json.TracedDictionary;
 public final class TextureSet {
 
     /**
-     * <code>TracedPath</code>: The path to the placeholder texture.
+     * <code>InternalPath</code>: The path to the placeholder texture.
      */
-    public static final TracedPath MISSING_TEXTURE = TracedPath.DATA_DIRECTORY.extend("missingTexture.png");
+    public static final InternalPath MISSING_TEXTURE = TracedPath.INTERNAL_DATA_DIRECTORY.extend("missingTexture.png");
 
     /**
      * <code>TracedPath</code>: The path which leads to this <code>TextureSet</code>
@@ -58,19 +58,35 @@ public final class TextureSet {
     }
 
     /**
-     * <code>ImmutableMap&lt;AssetType, ImmutableMap&lt;String, Texture&gt;&gt;</code>:
-     * The map of textures of this <code>TextureSet</code> instance.
+     * <code>ImmutableMap&lt;String, TracedPath&gt;</code>: The paths of this
+     * <code>TextureSet</code> instance.
      */
-    private final ImmutableMap<AssetType, ImmutableMap<String, Texture>> textures;
+    private final ImmutableMap<String, TracedPath> paths;
+
+    /**
+     * Retrieves the paths of this <code>TextureSet</code> instance.
+     * 
+     * @return <code>ImmutableMap&lt;String, TracedPath&gt;</code>: The
+     *         <code>paths</code> field of this <code>TextureSet</code> instance.
+     */
+    public ImmutableMap<String, TracedPath> getPaths() {
+
+        return paths;
+    }
+
+    /**
+     * <code>ImmutableMap&lt;String, Texture&gt;</code>: The map of textures of this
+     * <code>TextureSet</code> instance.
+     */
+    private final ImmutableMap<String, Texture> textures;
 
     /**
      * Retrieves the textures of this <code>TextureSet</code> instance.
      * 
-     * @return <code>ImmutableMap&lt;AssetType, ImmutableMap&lt;String, Texture&gt;&gt;</code>:
-     *         The <code>textures</code> field of this <code>TextureSet</code>
-     *         instance.
+     * @return <code>ImmutableMap&lt;String, Texture&gt;</code>: The
+     *         <code>textures</code> field of this <code>TextureSet</code> instance.
      */
-    public ImmutableMap<AssetType, ImmutableMap<String, Texture>> getTextures() {
+    public ImmutableMap<String, Texture> getTextures() {
 
         return textures;
     }
@@ -85,57 +101,39 @@ public final class TextureSet {
 
         this.path = path;
 
-        ArrayList<TracedPath> texturePaths = path.compileFiles(TracedPath.IMAGE, true);
+        List<TracedPath> texturePaths = path.listRecursiveFiles(TracedPath.IMAGE);
+        paths = new ImmutableMap<>(texturePaths.stream().collect(
+                Collectors.toMap(p -> p.toString(path), p -> p, (_, replacement) -> replacement, HashMap::new)));
 
-        textures = new ImmutableMap<>(AssetType.createAssetMap(type -> compileSet(type, texturePaths)));
-    }
+        TracedPath jsonPath = path.extend("textures.json");
+        if (jsonPath.exists()) {
 
-    /**
-     * Compiles a JSON texture set of this <code>TextureSet</code> instance.
-     * 
-     * @param fileName     <code>String</code>: The file to compile at.
-     * @param texturePaths <code>ArrayList&lt;TracedPath&gt;</code>: The texture
-     *                     paths to compile using.
-     * @return <code>ImmutableMap&lt;String, Texture&gt;</code>: The resulting
-     *         texture set.
-     * @throws LoggedException Thrown if an error occurs while compiling the texture
-     *                         set.
-     */
-    private ImmutableMap<String, Texture> compileSet(AssetType type, ArrayList<TracedPath> texturePaths) {
+            HashMap<String, Texture> texturesMap;
+            try {
 
-        String fileName = type + "Textures.json";
+                TracedDictionary json = JSONOperator.retrieveJSON(jsonPath);
 
-        TracedPath extendedPath = path.extend(fileName);
-        if (!extendedPath.exists()) {
+                texturesMap = json.stream().map(texture -> {
+                    try {
 
-            return new ImmutableMap<>();
-        }
+                        return new AbstractMap.SimpleEntry<>(texture, new Texture(json, texture));
+                    } catch (LoggedException _) {
 
-        try {
+                        return null;
+                    }
+                }).filter(Objects::nonNull) // Remove null entries.
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (existing, _) -> existing,
+                                HashMap::new));
 
-            TracedDictionary json = JSONOperator.retrieveJSON(extendedPath);
-            return new ImmutableMap<>(json.getKeys().stream()
-                    .map(texture -> {
-                        try {
+            } catch (LoggedException _) {
 
-                            return new AbstractMap.SimpleEntry<>(texture,
-                                    new Texture(json, texture, path, texturePaths));
-                        } catch (LoggedException e) {
+                texturesMap = new HashMap<>();
+            }
 
-                            e.print();
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull) // Remove null entries.
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            (existing, _) -> existing,
-                            HashMap::new)));
-        } catch (LoggedException e) {
+            textures = new ImmutableMap<>(texturesMap);
+        } else {
 
-            e.print();
-            return new ImmutableMap<>();
+            textures = new ImmutableMap<>();
         }
     }
 }

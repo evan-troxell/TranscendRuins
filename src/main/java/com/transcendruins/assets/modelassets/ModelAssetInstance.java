@@ -17,13 +17,11 @@
 package com.transcendruins.assets.modelassets;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.swing.ImageIcon;
-
+import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animationcontrollers.AnimationControllerContext;
 import com.transcendruins.assets.animationcontrollers.AnimationControllerInstance;
@@ -31,8 +29,6 @@ import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.assets.extra.RenderInstance;
-import com.transcendruins.assets.modelassets.inventory.InventoryInstance;
-import com.transcendruins.assets.modelassets.inventory.InventorySchema;
 import com.transcendruins.assets.models.ModelContext;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.assets.rendermaterials.RenderMaterialContext;
@@ -42,32 +38,13 @@ import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.resources.textures.Texture;
-import com.transcendruins.utilities.immutable.ImmutableList;
 
 /**
- * <code>ModelAsset</code>: A class representing an <code>AssetInstance</code>
- * instance which has the capability of being rendered using the standard
- * <code>RenderInstance</code> method.
+ * <code>ModelAssetInstance</code>: A class representing an
+ * <code>AssetInstance</code> instance which has the capability of being
+ * rendered using the standard <code>RenderInstance</code> method.
  */
 public abstract class ModelAssetInstance extends AssetInstance implements RenderInstance {
-
-    /**
-     * <code>ImmutableList&lt;String&gt;</code>: The asset category types of this
-     * <code>ModelAssetInstance</code> instance.
-     */
-    private ImmutableList<String> categories;
-
-    /**
-     * Retrieves the asset category types of this
-     * <code>ModelAssetInstance</code> instance.
-     * 
-     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>categories</code>
-     *         field of this <code>ModelAssetInstance</code> instance.
-     */
-    public final ImmutableList<String> getCategories() {
-
-        return categories;
-    }
 
     /**
      * <code>ModelInstance</code>: The model of this <code>ModelAssetInstance</code>
@@ -107,8 +84,7 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
 
     /**
      * <code>BufferedImage</code>: The texture of this
-     * <code>ModelAssetInstance</code>
-     * instance.
+     * <code>ModelAssetInstance</code> instance.
      */
     private BufferedImage texture;
 
@@ -120,8 +96,11 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
             return Texture.BLANK;
         }
 
-        x *= texture.getWidth() / model.getTextureWidth();
-        y *= texture.getHeight() / model.getTextureHeight();
+        System.out.println(x + ", " + y);
+        System.out.println();
+
+        x *= (double) texture.getWidth() / model.getTextureWidth();
+        y *= (double) texture.getHeight() / model.getTextureHeight();
 
         if (x < 0 || x > texture.getWidth() || y < 0 || y > texture.getHeight()) {
 
@@ -174,49 +153,33 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         return modelGroup.subDivide();
     }
 
+    @Override
     public final void evaluateAnimations() {
 
         // Retrieve the animation bone actors;
-        boneActors = (animationController == null) ? new BoneActorSet()
-                : animationController.evaluatePose();
+        boneActors = (animationController == null) ? new BoneActorSet() : animationController.evaluatePose();
     }
-
-    /**
-     * <code>InventoryInstance</code>: The inventory of this
-     * <code>ModelAssetInstance</code> instance.
-     */
-    private final InventoryInstance inventory = new InventoryInstance();
 
     /**
      * Creates a new instance of the <code>ModelAssetInstance</code> class.
      * 
-     * @param context <code>AssetContext</code>: The context used to
-     *                generate this <code>ModelAssetInstance</code>
-     *                instance.
+     * @param context <code>AssetContext</code>: The context used to generate this
+     *                <code>ModelAssetInstance</code> instance.
      */
-    public ModelAssetInstance(AssetContext context) {
+    public ModelAssetInstance(AssetContext assetContext, Object key) {
 
-        super(context);
+        super(assetContext, key);
     }
 
     @Override
-    public void applyAttributes(Attributes attributeSet) {
+    public final void applyAttributes(Attributes attributeSet) {
 
         ModelAssetAttributes attributes = (ModelAssetAttributes) attributeSet;
-
-        categories = calculateAttribute(attributes.getCategories(), categories);
-        setProperty("categories", categories);
 
         // Updates the texture field.
         texturePath = calculateAttribute(attributes.getTexture(), val -> {
 
-            ImageIcon textureIcon = getTexture(val);
-            texture = new BufferedImage(textureIcon.getIconWidth(), textureIcon.getIconHeight(),
-                    BufferedImage.TYPE_INT_ARGB);
-
-            Graphics g = texture.getGraphics();
-            g.drawImage(textureIcon.getImage(), 0, 0, null);
-            g.dispose();
+            texture = getTextureAsBufferedImage(texturePath, BufferedImage.TYPE_INT_ARGB);
 
             return val;
         }, texturePath);
@@ -226,14 +189,14 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         model = calculateAttribute(attributes.getModel(), val -> {
 
             ModelContext modelContext = new ModelContext(val, getWorld(), this);
-            return new ModelInstance(modelContext);
+            return (ModelInstance) AssetType.MODEL.createAsset(modelContext);
         }, model);
 
         // Updates the renderMaterial field.
         renderMaterial = calculateAttribute(attributes.getRenderMaterial(), val -> {
 
-            RenderMaterialContext renderMaterialContext = new RenderMaterialContext(val, getWorld());
-            return new RenderMaterialInstance(renderMaterialContext);
+            RenderMaterialContext renderMaterialContext = new RenderMaterialContext(val, getWorld(), this);
+            return (RenderMaterialInstance) AssetType.RENDER_MATERIAL.createAsset(renderMaterialContext);
         }, renderMaterial);
 
         // Updates the animationController field.
@@ -241,20 +204,22 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
 
             AnimationControllerContext animationControllerContext = new AnimationControllerContext(val, getWorld(),
                     this);
-            return new AnimationControllerInstance(animationControllerContext);
+            return (AnimationControllerInstance) AssetType.ANIMATION_CONTROLLER.createAsset(animationControllerContext);
         }, animationController, attributes, null);
 
-        // Updates the inventory field.
-        computeAttribute(attributes.getInventory(), val -> {
-
-            inventory.applyAttributes(val);
-        }, attributes, InventorySchema.DEFAULT);
+        applyModelAssetAttributes(attributes);
     }
 
-    @Override
-    protected void onUpdate(double time) {
+    /**
+     * Applies an attribute set to this <code>ModelAssetInstance</code> instance.
+     * 
+     * @param attributeSet <code>ModelAssetAttributes</code>: The attributes to
+     *                     apply.
+     */
+    public abstract void applyModelAssetAttributes(ModelAssetAttributes attributeSet);
 
-        onModelAssetUpdate(time);
+    @Override
+    protected final void onUpdate(double time) {
 
         if (animationController != null) {
 
@@ -263,6 +228,8 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
 
         model.update(time);
         renderMaterial.update(time);
+
+        onModelAssetUpdate(time);
     }
 
     /**
@@ -274,18 +241,18 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
     protected abstract void onModelAssetUpdate(double time);
 
     /**
-     * Retrieves the position of this <code>ModelAsetInstance</code> instance.
+     * Retrieves the position of this <code>ModelAssetInstance</code> instance.
      * 
      * @return <code>Vector</code>: The vector form of the position of this
-     *         <code>ModelAsetInstance</code> instance.
+     *         <code>ModelAssetInstance</code> instance.
      */
     public abstract Vector getPosition();
 
     /**
-     * Retrieves the rotation of this <code>ModelAsetInstance</code> instance.
+     * Retrieves the rotation of this <code>ModelAssetInstance</code> instance.
      * 
      * @return <code>Quaternion</code>: The quaternion form of the rotation of this
-     *         <code>ModelAsetInstance</code> instance.
+     *         <code>ModelAssetInstance</code> instance.
      */
     public abstract Quaternion getRotation();
 }

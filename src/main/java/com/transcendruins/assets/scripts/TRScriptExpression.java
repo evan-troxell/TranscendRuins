@@ -18,11 +18,9 @@ package com.transcendruins.assets.scripts;
 
 import java.util.ArrayList;
 
-import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.PropertyHolder;
+import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.PropertyTypeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.json.TracedArray;
@@ -61,67 +59,64 @@ final class TRScriptExpression {
      * @param expressionEntry <code>TracedEntry&lt;?&gt;</code>: The entry
      *                        containing the expression of this
      *                        <code>TRScriptExpression</code> instance.
-     * @throws NumberBoundsException
-     * @throws LoggedException
+     * @throws LoggedException Thrown if an error occurs while parsing data from the
+     *                         collection.
      */
-    private TRScriptExpression(TracedCollection collection, Object key)
-            throws UnexpectedValueException, CollectionSizeException, MissingPropertyException,
-            PropertyTypeException, NumberBoundsException {
+    private TRScriptExpression(TracedCollection collection, Object key) throws LoggedException {
 
         ArrayList<TRScriptValue> argsList = new ArrayList<>();
-
         switch (collection.getType(key)) {
 
-            case DICT -> {
+        case DICT -> {
 
-                TracedEntry<TracedDictionary> expressionEntry = collection.getAsDict(key, false);
-                TracedDictionary expressionJson = expressionEntry.getValue();
+            TracedEntry<TracedDictionary> expressionEntry = collection.getAsDict(key, false);
+            TracedDictionary expressionJson = expressionEntry.getValue();
 
-                operator = TRScriptOperator.getOperator(expressionJson.getAsString("operator", false, null));
+            operator = TRScriptOperator.getOperator(expressionJson.getAsString("operator", false, null));
 
-                switch (expressionJson.getType("args")) {
+            switch (expressionJson.getType("args")) {
 
-                    case ARRAY -> {
+            case ARRAY -> {
 
-                        TracedEntry<TracedArray> argsEntry = expressionJson.getAsArray("args", false);
-                        TracedArray argsArray = argsEntry.getValue();
+                TracedEntry<TracedArray> argsEntry = expressionJson.getAsArray("args", false);
+                TracedArray argsArray = argsEntry.getValue();
 
-                        if (operator.invalidArgs(argsArray.size())) {
+                if (operator.invalidArgs(argsArray.size())) {
 
-                            throw new CollectionSizeException(argsEntry, argsArray);
-                        }
-
-                        for (int i : argsArray.getIndices()) {
-
-                            argsList.add(new TRScriptValue(argsArray, i));
-                        }
-                    }
-
-                    default -> {
-
-                        if (operator.invalidArgs(1)) {
-
-                            throw new UnexpectedValueException(expressionEntry);
-                        }
-                        argsList.add(new TRScriptValue(expressionJson, "args"));
-                    }
+                    throw new CollectionSizeException(argsEntry, argsArray);
                 }
 
-            }
+                for (int i : argsArray) {
 
-            case STRING -> {
-
-                TracedEntry<String> operatorEntry = collection.getAsString(key, false, null);
-                operator = TRScriptOperator.getOperator(operatorEntry);
-
-                if (operator.invalidArgs(0)) {
-
-                    throw new UnexpectedValueException(operatorEntry);
+                    argsList.add(new TRScriptValue(argsArray, i));
                 }
-
             }
 
-            default -> operator = TRScriptOperator.getOperator();
+            default -> {
+
+                if (operator.invalidArgs(1)) {
+
+                    throw new UnexpectedValueException(expressionEntry);
+                }
+                argsList.add(new TRScriptValue(expressionJson, "args"));
+            }
+            }
+
+        }
+
+        case STRING -> {
+
+            TracedEntry<String> operatorEntry = collection.getAsString(key, false, null);
+            operator = TRScriptOperator.getOperator(operatorEntry);
+
+            if (operator.invalidArgs(0)) {
+
+                throw new UnexpectedValueException(operatorEntry);
+            }
+
+        }
+
+        default -> operator = TRScriptOperator.getOperator();
         }
 
         args = new ImmutableList<>(argsList);
@@ -132,12 +127,10 @@ final class TRScriptExpression {
      * 
      * @param valueEntry <code>TracedEntry&lt;?&gt;</code>: The entry to parse;
      * @return <code>Object</code>: The resulting value or expression.
-     * @throws NumberBoundsException
-     * @throws LoggedException
+     * @throws LoggedException Thrown if an error occurs while parsing data from the
+     *                         collection.
      */
-    public static Object parseExpression(TracedCollection collection, Object key)
-            throws UnexpectedValueException, CollectionSizeException, MissingPropertyException,
-            PropertyTypeException, NumberBoundsException {
+    public static Object parseExpression(TracedCollection collection, Object key) throws LoggedException {
 
         if (collection.getType(key) == JSONType.STRING) {
 
@@ -151,16 +144,16 @@ final class TRScriptExpression {
 
             return switch (stringVal) {
 
-                case "PI", "pi" -> Math.PI;
-                case "-PI", "-pi" -> -Math.PI;
+            case "PI", "pi" -> Math.PI;
+            case "-PI", "-pi" -> -Math.PI;
 
-                case "TAU", "tau" -> Math.TAU;
-                case "-TAU", "-tau" -> -Math.TAU;
+            case "TAU", "tau" -> Math.TAU;
+            case "-TAU", "-tau" -> -Math.TAU;
 
-                case "E", "e" -> Math.E;
-                case "-E", "-e" -> -Math.E;
+            case "E", "e" -> Math.E;
+            case "-E", "-e" -> -Math.E;
 
-                default -> stringVal;
+            default -> stringVal;
             };
         }
 
@@ -170,11 +163,11 @@ final class TRScriptExpression {
     /**
      * Evalutes this <code>TRScriptExpression</code> instance.
      * 
-     * @param asset <code>AssetInstance</code>: The asset context to evaluate this
+     * @param asset <code>PropertyHolder</code>: The asset context to evaluate this
      *              <code>TRScriptExpression</code> instance with.
      * @return <code>Object</code>: The resulting value.
      */
-    public Object evaluate(AssetInstance asset) {
+    public Object evaluate(PropertyHolder asset) {
 
         return operator.evaluate(args, asset);
     }

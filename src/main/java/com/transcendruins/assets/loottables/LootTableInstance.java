@@ -17,17 +17,19 @@
 package com.transcendruins.assets.loottables;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.transcendruins.assets.Attributes;
+import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.Range;
 import com.transcendruins.assets.extra.WeightedRoll;
-import com.transcendruins.assets.modelassets.items.ItemContext;
+import com.transcendruins.assets.items.ItemContext;
 import com.transcendruins.assets.scripts.TRScriptValue;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -45,9 +47,15 @@ public final class LootTableInstance extends AssetInstance {
         return loot.evaluate(getWorld());
     }
 
-    public LootTableInstance(LootTableContext context) {
+    private ImmutableList<String> disableByComponentId;
 
-        super(context);
+    private ImmutableList<String> disableByComponentTag;
+
+    public LootTableInstance(AssetContext assetContext, Object key) {
+
+        super(assetContext, key);
+
+        LootTableContext context = (LootTableContext) assetContext;
     }
 
     @Override
@@ -60,6 +68,17 @@ public final class LootTableInstance extends AssetInstance {
 
         items = calculateAttribute(attributes.getItems(), items);
         setProperty("items", items);
+
+        attributes.getDisableByComponentId();
+        attributes.getDisableByComponentTag();
+
+        disableByComponentId = calculateAttribute(attributes.getDisableByComponentId(), disableByComponentId,
+                attributes, new ImmutableList<>());
+        setProperty("disableByComponentId", disableByComponentId);
+
+        disableByComponentTag = calculateAttribute(attributes.getDisableByComponentTag(), disableByComponentTag,
+                attributes, new ImmutableList<>());
+        setProperty("disableByComponentTag", disableByComponentTag);
     }
 
     @Override
@@ -71,8 +90,8 @@ public final class LootTableInstance extends AssetInstance {
      * Creates a new instance of the <code>LootTableInstance.LootInstance</code>
      * subclass.
      * 
-     * @param schema <code>LootTableAttributes.LootSchema</code>: The schema
-     *               to create the new <code>LootTableInstance.LootInstance</code>
+     * @param schema <code>LootTableAttributes.LootSchema</code>: The schema to
+     *               create the new <code>LootTableInstance.LootInstance</code>
      *               instance from.
      * @throws LoggedException Thrown if any exception is raised while creating the
      *                         new <code>LootTableInstance.LootInstance</code>
@@ -82,12 +101,16 @@ public final class LootTableInstance extends AssetInstance {
 
         return switch (schema) {
 
-            case LootTableAttributes.LootValueSchema value -> new LootValueInstance(value);
+        case LootTableAttributes.LootValueSchema value -> new LootValueInstance(value);
 
-            case LootTableAttributes.LootPoolSchema pool ->
-                pool.getSelection() ? new LootSelectionInstance(pool) : new LootPoolInstance(pool);
+        case LootTableAttributes.LootPoolSchema pool -> switch (pool.getSelectionType()) {
 
-            default -> null;
+        case SEQUENCE -> new LootSelectionInstance(pool);
+
+        case SELECT -> new LootPoolInstance(pool);
+        };
+
+        default -> null;
         };
     }
 
@@ -96,6 +119,21 @@ public final class LootTableInstance extends AssetInstance {
      * type.
      */
     public abstract class LootInstance {
+
+        /**
+         * <code>String</code>: The component ID of this
+         * <code>LootTableInstance.LootInstance</code> instance.
+         */
+        private final String componentId;
+
+        /**
+         * Retrieves the component tags of this
+         * <code>LootTableInstance.LootInstance</code> instance.
+         * 
+         * @return <code>String</code>: The <code>componentId</code> field of this
+         *         <code>LootTableInstance.LootInstance</code> instance.
+         */
+        private final ImmutableList<String> componentTags;
 
         /**
          * <code>ImmutableList&lt;TRScriptValue&gt;</code>: The conditions required to
@@ -119,7 +157,10 @@ public final class LootTableInstance extends AssetInstance {
                 }
             }
 
-            return true;
+            // Pass if the component ID is not disabled and there are not any tags shared
+            // between the component and the disabled tags list.
+            return !disableByComponentId.contains(componentId)
+                    && Collections.disjoint(disableByComponentTag, componentTags);
         }
 
         /**
@@ -141,8 +182,22 @@ public final class LootTableInstance extends AssetInstance {
             return chance;
         }
 
+        /**
+         * <code>Range</code>: The count range of this
+         * <code>LootTableInstance.LootInstance</code> instance, which is used to
+         * determine how many items to generate.
+         */
         private final Range count;
 
+        /**
+         * Retrieves the count range of this <code>LootTableInstance.LootInstance</code>
+         * instance.
+         * 
+         * @param world <code>World</code>: The world to use for generating the count.
+         * 
+         * @return <code>Range</code>: The <code>count</code> field of this
+         *         <code>LootTableInstance.LootInstance</code> instance.
+         */
         protected int getCount(World world) {
 
             return count.getIntegerValue(world.nextRandom());
@@ -152,8 +207,7 @@ public final class LootTableInstance extends AssetInstance {
          * Creates a new instance of the <code>LootTableInstance.LootInstance</code>
          * subclass.
          * 
-         * @param schema <code>LootTableAttributes.LootSchema</code>: The schema
-         *               to
+         * @param schema <code>LootTableAttributes.LootSchema</code>: The schema to
          *               create this <code>LootTableInstance.LootInstance</code>
          *               instance from.
          */
@@ -162,6 +216,9 @@ public final class LootTableInstance extends AssetInstance {
             conditions = schema.getConditions();
             chance = schema.getChance();
             count = schema.getCount();
+
+            componentId = schema.getComponentId();
+            componentTags = schema.getComponentTags();
         }
 
         /**
@@ -186,12 +243,9 @@ public final class LootTableInstance extends AssetInstance {
         }
 
         @Override
-        public ArrayList<ItemContext> evaluate(World world) {
+        public List<ItemContext> evaluate(World world) {
 
-            ArrayList<ItemContext> items = new ArrayList<>();
-            items.add(new ItemContext(item, world, getCount(world)));
-
-            return items;
+            return List.of(new ItemContext(item, getWorld(), LootTableInstance.this, getCount(world)));
         }
     }
 
@@ -203,11 +257,9 @@ public final class LootTableInstance extends AssetInstance {
 
             super(schema);
 
-            this.pools = new ImmutableMap<>(schema.getPools().entrySet().stream().collect(Collectors.toMap(
-                    entry -> createLoot(entry.getKey()),
-                    entry -> entry.getValue(),
-                    (previous, _) -> previous,
-                    HashMap::new)));
+            pools = new ImmutableMap<>(
+                    schema.getPools().entrySet().stream().collect(Collectors.toMap(entry -> createLoot(entry.getKey()),
+                            entry -> entry.getValue(), (previous, _) -> previous, HashMap::new)));
         }
 
         @Override
@@ -282,6 +334,11 @@ public final class LootTableInstance extends AssetInstance {
 
                 WeightedRoll<LootInstance> selector = new WeightedRoll<>(
                         available.keySet().stream().filter(loot -> loot.passes()), loot -> loot.chance);
+
+                if (selector.isEmpty()) {
+
+                    break;
+                }
 
                 LootInstance loot = selector.get(world.nextRandom());
 

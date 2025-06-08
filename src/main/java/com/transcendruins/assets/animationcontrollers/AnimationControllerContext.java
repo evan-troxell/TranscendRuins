@@ -23,27 +23,8 @@ import com.transcendruins.world.World;
 
 public final class AnimationControllerContext extends AssetContext {
 
-    /**
-     * <code>AssetInstance</code>: The asset which created this
-     * <code>AnimationControllerContext</code> instance.
-     */
-    private final AssetInstance parent;
-
-    /**
-     * Retrieves the asset which created this
-     * <code>AnimationControllerContext</code> instance.
-     * 
-     * @return <code>AssetInstance</code>: The <code>parent</code> field of this
-     *         <code>AnimationControllerContext</code> instance.
-     */
-    public AssetInstance getParent() {
-
-        return parent;
-    }
-
     public AnimationControllerContext(AssetPresets presets, World world, AssetInstance parent) {
 
-        super(presets, world);
-        this.parent = parent;
+        super(presets, world, parent);
     }
 }

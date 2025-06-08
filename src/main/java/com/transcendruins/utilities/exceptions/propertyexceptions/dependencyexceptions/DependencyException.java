@@ -16,21 +16,20 @@
 
 package com.transcendruins.utilities.exceptions.propertyexceptions.dependencyexceptions;
 
-import com.transcendruins.contentmodules.packs.PackDependency;
+import com.transcendruins.packs.content.PackDependency;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 
 /**
- * <code>DependencyException</code>: An exception thrown to indicate an
- * invalid dependency.
+ * <code>DependencyException</code>: An exception thrown to indicate an invalid
+ * dependency.
  */
 public final class DependencyException extends PropertyException {
 
     /**
-     * Creates a new instance of the <code>DependencyException</code>
-     * exception.
+     * Creates a new instance of the <code>DependencyException</code> exception.
      * 
      * @param message   <code>String</code>: The generated error message to save to
      *                  the logs file.
@@ -49,8 +48,7 @@ public final class DependencyException extends PropertyException {
      * parent pack.
      * 
      * @param pack       <code>Identifier</code>: The identifier of the parent pack.
-     * @param dependency <code>PackDependency</code>: The
-     *                   ambiguous dependency.
+     * @param dependency <code>PackDependency</code>: The ambiguous dependency.
      * @return <code>DependencyException</code>: The generated
      *         <code>DependencyException</code> exception.
      */
@@ -66,8 +64,7 @@ public final class DependencyException extends PropertyException {
      * Creates a new instance of the <code>DependencyException</code> exception
      * which represents an unresolved dependency.
      * 
-     * @param dependency <code>PackDependency</code>: The
-     *                   unresolved dependency.
+     * @param dependency <code>PackDependency</code>: The unresolved dependency.
      * @return <code>DependencyException</code>: The generated
      *         <code>DependencyException</code> exception.
      */
@@ -83,15 +80,14 @@ public final class DependencyException extends PropertyException {
      * which represents a duplicate dependency definition in a pack.
      * 
      * @param pack       <code>Identifier</code>: The identifier of the parent pack.
-     * @param dependency <code>PackDependency</code>: The
-     *                   duplicate dependency.
+     * @param dependency <code>PackDependency</code>: The duplicate dependency.
      * @return <code>DependencyException</code>: The generated
      *         <code>DependencyException</code> exception.
      */
     public static DependencyException duplicateDependency(Identifier pack, PackDependency dependency) {
 
-        String message = "Pack %s declares multiple dependencies which reference the same pack."
-                .formatted(pack, dependencyName(dependency), dependency.getIdentifier().toGeneric());
+        String message = "Pack %s declares multiple dependencies which reference the same pack.".formatted(pack,
+                dependencyName(dependency), dependency.getIdentifier().toGeneric());
 
         return new DependencyException(message, dependency.getEntry(), "Duplicate Dependency Exception");
     }
@@ -99,7 +95,7 @@ public final class DependencyException extends PropertyException {
     /**
      * Creates a new instance of the <code>DependencyException</code> exception
      * which represents a subdependency (dependency of a pack referenced by a parent
-     * dependency) which overlaps with the parent pack.
+     * dependency) which matches with the parent pack.
      * 
      * @param pack          <code>Identifier</code>: The identifier of the parent
      *                      pack.
@@ -122,16 +118,12 @@ public final class DependencyException extends PropertyException {
     /**
      * Checks the format of a dependency and labels it accordingly.
      * 
-     * @param dependency <code>PackDependency</code>: The
-     *                   dependency to
-     *                   check.
+     * @param dependency <code>PackDependency</code>: The dependency to check.
      * @return <code>String</code>: The <code>dependency</code> perameter in the
      *         following string representation: <br>
-     *         "<code>Dependency namespace:identifier</code>"
-     *         <br>
+     *         "<code>Dependency namespace:identifier</code>" <br>
      *         <b>OR</b> <br>
-     *         "<code>Dependency namespace:identifier [a, b, c]</code>"
-     *         <br>
+     *         "<code>Dependency namespace:identifier [a, b, c]</code>" <br>
      *         <b>OR</b> <br>
      *         "<code>Dependency namespace:identifier with minimum version [a, b, c]</code>"
      *         <br>
@@ -141,7 +133,7 @@ public final class DependencyException extends PropertyException {
     public static final String dependencyName(PackDependency dependency) {
 
         String message = dependency.getIdentifier().toString();
-        if (dependency.getHasVersionRange()) {
+        if (dependency.hasVersionRange()) {
 
             if (dependency.getUpperVersionRange() == null) {
 

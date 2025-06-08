@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 
-import com.transcendruins.save.CacheOperator;
+import com.transcendruins.utilities.files.ExternalPath;
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
@@ -33,9 +33,9 @@ public class LoggedException extends Exception {
     /**
      * <code>String</code>: The absolute directory of the log cache.
      */
-    public static final TracedPath LOGS_DIRECTORY = CacheOperator.CACHE_DIRECTORY.extend("logs");
+    public static final ExternalPath LOGS_DIRECTORY = TracedPath.LIBRARY_DIRECTORY.extend("logs");
 
-    private final static TracedPath LOG_PATH;
+    private final static ExternalPath LOG_PATH;
 
     static {
 
@@ -50,10 +50,7 @@ public class LoggedException extends Exception {
                 """.formatted(new SimpleDateFormat("HH:mm:ss").format(date));
         try {
 
-            if (!LOGS_DIRECTORY.exists()) {
-
-                LOGS_DIRECTORY.createFile(true);
-            }
+            LOGS_DIRECTORY.createDirectory();
 
             LOG_PATH.writeTo(logs);
         } catch (IOException e) {
@@ -95,9 +92,17 @@ public class LoggedException extends Exception {
         this.message = message;
         this.errorCode = errorCode;
         time = new Date(System.currentTimeMillis());
+
+        print();
     }
 
-    public final void print() {
+    /**
+     * Prints the output of this <code>LoggedException</code> instance to the
+     * standard output. This method is automatically called upon the instantiation
+     * of this <codee>LoggedException</code> instance, and thus should not be called
+     * from the outside.
+     */
+    private void print() {
 
         String timeString = new SimpleDateFormat("HH:mm:ss").format(time);
         String errorMessage = "[" + errorCode + "] >>> ";
@@ -114,13 +119,11 @@ public class LoggedException extends Exception {
      * 
      * @param message <code>String</code>: The message to record to the file.
      */
-    public static void write(String message) {
+    private static void write(String message) {
 
         String logs = LOG_PATH.retrieve() + "\n\n\n" + message;
         try {
 
-            if (!LOGS_DIRECTORY.exists())
-                LOGS_DIRECTORY.createFile(true);
             LOG_PATH.writeTo(logs);
             System.out.println(message);
         } catch (IOException e) {

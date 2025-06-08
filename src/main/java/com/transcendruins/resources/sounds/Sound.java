@@ -19,12 +19,10 @@ package com.transcendruins.resources.sounds;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -35,84 +33,60 @@ public final class Sound {
 
     public static final Color BLANK = new Color(0);
 
-    private final WeightedRoll<TracedPath> entries;
+    private final WeightedRoll<String> entries;
 
-    public Sound(TracedDictionary json, String key, TracedPath root, List<TracedPath> soundPaths)
-            throws LoggedException {
+    public Sound(TracedDictionary json, String key) throws LoggedException {
 
         entries = json.get(key, List.of(
 
                 json.arrayCase(entry -> {
 
                     TracedArray soundJson = entry.getValue();
-                    if (soundJson.isEmpty()) {
 
-                        throw new CollectionSizeException(entry, soundJson);
-                    }
+                    ArrayList<WeightedRoll.Entry<String>> jsonEntries = new ArrayList<>();
 
-                    ArrayList<WeightedRoll.Entry<TracedPath>> jsonEntries = new ArrayList<>();
-
-                    for (int i : soundJson.getIndices()) {
+                    for (int i : soundJson) {
 
                         TracedEntry<String> pathEntry = soundJson.getAsString(i, false, null);
-                        TracedPath path = root.extend(pathEntry.getValue());
-
-                        if (!soundPaths.contains(path)) {
-
-                            throw new ReferenceWithoutDefinitionException(pathEntry, "Path");
-                        }
+                        String path = pathEntry.getValue();
 
                         jsonEntries.add(new WeightedRoll.Entry<>(path));
                     }
 
-                    return new WeightedRoll<>(jsonEntries);
+                    return new WeightedRoll<>(entry, soundJson, jsonEntries);
                 }),
 
                 json.dictCase(entry -> {
 
                     TracedDictionary soundJson = entry.getValue();
 
-                    if (soundJson.isEmpty()) {
+                    ArrayList<WeightedRoll.Entry<String>> jsonEntries = new ArrayList<>();
 
-                        throw new MissingPropertyException(entry);
-                    }
+                    for (String pathString : soundJson) {
 
-                    ArrayList<WeightedRoll.Entry<TracedPath>> jsonEntries = new ArrayList<>();
-
-                    for (String pathString : soundJson.getKeys()) {
-
-                        TracedPath path = root.extend(pathString);
+                        String path = pathString;
                         TracedEntry<Double> weightEntry = soundJson.getAsDouble(pathString, false, null,
                                 num -> num > 0);
-
-                        if (!soundPaths.contains(path)) {
-
-                            throw new ReferenceWithoutDefinitionException(path, weightEntry, "Path");
-                        }
 
                         jsonEntries.add(new WeightedRoll.Entry<>(path, weightEntry.getValue()));
                     }
 
-                    return new WeightedRoll<>(jsonEntries);
+                    return new WeightedRoll<>(entry, soundJson, jsonEntries);
                 }),
 
                 json.stringCase(entry -> {
-                    TracedPath path = root.extend(entry.getValue());
 
-                    if (!soundPaths.contains(path)) {
-
-                        throw new ReferenceWithoutDefinitionException(entry, "Path");
-                    }
+                    String path = entry.getValue();
 
                     return new WeightedRoll<>(path);
                 })));
 
     }
 
-    public StoredSound getSound(double random) {
+    public StoredSound getSound(double random, Map<String, TracedPath> paths) {
 
-        TracedPath path = entries.get(random);
+        String path = entries.get(random);
 
-        return path != null ? path.retrieveSound() : null;
+        return paths.containsKey(path) ? paths.get(path).retrieveAudio() : null;
     }
 }

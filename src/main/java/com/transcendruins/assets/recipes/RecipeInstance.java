@@ -17,6 +17,7 @@
 package com.transcendruins.assets.recipes;
 
 import com.transcendruins.assets.Attributes;
+import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 
 /**
@@ -28,12 +29,14 @@ public final class RecipeInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>RecipeInstance</code> class.
      * 
-     * @param context <code>RecipeContext</code>: The context used to generate
-     *                this <code>RecipeInstance</code> instance.
+     * @param context <code>RecipeContext</code>: The context used to generate this
+     *                <code>RecipeInstance</code> instance.
      */
-    public RecipeInstance(RecipeContext context) {
+    public RecipeInstance(AssetContext assetContext, Object key) {
 
-        super(context);
+        super(assetContext, key);
+
+        RecipeContext context = (RecipeContext) assetContext;
     }
 
     @Override

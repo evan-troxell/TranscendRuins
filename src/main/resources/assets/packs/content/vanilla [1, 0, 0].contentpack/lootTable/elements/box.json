@@ -1,0 +1,42 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:box"
+    },
+    "attributes": {
+        "type": "selection",
+        "count": 5,
+        "components": [
+            {
+                "type": "item",
+                "item": "TranscendRuins:test",
+                "count": 2,
+                "chance": 15,
+                "limit": 3
+            },
+            {
+                "type": "sequential",
+                "count": {
+                    "min": 1,
+                    "max": 5
+                },
+                "components": [
+                    {
+                        "type": "item",
+                        "item": "TranscendRuins:test",
+                        "count": 4
+                    },
+                    {
+                        "type": "item",
+                        "item": "TranscendRuins:test",
+                        "count": {
+                            "min": 1,
+                            "max": 5
+                        }
+                    }
+                ],
+                "chance": 10,
+                "limit": 4
+            }
+        ]
+    }
+}

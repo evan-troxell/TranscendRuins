@@ -126,4 +126,27 @@ sealed public class Triangle permits RenderTriangle {
 
         return new Triangle(vertex1.rotate(quat), vertex2.rotate(quat), vertex3.rotate(quat));
     }
+
+    /**
+     * Calculates the area of a triangle formed by 3 vectors.
+     * 
+     * @param a <code>Vector</code>: The vector forming the first vertex of the
+     *          triangle.
+     * @param b <code>Vector</code>: The vector forming the second vertex of the
+     *          triangle.
+     * @param c <code>Vector</code>: The vector forming the third vertex of the
+     *          triangle.
+     * @return <code>double</code>: The resulting area.
+     */
+    public static double calculateArea(Vector a, Vector b, Vector c) {
+
+        return 0.5 * Math.abs((a.getX() * (b.getY() - c.getY()) + b.getX() * (c.getY() - a.getY())
+                + c.getX() * (a.getY() - b.getY())));
+    }
+
+    @Override
+    public final String toString() {
+
+        return "[" + vertex1 + ", " + vertex2 + ", " + vertex3 + "]";
+    }
 }

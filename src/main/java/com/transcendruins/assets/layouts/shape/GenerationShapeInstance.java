@@ -26,24 +26,24 @@ public abstract class GenerationShapeInstance {
 
         return switch (schema) {
 
-            case GenerationShapeSchema.PointSchema _ -> new PointInstance();
+        case GenerationShapeSchema.PointSchema _ -> new PointInstance();
 
-            case GenerationShapeSchema.SquareSchema square -> new SquareInstance(square, world);
+        case GenerationShapeSchema.SquareSchema square -> new SquareInstance(square, world);
 
-            case GenerationShapeSchema.RectangleSchema rectangle -> new RectangleInstance(rectangle, world);
+        case GenerationShapeSchema.RectangleSchema rectangle -> new RectangleInstance(rectangle, world);
 
-            case GenerationShapeSchema.CircleSchema circle -> new CircleInstance(circle, world);
+        case GenerationShapeSchema.CircleSchema circle -> new CircleInstance(circle, world);
 
-            case GenerationShapeSchema.RingSchema ring -> new RingInstance(ring, world);
+        case GenerationShapeSchema.RingSchema ring -> new RingInstance(ring, world);
 
-            default -> new GenerationShapeInstance() {
+        default -> new GenerationShapeInstance() {
 
-                @Override
-                public boolean isValidPlacement(int x, int y, int centerX, int centerY) {
+            @Override
+            public boolean isValidPlacement(int x, int y, int centerX, int centerY) {
 
-                    return true;
-                }
-            };
+                return true;
+            }
+        };
         };
     }
 
@@ -73,8 +73,7 @@ public abstract class GenerationShapeInstance {
 
             int halfWidth = width / 2;
 
-            return -halfWidth <= dx && dx < halfWidth
-                    && -halfWidth <= dy && dy < halfWidth;
+            return -halfWidth <= dx && dx < halfWidth && -halfWidth <= dy && dy < halfWidth;
         }
     }
 
@@ -82,12 +81,12 @@ public abstract class GenerationShapeInstance {
 
         private final int width;
 
-        private final int height;
+        private final int length;
 
         protected RectangleInstance(GenerationShapeSchema.RectangleSchema schema, World world) {
 
             width = schema.getWidth().getIntegerValue(world.nextRandom());
-            height = schema.getHeight().getIntegerValue(world.nextRandom());
+            length = schema.getLength().getIntegerValue(world.nextRandom());
         }
 
         @Override
@@ -97,10 +96,9 @@ public abstract class GenerationShapeInstance {
             int dy = y - centerY;
 
             int halfWidth = width / 2;
-            int halfHeight = height / 2;
+            int halfLength = length / 2;
 
-            return -halfWidth <= dx && dx < halfWidth
-                    && -halfHeight <= dy && dy < halfHeight;
+            return -halfWidth <= dx && dx < halfWidth && -halfLength <= dy && dy < halfLength;
         }
     }
 
