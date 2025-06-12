@@ -29,7 +29,7 @@ import com.transcendruins.utilities.json.TracedEntry;
 
 /**
  * <code>GlobalEventSchema</code>: A class representing the parsed JSON
- * information of a global event.
+ * information of a global map event.
  */
 public final class GlobalEventSchema {
 

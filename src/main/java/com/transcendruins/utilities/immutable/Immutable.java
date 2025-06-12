@@ -25,14 +25,9 @@ public interface Immutable {
     /**
      * Raises an error if the data structure has been finalized.
      * 
-     * @param finalized <code>boolean</code>: Whether or not the data structure has
-     *                  been finalized yet.
      */
-    default void raiseError(boolean finalized) {
+    default UnsupportedOperationException raiseError() {
 
-        if (finalized) {
-
-            throw new UnsupportedOperationException("Data has been declared 'final'.");
-        }
+        return new UnsupportedOperationException("Data has been declared 'final'.");
     }
 }

@@ -91,27 +91,27 @@ public final class AssetPresets {
     }
 
     /**
-     * <code>ImmutableList&lt;TracedEntry&lt;String&gt;&gt;</code>: A list of the
-     * initial events of this <code>AssetPresets</code> instance.
+     * <code>ImmutableList&lt;String&gt;</code>: A list of the initial events of
+     * this <code>AssetPresets</code> instance.
      */
-    private final ImmutableList<TracedEntry<String>> events;
+    private final ImmutableList<String> events;
 
     /**
      * Retrieves the initial events of this <code>AssetPresets</code> instance.
      * 
-     * @return <code>ImmutableList&lt;TracedEntry&lt;String&gt;&gt;</code>: The
-     *         <code>events</code> field of this <code>AssetPresets</code> instance.
+     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>events</code>
+     *         field of this <code>AssetPresets</code> instance.
      */
-    public final ImmutableList<TracedEntry<String>> getEvents() {
+    public final ImmutableList<String> getEvents() {
 
         return events;
     }
 
-    private final ImmutableMap<String, Object> publicProperties;
+    private final ImmutableMap<String, Object> properties;
 
-    public final ImmutableMap<String, Object> getPublicProperties() {
+    public final ImmutableMap<String, Object> getProperties() {
 
-        return publicProperties;
+        return properties;
     }
 
     @Deprecated
@@ -121,11 +121,11 @@ public final class AssetPresets {
         this.identifierEntry = new TracedEntry<>(null, identifier);
         this.identifier = identifierEntry.getValue();
 
-        ArrayList<TracedEntry<String>> eventsList = new ArrayList<>();
-        HashMap<String, Object> propertiesMap = new HashMap<>();
-
+        ArrayList<String> eventsList = new ArrayList<>();
         events = new ImmutableList<>(eventsList);
-        publicProperties = new ImmutableMap<>(propertiesMap);
+
+        HashMap<String, Object> propertiesMap = new HashMap<>();
+        properties = new ImmutableMap<>(propertiesMap);
     }
 
     /**
@@ -146,7 +146,7 @@ public final class AssetPresets {
         this.identifierEntry = collection.getAsMetadata(key, false, false);
         this.identifier = identifierEntry.getValue();
 
-        ArrayList<TracedEntry<String>> eventsList = new ArrayList<>();
+        ArrayList<String> eventsList = new ArrayList<>();
         HashMap<String, Object> propertiesMap = new HashMap<>();
 
         if (collection.getType(key) == JSONType.DICT) {
@@ -161,7 +161,8 @@ public final class AssetPresets {
 
                 for (int i : eventsJson) {
 
-                    eventsList.add(eventsJson.getAsString(i, false, null));
+                    TracedEntry<String> eventEntry = eventsJson.getAsString(i, false, null);
+                    eventsList.add(eventEntry.getValue());
                 }
             }
 
@@ -171,12 +172,13 @@ public final class AssetPresets {
                 TracedDictionary propertiesJson = propertiesEntry.getValue();
                 for (String property : propertiesJson) {
 
-                    propertiesMap.put(property, propertiesJson.getAsScalar(property, true, null));
+                    TracedEntry<Object> propertyEntry = propertiesJson.getAsScalar(property, true, null);
+                    propertiesMap.put(property, propertyEntry.getValue());
                 }
             }
         }
 
         events = new ImmutableList<>(eventsList);
-        publicProperties = new ImmutableMap<>(propertiesMap);
+        properties = new ImmutableMap<>(propertiesMap);
     }
 }

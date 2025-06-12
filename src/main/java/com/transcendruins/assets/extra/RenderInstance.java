@@ -30,12 +30,6 @@ import com.transcendruins.graphics3d.PolyGroup;
 public interface RenderInstance {
 
     /**
-     * Evaluates the animations of this <code>RenderInstance</code> instance. This
-     * method is called every frame to update the animation state of the model.
-     */
-    public void evaluateAnimations();
-
-    /**
      * Retrieves the bone actors of this <code>RenderInstance</code> instance.
      * 
      * @return <code>BoneActorSet</code>: The retrieved bone actors.

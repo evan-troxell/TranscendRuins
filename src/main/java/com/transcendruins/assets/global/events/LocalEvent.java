@@ -27,12 +27,12 @@ import com.transcendruins.utilities.json.TracedEntry;
 public final class LocalEvent {
 
     /**
-     * <code>String</code>: The location of this local event.
+     * <code>String</code>: The global location of this local event.
      */
     private final String location;
 
     /**
-     * Retrieves the location of this local event.
+     * Retrieves the global location of this local event.
      *
      * @return <code>String</code>: The <code>location</code> field of this
      *         <code>LocalEvent</code> instance.

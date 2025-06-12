@@ -18,7 +18,9 @@ package com.transcendruins.assets.loottables;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.transcendruins.assets.AssetType.ITEM;
@@ -101,6 +103,25 @@ public final class LootTableAttributes extends AssetAttributes {
     }
 
     /**
+     * <code>ImmutableList&lt;String&gt;</code>: The list of component IDs which
+     * should be enabled by this <code>LootTableAttributes</code> instance.
+     */
+    private final ImmutableList<String> enableByComponentId;
+
+    /**
+     * Retrieves the list of component IDs which should be enabled by this
+     * <code>LootTableAttributes</code> instance.
+     * 
+     * @return <code>ImmutableList&lt;String&gt;</code>: The
+     *         <code>enableByComponentId</code> field of this
+     *         <code>LootTableAttributes</code> instance.
+     */
+    public ImmutableList<String> getEnableByComponentId() {
+
+        return enableByComponentId;
+    }
+
+    /**
      * <code>ImmutableList&lt;String&gt;</code>: The list of component tags which
      * should be disabled by this <code>LootTableAttributes</code> instance.
      */
@@ -117,6 +138,25 @@ public final class LootTableAttributes extends AssetAttributes {
     public ImmutableList<String> getDisableByComponentTag() {
 
         return disableByComponentTag;
+    }
+
+    /**
+     * <code>ImmutableList&lt;String&gt;</code>: The list of component tags which
+     * should be enabled by this <code>LootTableAttributes</code> instance.
+     */
+    private final ImmutableList<String> enableByComponentTag;
+
+    /**
+     * Retrieves the list of component tags which should be enabled by this
+     * <code>LootTableAttributes</code> instance.
+     * 
+     * @return <code>ImmutableList&lt;String&gt;</code>: The
+     *         <code>enableByComponentTag</code> field of this
+     *         <code>LootTableAttributes</code> instance.
+     */
+    public ImmutableList<String> getEnableByComponentTag() {
+
+        return enableByComponentTag;
     }
 
     /**
@@ -137,9 +177,16 @@ public final class LootTableAttributes extends AssetAttributes {
 
         super(schema, json, isBase);
 
-        boolean defined = json.getAsString("type", !isBase, null).containsValue();
-        loot = defined ? createLoot(json, new ArrayList<>()) : null;
-        items = loot != null ? new ImmutableList<>(loot.getItems()) : null;
+        // The loot should only be defined once.
+        if (isBase) {
+
+            loot = createLoot(json, new HashSet<>());
+            items = new ImmutableList<>(loot.getItems());
+        } else {
+
+            loot = null;
+            items = null;
+        }
 
         TracedEntry<TracedArray> disableByComponentIdEntry = json.getAsArray("disableByComponentId", false);
         if (disableByComponentIdEntry.containsValue()) {
@@ -159,6 +206,26 @@ public final class LootTableAttributes extends AssetAttributes {
         } else {
 
             disableByComponentId = null;
+        }
+
+        TracedEntry<TracedArray> enableByComponentIdEntry = json.getAsArray("enableByComponentId", false);
+        if (enableByComponentIdEntry.containsValue()) {
+
+            TracedArray enableByComponentIdJson = enableByComponentIdEntry.getValue();
+            ArrayList<String> enableByComponentIdList = new ArrayList<>();
+
+            for (int i : enableByComponentIdJson) {
+
+                TracedEntry<String> enableIdEntry = enableByComponentIdJson.getAsString(i, false, null);
+                String enableId = enableIdEntry.getValue();
+
+                enableByComponentIdList.add(enableId);
+            }
+
+            enableByComponentId = new ImmutableList<>(enableByComponentIdList);
+        } else {
+
+            enableByComponentId = null;
         }
 
         TracedEntry<TracedArray> disableByComponentTagsEntry = json.getAsArray("disableByComponentTags", false);
@@ -181,23 +248,44 @@ public final class LootTableAttributes extends AssetAttributes {
 
             disableByComponentTag = null;
         }
+
+        TracedEntry<TracedArray> enableByComponentTagsEntry = json.getAsArray("enableByComponentTags", false);
+
+        if (enableByComponentTagsEntry.containsValue()) {
+
+            TracedArray enableByComponentTagsJson = enableByComponentTagsEntry.getValue();
+            ArrayList<String> enableByComponentTagsList = new ArrayList<>();
+
+            for (int i : enableByComponentTagsJson) {
+
+                TracedEntry<String> enableTagEntry = enableByComponentTagsJson.getAsString(i, false, null);
+                String enableTag = enableTagEntry.getValue();
+
+                enableByComponentTagsList.add(enableTag);
+            }
+
+            enableByComponentTag = new ImmutableList<>(enableByComponentTagsList);
+        } else {
+
+            enableByComponentTag = null;
+        }
     }
 
     /**
      * Creates a new instance of the <code>LootTableAttributes.LootSchema</code>
-     * subclass.
+     * class.
      * 
      * @param json            <code>TracedDictionary</code>: The JSON to create the
      *                        new <code>LootTableAttributes.LootSchema</code>
      *                        instance from.
-     * @param componentIdList <code>List&lt;String&gt;</code>: The list of component
+     * @param componentIdList <code>Set&lt;String&gt;</code>: The list of component
      *                        IDs contained in this
      *                        <code>LootTableAttributes.LootSchema</code> instance.
      * @return <code>LootSchema</code>: The created loot schema.
      * @throws LoggedException Thrown if any exception is raised while creating the
      *                         new <code>LootTableAttributes.Loot</code> instance.
      */
-    public final LootSchema createLoot(TracedDictionary json, List<String> componentIdList)
+    public final LootSchema createLoot(TracedDictionary json, Set<String> componentIdList)
             throws MissingPropertyException, PropertyTypeException, LoggedException {
 
         TracedEntry<String> typeEntry = json.getAsString("type", false, null);
@@ -211,7 +299,7 @@ public final class LootTableAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>LootTableAttributes.LootSchema</code>: A subclass representing any loot
+     * <code>LootTableAttributes.LootSchema</code>: A class representing any loot
      * schema.
      */
     public abstract class LootSchema {
@@ -300,18 +388,18 @@ public final class LootTableAttributes extends AssetAttributes {
 
         /**
          * Creates a new instance of the <code>LootTableAttributes.LootSchema</code>
-         * subclass.
+         * class.
          * 
          * @param json            <code>TracedDictionary</code>: The JSON to create this
          *                        <code>LootTableAttributes.LootSchema</code> instance
          *                        from.
-         * @param componentIdList <code>List&lt;String&gt;</code>: The list of component
+         * @param componentIdList <code>Set&lt;String&gt;</code>: The list of component
          *                        IDs contained in this
          *                        <code>LootTableAttributes.LootSchema</code> instance.
          * @throws LoggedException Thrown if any exception is raised while creating this
          *                         <code>LootTableAttributes.LootSchema</code> instance.
          */
-        public LootSchema(TracedDictionary json, List<String> componentIdList) throws LoggedException {
+        public LootSchema(TracedDictionary json, Set<String> componentIdList) throws LoggedException {
 
             ArrayList<TRScriptValue> conditionsList = new ArrayList<>();
 
@@ -380,7 +468,7 @@ public final class LootTableAttributes extends AssetAttributes {
             return item;
         }
 
-        public LootValueSchema(TracedDictionary json, List<String> componentIdList) throws LoggedException {
+        public LootValueSchema(TracedDictionary json, Set<String> componentIdList) throws LoggedException {
 
             super(json, componentIdList);
 
@@ -412,7 +500,7 @@ public final class LootTableAttributes extends AssetAttributes {
             return pools;
         }
 
-        public LootPoolSchema(TracedDictionary json, SelectionType SelectionType, List<String> componentIdList)
+        public LootPoolSchema(TracedDictionary json, SelectionType SelectionType, Set<String> componentIdList)
                 throws LoggedException {
 
             super(json, componentIdList);

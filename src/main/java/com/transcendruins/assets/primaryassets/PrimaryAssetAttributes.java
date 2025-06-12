@@ -149,7 +149,7 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
 
             interactionType = InteractionType.parseInteractionType(interactionJson, "type");
 
-            TracedEntry<Double> interactionCooldownEntry = json.getAsDouble("interactionCooldown", true, null);
+            TracedEntry<Double> interactionCooldownEntry = json.getAsDouble("interactionCooldown", true, 0.0);
             interactionCooldown = interactionCooldownEntry.getValue();
 
             ArrayList<String> interactionEventsList = new ArrayList<>();

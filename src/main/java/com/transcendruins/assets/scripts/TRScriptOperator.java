@@ -16,8 +16,8 @@
 
 package com.transcendruins.assets.scripts;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -54,11 +54,11 @@ final class TRScriptOperator {
     }
 
     /**
-     * <code>(ArrayList&lt;TRScriptValue&gt;, PropertyHolder) -> Object</code>: The
+     * <code>(List&lt;TRScriptValue&gt;, PropertyHolder) -> Object</code>: The
      * expression by which this <code>TRScriptOperator</code> instance should be
      * evaluated.
      */
-    private final BiFunction<ArrayList<TRScriptValue>, PropertyHolder, Object> evaluate;
+    private final BiFunction<List<TRScriptValue>, PropertyHolder, Object> evaluate;
 
     /**
      * <code>(Integer) -> Boolean</code>: The expression by which the validity of
@@ -69,7 +69,7 @@ final class TRScriptOperator {
     /**
      * Creates a new instance of the <code>TRScriptOperator</code> class.
      * 
-     * @param evaluate    <code>(ArrayList&lt;TRScriptValue&gt;, PropertyHolder) -> Object)</code>:
+     * @param evaluate    <code>(List&lt;TRScriptValue&gt;, PropertyHolder) -> Object)</code>:
      *                    The expression by which this <code>TRScriptOperator</code>
      *                    instance should be evaluated.
      * @param invalidArgs <code>(Integer) -> Boolean)</code>: The expression by
@@ -77,7 +77,7 @@ final class TRScriptOperator {
      *                    <code>TRScriptOperator</code> instance should be
      *                    evaluated.
      */
-    public TRScriptOperator(BiFunction<ArrayList<TRScriptValue>, PropertyHolder, Object> evaluate,
+    public TRScriptOperator(BiFunction<List<TRScriptValue>, PropertyHolder, Object> evaluate,
             Function<Integer, Boolean> invalidArgs) {
 
         this.evaluate = evaluate;
@@ -87,12 +87,12 @@ final class TRScriptOperator {
     /**
      * Evalutes this <code>TRScriptExpression</code> instance.
      * 
-     * @param args  <code>ArrayList&lt;TRScriptValue&gt;</code>: The arguments of
-     *              this <code>TRScriptOperator</code> instance.
+     * @param args  <code>List&lt;TRScriptValue&gt;</code>: The arguments of this
+     *              <code>TRScriptOperator</code> instance.
      * @param asset <code>PropertyHolder</code>: The asset context to use.
      * @return <code>Object</code>: The resulting value.
      */
-    public Object evaluate(ArrayList<TRScriptValue> args, PropertyHolder asset) {
+    public Object evaluate(List<TRScriptValue> args, PropertyHolder asset) {
 
         return evaluate.apply(args, asset);
     }
@@ -463,8 +463,7 @@ final class TRScriptOperator {
         return new ImmutableMap<>(operatorsMap);
     }
 
-    private static void createOperator(String key,
-            BiFunction<ArrayList<TRScriptValue>, PropertyHolder, Object> operator,
+    private static void createOperator(String key, BiFunction<List<TRScriptValue>, PropertyHolder, Object> operator,
             Function<Integer, Boolean> invalidLength, Map<String, TRScriptOperator> operators) {
 
         operators.put(key, new TRScriptOperator(operator, invalidLength));

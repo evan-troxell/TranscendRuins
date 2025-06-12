@@ -157,36 +157,76 @@ public final class ModelAttributes extends AssetAttributes {
      * <code>ImmutableList&lt;String&gt;</code>: The bones which should be hidden
      * when rendering this <code>ModelAttributes</code> instance.
      */
-    private final ImmutableList<String> hideBones;
+    private final ImmutableList<String> disableByBone;
 
     /**
      * Retrieves the bones which should be hidden when rendering this
      * <code>ModelAttributes</code> instance.
      * 
-     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>hideBones</code>
-     *         field of this <code>ModelAttributes</code> instance.
+     * @return <code>ImmutableList&lt;String&gt;</code>: The
+     *         <code>disableByBone</code> field of this <code>ModelAttributes</code>
+     *         instance.
      */
-    public ImmutableList<String> getHideBones() {
+    public ImmutableList<String> getdisableByBone() {
 
-        return hideBones;
+        return disableByBone;
+    }
+
+    /**
+     * <code>ImmutableList&lt;String&gt;</code>: The bones which should be unhidden
+     * when rendering this <code>ModelAttributes</code> instance.
+     */
+    private final ImmutableList<String> enableByBone;
+
+    /**
+     * Retrieves the bones which should be unhidden when rendering this
+     * <code>ModelAttributes</code> instance.
+     * 
+     * @return <code>ImmutableList&lt;String&gt;</code>: The
+     *         <code>enableByBone</code> field of this <code>ModelAttributes</code>
+     *         instance.
+     */
+    public ImmutableList<String> getenableByBone() {
+
+        return enableByBone;
     }
 
     /**
      * <code>ImmutableList&lt;String&gt;</code>: The bone tags which should be
      * hidden when rendering this <code>ModelAttributes</code> instance.
      */
-    private final ImmutableList<String> hideTags;
+    private final ImmutableList<String> disableByTag;
 
     /**
      * Retrieves the bone tags which should be hidden when rendering this
      * <code>ModelAttributes</code> instance.
      * 
-     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>hideTags</code>
-     *         field of this <code>ModelAttributes</code> instance.
+     * @return <code>ImmutableList&lt;String&gt;</code>: The
+     *         <code>disableByTag</code> field of this <code>ModelAttributes</code>
+     *         instance.
      */
-    public ImmutableList<String> getHideTags() {
+    public ImmutableList<String> getdisableByTag() {
 
-        return hideTags;
+        return disableByTag;
+    }
+
+    /**
+     * <code>ImmutableList&lt;String&gt;</code>: The bone tags which should be
+     * unhidden when rendering this <code>ModelAttributes</code> instance.
+     */
+    private final ImmutableList<String> enableByTag;
+
+    /**
+     * Retrieves the bone tags which should be unhidden when rendering this
+     * <code>ModelAttributes</code> instance.
+     * 
+     * @return <code>ImmutableList&lt;String&gt;</code>: The
+     *         <code>enableByTag</code> field of this <code>ModelAttributes</code>
+     *         instance.
+     */
+    public ImmutableList<String> getenableByTag() {
+
+        return enableByTag;
     }
 
     /**
@@ -207,15 +247,10 @@ public final class ModelAttributes extends AssetAttributes {
 
         super(schema, json, isBase);
 
-        TracedEntry<TracedDictionary> modelEntry = json.getAsDict("model", !isBase);
+        // The model should only be defined once.
+        if (isBase) {
 
-        if (modelEntry.containsValue()) {
-
-            if (!isBase) {
-
-                throw new KeyNameException(json, "model");
-            }
-
+            TracedEntry<TracedDictionary> modelEntry = json.getAsDict("model", false);
             TracedDictionary modelJson = modelEntry.getValue();
 
             TracedEntry<Integer> textureWidthEntry = modelJson.getAsInteger("textureWidth", false, null,
@@ -304,6 +339,8 @@ public final class ModelAttributes extends AssetAttributes {
 
             HashMap<String, Bone> bonesMap = new HashMap<>();
 
+            // TODO This is duplicate code to the Bone constructor, if the model can have a
+            // single root bone, then this code can be removed.
             TracedEntry<TracedDictionary> bonesEntry = modelJson.getAsDict("bones", true);
             if (bonesEntry.containsValue()) {
 
@@ -337,52 +374,93 @@ public final class ModelAttributes extends AssetAttributes {
             bones = null;
         }
 
-        TracedEntry<TracedArray> hideBonesEntry = json.getAsArray("hideBones", true);
-        if (hideBonesEntry.containsValue()) {
+        TracedEntry<TracedArray> disableByBoneEntry = json.getAsArray("disableByBone", true);
+        if (disableByBoneEntry.containsValue()) {
 
-            ArrayList<String> hideBonesList = new ArrayList<>();
+            ArrayList<String> disableByBoneList = new ArrayList<>();
 
-            TracedArray hideBonesJson = hideBonesEntry.getValue();
-            for (int i : hideBonesJson) {
+            TracedArray disableByBoneJson = disableByBoneEntry.getValue();
+            for (int i : disableByBoneJson) {
 
-                TracedEntry<String> hideBoneEntry = hideBonesJson.getAsString(i, false, null);
+                TracedEntry<String> hideBoneEntry = disableByBoneJson.getAsString(i, false, null);
                 String hideBone = hideBoneEntry.getValue();
 
-                hideBonesList.add(hideBone);
+                disableByBoneList.add(hideBone);
 
             }
 
-            hideBones = new ImmutableList<>(hideBonesList);
+            disableByBone = new ImmutableList<>(disableByBoneList);
         } else {
 
-            hideBones = null;
+            disableByBone = null;
         }
 
-        TracedEntry<TracedArray> hideTagsEntry = json.getAsArray("hideTags", true);
-        if (hideTagsEntry.containsValue()) {
+        TracedEntry<TracedArray> enableByBoneEntry = json.getAsArray("enableByBone", true);
+        if (enableByBoneEntry.containsValue()) {
 
-            ArrayList<String> hideTagsList = new ArrayList<>();
+            ArrayList<String> enableByBoneList = new ArrayList<>();
 
-            TracedArray hideTagsJson = hideTagsEntry.getValue();
-            for (int i : hideTagsJson) {
+            TracedArray enableByBoneJson = enableByBoneEntry.getValue();
+            for (int i : enableByBoneJson) {
 
-                TracedEntry<String> hideTagEntry = hideTagsJson.getAsString(i, false, null);
-                String hideTag = hideTagEntry.getValue();
+                TracedEntry<String> showBoneEntry = enableByBoneJson.getAsString(i, false, null);
+                String showBone = showBoneEntry.getValue();
 
-                hideTagsList.add(hideTag);
+                enableByBoneList.add(showBone);
+
             }
 
-            hideTags = new ImmutableList<>(hideTagsList);
+            enableByBone = new ImmutableList<>(enableByBoneList);
         } else {
 
-            hideTags = null;
+            enableByBone = null;
+        }
+
+        TracedEntry<TracedArray> disableByTagEntry = json.getAsArray("disableByTag", true);
+        if (disableByTagEntry.containsValue()) {
+
+            ArrayList<String> disableByTagList = new ArrayList<>();
+
+            TracedArray disableByTagJson = disableByTagEntry.getValue();
+            for (int i : disableByTagJson) {
+
+                TracedEntry<String> hideTagEntry = disableByTagJson.getAsString(i, false, null);
+                String hideTag = hideTagEntry.getValue();
+
+                disableByTagList.add(hideTag);
+            }
+
+            disableByTag = new ImmutableList<>(disableByTagList);
+        } else {
+
+            disableByTag = null;
+        }
+
+        TracedEntry<TracedArray> enableByTagEntry = json.getAsArray("enableByTag", true);
+        if (enableByTagEntry.containsValue()) {
+
+            ArrayList<String> enableByTagList = new ArrayList<>();
+
+            TracedArray enableByTagJson = enableByTagEntry.getValue();
+            for (int i : enableByTagJson) {
+
+                TracedEntry<String> showTagEntry = enableByTagJson.getAsString(i, false, null);
+                String showTag = showTagEntry.getValue();
+
+                enableByTagList.add(showTag);
+            }
+
+            enableByTag = new ImmutableList<>(enableByTagList);
+        } else {
+
+            enableByTag = null;
         }
     }
 
     /**
-     * <code>ModelAttributes.WeightedVertex</code>: A subclass representing a vertex
-     * of a parent <code>ModelAttributes</code> instance which can be modified using
-     * a weighting system.
+     * <code>ModelAttributes.WeightedVertex</code>: A class representing a vertex of
+     * a parent <code>ModelAttributes</code> instance which can be modified using a
+     * weighting system.
      */
     public final class WeightedVertex {
 
@@ -440,8 +518,8 @@ public final class ModelAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ModelAttributes.IndexedPolygon</code>: A subclass representing a
-     * polygon which is defined only with the indices of vertices in another list.
+     * <code>ModelAttributes.IndexedPolygon</code>: A class representing a polygon
+     * which is defined only with the indices of vertices in another list.
      */
     public final class IndexedPolygon {
 
@@ -509,8 +587,8 @@ public final class ModelAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ModelAttributes.Bone</code>: A subclass representing a polygon layout
-     * of a <code>ModelAttributes</code> instance.
+     * <code>ModelAttributes.Bone</code>: A class representing a polygon layout of a
+     * <code>ModelAttributes</code> instance.
      */
     public final class Bone {
 
@@ -661,11 +739,11 @@ public final class ModelAttributes extends AssetAttributes {
 
             vertexWeights = new ImmutableMap<>(vertexWeightsMap);
 
+            // TODO Use this with reference to the ModelAttributes constructor.
             TracedEntry<TracedDictionary> bonesEntry = modelJson.getAsDict("bones", true);
             if (bonesEntry.containsValue()) {
 
                 TracedDictionary bonesJson = bonesEntry.getValue();
-
                 for (String boneKey : bonesJson) {
 
                     // If any other bones in the model have the same key, raise an exception.

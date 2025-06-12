@@ -53,7 +53,7 @@ public abstract class Instance extends PropertyHolder {
             return generator.apply(value);
         }
 
-        return (attributes.getIsBase()) ? ifBase : ifNull;
+        return (attributes.isBase()) ? ifBase : ifNull;
     }
 
     /**
@@ -102,7 +102,7 @@ public abstract class Instance extends PropertyHolder {
             return value;
         }
 
-        return (attributes.getIsBase()) ? ifBase : ifNull;
+        return (attributes.isBase()) ? ifBase : ifNull;
     }
 
     /**
@@ -132,7 +132,7 @@ public abstract class Instance extends PropertyHolder {
             operation.accept(value);
         } else {
 
-            operation.accept(attributes.getIsBase() ? ifBase : ifNull);
+            operation.accept(attributes.isBase() ? ifBase : ifNull);
         }
     }
 
@@ -169,7 +169,7 @@ public abstract class Instance extends PropertyHolder {
         if (value != null) {
 
             operation.accept(value);
-        } else if (attributes.getIsBase()) {
+        } else if (attributes.isBase()) {
 
             operation.accept(ifBase);
         }

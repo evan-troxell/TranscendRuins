@@ -27,12 +27,13 @@ public final class NumberBoundsException extends PropertyException {
         /**
          * Creates a new instance of the <code>NumberBoundsException</code> exception.
          * 
-         * @param entry <code>TracedEntry&lt;Number&gt;</code>: The number
-         *              outside of the expected bounds.
+         * @param number <code>Number</code>: The number which the exception was raised
+         *               on.
+         * @param entry  <code>TracedEntry&lt;?&gt;</code>: The number outside of the
+         *               expected bounds.
          */
-        public NumberBoundsException(TracedEntry<Number> entry) {
-
-                super("%s is the invalid number %f".formatted(propertyName(entry), entry.getValue().doubleValue()),
-                                entry, "Number Bounds Exception");
+        public NumberBoundsException(Number number, TracedEntry<?> entry) {
+                super("%s is the invalid number %s".formatted(propertyName(entry), number), entry,
+                                "Number Bounds Exception");
         }
 }

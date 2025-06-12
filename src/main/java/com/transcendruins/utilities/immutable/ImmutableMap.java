@@ -20,23 +20,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <code>ImmutableMap&lt;K, V&gt;</code>: A <code>HashMap</code> which is
- * immutable.
+ * <code>ImmutableMap&lt;K, V&gt;</code>: A <code>Map</code> which is immutable.
  */
-public final class ImmutableMap<K, V> extends HashMap<K, V> implements Immutable {
+public final class ImmutableMap<K, V> implements Map<K, V>, Immutable {
 
-    /**
-     * <code>boolean</code>: Whether or not this <code>ImmutableMap</code> instance
-     * has been finalized yet.
-     */
-    private boolean finalized = false;
+    private final HashMap<K, V> map;
 
     /**
      * Creates a new, empty instance of the <code>ImmutableMap</code> class.
      */
     public ImmutableMap() {
 
-        finalized = true;
+        map = new HashMap<>();
     }
 
     /**
@@ -48,8 +43,7 @@ public final class ImmutableMap<K, V> extends HashMap<K, V> implements Immutable
      */
     public ImmutableMap(Map<K, V> map) {
 
-        super(map);
-        finalized = true;
+        this.map = new HashMap<>(map);
     }
 
     /**
@@ -59,8 +53,7 @@ public final class ImmutableMap<K, V> extends HashMap<K, V> implements Immutable
     @Override
     public V put(K key, V value) {
 
-        raiseError(finalized);
-        return super.put(key, value);
+        throw raiseError();
     }
 
     /**
@@ -70,8 +63,7 @@ public final class ImmutableMap<K, V> extends HashMap<K, V> implements Immutable
     @Override
     public V remove(Object key) {
 
-        raiseError(finalized);
-        return super.remove(key);
+        throw raiseError();
     }
 
     /**
@@ -81,8 +73,7 @@ public final class ImmutableMap<K, V> extends HashMap<K, V> implements Immutable
     @Override
     public void putAll(Map<? extends K, ? extends V> m) {
 
-        raiseError(finalized);
-        super.putAll(m);
+        throw raiseError();
     }
 
     /**
@@ -92,8 +83,7 @@ public final class ImmutableMap<K, V> extends HashMap<K, V> implements Immutable
     @Override
     public void clear() {
 
-        raiseError(finalized);
-        super.clear();
+        throw raiseError();
     }
 
     /**
@@ -106,7 +96,7 @@ public final class ImmutableMap<K, V> extends HashMap<K, V> implements Immutable
     @Override
     public ImmutableSet<Entry<K, V>> entrySet() {
 
-        return new ImmutableSet<>(super.entrySet());
+        return new ImmutableSet<>(map.entrySet());
     }
 
     /**
@@ -119,7 +109,7 @@ public final class ImmutableMap<K, V> extends HashMap<K, V> implements Immutable
     @Override
     public ImmutableSet<K> keySet() {
 
-        return new ImmutableSet<>(super.keySet());
+        return new ImmutableSet<>(map.keySet());
     }
 
     /**
@@ -132,6 +122,36 @@ public final class ImmutableMap<K, V> extends HashMap<K, V> implements Immutable
     @Override
     public ImmutableList<V> values() {
 
-        return new ImmutableList<>(super.values());
+        return new ImmutableList<>(map.values());
+    }
+
+    @Override
+    public int size() {
+
+        return map.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+
+        return map.isEmpty();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+
+        return map.containsKey(key);
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+
+        return map.containsValue(value);
+    }
+
+    @Override
+    public V get(Object key) {
+
+        return map.get(key);
     }
 }

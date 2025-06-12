@@ -1,0 +1,55 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:playerInventory"
+    },
+    "attributes": {
+        "styles": {
+            "body": {
+                "background": {
+                    "color": [192, 192, 192], // Default: black [0, 0, 0]
+                    "icon": "icon" // Default: none
+                }, // Default: invisible [0, 0, 0, 0] & no icon
+                "border": {
+                    "width": "2px", // Default: 1px
+                    "color": [128, 128, 128] // Default: black [0, 0, 0]
+                }, // Default: invisible [0, 0, 0, 0]
+                "borderRadius": "5px", // Default: 0px
+
+                "padding": "5px",
+                "margin": "5px"
+            },
+            "button": {
+
+            }
+        },
+
+        "width": "90%",
+        "height": "90%",
+        "x": "center",
+        "y": "center",
+
+        "style": "body",
+
+        "type": "container",
+        "components": [
+            {
+                "id": "exitButton",
+
+                "width": "50px",
+                "height": "50px",
+                "x": "right",
+                "y": "top",
+
+                "style": {},
+                "onHoverStyle": {},
+                "onClickStyle": {},
+
+                "type": "button",
+                "interaction": {
+                    "type": "closeMenu",
+                    "menu": "example" // Default: closes the inventory
+                }
+            }
+        ]
+    }
+}

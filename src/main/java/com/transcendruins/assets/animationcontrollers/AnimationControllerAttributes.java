@@ -26,7 +26,6 @@ import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.scripts.TRScriptValue;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.KeyNameException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.json.TracedArray;
@@ -96,15 +95,10 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
         super(schema, json, isBase);
 
-        TracedEntry<TracedDictionary> statesEntry = json.getAsDict("states", !isBase);
+        // The states should only be defined once.
+        if (isBase) {
 
-        if (statesEntry.containsValue()) {
-
-            if (!isBase) {
-
-                throw new KeyNameException(json, "states");
-            }
-
+            TracedEntry<TracedDictionary> statesEntry = json.getAsDict("states", false);
             HashMap<String, AnimationStateSchema> statesMap = new HashMap<>();
 
             TracedDictionary statesJson = statesEntry.getValue();
@@ -142,7 +136,7 @@ public final class AnimationControllerAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>AnimationControllerAttributes.AnimationStateSchema</code>: A subclass
+     * <code>AnimationControllerAttributes.AnimationStateSchema</code>: A class
      * representing a specific state of this
      * <code>AnimationControllerAttributes</code> instance.
      */

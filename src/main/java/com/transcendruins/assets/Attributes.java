@@ -29,13 +29,13 @@ public abstract class Attributes {
     private final boolean isBase;
 
     /**
-     * Retrieves whether or not this <code>Attributes</code> instance is
-     * the base attribute set of an <code>Instance</code> instance.
+     * Retrieves whether or not this <code>Attributes</code> instance is the base
+     * attribute set of an <code>Instance</code> instance.
      * 
      * @return <code>boolean</code>: The <code>isBase</code> field of this
      *         <code>Attributes</code> instance.
      */
-    public boolean getIsBase() {
+    public boolean isBase() {
 
         return isBase;
     }
@@ -44,8 +44,8 @@ public abstract class Attributes {
      * Creates a new instance of the <code>Attributes</code> class.
      * 
      * @param isBase <code>boolean</code>: Whether or not this
-     *               <code>Attributes</code> instance is the base
-     *               attribute set of an <code>Instance</code> instance.
+     *               <code>Attributes</code> instance is the base attribute set of
+     *               an <code>Instance</code> instance.
      */
     public Attributes(boolean isBase) {
 

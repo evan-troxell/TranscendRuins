@@ -275,7 +275,6 @@ public abstract non-sealed class Render3D extends GraphicsPanel
             ArrayList<PolyGroup> polygonGroups = new ArrayList<>();
             for (RenderInstance render : models) {
 
-                render.evaluateAnimations();
                 polygonGroups.addAll(render.getPolygons());
             }
 

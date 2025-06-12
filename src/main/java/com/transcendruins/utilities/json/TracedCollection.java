@@ -16,6 +16,7 @@
 
 package com.transcendruins.utilities.json;
 
+import java.awt.Color;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -817,20 +818,20 @@ public abstract class TracedCollection {
             throws PropertyTypeException, MissingPropertyException, CollectionSizeException, NumberBoundsException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<TracedArray> retrievedVal = getAsArray(key, nullCaseAllowed);
+        TracedEntry<TracedArray> entry = getAsArray(key, nullCaseAllowed);
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
         // and thus a null entry may be returned.
-        if (!retrievedVal.containsValue()) {
+        if (!entry.containsValue()) {
 
-            return retrievedVal.cast(null);
+            return entry.cast(null);
         }
 
-        TracedArray array = retrievedVal.getValue();
+        TracedArray array = entry.getValue();
 
         if (array.size() != dimensions) {
 
-            throw new CollectionSizeException(retrievedVal, array);
+            throw new CollectionSizeException(entry, array);
         }
 
         double[] vectorList = new double[dimensions];
@@ -841,7 +842,7 @@ public abstract class TracedCollection {
             vectorList[i] = vectorEntry.getValue();
         }
 
-        return retrievedVal.cast(new Vector(vectorList));
+        return entry.cast(new Vector(vectorList));
     }
 
     public final TracedEntry<Vector> getAsVector(Object key, boolean nullCaseAllowed, int dimensions, Vector min,
@@ -849,20 +850,20 @@ public abstract class TracedCollection {
             throws PropertyTypeException, MissingPropertyException, CollectionSizeException, NumberBoundsException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<TracedArray> retrievedVal = getAsArray(key, nullCaseAllowed);
+        TracedEntry<TracedArray> entry = getAsArray(key, nullCaseAllowed);
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
         // and thus a null entry may be returned.
-        if (!retrievedVal.containsValue()) {
+        if (!entry.containsValue()) {
 
-            return retrievedVal.cast(null);
+            return entry.cast(null);
         }
 
-        TracedArray array = retrievedVal.getValue();
+        TracedArray array = entry.getValue();
 
         if (array.size() != dimensions) {
 
-            throw new CollectionSizeException(retrievedVal, array);
+            throw new CollectionSizeException(entry, array);
         }
 
         double[] vectorList = new double[dimensions];
@@ -876,7 +877,7 @@ public abstract class TracedCollection {
             vectorList[i] = vectorEntry.getValue();
         }
 
-        return retrievedVal.cast(new Vector(vectorList));
+        return entry.cast(new Vector(vectorList));
     }
 
     /**
@@ -902,16 +903,16 @@ public abstract class TracedCollection {
             throws MissingPropertyException, PropertyTypeException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, ifNull, JSONType.BOOLEAN);
+        TracedEntry<?> entry = get(key, nullCaseAllowed, ifNull, JSONType.BOOLEAN);
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
         // and thus a null entry may be returned.
-        if (retrievedVal.getValue() == null) {
+        if (!entry.containsValue()) {
 
-            return retrievedVal.cast(ifNull);
+            return entry.cast(ifNull);
         }
 
-        return retrievedVal.cast((Boolean) retrievedVal.getValue());
+        return entry.cast((Boolean) entry.getValue());
     }
 
     /**
@@ -937,16 +938,16 @@ public abstract class TracedCollection {
             throws MissingPropertyException, PropertyTypeException {
 
         // Retrieves the value associated with the key.
-        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, ifNull, JSONType.STRING);
+        TracedEntry<?> entry = get(key, nullCaseAllowed, ifNull, JSONType.STRING);
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
         // and thus a null entry may be returned.
-        if (retrievedVal.getValue() == null) {
+        if (!entry.containsValue()) {
 
-            return retrievedVal.cast(ifNull);
+            return entry.cast(ifNull);
         }
 
-        return retrievedVal.cast((String) retrievedVal.getValue());
+        return entry.cast((String) entry.getValue());
     }
 
     /**
@@ -970,21 +971,21 @@ public abstract class TracedCollection {
     public final TracedEntry<ZonedDateTime> getAsTimestamp(Object key, boolean nullCaseAllowed)
             throws MissingPropertyException, PropertyTypeException, UnexpectedValueException {
 
-        TracedEntry<String> retrievedVal = getAsString(key, nullCaseAllowed, null);
+        TracedEntry<String> entry = getAsString(key, nullCaseAllowed, null);
 
-        if (!retrievedVal.containsValue()) {
+        if (!entry.containsValue()) {
 
-            return retrievedVal.cast(null);
+            return entry.cast(null);
         }
 
-        String date = retrievedVal.getValue();
+        String date = entry.getValue();
         try {
 
             ZonedDateTime zonedDateTime = java.time.ZonedDateTime.parse(date);
-            return retrievedVal.cast(zonedDateTime);
+            return entry.cast(zonedDateTime);
         } catch (DateTimeParseException e) {
 
-            throw new UnexpectedValueException(retrievedVal);
+            throw new UnexpectedValueException(entry);
         }
     }
 
@@ -992,22 +993,22 @@ public abstract class TracedCollection {
             Function<Number, T> generator, Function<T, Boolean> isInRange)
             throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
-        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, null, JSONType.LONG, JSONType.DOUBLE);
+        TracedEntry<?> entry = get(key, nullCaseAllowed, null, JSONType.LONG, JSONType.DOUBLE);
 
-        if (!retrievedVal.containsValue()) {
+        if (!entry.containsValue()) {
 
-            return retrievedVal.cast(ifNull);
+            return entry.cast(ifNull);
         }
 
-        Number num = (Number) retrievedVal.getValue();
+        Number num = (Number) entry.getValue();
         T val = generator.apply(num);
 
         if (!isInRange.apply(val)) {
 
-            throw new NumberBoundsException(retrievedVal.cast(num));
+            throw new NumberBoundsException(num, entry);
         }
 
-        return retrievedVal.cast(val);
+        return entry.cast(val);
     }
 
     /**
@@ -1199,15 +1200,70 @@ public abstract class TracedCollection {
     public final TracedEntry<Object> getAsScalar(Object key, boolean nullCaseAllowed, Object ifNull)
             throws MissingPropertyException, PropertyTypeException {
 
-        TracedEntry<?> retrievedVal = get(key, nullCaseAllowed, ifNull, JSONType.BOOLEAN, JSONType.LONG,
-                JSONType.DOUBLE, JSONType.STRING);
+        TracedEntry<?> entry = get(key, nullCaseAllowed, ifNull, JSONType.BOOLEAN, JSONType.LONG, JSONType.DOUBLE,
+                JSONType.STRING);
 
-        if (retrievedVal.getValue() == null) {
+        if (!entry.containsValue()) {
 
-            return retrievedVal.cast(ifNull);
+            return entry.cast(ifNull);
         }
 
-        return retrievedVal.cast(retrievedVal.getValue());
+        return entry.cast(entry.getValue());
+    }
+
+    /**
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses
+     * it into a <code>Color</code> instance. The value must be an array of 3 or 4
+     * integers, representing RGB or RGBA components respectively. If the array has
+     * 3 elements, the alpha value defaults to 255 (fully opaque).
+     *
+     * @param key             <code>Object</code>: The key whose entry to retrieve
+     *                        in this <code>TracedCollection</code> instance.
+     * @param nullCaseAllowed <code>boolean</code>: Whether or not a
+     *                        <code>null</code> case should cause an exception.
+     * @param ifNull          <code>Color</code>: The value to return if the value
+     *                        retrieved from this <code>TracedCollection</code>
+     *                        instance is <code>null</code>.
+     * @return <code>TracedEntry&lt;Color&gt;</code>: The color retrieved from this
+     *         <code>TracedCollection</code> instance.
+     * @throws PropertyTypeException    Thrown if the retrieved field is not of the
+     *                                  <code>JSONArray</code> class.
+     * @throws MissingPropertyException Thrown if the retrieved field is missing and
+     *                                  the <code>nullCaseAllowed</code> parameter
+     *                                  is <code>false</code>.
+     * @throws CollectionSizeException  Thrown if the retrieved array does not have
+     *                                  a length of 3 or 4.
+     * @throws NumberBoundsException    Thrown if any of the color components are
+     *                                  out of the valid range for color values.
+     */
+    public final TracedEntry<Color> getAsColor(Object key, boolean nullCaseAllowed, Color ifNull)
+            throws PropertyTypeException, MissingPropertyException, CollectionSizeException, NumberBoundsException {
+
+        TracedEntry<TracedArray> entry = getAsArray(key, nullCaseAllowed);
+
+        if (!entry.containsValue()) {
+
+            return entry.cast(ifNull);
+        }
+
+        TracedArray array = entry.getValue();
+        int size = array.size();
+
+        if (size != 3 && size != 4) {
+
+            throw new CollectionSizeException(entry, array);
+        }
+
+        int[] rgb = new int[size];
+
+        for (int i : array) {
+
+            TracedEntry<Integer> colorEntry = array.getAsInteger(i, false, null, num -> 0 <= num && num <= 255);
+            rgb[i] = colorEntry.getValue();
+        }
+
+        int alpha = size == 4 ? rgb[3] : 255;
+        return entry.cast(new Color(rgb[0], rgb[1], rgb[2], alpha));
     }
 
     /**
@@ -1280,17 +1336,17 @@ public abstract class TracedCollection {
             throws IdentifierFormatException, MissingPropertyException, PropertyTypeException {
 
         // Retrieves the string value associated with the key.
-        TracedEntry<String> retrievedVal = getAsString(key, nullCaseAllowed, null);
+        TracedEntry<String> entry = getAsString(key, nullCaseAllowed, null);
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
         // and thus a null entry may be returned.
-        if (retrievedVal.getValue() == null) {
+        if (!entry.containsValue()) {
 
-            return retrievedVal.cast(null);
+            return entry.cast(null);
         }
 
         // Parses the string into an identifier instance.
-        return retrievedVal.cast(Identifier.createIdentifier(retrievedVal, version));
+        return entry.cast(Identifier.createIdentifier(entry, version));
     }
 
     /**
@@ -1319,23 +1375,23 @@ public abstract class TracedCollection {
             MissingPropertyException, PropertyTypeException, NumberBoundsException, VersionBoundsException {
 
         // Retrieves the array value associated with the key.
-        TracedEntry<TracedArray> retrievedVal = getAsArray(key, nullCaseAllowed);
-        TracedArray array = retrievedVal.getValue();
+        TracedEntry<TracedArray> entry = getAsArray(key, nullCaseAllowed);
+        TracedArray array = entry.getValue();
 
         // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
         // and thus a null entry may be returned.
-        if (!retrievedVal.containsValue()) {
+        if (!entry.containsValue()) {
 
-            return retrievedVal.cast(null);
+            return entry.cast(null);
         }
 
         if (array.size() != 3) {
 
-            throw new CollectionSizeException(retrievedVal, array);
+            throw new CollectionSizeException(entry, array);
         }
 
         // Parses the array into a version instance.
-        return retrievedVal.cast(Version.createVersion(retrievedVal));
+        return entry.cast(Version.createVersion(entry));
     }
 
     /**

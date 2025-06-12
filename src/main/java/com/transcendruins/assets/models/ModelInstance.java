@@ -106,11 +106,25 @@ public final class ModelInstance extends AssetInstance {
     private ImmutableMap<String, ModelAttributes.Bone> bones;
 
     /**
+     * Determines whether or not this <code>ModelInstance</code> instance has a bone
+     * by the given name.
+     * 
+     * @param bone <code>String</code>: The name of the bone to check for.
+     * @return <code>boolean</code>: Whether or not the <code>bones</code> field of
+     *         this <code>ModelInstance</code> instance contains a bone with the
+     *         given name.
+     */
+    public boolean hasBone(String bone) {
+
+        return bones.containsKey(bone);
+    }
+
+    /**
      * Retrieves a bone from this <code>ModelInstance</code> instance by its name.
      * 
      * @param bone <code>String</code>: The name of the bone to retrieve.
      * @return <code>ModelAttributes.Bone</code>: The bone retrieved from this
-     *         <code.ModelInstance</code> instance.
+     *         <code>ModelInstance</code> instance.
      */
     public ModelAttributes.Bone getBone(String bone) {
 
@@ -118,16 +132,16 @@ public final class ModelInstance extends AssetInstance {
     }
 
     /**
-     * <code>ImmutableList&lt;String&gt;</code>: The list of bones to hide when
+     * <code>ArrayList&lt;String&gt;</code>: The list of bones to hide when
      * rendering this <code>ModelInstance</code> instance.
      */
-    private ImmutableList<String> hideBones;
+    private final ArrayList<String> disableByBone = new ArrayList<>();
 
     /**
-     * <code>ImmutableList&lt;String&gt;</code>: The list of bone tags to hide when
+     * <code>ArrayList&lt;String&gt;</code>: The list of bone tags to hide when
      * rendering this <code>ModelInstance</code> instance.
      */
-    private ImmutableList<String> hideTags;
+    private final ArrayList<String> disableByTag = new ArrayList<>();
 
     /**
      * Creates a new instance of the <code>ModelInstance</code> class.
@@ -158,9 +172,7 @@ public final class ModelInstance extends AssetInstance {
             for (Map.Entry<Integer, HashMap<Vector, Double>> indexEntry : bone.getValue().getVertexWeights(boneActors)
                     .entrySet()) {
 
-                HashMap<Vector, Double> indexVertices = boneWeights.computeIfAbsent(indexEntry.getKey(),
-                        _ -> new HashMap<>());
-                indexVertices.putAll(indexEntry.getValue());
+                boneWeights.computeIfAbsent(indexEntry.getKey(), _ -> new HashMap<>()).putAll(indexEntry.getValue());
             }
         }
 
@@ -223,20 +235,39 @@ public final class ModelInstance extends AssetInstance {
      * @return <code>HashMap&lt;Triangle, Triangle&gt;</code>: The generated
      *         polygons.
      */
-    public HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, BoneActorSet parentBoneActors,
-            ModelAttributes.Bone parent, Vector position, Quaternion rotation) {
+    public HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, List<BoneActorSet> parentsBoneActors,
+            List<ModelAttributes.Bone> parents, Vector position, Quaternion rotation) {
 
-        if (parent != null) {
+        // If there is no parent, just return the polygons of this model.
+        if (parents.isEmpty() || parentsBoneActors.size() != parents.size()) {
 
-            ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
+            return getPolygons(boneActors, position, rotation);
+        }
+
+        ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
+
+        // Iterate through each parent bone and adjust the vertices to the position of
+        // the parent bone actors.
+        for (int i = parents.size() - 1; i >= 0; i--) {
+
+            ModelAttributes.Bone parent = parents.get(i);
+            BoneActorSet parentBoneActors = parentsBoneActors.get(i);
 
             Vector pivotPoint = parent.getPivotPoint();
 
+            // Center the vertices at the parent bone.
             for (Vector vertex : getVertices(boneActors)) {
 
                 verticesModified.add(vertex.add(pivotPoint));
             }
 
+            // Apply the parent bone actors to the vertices.
+            // This will adjust the vertices to the position of the parent bone actors,
+            // assuming this model has the same structure as the parent model.
+            // For example, if the parent has the structure 'chest' -> 'leftArm' ->
+            // 'leftHand' and this model represents a glove, then this model should have the
+            // same structure, and the vertices will be adjusted to the position of the
+            // 'leftHand' bone actor in the parent model.
             for (String boneActor : parent.getBonePathway()) {
 
                 if (bones.containsKey(boneActor)) {
@@ -245,11 +276,9 @@ public final class ModelInstance extends AssetInstance {
                             bones.get(boneActor).getPivotPoint());
                 }
             }
-
-            return getPolygons(verticesModified, position, rotation);
         }
 
-        return getPolygons(getVertices(boneActors), position, rotation);
+        return getPolygons(verticesModified, position, rotation);
     }
 
     /**
@@ -269,7 +298,8 @@ public final class ModelInstance extends AssetInstance {
 
         HashSet<Integer> hideVertices = new HashSet<>();
 
-        for (String boneName : hideBones) {
+        // Find each vertex which is hidden by a bone or tag.
+        for (String boneName : disableByBone) {
 
             if (bones.containsKey(boneName)) {
 
@@ -280,9 +310,10 @@ public final class ModelInstance extends AssetInstance {
             }
         }
 
+        // Find each vertex which is hidden by a tag.
         for (Map.Entry<String, ModelAttributes.Bone> boneEntry : bones.entrySet()) {
 
-            if (hideBones.contains(boneEntry.getKey())) {
+            if (disableByBone.contains(boneEntry.getKey())) {
 
                 continue; // Skip hidden bones.
             }
@@ -292,13 +323,14 @@ public final class ModelInstance extends AssetInstance {
             ImmutableList<String> tags = bone.getTags();
 
             // If there any any hidden tags in this bone, hide the vertices.
-            if (!tags.isEmpty() && !Collections.disjoint(hideTags, tags)) {
+            if (!tags.isEmpty() && !Collections.disjoint(disableByTag, tags)) {
 
                 Set<Integer> boneVertices = bone.getVertexWeights().keySet();
                 hideVertices.addAll(boneVertices);
             }
         }
 
+        // Iterate through each vertex and apply the rotation and position.
         for (Vector vertex : vertices) {
 
             verticesModified.add(vertex.rotate(rotation) // Rotate the model to the input rotation.
@@ -306,6 +338,7 @@ public final class ModelInstance extends AssetInstance {
             );
         }
 
+        // Collect the render-ready polygons and filter out any which are hidden.
         HashMap<Triangle, Triangle> finalizedPolygons = new HashMap<>(polygons.size());
         for (IndexedPolygon polygon : polygons) {
 
@@ -345,11 +378,19 @@ public final class ModelInstance extends AssetInstance {
         polygons = calculateAttribute(attributes.getPolygons(), polygons);
         vertices = calculateAttribute(attributes.getVertices(), vertices);
 
-        hideBones = calculateAttribute(attributes.getHideBones(), hideBones, attributes, new ImmutableList<>());
-        setProperty("hideBones", hideBones);
+        if (attributes.isBase()) {
 
-        hideTags = calculateAttribute(attributes.getHideTags(), hideTags, attributes, new ImmutableList<>());
-        setProperty("hideTags", hideTags);
+            disableByBone.clear();
+            disableByTag.clear();
+        }
+
+        computeAttribute(attributes.getdisableByBone(), disableByBone::addAll);
+        computeAttribute(attributes.getenableByBone(), disableByBone::removeAll);
+        setProperty("disableByBone", disableByBone);
+
+        computeAttribute(attributes.getdisableByTag(), disableByTag::addAll);
+        computeAttribute(attributes.getenableByTag(), disableByTag::removeAll);
+        setProperty("disableByTag", disableByTag);
     }
 
     @Override

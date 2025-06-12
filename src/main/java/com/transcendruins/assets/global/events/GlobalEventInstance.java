@@ -18,12 +18,30 @@ package com.transcendruins.assets.global.events;
 
 import com.transcendruins.world.World;
 
+/**
+ * <code>GlobalEventInstance</code>: A class representing an instantiated global
+ * map event.
+ */
 public class GlobalEventInstance {
 
+    /**
+     * <code>String</code>: The name of this <code>GlobalEventInstance</code>
+     * instance.
+     */
     private final String name;
 
+    /**
+     * <code>String</code>: The description of this <code>GlobalEventInstance</code>
+     * instance.
+     */
     private final String description;
 
+    /**
+     * Creates a new instance of the <code>GlobalEventInstance</code> class.
+     * 
+     * @param schema <code>GlobalEventSchema</code>:
+     * @param world
+     */
     public GlobalEventInstance(GlobalEventSchema schema, World world) {
 
         name = schema.getName();

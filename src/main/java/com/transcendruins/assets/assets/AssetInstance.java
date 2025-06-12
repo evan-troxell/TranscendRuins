@@ -30,7 +30,6 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Instance;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 
@@ -171,11 +170,6 @@ public abstract class AssetInstance extends Instance {
     public AssetInstance(AssetContext assetContext, Object key) {
 
         assetPresets = assetContext.getPresets();
-        for (Map.Entry<String, Object> entry : assetPresets.getPublicProperties().entrySet()) {
-            String property = entry.getKey();
-            Object value = entry.getValue();
-            setPublicProperty(property, value);
-        }
 
         world = assetContext.getWorld();
         setProperty("world", world);
@@ -191,6 +185,20 @@ public abstract class AssetInstance extends Instance {
         setProperty("identifier", identifier.toString());
 
         assetSchema = world.getSchema(type, identifier);
+
+        for (Map.Entry<String, Object> entry : assetSchema.getProperties().entrySet()) {
+
+            String property = entry.getKey();
+            Object value = entry.getValue();
+            setPublicProperty(property, value);
+        }
+
+        for (Map.Entry<String, Object> entry : assetPresets.getProperties().entrySet()) {
+
+            String property = entry.getKey();
+            Object value = entry.getValue();
+            setPublicProperty(property, value);
+        }
     }
 
     public final void initialize() {
@@ -205,9 +213,8 @@ public abstract class AssetInstance extends Instance {
         updateAttributes();
         executeEvent(AssetEvent.ON_INITIALIZATION);
 
-        for (TracedEntry<String> eventEntry : assetPresets.getEvents()) {
+        for (String event : assetPresets.getEvents()) {
 
-            String event = eventEntry.getValue();
             executeEvent(event);
         }
     }

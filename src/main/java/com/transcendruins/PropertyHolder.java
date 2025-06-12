@@ -103,9 +103,19 @@ public abstract class PropertyHolder {
         privateProperties.put(property, value);
     }
 
+    protected final void setProperty(String property, List<?> value) {
+
+        privateProperties.put(property, new ImmutableList<>(value));
+    }
+
     protected final void setProperty(String property, ImmutableList<?> value) {
 
         privateProperties.put(property, value);
+    }
+
+    protected final void setProperty(String property, Map<String, ?> value) {
+
+        privateProperties.put(property, new ImmutableMap<>(value));
     }
 
     protected final void setProperty(String property, ImmutableMap<String, ?> value) {
@@ -141,12 +151,13 @@ public abstract class PropertyHolder {
      * 
      * @param property <code>String</code>: The property to check for.
      * @return <code>boolean</code>: Whether or not the property is contained within
-     *         the <code>privateProperties</code> field of this
+     *         the <code>privateProperties</code> field,
+     *         <code>publicProperties</code>, or the parent properties of this
      *         <code>PropertyHolder</code> instance.
      */
     public final boolean hasProperty(String property) {
 
-        return privateProperties.containsKey(property) || publicProperties.containsKey(property);
+        return getProperty(property) != null;
     }
 
     /**
@@ -247,11 +258,6 @@ public abstract class PropertyHolder {
     public final Object getProperty(String property) {
 
         String[] tokens = property.split("\\.");
-
-        if (tokens.length == 0) {
-
-            return null;
-        }
 
         return getProperty(tokens);
     }

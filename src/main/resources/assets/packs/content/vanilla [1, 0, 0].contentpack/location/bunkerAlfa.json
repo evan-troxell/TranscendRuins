@@ -6,11 +6,21 @@
         "name": "location.bunkerAlfa",
         "description": "location.bunkerAlfa.description",
         "icon": "location.bunkerAlfa",
+
         "primary": "main",
         "areas": {
             "main": "TranscendRuins:bunkerAlfaMain",
             "floor1": "TranscendRuins:bunkerAlfaFloor1",
             "floor2": "TranscendRuins:bunkerAlfaFloor2"
+        },
+
+        "reset": {
+            "duration": 2880
+        },
+        
+        "coordinates": {
+            "x": 500,
+            "y": 0
         }
     }
 }

@@ -47,9 +47,9 @@ public final class LootTableInstance extends AssetInstance {
         return loot.evaluate(getWorld());
     }
 
-    private ImmutableList<String> disableByComponentId;
+    private final ArrayList<String> disableByComponentId = new ArrayList<>();
 
-    private ImmutableList<String> disableByComponentTag;
+    private final ArrayList<String> disableByComponentTag = new ArrayList<>();
 
     public LootTableInstance(AssetContext assetContext, Object key) {
 
@@ -72,12 +72,18 @@ public final class LootTableInstance extends AssetInstance {
         attributes.getDisableByComponentId();
         attributes.getDisableByComponentTag();
 
-        disableByComponentId = calculateAttribute(attributes.getDisableByComponentId(), disableByComponentId,
-                attributes, new ImmutableList<>());
+        if (attributes.isBase()) {
+
+            disableByComponentId.clear();
+            disableByComponentTag.clear();
+        }
+
+        computeAttribute(attributes.getDisableByComponentId(), disableByComponentId::addAll);
+        computeAttribute(attributes.getEnableByComponentId(), disableByComponentId::removeAll);
         setProperty("disableByComponentId", disableByComponentId);
 
-        disableByComponentTag = calculateAttribute(attributes.getDisableByComponentTag(), disableByComponentTag,
-                attributes, new ImmutableList<>());
+        computeAttribute(attributes.getDisableByComponentTag(), disableByComponentTag::addAll);
+        computeAttribute(attributes.getEnableByComponentTag(), disableByComponentTag::removeAll);
         setProperty("disableByComponentTag", disableByComponentTag);
     }
 
@@ -88,7 +94,7 @@ public final class LootTableInstance extends AssetInstance {
 
     /**
      * Creates a new instance of the <code>LootTableInstance.LootInstance</code>
-     * subclass.
+     * class.
      * 
      * @param schema <code>LootTableAttributes.LootSchema</code>: The schema to
      *               create the new <code>LootTableInstance.LootInstance</code>
@@ -115,7 +121,7 @@ public final class LootTableInstance extends AssetInstance {
     }
 
     /**
-     * <code>LootTableInstance.LootInstance</code>: A subclass representing any loot
+     * <code>LootTableInstance.LootInstance</code>: A class representing any loot
      * type.
      */
     public abstract class LootInstance {
@@ -205,7 +211,7 @@ public final class LootTableInstance extends AssetInstance {
 
         /**
          * Creates a new instance of the <code>LootTableInstance.LootInstance</code>
-         * subclass.
+         * class.
          * 
          * @param schema <code>LootTableAttributes.LootSchema</code>: The schema to
          *               create this <code>LootTableInstance.LootInstance</code>

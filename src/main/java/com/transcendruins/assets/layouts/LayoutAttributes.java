@@ -35,6 +35,7 @@ import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.KeyNameException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.PropertyTypeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
@@ -160,15 +161,16 @@ public final class LayoutAttributes extends AssetAttributes {
 
         super(schema, json, isBase);
 
-        HashMap<GenerationType, ImmutableMap<String, AssetPresets>> definitionsMap = new HashMap<>();
+        // The definitions and generation should only be defined once.
+        if (isBase) {
 
-        HashMap<String, AssetPresets> layouts = new HashMap<>();
-        HashMap<String, AssetPresets> elements = new HashMap<>();
-        HashMap<String, AssetPresets> entities = new HashMap<>();
+            HashMap<GenerationType, ImmutableMap<String, AssetPresets>> definitionsMap = new HashMap<>();
 
-        TracedEntry<TracedDictionary> definitionsEntry = json.getAsDict("definitions", true);
-        if (definitionsEntry.containsValue()) {
+            HashMap<String, AssetPresets> layouts = new HashMap<>();
+            HashMap<String, AssetPresets> elements = new HashMap<>();
+            HashMap<String, AssetPresets> entities = new HashMap<>();
 
+            TracedEntry<TracedDictionary> definitionsEntry = json.getAsDict("definitions", false);
             TracedDictionary definitionsJson = definitionsEntry.getValue();
 
             TracedEntry<TracedDictionary> layoutsEntry = definitionsJson.getAsDict("layouts", true);
@@ -212,18 +214,16 @@ public final class LayoutAttributes extends AssetAttributes {
                     entities.put(key, entity);
                 }
             }
-        }
 
-        definitionsMap.put(GenerationType.LAYOUT, new ImmutableMap<>(layouts));
-        definitionsMap.put(GenerationType.ELEMENT, new ImmutableMap<>(elements));
-        definitionsMap.put(GenerationType.ENTITY, new ImmutableMap<>(entities));
-        definitions = new ImmutableMap<>(definitionsMap);
-
-        if (isBase || json.containsKey("generation")) {
+            definitionsMap.put(GenerationType.LAYOUT, new ImmutableMap<>(layouts));
+            definitionsMap.put(GenerationType.ELEMENT, new ImmutableMap<>(elements));
+            definitionsMap.put(GenerationType.ENTITY, new ImmutableMap<>(entities));
+            definitions = new ImmutableMap<>(definitionsMap);
 
             generation = createGeneration(json);
         } else {
 
+            definitions = null;
             generation = null;
         }
     }
@@ -248,7 +248,7 @@ public final class LayoutAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>LayoutAttributes.GenerationSchema</code>: A subclass representing any
+     * <code>LayoutAttributes.GenerationSchema</code>: A class representing any
      * generation schema.
      */
     public abstract class GenerationSchema {
@@ -417,6 +417,8 @@ public final class LayoutAttributes extends AssetAttributes {
             // JSON definitions.
             if (existing == null) {
 
+                // Note that these are 2 different ELEMENT constants, one is an AssetType
+                // whereas the other is a GenerationType.
                 TracedEntry<AssetPresets> assetEntry = json.getAsPresets(key, false,
                         type == GenerationType.ELEMENT ? ELEMENT : ENTITY);
                 asset = assetEntry.getValue();

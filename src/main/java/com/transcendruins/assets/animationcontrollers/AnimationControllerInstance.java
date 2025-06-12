@@ -148,6 +148,13 @@ public final class AnimationControllerInstance extends AssetInstance {
         }
     }
 
+    /**
+     * Advances the current state to another one.
+     * 
+     * @param state <code>String</code>: The name of the new state.
+     * @param time  <code>double</code>: The timestamp of the new state.
+     * @return <code>String</code>: The name of the new state.
+     */
     private String setState(String state, double time) {
 
         timeOfCreation = time;
@@ -201,9 +208,13 @@ public final class AnimationControllerInstance extends AssetInstance {
 
         ArrayList<BoneActorSet> boneActors = new ArrayList<>();
 
-        for (AnimationInstance animation : animations) {
+        //
+        if (state != null) {
 
-            boneActors.add(animation.getKeyFrames(timestamp));
+            for (AnimationInstance animation : animations) {
+
+                boneActors.add(animation.getKeyFrames(timestamp));
+            }
         }
 
         return new BoneActorSet(boneActors);

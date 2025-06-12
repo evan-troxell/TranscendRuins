@@ -296,17 +296,10 @@ public final class AnimationAttributes extends AssetAttributes {
             cycleOnFinish = null;
         }
 
-        // Key frames should be required if this attribute set is the base attribute
-        // set.
-        TracedEntry<TracedDictionary> keyframesEntry = json.getAsDict("keyframes", !isBase);
+        // The keyframes should only be defined once.
+        if (isBase) {
 
-        if (keyframesEntry.containsValue()) {
-
-            if (!isBase) {
-
-                throw new KeyNameException(json, "keyframes");
-            }
-
+            TracedEntry<TracedDictionary> keyframesEntry = json.getAsDict("keyframes", false);
             TracedDictionary keyframesJson = keyframesEntry.getValue();
 
             ArrayList<String> bonesList = new ArrayList<>();
@@ -425,8 +418,8 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>AnimationAttributes.KeyFrame</code>: A subclass representing a keyframe
-     * in an animation.
+     * <code>AnimationAttributes.KeyFrame</code>: A class representing a keyframe in
+     * an animation.
      */
     public final class KeyFrame {
 

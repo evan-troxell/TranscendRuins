@@ -12,7 +12,7 @@
     <nav id="documentation-sidebar-main">
         <?php
             wp_nav_menu(array(
-                'menu' => 'Documentation Sidebar',
+                'menu' => 'Documentation Sidebar'
             ));
         ?>
     </nav>

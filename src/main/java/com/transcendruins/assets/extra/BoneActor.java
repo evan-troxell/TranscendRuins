@@ -49,9 +49,7 @@ public final class BoneActor {
             return boneActor;
         }
 
-        return new BoneActor(
-                boneActor.position.add(position),
-                boneActor.rotation.multiply(rotation),
+        return new BoneActor(boneActor.position.add(position), boneActor.rotation.multiply(rotation),
                 boneActor.scale.multiply(scale));
     }
 
@@ -62,17 +60,12 @@ public final class BoneActor {
             return vector;
         }
 
-        return vector.subtract(pivotPoint)
-                .multiply(scale)
-                .rotate(rotation)
-                .add(position)
-                .add(pivotPoint);
+        return vector.subtract(pivotPoint).multiply(scale).rotate(rotation).add(position).add(pivotPoint);
     }
 
     public final boolean isDefault() {
 
-        return position == Vector.IDENTITY_VECTOR
-                && rotation == Quaternion.IDENTITY_QUATERNION
+        return position == Vector.IDENTITY_VECTOR && rotation == Quaternion.IDENTITY_QUATERNION
                 && scale == Matrix.IDENTITY_3X3;
     }
 }

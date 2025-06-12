@@ -20,26 +20,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 /**
- * <code>ImmutableList&lt;E&gt;</code>: An <code>ArrayList</code> which is
- * immutable.
+ * <code>ImmutableList&lt;E&gt;</code>: A <code>List</code> which is immutable.
  */
-public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
+public final class ImmutableList<E> implements List<E>, Immutable {
 
-    /**
-     * <code>boolean</code>: Whether or not this <code>ImmutableList</code> instance
-     * has been finalized yet.
-     */
-    private boolean finalized = false;
+    private final ArrayList<E> list;
 
     /**
      * Creates a new, empty instance of the <code>ImmutableList</code> class.
      */
     public ImmutableList() {
 
-        finalized = true;
+        list = new ArrayList<>();
     }
 
     /**
@@ -51,8 +47,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
      */
     public ImmutableList(E val) {
 
-        super(Arrays.asList(val));
-        finalized = true;
+        this(Arrays.asList(val));
     }
 
     /**
@@ -65,8 +60,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @SuppressWarnings("unchecked")
     public ImmutableList(E... elements) {
 
-        super(Arrays.asList(elements));
-        finalized = true;
+        this(Arrays.asList(elements));
     }
 
     /**
@@ -78,8 +72,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
      */
     public ImmutableList(Collection<E> collection) {
 
-        super(collection);
-        finalized = true;
+        list = new ArrayList<>(collection);
     }
 
     /**
@@ -89,8 +82,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public boolean add(E e) {
 
-        raiseError(finalized);
-        return super.add(e);
+        throw raiseError();
     }
 
     /**
@@ -100,8 +92,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public void add(int index, E element) {
 
-        raiseError(finalized);
-        super.add(index, element);
+        throw raiseError();
     }
 
     /**
@@ -111,8 +102,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public boolean addAll(java.util.Collection<? extends E> c) {
 
-        raiseError(finalized);
-        return super.addAll(c);
+        throw raiseError();
     }
 
     /**
@@ -122,8 +112,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public boolean addAll(int index, java.util.Collection<? extends E> c) {
 
-        raiseError(finalized);
-        return super.addAll(index, c);
+        throw raiseError();
     }
 
     /**
@@ -133,8 +122,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public boolean remove(Object o) {
 
-        raiseError(finalized);
-        return super.remove(o);
+        throw raiseError();
     }
 
     /**
@@ -144,8 +132,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public E remove(int index) {
 
-        raiseError(finalized);
-        return super.remove(index);
+        throw raiseError();
     }
 
     /**
@@ -155,8 +142,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public boolean removeAll(java.util.Collection<?> c) {
 
-        raiseError(finalized);
-        return super.removeAll(c);
+        throw raiseError();
     }
 
     /**
@@ -166,8 +152,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public boolean retainAll(java.util.Collection<?> c) {
 
-        raiseError(finalized);
-        return super.retainAll(c);
+        throw raiseError();
     }
 
     /**
@@ -177,8 +162,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public void clear() {
 
-        raiseError(finalized);
-        super.clear();
+        throw raiseError();
     }
 
     /**
@@ -188,8 +172,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public E set(int index, E element) {
 
-        raiseError(finalized);
-        return super.set(index, element);
+        throw raiseError();
     }
 
     /**
@@ -201,7 +184,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public Iterator<E> iterator() {
 
-        Iterator<E> originalIterator = super.iterator();
+        Iterator<E> originalIterator = list.iterator();
 
         return new Iterator<>() {
 
@@ -220,8 +203,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
             @Override
             public void remove() {
 
-                raiseError(finalized);
-                originalIterator.remove();
+                throw raiseError();
             }
         };
     }
@@ -235,7 +217,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public ListIterator<E> listIterator() {
 
-        ListIterator<E> originalIterator = super.listIterator();
+        ListIterator<E> originalIterator = list.listIterator();
         return createReadOnlyListIterator(originalIterator);
     }
 
@@ -249,7 +231,7 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
     @Override
     public ListIterator<E> listIterator(int index) {
 
-        ListIterator<E> originalIterator = super.listIterator(index);
+        ListIterator<E> originalIterator = list.listIterator(index);
         return createReadOnlyListIterator(originalIterator);
     }
 
@@ -304,23 +286,81 @@ public final class ImmutableList<E> extends ArrayList<E> implements Immutable {
             @Override
             public void remove() {
 
-                raiseError(finalized);
-                originalIterator.remove();
+                throw raiseError();
             }
 
             @Override
             public void set(E e) {
 
-                raiseError(finalized);
-                originalIterator.set(e);
+                throw raiseError();
             }
 
             @Override
             public void add(E e) {
 
-                raiseError(finalized);
-                originalIterator.add(e);
+                throw raiseError();
             }
         };
+    }
+
+    @Override
+    public int size() {
+
+        return list.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+
+        return list.isEmpty();
+    }
+
+    @Override
+    public boolean contains(Object o) {
+
+        return list.contains(o);
+    }
+
+    @Override
+    public Object[] toArray() {
+
+        return list.toArray();
+    }
+
+    @Override
+    @SuppressWarnings("SuspiciousToArrayCall")
+    public <T> T[] toArray(T[] a) {
+
+        return list.toArray(a);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+
+        return list.containsAll(c);
+    }
+
+    @Override
+    public E get(int index) {
+
+        return list.get(index);
+    }
+
+    @Override
+    public int indexOf(Object o) {
+
+        return list.indexOf(o);
+    }
+
+    @Override
+    public int lastIndexOf(Object o) {
+
+        return list.lastIndexOf(o);
+    }
+
+    @Override
+    public List<E> subList(int fromIndex, int toIndex) {
+
+        return new ImmutableList<>(list.subList(fromIndex, toIndex));
     }
 }

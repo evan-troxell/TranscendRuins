@@ -65,7 +65,7 @@ public final class TracedArray extends TracedCollection implements Iterable<Inte
     @Override
     public Object getValue(Object key) {
 
-        return ((int) key < array.size()) ? array.get((int) key) : null;
+        return (0 <= (int) key && (int) key < array.size()) ? array.get((int) key) : null;
     }
 
     @Override

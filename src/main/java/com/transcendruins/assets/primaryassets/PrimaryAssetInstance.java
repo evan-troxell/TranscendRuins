@@ -126,7 +126,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
     }
 
     /**
-     * Performs the instance update of the subclass of this
+     * Performs the instance update of the class of this
      * <code>PrimaryAssetInstance</code> instance.
      * 
      * @param time <code>double</code>: The time since the world was created.

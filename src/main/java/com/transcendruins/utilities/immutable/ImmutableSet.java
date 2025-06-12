@@ -20,25 +20,21 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
- * <code>ImmutableSet&lt;E&gt;</code>: A <code>HashSet</code> which is
- * immutable.
+ * <code>ImmutableSet&lt;E&gt;</code>: A <code>Set</code> which is immutable.
  */
-public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
+public final class ImmutableSet<E> implements Set<E>, Immutable {
 
-    /**
-     * <code>boolean</code>: Whether or not this <code>ImmutableSet</code> instance
-     * has been finalized yet.
-     */
-    private boolean finalized = false;
+    private final HashSet<E> set;
 
     /**
      * Creates a new, empty instance of the <code>ImmutableSet</code> class.
      */
     public ImmutableSet() {
 
-        finalized = true;
+        set = new HashSet<>();
     }
 
     /**
@@ -50,8 +46,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
      */
     public ImmutableSet(E val) {
 
-        super(Arrays.asList(val));
-        finalized = true;
+        this(Arrays.asList(val));
     }
 
     /**
@@ -64,8 +59,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
     @SuppressWarnings("unchecked")
     public ImmutableSet(E... elements) {
 
-        super(Arrays.asList(elements));
-        finalized = true;
+        this(Arrays.asList(elements));
     }
 
     /**
@@ -77,8 +71,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
      */
     public ImmutableSet(Collection<E> collection) {
 
-        super(collection);
-        finalized = true;
+        set = new HashSet<>(collection);
     }
 
     /**
@@ -88,8 +81,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
     @Override
     public boolean add(E e) {
 
-        raiseError(finalized);
-        return super.add(e);
+        throw raiseError();
     }
 
     /**
@@ -99,8 +91,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
     @Override
     public boolean addAll(java.util.Collection<? extends E> c) {
 
-        raiseError(finalized);
-        return super.addAll(c);
+        throw raiseError();
     }
 
     /**
@@ -110,8 +101,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
     @Override
     public boolean remove(Object o) {
 
-        raiseError(finalized);
-        return super.remove(o);
+        throw raiseError();
     }
 
     /**
@@ -121,8 +111,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
     @Override
     public boolean removeAll(java.util.Collection<?> c) {
 
-        raiseError(finalized);
-        return super.removeAll(c);
+        throw raiseError();
     }
 
     /**
@@ -132,8 +121,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
     @Override
     public boolean retainAll(java.util.Collection<?> c) {
 
-        raiseError(finalized);
-        return super.retainAll(c);
+        throw raiseError();
     }
 
     /**
@@ -143,8 +131,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
     @Override
     public void clear() {
 
-        raiseError(finalized);
-        super.clear();
+        throw raiseError();
     }
 
     /**
@@ -156,7 +143,7 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
     @Override
     public Iterator<E> iterator() {
 
-        Iterator<E> originalIterator = super.iterator();
+        Iterator<E> originalIterator = set.iterator();
         return new Iterator<>() {
 
             @Override
@@ -174,9 +161,45 @@ public final class ImmutableSet<E> extends HashSet<E> implements Immutable {
             @Override
             public void remove() {
 
-                raiseError(finalized);
-                originalIterator.remove();
+                throw raiseError();
             }
         };
+    }
+
+    @Override
+    public int size() {
+
+        return set.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+
+        return set.isEmpty();
+    }
+
+    @Override
+    public boolean contains(Object o) {
+
+        return set.contains(o);
+    }
+
+    @Override
+    public Object[] toArray() {
+
+        return set.toArray();
+    }
+
+    @Override
+    @SuppressWarnings("SuspiciousToArrayCall")
+    public <T> T[] toArray(T[] a) {
+
+        return set.toArray(a);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+
+        return set.containsAll(c);
     }
 }

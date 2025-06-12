@@ -1,5 +1,5 @@
 {
-    "location": {
+    "locations": {
         "home": {
             "location": "TranscendRuins:home",
             
@@ -73,18 +73,7 @@
             }
         },
 
-        "bunkerAlfa": {
-            "location": "TranscendRuins:bunkerAlfa",
-
-            "reset": {
-                "duration": 2880
-            },
-            
-            "coordinates": {
-                "x": 500,
-                "y": 0
-            }
-        },
+        "bunkerAlfa": "TranscendRuins:bunkerAlfa",
 
         "convoy": {
             "location": "TranscendRuins:convoy",

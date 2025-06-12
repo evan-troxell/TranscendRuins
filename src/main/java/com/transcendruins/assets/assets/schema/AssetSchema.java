@@ -161,6 +161,24 @@ public final class AssetSchema {
     }
 
     /**
+     * <code>ImmutableMap&lt;String, Object&gt;</code>: The initial properties of
+     * this <code>AssetSchema</code> instance.
+     */
+    private final ImmutableMap<String, Object> properties;
+
+    /**
+     * Retrieves the initial properties of this <code>AssetSchema</code> instance.
+     * 
+     * @return <code>ImmutableMap&lt;String, Object&gt;</code>: The
+     *         <code>properties</code> field of this <code>AssetSchema</code>
+     *         instance.
+     */
+    public ImmutableMap<String, Object> getProperties() {
+
+        return properties;
+    }
+
+    /**
      * <code>HashSet&lt;AssetPresets&gt;</code>: The collection of asset
      * dependencies in this <code>AssetSchema</code> instance.
      */
@@ -210,8 +228,8 @@ public final class AssetSchema {
         identifierEntry = json.getAsMetadata("metadata", false, false);
         identifier = identifierEntry.getValue();
 
-        TracedEntry<TracedDictionary> schemaEntry = json.getAsDict("attributes", false);
-        attributes = createAttributes(schemaEntry.getValue(), true);
+        TracedEntry<TracedDictionary> attributesEntry = json.getAsDict("attributes", false);
+        attributes = createAttributes(attributesEntry.getValue(), true);
 
         HashMap<String, AssetAttributes> permutationsMap = new HashMap<>();
 
@@ -226,8 +244,9 @@ public final class AssetSchema {
                 permutationsMap.put(permutationKey, createAttributes(permutationJson, false));
             }
         }
-
         permutations = new ImmutableMap<>(permutationsMap);
+
+        HashMap<String, ImmutableList<AssetEvent>> eventsMap = new HashMap<>();
 
         TracedEntry<TracedDictionary> eventsEntry = json.getAsDict("events", true);
         if (eventsEntry.containsValue()) {
@@ -235,8 +254,6 @@ public final class AssetSchema {
             TracedDictionary eventsJson = eventsEntry.getValue();
 
             ArrayList<TracedEntry<String>> eventEntries = new ArrayList<>();
-
-            HashMap<String, ImmutableList<AssetEvent>> eventsMap = new HashMap<>();
 
             for (String eventKey : eventsJson) {
 
@@ -299,20 +316,32 @@ public final class AssetSchema {
                 eventsMap.put(eventKey, new ImmutableList<>(eventSet));
             }
 
-            events = new ImmutableMap<>(eventsMap);
-
             for (TracedEntry<String> eventEntry : eventEntries) {
 
                 // If an event is referenced but was not defined, an error should be raised.
-                if (!events.containsKey(eventEntry.getValue())) {
+                if (!eventsMap.containsKey(eventEntry.getValue())) {
 
                     throw new ReferenceWithoutDefinitionException(eventEntry, "Event");
                 }
             }
-        } else {
-
-            events = new ImmutableMap<>();
         }
+        events = new ImmutableMap<>(eventsMap);
+
+        HashMap<String, Object> propertiesMap = new HashMap<>();
+
+        TracedEntry<TracedDictionary> propertiesEntry = json.getAsDict("properties", true);
+        if (propertiesEntry.containsValue()) {
+
+            TracedDictionary propertiesJson = propertiesEntry.getValue();
+
+            for (String property : propertiesJson) {
+
+                TracedEntry<Object> propertyEntry = propertiesJson.getAsScalar(property, true, null);
+                propertiesMap.put(property, propertyEntry.getValue());
+            }
+        }
+
+        properties = new ImmutableMap<>(propertiesMap);
     }
 
     /**
