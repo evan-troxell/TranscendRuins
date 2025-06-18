@@ -25,15 +25,37 @@ import com.transcendruins.utilities.json.JSONOperator;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
+/**
+ * <code>Language</code>: A class representing the entries within a single
+ * language file.
+ */
 public final class Language {
 
+    /**
+     * <code>ImmutableMap&lt;String, String&gt;</code>: The text mappings of this
+     * <code>Language</code> instance.
+     */
     private final ImmutableMap<String, String> mappings;
 
+    /**
+     * Retrieves the text mappings of this <code>Language</code> instance.
+     * 
+     * @return <code>ImmutableMap&lt;String, String&gt;</code>: The
+     *         <code>mappings</code> field of this <code>Language</code> instance.
+     */
     public ImmutableMap<String, String> getMappings() {
 
         return mappings;
     }
 
+    /**
+     * Creates a new instance of the <code>Language</code> class.
+     * 
+     * @param path <code>TracedPath</code>: The filepath to this
+     *             <code>Language</code> instance.
+     * @throws LoggedException Thrown if an exception is raised while parsing the
+     *                         JSON information.
+     */
     public Language(TracedPath path) throws LoggedException {
 
         HashMap<String, String> map = new HashMap<>();

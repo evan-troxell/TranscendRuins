@@ -23,6 +23,7 @@ import java.util.Map;
 
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.content.PackDependency;
+import com.transcendruins.packs.content.PackDependency.DependencyType;
 import com.transcendruins.packs.content.PackSchema;
 import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -190,10 +191,10 @@ public final class PackProcessor {
 
         // Retrieves the pack and removes it from unvalidated.
         PackSchema pack = unvalidated.remove(identifier);
-        ImmutableMap<String, ImmutableMap<Identifier, PackDependency>> dependencies = pack.getDependencies();
+        ImmutableMap<DependencyType, ImmutableMap<Identifier, PackDependency>> dependencies = pack.getDependencies();
 
         // Iterate through each dependency in the pack.
-        for (Map.Entry<Identifier, PackDependency> dependencyEntry : dependencies.get(PackDependency.ASSET)
+        for (Map.Entry<Identifier, PackDependency> dependencyEntry : dependencies.get(DependencyType.ASSET)
                 .entrySet()) {
 
             Identifier dependencyIdentifier = dependencyEntry.getKey();
@@ -241,7 +242,7 @@ public final class PackProcessor {
         }
 
         // Iterate through each dependency in the pack.
-        for (Map.Entry<Identifier, PackDependency> dependencyEntry : dependencies.get(PackDependency.RESOURCE)
+        for (Map.Entry<Identifier, PackDependency> dependencyEntry : dependencies.get(DependencyType.RESOURCE)
                 .entrySet()) {
 
             Identifier dependencyIdentifier = dependencyEntry.getKey();
@@ -276,7 +277,7 @@ public final class PackProcessor {
     private void validateVersionHierarchy(Identifier identifier, PackDependency root, PackSchema pack)
             throws DependencyException {
 
-        for (Map.Entry<Identifier, PackDependency> dependencyEntry : pack.getDependencies().get(PackDependency.ASSET)
+        for (Map.Entry<Identifier, PackDependency> dependencyEntry : pack.getDependencies().get(DependencyType.ASSET)
                 .entrySet()) {
 
             PackDependency dependency = dependencyEntry.getValue();
@@ -325,10 +326,10 @@ public final class PackProcessor {
         // Retrieves the pack and removes it from validated.
         PackSchema pack = validated.remove(identifier);
 
-        ImmutableMap<String, ImmutableMap<Identifier, PackDependency>> dependencies = pack.getDependencies();
+        ImmutableMap<DependencyType, ImmutableMap<Identifier, PackDependency>> dependencies = pack.getDependencies();
 
         HashSet<Identifier> assetDependencies = new HashSet<>();
-        for (Map.Entry<Identifier, PackDependency> dependencyEntry : dependencies.get(PackDependency.ASSET)
+        for (Map.Entry<Identifier, PackDependency> dependencyEntry : dependencies.get(DependencyType.ASSET)
                 .entrySet()) {
 
             Identifier dependencyIdentifier = dependencyEntry.getKey();
@@ -343,7 +344,7 @@ public final class PackProcessor {
         }
 
         HashSet<Identifier> resourceDependencies = new HashSet<>();
-        for (Map.Entry<Identifier, PackDependency> dependencyEntry : dependencies.get(PackDependency.RESOURCE)
+        for (Map.Entry<Identifier, PackDependency> dependencyEntry : dependencies.get(DependencyType.RESOURCE)
                 .entrySet()) {
 
             Identifier dependencyIdentifier = dependencyEntry.getKey();

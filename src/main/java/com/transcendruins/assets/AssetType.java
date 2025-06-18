@@ -137,7 +137,11 @@ public enum AssetType {
         return map;
     }
 
-    private static final Object KEY = new Object();
+    /**
+     * <code>SchemaAttributeCreater</code>: The schema creater of this
+     * <code>AssetType</code> instance.
+     */
+    private final SchemaAttributeCreater attributeCreater;
 
     /**
      * <code>SchemaAttributeCreater</code>: A functional interface representing the
@@ -161,12 +165,6 @@ public enum AssetType {
          */
         AssetAttributes apply(AssetSchema schema, TracedDictionary jsonSchema, boolean isBase) throws LoggedException;
     }
-
-    /**
-     * <code>SchemaAttributeCreater</code>: The schema creater of this
-     * <code>AssetType</code> instance.
-     */
-    private final SchemaAttributeCreater attributeCreater;
 
     /**
      * Creates a new attribute set from the <code>attributeCreater</code> field of
@@ -202,6 +200,20 @@ public enum AssetType {
     }
 
     /**
+     * <code>Object</code>: The asset instantiation key which each asset requires to
+     * be created. This key is only present within the <code>AssetType</code> class
+     * where the asset is guaranteed to be initialized properly, which is why asset
+     * types are responsible for the creation of new assets.
+     */
+    private static final Object KEY = new Object();
+
+    /**
+     * <code>InstanceCreater</code>: The asset instancer creater of this
+     * <code>AssetType</code> instance.
+     */
+    private final InstanceCreater instanceCreater;
+
+    /**
      * <code>InstanceCreater</code>: A functional interface representing the
      * constructor for an asset instance.
      */
@@ -220,11 +232,13 @@ public enum AssetType {
     }
 
     /**
-     * <code>InstanceCreater</code>: The asset instancer creater of this
+     * Creates and initializes a new asset of the type of this
      * <code>AssetType</code> instance.
+     * 
+     * @param assetContext <code>AssetContext</code>: The context from which to
+     *                     create the new asset.
+     * @return <code>AssetInstance</code>: The generated (and initialized) asset.
      */
-    private final InstanceCreater instanceCreater;
-
     public final AssetInstance createAsset(AssetContext assetContext) {
 
         AssetInstance asset = instanceCreater.apply(assetContext, KEY);

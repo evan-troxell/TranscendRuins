@@ -38,9 +38,12 @@ import com.transcendruins.utilities.metadata.Version;
  */
 public final class PackDependency {
 
-    public static final String ASSET = "asset";
+    public enum DependencyType {
 
-    public static final String RESOURCE = "resource";
+        ASSET,
+
+        RESOURCE;
+    }
 
     private final TracedEntry<TracedDictionary> entry;
 
@@ -136,9 +139,9 @@ public final class PackDependency {
         return versionRange[0];
     }
 
-    private final String type;
+    private final DependencyType type;
 
-    public String getType() {
+    public DependencyType getType() {
 
         return type;
     }
@@ -193,9 +196,9 @@ public final class PackDependency {
         TracedEntry<String> typeEntry = json.getAsString("type", false, null);
         type = switch (typeEntry.getValue()) {
 
-        case ASSET -> ASSET;
+        case "asset" -> DependencyType.ASSET;
 
-        case RESOURCE -> RESOURCE;
+        case "resource" -> DependencyType.RESOURCE;
 
         default -> throw new UnexpectedValueException(typeEntry);
         };

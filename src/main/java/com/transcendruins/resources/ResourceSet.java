@@ -27,6 +27,7 @@ import com.transcendruins.resources.languages.Language;
 import com.transcendruins.resources.languages.LanguageSet;
 import com.transcendruins.resources.sounds.Sound;
 import com.transcendruins.resources.sounds.SoundSet;
+import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.resources.textures.Texture;
 import com.transcendruins.resources.textures.TextureSet;
 import com.transcendruins.utilities.files.TracedPath;
@@ -55,6 +56,13 @@ public final class ResourceSet {
         return textures;
     }
 
+    private final StyleSet styles;
+
+    public StyleSet getStyles() {
+
+        return styles;
+    }
+
     public ResourceSet(TracedPath path) {
 
         TracedPath languagePath = path.extend("languages");
@@ -65,6 +73,9 @@ public final class ResourceSet {
 
         TracedPath texturePath = path.extend("textures");
         textures = new TextureSet(texturePath);
+
+        TracedPath stylesPath = path.extend("styles.json");
+        styles = new StyleSet(stylesPath);
     }
 
     public static ImmutableMap<String, ImmutableMap<String, String>> compileLanguages(List<ResourceSet> resources) {
@@ -114,5 +125,10 @@ public final class ResourceSet {
         return new ImmutableMap<>(
                 resources.stream().map(pathFunction).flatMap(map -> map.entrySet().stream()).collect(Collectors
                         .toMap(Map.Entry::getKey, Map.Entry::getValue, (_, replacement) -> replacement, HashMap::new)));
+    }
+
+    public static StyleSet compileStyles(List<ResourceSet> resources) {
+
+        return StyleSet.compileStyles(resources.stream().map(resource -> resource.styles).collect(Collectors.toList()));
     }
 }

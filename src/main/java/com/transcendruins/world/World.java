@@ -34,6 +34,7 @@ import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.resources.ResourceSet;
 import com.transcendruins.resources.sounds.Sound;
 import com.transcendruins.resources.sounds.SoundSet;
+import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.resources.textures.Texture;
 import com.transcendruins.resources.textures.TextureSet;
 import com.transcendruins.utilities.files.TracedPath;
@@ -177,6 +178,21 @@ public final class World extends PropertyHolder {
     private final ImmutableMap<AssetType, ImmutableMap<Identifier, AssetSchema>> assets;
 
     /**
+     * Retrieves an asset schema from this <code>World</code> instance.
+     * 
+     * @param type       <code>AssetType</code>: The type of asset schema to
+     *                   retrieve.
+     * @param identifier <code>Identifier</code>: The identifier of the asset schema
+     *                   to retrieve.
+     * @return <code>AssetSchema</code>: The asset schema retrieved from the
+     *         <code>mergedAssets</code> field of this <code>World</code> instance.
+     */
+    public AssetSchema getSchema(AssetType type, Identifier identifier) {
+
+        return assets.get(type).get(identifier);
+    }
+
+    /**
      * <code>ImmutableMap&lt;String, ImmutableMap&lt;String, String&gt;&gt;</code>:
      * The merged languages of this <code>World</code> instance.
      */
@@ -283,7 +299,7 @@ public final class World extends PropertyHolder {
      * Retreives a specific texture from this <code>World</code> instance.
      * 
      * @param texture <code>String</code>: The texture to check for.
-     * @param random  <code>double</code>: The random key to use, in the range of
+     * @param random  <code>double</code>: The random ID key to use, in the range of
      *                <code>[0.0, 1.0]</code>.
      * @return <code>Image</code>: The resulting texture.
      */
@@ -298,19 +314,11 @@ public final class World extends PropertyHolder {
         return icon != null ? icon : TextureSet.MISSING_TEXTURE.retrieveImage();
     }
 
-    /**
-     * Retrieves an asset schema from this <code>World</code> instance.
-     * 
-     * @param type       <code>AssetType</code>: The type of asset schema to
-     *                   retrieve.
-     * @param identifier <code>Identifier</code>: The identifier of the asset schema
-     *                   to retrieve.
-     * @return <code>AssetSchema</code>: The asset schema retrieved from the
-     *         <code>mergedAssets</code> field of this <code>World</code> instance.
-     */
-    public AssetSchema getSchema(AssetType type, Identifier identifier) {
+    private StyleSet styles;
 
-        return assets.get(type).get(identifier);
+    public StyleSet getStyles() {
+
+        return styles;
     }
 
     private boolean initialized = false;
@@ -355,9 +363,6 @@ public final class World extends PropertyHolder {
         assets = new ImmutableMap<>(assetsMap);
 
         applyResources(resources);
-
-        setProperty("test", "test");
-        setProperty("test2", new ImmutableMap<>(Map.of("test", "test2")));
     }
 
     public void applyResources(List<ResourcePack> resources) {
@@ -372,6 +377,8 @@ public final class World extends PropertyHolder {
 
         textures = ResourceSet.compileTextures(stack);
         texturePaths = ResourceSet.compilePaths(stack, pack -> pack.getTextures().getPaths());
+
+        styles = ResourceSet.compileStyles(stack);
     }
 
     /**

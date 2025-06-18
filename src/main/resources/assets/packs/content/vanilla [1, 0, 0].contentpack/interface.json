@@ -1,9 +1,0 @@
-{
-    "interfaces": {
-        "playerInventory": "TranscendRuins:playerInventory",
-        "playerInventoryButton": "TranscendRuins:playerInventoryButton"
-    },
-    "hud": [
-        "playerInventoryButton"
-    ]
-}

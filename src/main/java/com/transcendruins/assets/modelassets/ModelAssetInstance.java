@@ -101,9 +101,6 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
             return Texture.BLANK;
         }
 
-        System.out.println(x + ", " + y);
-        System.out.println();
-
         x *= (double) texture.getWidth() / model.getTextureWidth();
         y *= (double) texture.getHeight() / model.getTextureHeight();
 

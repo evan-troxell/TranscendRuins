@@ -30,12 +30,30 @@ import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
+/**
+ * <code>Texture</code>: A class representing a single texture entry.
+ */
 public final class Texture {
 
+    /**
+     * <code>Color</code>: A blank color.
+     */
     public static final Color BLANK = new Color(0);
 
+    /**
+     * <code>WeightedRoll&lt;String&gt;</code>: The filepath entries of this
+     * <code>Texture</code> instance.
+     */
     private final WeightedRoll<String> entries;
 
+    /**
+     * Creates a new instance of the <code>Texture</code> class
+     * 
+     * @param json <code>TracedDictionary</code>: The JSON to parse from.
+     * @param key  <code>Object</code>: The key to search for.
+     * @throws LoggedException Thrown if an error occurs while parsing the
+     *                         collection.
+     */
     public Texture(TracedDictionary json, String key) throws LoggedException {
 
         entries = json.get(key, List.of(
@@ -82,6 +100,15 @@ public final class Texture {
                 })));
     }
 
+    /**
+     * Retrieves a texture from the available paths of this <code>Texture</code>
+     * instance.
+     * 
+     * @param random <code>double</code>: The random ID key to use, in the range of
+     *               <code>[0.0, 1.0]</code>.
+     * @param paths  <code>Map&lt;String, TracedPath&gt;</code>: The supplied paths.
+     * @return <code>StoredTexture</code>: The retrieved texture.
+     */
     public ImageIcon getTexture(double random, Map<String, TracedPath> paths) {
 
         String path = entries.get(random);

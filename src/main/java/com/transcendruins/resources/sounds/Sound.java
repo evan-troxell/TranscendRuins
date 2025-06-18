@@ -16,7 +16,6 @@
 
 package com.transcendruins.resources.sounds;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +28,25 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.sound.StoredSound;
 
+/**
+ * <code>Sound</code>: A class representing a single sound entry.
+ */
 public final class Sound {
 
-    public static final Color BLANK = new Color(0);
-
+    /**
+     * <code>WeightedRoll&lt;String&gt;</code>: The filepath entries of this
+     * <code>Sound</code> instance.
+     */
     private final WeightedRoll<String> entries;
 
+    /**
+     * Creates a new instance of the <code>Sound</code> class
+     * 
+     * @param json <code>TracedDictionary</code>: The JSON to parse from.
+     * @param key  <code>Object</code>: The key to search for.
+     * @throws LoggedException Thrown if an error occurs while parsing the
+     *                         collection.
+     */
     public Sound(TracedDictionary json, String key) throws LoggedException {
 
         entries = json.get(key, List.of(
@@ -83,6 +95,15 @@ public final class Sound {
 
     }
 
+    /**
+     * Retrieves a sound from the available paths of this <code>Sound</code>
+     * instance.
+     * 
+     * @param random <code>double</code>: The random ID key to use, in the range of
+     *               <code>[0.0, 1.0]</code>.
+     * @param paths  <code>Map&lt;String, TracedPath&gt;</code>: The supplied paths.
+     * @return <code>StoredSound</code>: The retrieved sound.
+     */
     public StoredSound getSound(double random, Map<String, TracedPath> paths) {
 
         String path = entries.get(random);

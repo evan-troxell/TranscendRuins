@@ -23,6 +23,8 @@ import java.util.List;
 import static com.transcendruins.assets.AssetType.ELEMENT;
 import static com.transcendruins.assets.AssetType.ENTITY;
 import static com.transcendruins.assets.AssetType.LAYOUT;
+
+import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.SelectionType;
 import static com.transcendruins.assets.SelectionType.parseSelectionType;
 import com.transcendruins.assets.assets.AssetPresets;
@@ -53,88 +55,7 @@ import com.transcendruins.world.World;
  */
 public final class LayoutAttributes extends AssetAttributes {
 
-    /**
-     * <code>GenerationType</code>: An enum class representing generation types in a
-     * layout.
-     */
-    public enum GenerationType {
-
-        /**
-         * <code>GenerationType</code>: A generation type representing an element.
-         */
-        ELEMENT,
-
-        /**
-         * <code>GenerationType</code>: A generation type representing an entity layout.
-         */
-        ENTITY,
-
-        /**
-         * <code>GenerationType</code>: A generation type representing a generation
-         * layout.
-         */
-        LAYOUT,
-
-        /**
-         * <code>GenerationType</code>: A generation type representing a distribution of
-         * components.
-         */
-        DISTRIBUTION,
-
-        /**
-         * <code>GenerationType</code>: A generation type representing a grid of
-         * components.
-         */
-        GRID,
-
-        /**
-         * <code>GenerationType</code>: A generation type representing a blueprint.
-         */
-        BLUEPRINT;
-
-        /**
-         * Parses a value from a <code>TracedCollection</code> instance into a
-         * <code>GenerationType</code> enum.
-         * 
-         * @param collection <code>TracedCollection</code>: The collection to parse
-         *                   from.
-         * @param key        <code>Object</code>: The key to search for.
-         * @return <code>GenerationType</code>: The parsed generation type.
-         * @throws LoggedException Thrown if the generation type could not be found or
-         *                         parsed.
-         */
-        public static final GenerationType parseGenerationType(TracedCollection collection, Object key)
-                throws LoggedException {
-
-            TracedEntry<String> entry = collection.getAsString(key, false, null);
-
-            if (!entry.containsValue()) {
-
-                return null;
-            }
-
-            String type = entry.getValue();
-
-            return switch (type) {
-
-            case "element" -> ELEMENT;
-
-            case "entity" -> ENTITY;
-
-            case "layout" -> LAYOUT;
-
-            case "distributed" -> DISTRIBUTION;
-
-            case "grid" -> GRID;
-
-            case "blueprint" -> BLUEPRINT;
-
-            default -> throw new UnexpectedValueException(entry);
-            };
-        }
-    }
-
-    private final ImmutableMap<GenerationType, ImmutableMap<String, AssetPresets>> definitions;
+    private final ImmutableMap<AssetType, ImmutableMap<String, AssetPresets>> definitions;
 
     private final GenerationSchema generation;
 
@@ -164,7 +85,7 @@ public final class LayoutAttributes extends AssetAttributes {
         // The definitions and generation should only be defined once.
         if (isBase) {
 
-            HashMap<GenerationType, ImmutableMap<String, AssetPresets>> definitionsMap = new HashMap<>();
+            HashMap<AssetType, ImmutableMap<String, AssetPresets>> definitionsMap = new HashMap<>();
 
             HashMap<String, AssetPresets> layouts = new HashMap<>();
             HashMap<String, AssetPresets> elements = new HashMap<>();
@@ -215,9 +136,9 @@ public final class LayoutAttributes extends AssetAttributes {
                 }
             }
 
-            definitionsMap.put(GenerationType.LAYOUT, new ImmutableMap<>(layouts));
-            definitionsMap.put(GenerationType.ELEMENT, new ImmutableMap<>(elements));
-            definitionsMap.put(GenerationType.ENTITY, new ImmutableMap<>(entities));
+            definitionsMap.put(LAYOUT, new ImmutableMap<>(layouts));
+            definitionsMap.put(ELEMENT, new ImmutableMap<>(elements));
+            definitionsMap.put(ENTITY, new ImmutableMap<>(entities));
             definitions = new ImmutableMap<>(definitionsMap);
 
             generation = createGeneration(json);
@@ -230,20 +151,24 @@ public final class LayoutAttributes extends AssetAttributes {
 
     public GenerationSchema createGeneration(TracedDictionary json) throws LoggedException {
 
-        GenerationType type = GenerationType.parseGenerationType(json, "generation");
+        TracedEntry<String> typeEntry = json.getAsString("type", false, null);
+        String type = typeEntry.getValue();
+
         return switch (type) {
 
-        case ELEMENT, ENTITY -> new AssetGenerationSchema(json, type);
+        case "element" -> new AssetGenerationSchema(json, ELEMENT);
 
-        case LAYOUT -> new LayoutGenerationSchema(json);
+        case "entity" -> new AssetGenerationSchema(json, ENTITY);
 
-        case DISTRIBUTION -> new DistributionGenerationSchema(json);
+        case "layout" -> new LayoutGenerationSchema(json);
 
-        case GRID -> new GridGenerationSchema(json);
+        case "distributed" -> new DistributionGenerationSchema(json);
 
-        case BLUEPRINT -> new BlueprintGenerationSchema(json);
+        case "grid" -> new GridGenerationSchema(json);
 
-        default -> null;
+        case "blueprint" -> new BlueprintGenerationSchema(json);
+
+        default -> throw new UnexpectedValueException(typeEntry);
         };
     }
 
@@ -378,9 +303,9 @@ public final class LayoutAttributes extends AssetAttributes {
 
     public final class AssetGenerationSchema extends GenerationSchema {
 
-        private final GenerationType type;
+        private final AssetType type;
 
-        public GenerationType getType() {
+        public AssetType getType() {
 
             return type;
         }
@@ -399,7 +324,7 @@ public final class LayoutAttributes extends AssetAttributes {
             return tileOffset;
         }
 
-        public AssetGenerationSchema(TracedDictionary json, GenerationType type) throws LoggedException {
+        public AssetGenerationSchema(TracedDictionary json, AssetType type) throws LoggedException {
 
             super(json);
 
@@ -417,10 +342,7 @@ public final class LayoutAttributes extends AssetAttributes {
             // JSON definitions.
             if (existing == null) {
 
-                // Note that these are 2 different ELEMENT constants, one is an AssetType
-                // whereas the other is a GenerationType.
-                TracedEntry<AssetPresets> assetEntry = json.getAsPresets(key, false,
-                        type == GenerationType.ELEMENT ? ELEMENT : ENTITY);
+                TracedEntry<AssetPresets> assetEntry = json.getAsPresets(key, false, type);
                 asset = assetEntry.getValue();
                 addAssetDependency(asset);
             } else {
@@ -453,7 +375,7 @@ public final class LayoutAttributes extends AssetAttributes {
             // Attempt to build the asset presets from the definitions.
             AssetPresets existing = json.get("layout", List.of(
 
-                    json.stringCase(entry -> definitions.get(GenerationType.LAYOUT).get(entry.getValue())),
+                    json.stringCase(entry -> definitions.get(LAYOUT).get(entry.getValue())),
                     json.defaultCase(_ -> null)));
 
             // If the asset presets are not found in the definitions, create them from the

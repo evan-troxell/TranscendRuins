@@ -24,6 +24,7 @@ import com.transcendruins.assets.primaryassets.inventory.InventorySchema;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -72,11 +73,11 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
         return inventory;
     }
 
-    private final InteractionType interactionType;
+    private final InteractionSchema interactionSchema;
 
-    public final InteractionType getInteractionType() {
+    public final InteractionSchema getInteractionSchema() {
 
-        return interactionType;
+        return interactionSchema;
     }
 
     private final Double interactionCooldown;
@@ -147,7 +148,18 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
 
             TracedDictionary interactionJson = interactionEntry.getValue();
 
-            interactionType = InteractionType.parseInteractionType(interactionJson, "type");
+            TracedEntry<String> typeEntry = interactionJson.getAsString("type", false, null);
+
+            interactionSchema = switch (typeEntry.getValue()) {
+
+            case "none" -> new BlankInteractionSchema(interactionJson);
+
+            case "inventory" -> new InventoryInteractionSchema(interactionJson);
+
+            case "passageway" -> new PassagewayInteractionSchema(interactionJson);
+
+            default -> throw new UnexpectedValueException(typeEntry);
+            };
 
             TracedEntry<Double> interactionCooldownEntry = json.getAsDouble("interactionCooldown", true, 0.0);
             interactionCooldown = interactionCooldownEntry.getValue();
@@ -175,7 +187,7 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
             interactionEvents = new ImmutableList<>(interactionEventsList);
         } else {
 
-            interactionType = null;
+            interactionSchema = null;
             interactionCooldown = null;
             interactionEvents = null;
         }

@@ -118,8 +118,8 @@
     },
     "events": {
         "convoy": {
-            "name": "events.convoy",
-            "description": "events.convoy.description",
+            "name": "event.convoy",
+            "description": "event.convoy.description",
 
             "locations": {
                 "activate": [
@@ -161,7 +161,7 @@
                         "args": [
                             {
                                 "operator": "getProperty",
-                                "args": "events.convoy.kills.TranscendRuins:roamer"
+                                "args": "event.convoy.kills.TranscendRuins:roamer"
                             },
                             20
                         ]
@@ -170,8 +170,8 @@
             }
         },
         "raiders": {
-            "name": "events.raiders",
-            "description": "events.raiders.description",
+            "name": "event.raiders",
+            "description": "event.raiders.description",
 
             "locations": {
                 "activate": [
@@ -185,8 +185,8 @@
 
                 "tasks": [
                     {
-                        "name": "events.raiders.task1",
-                        "description": "events.raiders.task1.description",
+                        "name": "event.raiders.task1",
+                        "description": "event.raiders.task1.description",
 
                         "location": "home"
                     }
@@ -205,8 +205,8 @@
             }
         },
         "example": {
-            "name": "events.example",
-            "description": "events.example.description",
+            "name": "event.example",
+            "description": "event.example.description",
 
             "locations": {
                 "activate": [],
@@ -236,8 +236,8 @@
 
                 "tasks": [
                     {
-                        "name": "events.example.task1",
-                        "description": "events.example.task1.description",
+                        "name": "event.example.task1",
+                        "description": "event.example.task1.description",
                         "chance": 10,
 
                         "location": "exampleLocation",
@@ -247,7 +247,7 @@
                             "args": [
                                 {
                                     "operator": "getProperty",
-                                    "args": "events.example.kills.TranscendRuins:roamer"
+                                    "args": "event.example.kills.TranscendRuins:roamer"
                                 },
                                 20
                             ]
@@ -255,7 +255,7 @@
                         "counter": {
                             "value": {
                                 "operator": "getProperty",
-                                "args": "events.example.kills.TranscendRuins:roamer"
+                                "args": "event.example.kills.TranscendRuins:roamer"
                             },
                             "target": 20
                         }

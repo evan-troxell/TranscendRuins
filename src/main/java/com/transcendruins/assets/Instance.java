@@ -38,15 +38,19 @@ public abstract class Instance extends PropertyHolder {
      *                   method to use. This will only be used if the
      *                   <code>value</code> parameter is not <code>null</code>.
      * @param ifNull     <code>T</code>: The value to return if the
-     *                   <code>value</code> parameter is null.
+     *                   <code>value</code> parameter is null. Note that this value
+     *                   is not passed into the <code>generator</code> parameter.
      * @param attributes <code>Attributes</code>: The attributes from which the
      *                   attribute originated.
      * @param ifBase     <code>T</code>: The value to return if the
      *                   <code>value</code> parameter is null and the base attribute
-     *                   set is attempting to apply the attribute.
+     *                   set is attempting to apply the attribute. Note that this
+     *                   value is not passed into the <code>generator</code>
+     *                   parameter.
      * @return <code>T</code>: The resulting value.
      */
-    public <K, T> T calculateAttribute(K value, Function<K, T> generator, T ifNull, Attributes attributes, T ifBase) {
+    public final <K, T> T calculateAttribute(K value, Function<K, T> generator, T ifNull, Attributes attributes,
+            T ifBase) {
 
         if (value != null) {
 
@@ -67,10 +71,11 @@ public abstract class Instance extends PropertyHolder {
      *                  method to use. This will only be used if the
      *                  <code>value</code> parameter is not <code>null</code>.
      * @param ifNull    <code>T</code>: The value to return if the
-     *                  <code>value</code> parameter is null.
+     *                  <code>value</code> parameter is null. Note that this value
+     *                  is not passed into the <code>generator</code> parameter.
      * @return <code>T</code>: The resulting value.
      */
-    public <K, T> T calculateAttribute(K value, Function<K, T> generator, T ifNull) {
+    public final <K, T> T calculateAttribute(K value, Function<K, T> generator, T ifNull) {
 
         if (value != null) {
 
@@ -95,7 +100,7 @@ public abstract class Instance extends PropertyHolder {
      *                   set is attempting to apply the attribute.
      * @return <code>K</code>: The resulting value.
      */
-    public <K> K calculateAttribute(K value, K ifNull, Attributes attributes, K ifBase) {
+    public final <K> K calculateAttribute(K value, K ifNull, Attributes attributes, K ifBase) {
 
         if (value != null) {
 
@@ -115,7 +120,7 @@ public abstract class Instance extends PropertyHolder {
      *               parameter is null.
      * @return <code>K</code>: The resulting value.
      */
-    public <K> K calculateAttribute(K value, K ifNull) {
+    public final <K> K calculateAttribute(K value, K ifNull) {
 
         if (value != null) {
 
@@ -125,7 +130,7 @@ public abstract class Instance extends PropertyHolder {
         return ifNull;
     }
 
-    public <K> void computeAttribute(K value, Consumer<K> operation, K ifNull, Attributes attributes, K ifBase) {
+    public final <K> void computeAttribute(K value, Consumer<K> operation, K ifNull, Attributes attributes, K ifBase) {
 
         if (value != null) {
 
@@ -136,7 +141,7 @@ public abstract class Instance extends PropertyHolder {
         }
     }
 
-    public <K> void computeAttribute(K value, Consumer<K> operation, K ifNull) {
+    public final <K> void computeAttribute(K value, Consumer<K> operation, K ifNull) {
 
         if (value != null) {
 
@@ -164,7 +169,7 @@ public abstract class Instance extends PropertyHolder {
      *                   <code>value</code> parameter is <code>null</code> and the
      *                   base attribute set is attempting to apply the attribute.
      */
-    public <K> void computeAttribute(K value, Consumer<K> operation, Attributes attributes, K ifBase) {
+    public final <K> void computeAttribute(K value, Consumer<K> operation, Attributes attributes, K ifBase) {
 
         if (value != null) {
 
@@ -187,7 +192,7 @@ public abstract class Instance extends PropertyHolder {
      *                  if the <code>value</code> parameter is not
      *                  <code>null</code>.
      */
-    public <K> void computeAttribute(K value, Consumer<K> operation) {
+    public final <K> void computeAttribute(K value, Consumer<K> operation) {
 
         if (value != null) {
 

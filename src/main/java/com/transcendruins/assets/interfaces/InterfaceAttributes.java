@@ -16,16 +16,17 @@
 
 package com.transcendruins.assets.interfaces;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.layouts.LayoutAttributes.GenerationType;
+import com.transcendruins.resources.styles.Style;
+import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -41,57 +42,40 @@ import com.transcendruins.utilities.json.TracedEntry;
  */
 public final class InterfaceAttributes extends AssetAttributes {
 
-    public enum ComponentType {
+    /**
+     * <code>StyleSet</code>: The styles of this <code>InterfaceAttributes</code>
+     * instance.
+     */
+    private final StyleSet styles;
 
-        CONTAINER,
+    /**
+     * Retrieves the styles of this <code>InterfaceAttributes</code> instance.
+     * 
+     * @return <code>StyleSet</code>: The <code>styles</code> field of this
+     *         <code>InterfaceAttributes</code> instance.
+     */
+    public StyleSet getStyles() {
 
-        LABEL;
-
-        /**
-         * Parses a value from a <code>TracedCollection</code> instance into a
-         * <code>ComponentType</code> enum.
-         * 
-         * @param collection <code>TracedCollection</code>: The collection to parse
-         *                   from.
-         * @param key        <code>Object</code>: The key to search for.
-         * @return <code>ComponentType</code>: The parsed component type.
-         * @throws LoggedException Thrown if the component type could not be found or
-         *                         parsed.
-         */
-        public static final ComponentType parseComponentType(TracedCollection collection, Object key)
-                throws LoggedException {
-
-            TracedEntry<String> entry = collection.getAsString(key, false, null);
-
-            if (!entry.containsValue()) {
-
-                return null;
-            }
-
-            String type = entry.getValue();
-
-            return switch (type) {
-
-            case "container" -> CONTAINER;
-
-            case "label" -> LABEL;
-
-            default -> throw new UnexpectedValueException(entry);
-            };
-        }
+        return styles;
     }
 
     /**
-     * <code>String</code>: The regular expression used to match a floating point
-     * value.
+     * <code>InterfaceAttributes.ComponentSchema</code>: The root component of this
+     * <code>InterfaceAttributes</code> instance.
      */
-    private static final String NUMBER_PATTERN = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)$";
+    private final ComponentSchema component;
 
     /**
-     * <code>ImmutableMap&lt;String, InterfaceAttributes.StyleSchema&gt;</code>: The
-     * styles of this <code>InterfaceAttributes</code> instance.
+     * Retrieves the root component of this <code>InterfaceAttributes</code>
+     * instance.
+     * 
+     * @return <code>ComponentSchema</code>: The <code>component</code> field of
+     *         this <code>InterfaceAttributes</code> instance.
      */
-    private final ImmutableMap<String, StyleSchema> styles;
+    public ComponentSchema getComponent() {
+
+        return component;
+    }
 
     /**
      * Compiles this <code>InterfaceAttributes</code> instance into a completed
@@ -111,450 +95,47 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         super(schema, json, isBase);
 
-        // The styles should only be defined once.
+        // The styles can be overwritten, but note that each style is applied
+        // independently, and the styles as a whole are not lost.
+        styles = new StyleSet(json, "styles");
+
+        // The components should only be defined once.
         if (isBase) {
 
-            HashMap<String, StyleSchema> stylesMap = new HashMap<>();
-
-            TracedEntry<TracedDictionary> stylesEntry = json.getAsDict("styles", true);
-            if (stylesEntry.containsValue()) {
-
-                TracedDictionary stylesJson = stylesEntry.getValue();
-
-                for (String key : stylesJson) {
-
-                    TracedEntry<TracedDictionary> styleEntry = stylesJson.getAsDict(key, false);
-                    TracedDictionary styleJson = styleEntry.getValue();
-
-                    stylesMap.put(key, new StyleSchema(styleJson));
-                }
-            }
-
-            styles = new ImmutableMap<>(stylesMap);
+            component = createComponent(json);
         } else {
 
-            styles = null;
-        }
-    }
-
-    /**
-     * <code>InterfaceAttributes.Size</code>: A class representing a dimension
-     * within a component.
-     */
-    public static final class Size {
-
-        /**
-         * <code>int</code>: A constant representing a size in pixels.
-         */
-        private static final int PX = 0;
-
-        /**
-         * <code>int</code>: A constant representing a size in percent.
-         */
-        private static final int PCT = 1;
-
-        /**
-         * <code>InterfaceAttributes.Size</code>: A constant representing a size of 0
-         * pixels.
-         */
-        public static final Size NONE = new Size(0, PX);
-
-        /**
-         * <code>InterfaceAttributes.Size</code>: A constant representing a size of
-         * 100%.
-         */
-        public static final Size FULL = new Size(100, PCT);
-
-        /**
-         * <code>double</code>: The dimension of this
-         * <code>InterfaceAttributes.Size</code> instance.
-         */
-        private final double num;
-
-        /**
-         * <code>int</code>: The units of this <code>InterfaceAttributes.Size</code>
-         * instance.
-         */
-        private final int suffix;
-
-        /**
-         * Retrieves the size of this <code>InterfaceAttributes.Size</code> instance in
-         * pixels.
-         * 
-         * @param parent The size of the parent, in pixels, to use. This is typically
-         *               the width or height of the parent.
-         * @param min    <code>double</code>: The minimum size in pixels to return. This
-         *               should be greater than or equal to 0.
-         * @param max    <code>double</code>: The maximum size in pixels to return. This
-         *               should be less than or equal to the <code>parent</code>
-         *               parameter.
-         * @return <code>double</code>: The resulting size, in pixels.
-         */
-        public double getSize(double parent, double min, double max) {
-
-            double value = switch (suffix) {
-
-            case PX -> num;
-
-            case PCT -> parent * num / 100;
-
-            default -> 0;
-            };
-            return Math.clamp(value, min, max);
-        }
-
-        /**
-         * Creates a new instance of the <code>InterfaceAttributes.Size</code> class.
-         * 
-         * @param num    <code>double</code>: The dimension of this
-         *               <code>InterfaceAttributes.Size</code> instance.
-         * @param suffix <code>int</code>: The units of this
-         *               <code>InterfaceAttributes.Size</code> instance.
-         */
-        private Size(double num, int suffix) {
-
-            this.num = num;
-            this.suffix = suffix;
-        }
-
-        /**
-         * Parses a value from a <code>TracedCollection</code> instance into a new
-         * <code>InterfaceAttributes.Size</code> instance.
-         * 
-         * @param collection <code>TracedCollection</code>: The collection to parse
-         *                   from.
-         * @param key        <code>Object</code>: The key to search for.
-         * @return <code>InterfaceAttributes.Size</code>: The parsed size.
-         * @throws LoggedException Thrown if an error occurs while parsing the
-         *                         collection.
-         */
-        public static Size createSize(TracedCollection collection, Object key) throws LoggedException {
-
-            return collection.get(key, List.of(
-
-                    collection.stringCase(entry -> { // If the entry is a string, the unit should be processed.
-
-                        // Remove all whitespace.
-                        String full = entry.getValue().replaceAll("\\s+", "");
-
-                        // Break the suffix off of the number by removing non-digit chars at the end.
-                        String numberPart = full.replaceAll("[^\\d.]+.*$", "");
-                        if (!numberPart.matches(NUMBER_PATTERN)) {
-
-                            throw new UnexpectedValueException(entry);
-                        }
-
-                        double number = Double.parseDouble(numberPart);
-                        if (number < 0) {
-
-                            throw new NumberBoundsException(number, entry);
-                        }
-
-                        // Isolate the suffix.
-                        String suffixPart = full.substring(numberPart.length());
-                        int suffix = switch (suffixPart) {
-
-                        case "px", "" -> PX;
-
-                        case "pct", "%" -> PCT;
-
-                        default -> throw new UnexpectedValueException(entry);
-                        };
-
-                        if (suffix == PCT && number > 100) {
-
-                            throw new NumberBoundsException(number, entry);
-                        }
-
-                        return new Size(number, suffix);
-                    }), collection.doubleCase(entry -> { // If the entry is a number, the unit will be pixels.
-
-                        double number = entry.getValue();
-
-                        if (number < 0) {
-
-                            throw new NumberBoundsException(number, entry);
-                        }
-
-                        return new Size(number, PX);
-                    }), collection.nullCase(_ -> null) // If the entry is missing, return null.
-            ));
-        }
-    }
-
-    /**
-     * <code>InterfaceAttributes.StyleSchema</code>: A class representing the schema
-     * of the style of a visual component.
-     */
-    public static final class StyleSchema {
-
-        /**
-         * <code>BackgroundStyle</code>: The background of this
-         * <code>InterfaceAttributes.StyleSchema</code> instance.
-         */
-        private final BackgroundStyle background;
-
-        /**
-         * <code>ComponentSideStyle</code>: The top side of this
-         * <code>InterfaceAttributes.StyleSchema</code> instance.
-         */
-        private final ComponentSideStyle top;
-
-        /**
-         * <code>ComponentSideStyle</code>: The bottom side of this
-         * <code>InterfaceAttributes.StyleSchema</code> instance.
-         */
-        private final ComponentSideStyle bottom;
-
-        /**
-         * <code>ComponentSideStyle</code>: The left side of this
-         * <code>InterfaceAttributes.StyleSchema</code> instance.
-         */
-        private final ComponentSideStyle left;
-
-        /**
-         * <code>ComponentSideStyle</code>: The right side of this
-         * <code>InterfaceAttributes.StyleSchema</code> instance.
-         */
-        private final ComponentSideStyle right;
-
-        /**
-         * Creates a new instance of the <code>InterfaceAttributes.StyleSchema</code>
-         * class.
-         * 
-         * @param json <code>TracedDictionary</code>: The JSON to process.
-         * @throws LoggedException Thrown if an error was raised while processing the
-         *                         JSON.
-         */
-        public StyleSchema(TracedDictionary json) throws LoggedException {
-
-            background = BackgroundStyle.createBackgroundStyle(json, "background");
-
-            // Process the borders.
-            BorderStyle border = BorderStyle.createBorderStyle(json, "border");
-
-            BorderStyle borderVertical = BorderStyle.createBorderStyle(json, "borderVertical");
-
-            BorderStyle borderTop = findFirst(BorderStyle.createBorderStyle(json, "borderTop"), borderVertical, border);
-            BorderStyle borderBottom = findFirst(BorderStyle.createBorderStyle(json, "borderBottom"), borderVertical,
-                    border);
-
-            BorderStyle borderHorizontal = BorderStyle.createBorderStyle(json, "borderHorizontal");
-
-            BorderStyle borderLeft = findFirst(BorderStyle.createBorderStyle(json, "borderLeft"), borderHorizontal,
-                    border);
-            BorderStyle borderRight = findFirst(BorderStyle.createBorderStyle(json, "borderRight"), borderHorizontal,
-                    border);
-
-            // Process the border radii.
-            Size borderRadius = Size.createSize(json, "borderRadius");
-
-            Size borderRadiusTop = Size.createSize(json, "borderRadiusTop");
-            Size borderRadiusBottom = Size.createSize(json, "borderRadiusBottom");
-            Size borderRadiusLeft = Size.createSize(json, "borderRadiusLeft");
-            Size borderRadiusRight = Size.createSize(json, "borderRadiusRight");
-
-            Size borderRadiusTopLeft = findFirst(Size.createSize(json, "borderRadiusTopLeft"), borderRadiusTop,
-                    borderRadiusLeft, borderRadius);
-            Size borderRadiusTopRight = findFirst(Size.createSize(json, "borderRadiusTopRight"), borderRadiusTop,
-                    borderRadiusRight, borderRadius);
-
-            Size borderRadiusBottomRight = findFirst(Size.createSize(json, "borderRadiusBottomRight"),
-                    borderRadiusBottom, borderRadiusRight, borderRadius);
-            Size borderRadiusBottomLeft = findFirst(Size.createSize(json, "borderRadiusBottomLeft"), borderRadiusBottom,
-                    borderRadiusLeft, borderRadius);
-
-            // Process the margins.
-            Size margin = Size.createSize(json, "margin");
-
-            Size marginVertical = Size.createSize(json, "marginVertical");
-
-            Size marginTop = findFirst(Size.createSize(json, "marginTop"), marginVertical, margin);
-            Size marginBottom = findFirst(Size.createSize(json, "marginBottom"), marginVertical, margin);
-
-            Size marginHorizontal = Size.createSize(json, "marginHorizontal");
-
-            Size marginLeft = findFirst(Size.createSize(json, "marginLeft"), marginHorizontal, margin);
-            Size marginRight = findFirst(Size.createSize(json, "marginRight"), marginHorizontal, margin);
-
-            // Process the paddings.
-            Size padding = Size.createSize(json, "padding");
-
-            Size paddingVertical = Size.createSize(json, "paddingVertical");
-
-            Size paddingTop = findFirst(Size.createSize(json, "paddingTop"), paddingVertical, padding);
-            Size paddingBottom = findFirst(Size.createSize(json, "paddingBottom"), paddingVertical, padding);
-
-            Size paddingHorizontal = Size.createSize(json, "paddingHorizontal");
-
-            Size paddingLeft = findFirst(Size.createSize(json, "paddingLeft"), paddingHorizontal, padding);
-            Size paddingRight = findFirst(Size.createSize(json, "paddingRight"), paddingHorizontal, padding);
-
-            // Generate the sides.
-            top = new ComponentSideStyle(borderTop, borderRadiusTopLeft, marginTop, paddingTop);
-            bottom = new ComponentSideStyle(borderBottom, borderRadiusBottomRight, marginBottom, paddingBottom);
-            left = new ComponentSideStyle(borderLeft, borderRadiusBottomLeft, marginLeft, paddingLeft);
-            right = new ComponentSideStyle(borderRight, borderRadiusTopRight, marginRight, paddingRight);
-        }
-
-        /**
-         * <code>InterfaceAttributes.StyleSchema.BackgroundStyle</code>: A class
-         * representing the style of a background.
-         */
-        public static final class BackgroundStyle {
-
-            /**
-             * <code>Color</code>: The color of this
-             * <code>InterfaceAttributes.StyleSchema.BackgroundStyle</code> instance.
-             */
-            private final Color color;
-
-            /**
-             * <code>String</code>: The image of this
-             * <code>InterfaceAttributes.StyleSchema.BackgroundStyle</code> instance.
-             */
-            private final String image;
-
-            /**
-             * Creates a new instance of the
-             * <code>InterfaceAttributes.StyleSchema.BackgroundStyle</code> class.
-             * 
-             * @param json <code>TracedDictionary</code>: The JSON to process.
-             * @throws LoggedException Thrown if an error was raised while processing the
-             *                         JSON.
-             */
-            private BackgroundStyle(TracedDictionary json) throws LoggedException {
-
-                TracedEntry<Color> colorEntry = json.getAsColor("color", true, null);
-                color = colorEntry.getValue();
-
-                TracedEntry<String> imageEntry = json.getAsString("image", true, null);
-                image = imageEntry.getValue();
-            }
-
-            /**
-             * Parses a value from a <code>TracedCollection</code> instance into a new
-             * <code>InterfaceAttributes.StyleSchema.BackgroundStyle</code> instance.
-             * 
-             * @param collection <code>TracedCollection</code>: The collection to parse
-             *                   from.
-             * @param key        <code>Object</code>: The key to search for.
-             * @return <code>InterfaceAttributes.StyleSchema.BackgroundStyle</code>: The
-             *         parsed background style.
-             * @throws LoggedException Thrown if an error occurs while parsing the
-             *                         collection.
-             */
-            public static BackgroundStyle createBackgroundStyle(TracedCollection collection, Object key)
-                    throws LoggedException {
-
-                return collection.get(key, List.of(
-
-                        collection.dictCase(entry -> { // If the entry is a dictionary, process it into a background
-                                                       // style.
-
-                            TracedDictionary json = entry.getValue();
-                            return new BackgroundStyle(json);
-                        }), collection.nullCase(_ -> null) // If the entry is missing, return null.
-                ));
-            }
-        }
-
-        /**
-         * <code>InterfaceAttributes.StyleSchema.BorderStyle</code>: A class
-         * representing the style of a border.
-         */
-        public static final class BorderStyle {
-
-            /**
-             * <code>InterfaceAttributes.Size</code>: The width of this
-             * <code>InterfaceAttributes.StyleSchema.BorderStyle</code> instance.
-             */
-            private final Size width;
-
-            /**
-             * <code>Color</code>: The color of this
-             * <code>InterfaceAttributes.StyleSchema.BorderStyle</code> instance.
-             */
-            private final Color color;
-
-            /**
-             * Creates a new instance of the
-             * <code>InterfaceAttributes.StyleSchema.BorderStyle</code> class.
-             * 
-             * @param json <code>TracedDictionary</code>: The JSON to process.
-             * @throws LoggedException Thrown if an error was raised while processing the
-             *                         JSON.
-             */
-            private BorderStyle(TracedDictionary json) throws LoggedException {
-
-                width = Size.createSize(json, "size");
-
-                TracedEntry<Color> colorEntry = json.getAsColor("color", true, null);
-                color = colorEntry.getValue();
-            }
-
-            /**
-             * Parses a value from a <code>TracedCollection</code> instance into a new
-             * <code>InterfaceAttributes.StyleSchema.BorderStyle</code> instance.
-             * 
-             * @param collection <code>TracedCollection</code>: The collection to parse
-             *                   from.
-             * @param key        <code>Object</code>: The key to search for.
-             * @return <code>InterfaceAttributes.StyleSchema.BorderStyle</code>: The parsed
-             *         border style.
-             * @throws LoggedException Thrown if an error occurs while parsing the
-             *                         collection.
-             */
-            public static BorderStyle createBorderStyle(TracedCollection collection, Object key)
-                    throws LoggedException {
-
-                return collection.get(key, List.of(
-
-                        collection.dictCase(entry -> { // If the entry is a dictionary, process it into a border style.
-
-                            TracedDictionary json = entry.getValue();
-                            return new BorderStyle(json);
-                        }), collection.nullCase(_ -> null) // If the entry is missing, return null.
-                ));
-            }
-        }
-
-        /**
-         * <code>InterfaceAttributes.StyleSchema.ComponentSideStyle</code>: A record
-         * representing the properties of a single side (top, bottom, left, right) of a
-         * component.
-         * 
-         * @param border       <code>BorderStyle</code>: The border of this
-         *                     <code>InterfaceAttributes.StyleSchema.ComponentSideStyle</code>
-         *                     instance.
-         * @param borderRadius <code>InterfaceAttributes.Size</code>: The border radius
-         *                     of this
-         *                     <code>InterfaceAttributes.StyleSchema.ComponentSideStyle</code>
-         *                     instance.
-         * @param margin       <code>InterfaceAttributes.Size</code>: The margin of this
-         *                     <code>InterfaceAttributes.StyleSchema.ComponentSideStyle</code>
-         *                     instance.
-         * @param padding      <code>InterfaceAttributes.Size</code>: The padding of
-         *                     this
-         *                     <code>InterfaceAttributes.StyleSchema.ComponentSideStyle</code>
-         *                     instance.
-         */
-        public static final record ComponentSideStyle(BorderStyle border, Size borderRadius, Size margin,
-                Size padding) {
+            component = null;
         }
     }
 
     public ComponentSchema createComponent(TracedDictionary json) throws LoggedException {
 
-        ComponentType type = ComponentType.parseComponentType(json, "type");
+        TracedEntry<String> typeEntry = json.getAsString("type", false, null);
+        String type = typeEntry.getValue();
 
         return switch (type) {
 
-        case CONTAINER -> new ContainerComponentSchema(json);
+        // Primitive component types.
+        case "label" -> new LabelComponentSchema(json);
 
-        case LABEL -> new LabelComponentSchema(json);
+        case "button" -> new ButtonComponentSchema(json);
 
-        default -> null;
+        case "input" -> new InputComponentSchema(json);
+
+        // Dropdown container types (and option).
+        case "dropdown" -> new DropdownComponentSchema(json);
+
+        case "select" -> new SelectComponentSchema(json);
+
+        case "option" -> new OptionComponentSchema(json);
+
+        // Container types.
+        case "list" -> new ListComponentSchema(json);
+
+        case "container" -> new ContainerComponentSchema(json);
+
+        default -> throw new UnexpectedValueException(typeEntry);
         };
     }
 
@@ -564,33 +145,79 @@ public final class InterfaceAttributes extends AssetAttributes {
      */
     public abstract class ComponentSchema {
 
-        private final Size width;
+        private final String id;
 
-        private final Size height;
+        public String getId() {
 
-        private final Size x;
+            return id;
+        }
 
-        private final Size y;
+        private final ComponentSize width;
 
-        private final ImmutableList<StyleSchema> style;
+        public ComponentSize getWidth() {
 
-        private final ImmutableList<StyleSchema> onHoverStyle;
+            return width;
+        }
 
-        private final ImmutableList<StyleSchema> onClickStyle;
+        private final ComponentSize height;
+
+        public ComponentSize getHeight() {
+
+            return height;
+        }
+
+        private final ComponentSize x;
+
+        public ComponentSize getX() {
+
+            return x;
+        }
+
+        private final ComponentSize y;
+
+        public ComponentSize getY() {
+
+            return y;
+        }
+
+        private final ImmutableList<StylePromise> style;
+
+        public ImmutableList<StylePromise> getStyle() {
+
+            return style;
+        }
+
+        private final ImmutableList<StylePromise> onHoverStyle;
+
+        public ImmutableList<StylePromise> getOnHoverStyle() {
+
+            return onHoverStyle;
+        }
+
+        private final ImmutableList<StylePromise> onPressStyle;
+
+        public ImmutableList<StylePromise> getOnPressStyle() {
+
+            return onPressStyle;
+        }
 
         public ComponentSchema(TracedDictionary json) throws LoggedException {
 
-            width = findFirst(Size.createSize(json, "width"), Size.FULL);
-            height = findFirst(Size.createSize(json, "height"), Size.FULL);
-            x = findFirst(Size.createSize(json, "x"), Size.NONE);
-            y = findFirst(Size.createSize(json, "y"), Size.NONE);
+            TracedEntry<String> idEntry = json.getAsString("id", true, null);
+            id = idEntry.getValue();
+
+            width = ComponentSize.createSize(json, "width", ComponentSize.FULL);
+            height = ComponentSize.createSize(json, "height", ComponentSize.FULL);
+            x = ComponentSize.createSize(json, "x", ComponentSize.NONE);
+            y = ComponentSize.createSize(json, "y", ComponentSize.NONE);
 
             style = createStyle(json, "style");
             onHoverStyle = createStyle(json, "onHoverStyle");
-            onClickStyle = createStyle(json, "onClickStyle");
+            onPressStyle = createStyle(json, "onPressStyle");
         }
 
-        private ImmutableList<StyleSchema> createStyle(TracedCollection collection, Object key) throws LoggedException {
+        private ImmutableList<StylePromise> createStyle(TracedCollection collection, Object key)
+                throws LoggedException {
 
             return collection.get(key, List.of(
 
@@ -598,50 +225,39 @@ public final class InterfaceAttributes extends AssetAttributes {
 
                         String styleKey = entry.getValue();
 
-                        if (!styles.containsKey(styleKey)) {
-
-                            throw new ReferenceWithoutDefinitionException(entry, "Style");
-                        }
-
-                        return new ImmutableList<>(styles.get(styleKey));
+                        return new ImmutableList<>(createStyle(styleKey));
                     }),
 
                     collection.dictCase(entry -> { // If the entry is a dictionary, process it as a style.
 
                         TracedDictionary json = entry.getValue();
-                        return new ImmutableList<>(new StyleSchema(json));
+                        return new ImmutableList<>(createStyle(new Style(json)));
                     }),
 
                     collection.arrayCase(arrayEntry -> { // If the entry is an array, process each subentry as its own
                                                          // style.
 
-                        ArrayList<StyleSchema> styleList = new ArrayList<>();
+                        ArrayList<StylePromise> styleList = new ArrayList<>();
 
                         TracedArray array = arrayEntry.getValue();
                         for (int i : array) {
 
-                            StyleSchema styleSchema = array.get(i, List.of(
+                            StylePromise styleRetriever = array.get(i, List.of(
 
                                     array.stringCase(entry -> { // If the entry is a string, retrieve the corresponding
                                                                 // style.
 
                                         String styleKey = entry.getValue();
-
-                                        if (!styles.containsKey(styleKey)) {
-
-                                            throw new ReferenceWithoutDefinitionException(entry, "Style");
-                                        }
-
-                                        return styles.get(styleKey);
+                                        return createStyle(styleKey);
                                     }),
 
                                     array.dictCase(entry -> { // If the entry is a dictionary, process it as a style.
 
                                         TracedDictionary json = entry.getValue();
-                                        return new StyleSchema(json);
+                                        return createStyle(new Style(json));
                                     })));
 
-                            styleList.add(styleSchema);
+                            styleList.add(styleRetriever);
                         }
 
                         return new ImmutableList<>(styleList);
@@ -649,27 +265,61 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             ));
         }
-    }
 
-    /**
-     * Finds the first level in a provided list which is non-null.
-     * 
-     * @param <K>    The type of the levels to process.
-     * @param levels <code>K...</code>: The levels to process. An example would be
-     *               borderRight, borderHorizontal, border.
-     * @return <code>K</code>: The first non-null level.
-     */
-    public static <K> K findFirst(K... levels) {
+        /**
+         * Generates a style promise which should be internally fulfilled.
+         * 
+         * @param style <code>Style</code>: The style which fulfills the promise.
+         * @return <code>InterfaceAttributes.StylePromise</code>: The resulting promise.
+         */
+        private StylePromise createStyle(Style style) {
 
-        for (K level : levels) {
+            return new StylePromise() {
 
-            if (level != null) {
+                @Override
+                public Style getStyle(StyleSet... styles) {
 
-                return level;
-            }
+                    return style;
+                }
+            };
         }
 
-        return null;
-    }
+        /**
+         * Generates a style promise which should be externally fulfilled.
+         * 
+         * @param style <code>String</code>: The name of the style which will be
+         *              retrieved.
+         * @return <code>InterfaceAttributes.StylePromise</code>: The resulting promise.
+         */
+        private StylePromise createStyle(String style) {
 
+            return new StylePromise() {
+
+                @Override
+                public Style getStyle(StyleSet... styles) {
+
+                    return StyleSet.getStyle(style, styles);
+                }
+            };
+        }
+
+        /**
+         * <code>InterfaceAttributes.StylePromise</code>: An abstract class representing
+         * a style to be retrieved. A style can be defined within a component or
+         * referenced to an externally defined style, so this class should be extended
+         * to provide different methods for handling each type of promise.
+         */
+        public abstract class StylePromise {
+
+            /**
+             * Retrieves the style awaited by this
+             * <code>InterfaceAttributes.StylePromise</code> instance.
+             * 
+             * @param styles <code>StyleSet...</code>: The stack of style sets which may
+             *               need to be searched through to find the style.
+             * @return <code>Style</code>: The resulting style
+             */
+            public abstract Style getStyle(StyleSet... styles);
+        }
+    }
 }

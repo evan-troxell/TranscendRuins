@@ -1,11 +1,11 @@
 {
-    "elements.box": "/element/box.png",
-    "elements.crate": [
+    "element.box": "/element/box.png",
+    "element.crate": [
         "/element/crate/crate1.png",
         "/element/crate/crate2.png",
         "/element/crate/crate3.png"
     ],
-    "elements.barrel": {
+    "element.barrel": {
         "/element/barrel/barrel1.png": 10.0,
         "/element/barrel/barrel2.png": 5.0,
         "/element/barrel/barrel3.png": 2.5

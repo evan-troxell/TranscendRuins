@@ -45,8 +45,8 @@ public final class GlobalLocation {
      * Retrieves a location from this <code>GlobalLocation</code> instance based on
      * a random number.
      * 
-     * @param random <code>double</code>: A random number between 0.0 and 1.0 used
-     *               to select a location.
+     * @param random <code>double</code>: The random ID key to use, in the range of
+     *               <code>[0.0, 1.0]</code>.
      * @return <code>AssetPresets</code>: A random location from this
      *         <code>GlobalLocation</code> instance.
      */

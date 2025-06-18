@@ -3,11 +3,13 @@
         "identifier": "TranscendRuins:playerInventory"
     },
     "attributes": {
+
         "styles": {
+
             "body": {
                 "background": {
                     "color": [192, 192, 192], // Default: black [0, 0, 0]
-                    "icon": "icon" // Default: none
+                    "texture": "interface." // Default: none
                 }, // Default: invisible [0, 0, 0, 0] & no icon
                 "border": {
                     "width": "2px", // Default: 1px

@@ -48,7 +48,7 @@ public final class LanguageSet {
     /**
      * Creates a new instance of the <code>LanguageSet</code> class.
      * 
-     * @param root <code>TracedPath</code>: The path which leads to this
+     * @param path <code>TracedPath</code>: The path which leads to this
      *             <code>LanguageSet</code> instance.
      */
     public LanguageSet(TracedPath path) {

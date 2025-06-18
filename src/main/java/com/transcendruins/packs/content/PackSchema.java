@@ -25,6 +25,7 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.global.GlobalSchema;
 import com.transcendruins.packs.Pack;
+import com.transcendruins.packs.content.PackDependency.DependencyType;
 import com.transcendruins.resources.ResourceSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.dependencyexceptions.DependencyException;
@@ -43,19 +44,19 @@ import com.transcendruins.utilities.metadata.Identifier;
 public final class PackSchema extends Pack {
 
     /**
-     * <code>ImmutableMap&lt;String, &lt;Identifier, PackDependency&gt;&gt;</code>:
+     * <code>ImmutableMap&lt;PackDependency.DependencyType, &lt;Identifier, PackDependency&gt;&gt;</code>:
      * The dependencies of this pack.
      */
-    private final ImmutableMap<String, ImmutableMap<Identifier, PackDependency>> dependencies;
+    private final ImmutableMap<DependencyType, ImmutableMap<Identifier, PackDependency>> dependencies;
 
     /**
      * Retrieves the dependencies of this <code>PackSchema</code> instance.
      * 
-     * @return <code>ImmutableMap&lt;String, &lt;Identifier, PackDependency&gt;&gt;</code>:
+     * @return <code>ImmutableMap&lt;PackDependency.DependencyType, &lt;Identifier, PackDependency&gt;&gt;</code>:
      *         The <code>dependencies</code> field of this <code>PackSchema</code>
      *         instance.
      */
-    public ImmutableMap<String, ImmutableMap<Identifier, PackDependency>> getDependencies() {
+    public ImmutableMap<DependencyType, ImmutableMap<Identifier, PackDependency>> getDependencies() {
 
         return dependencies;
     }
@@ -174,7 +175,7 @@ public final class PackSchema extends Pack {
 
                 switch (dependency.getType()) {
 
-                case PackDependency.ASSET -> {
+                case DependencyType.ASSET -> {
 
                     // Ensure the dependency range is less than the pack version if they share the
                     // same ID.
@@ -191,7 +192,7 @@ public final class PackSchema extends Pack {
                     assetDependencies.put(dependencyId, dependency);
                 }
 
-                case PackDependency.RESOURCE -> {
+                case DependencyType.RESOURCE -> {
 
                     // Check for any matches with resource dependencies.
                     if (!dependency.getCompatible(resourceDependencies.keySet()).isEmpty()) {
@@ -204,8 +205,8 @@ public final class PackSchema extends Pack {
             }
         }
 
-        dependencies = new ImmutableMap<>(Map.of(PackDependency.RESOURCE, new ImmutableMap<>(resourceDependencies),
-                PackDependency.ASSET, new ImmutableMap<>(assetDependencies)));
+        dependencies = new ImmutableMap<>(Map.of(DependencyType.RESOURCE, new ImmutableMap<>(resourceDependencies),
+                DependencyType.ASSET, new ImmutableMap<>(assetDependencies)));
 
         assets = new ImmutableMap<>(AssetType.createAssetMap(type -> createSchemas(type, root)));
 

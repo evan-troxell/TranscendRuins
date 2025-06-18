@@ -76,55 +76,71 @@ public final class ContentPack extends Pack {
         return PACKS.getOrDefault(id.toGeneric(), new HashMap<>()).get(id);
     }
 
+    /**
+     * <code>ImmutableMap&lt;AssetType, ImmutableSet&lt;Identifier&gt;&gt;</code>:
+     * The set of all asset dependencies referenced by this <code>ContentPack</code>
+     * instance which must be fulfilled by its content pack dependencies.
+     */
     private final ImmutableMap<AssetType, ImmutableSet<Identifier>> missingAssets;
 
-    public HashMap<AssetType, HashSet<Identifier>> getLeftoverMissing(Collection<ContentPack> packs) {
+    /**
+     * Determines which assets will still need to be supplemented by the content
+     * pack dependencies of this <code>ContentPack</code> instance after a set of
+     * packs has been applied.
+     * 
+     * @param packs <code>Collection&lt;ContentPack&gt;</code>: The subset of packs
+     *              to check for.
+     * @return <code>HashMap&lt;AssetType, HashSet&lt;Identifier&gt;&gt;</code>: The
+     *         set of asset dependencies remaining after the packs have been
+     *         applied.
+     */
+    public HashMap<AssetType, HashSet<Identifier>> getRemainingMissing(Collection<ContentPack> packs) {
 
         HashMap<AssetType, HashSet<Identifier>> remaining = new HashMap<>();
 
         for (Map.Entry<AssetType, ImmutableSet<Identifier>> typeEntry : missingAssets.entrySet()) {
 
             AssetType type = typeEntry.getKey();
+
+            // Begin with all existing depnedencies of the asset type.
             HashSet<Identifier> typeSet = new HashSet<>(typeEntry.getValue());
+
+            boolean isEmpty = false;
             for (ContentPack pack : packs) {
+
+                // Remove the asset dependencies fulfilled by the pack.
+                typeSet.removeAll(pack.getAssets().get(type).keySet());
 
                 if (typeSet.isEmpty()) {
 
+                    isEmpty = true;
                     break;
                 }
-
-                typeSet.removeAll(pack.getAssets().get(type).keySet());
             }
 
-            remaining.put(type, typeSet);
+            // If there are any asset dependencies remaining, add them to the map.
+            if (!isEmpty) {
+
+                remaining.put(type, typeSet);
+            }
         }
 
         return remaining;
     }
 
+    /**
+     * Determines if there are any assets which will still need to be supplemented
+     * by the content pack dependencies of this <code>ContentPack</code> instance
+     * after a set of packs has been applied.
+     * 
+     * @param packs <code>Collection&lt;ContentPack&gt;</code>: The subset of packs
+     *              to check for.
+     * @return <code>boolean</code>: Whether or not the set of asset dependencies
+     *         remaining after the packs have been applied is empty.
+     */
     public boolean satisfiesMissing(Collection<ContentPack> packs) {
 
-        for (Map.Entry<AssetType, ImmutableSet<Identifier>> typeEntry : missingAssets.entrySet()) {
-
-            AssetType type = typeEntry.getKey();
-            HashSet<Identifier> typeSet = new HashSet<>(typeEntry.getValue());
-            for (ContentPack pack : packs) {
-
-                if (typeSet.isEmpty()) {
-
-                    return true;
-                }
-
-                typeSet.removeAll(pack.getAssets().get(type).keySet());
-            }
-
-            if (typeSet.isEmpty()) {
-
-                return true;
-            }
-        }
-
-        return true;
+        return getRemainingMissing(packs).isEmpty();
     }
 
     /**
@@ -192,8 +208,18 @@ public final class ContentPack extends Pack {
         return resources;
     }
 
+    /**
+     * <code>GlobalSchema</code>: The global map data of this
+     * <code>ContentPack</code> instance.
+     */
     private final GlobalSchema global;
 
+    /**
+     * Retrieves the global map data of this <code>ContentPack</code> instance.
+     * 
+     * @return <code>GlobalSchema</code>: The <code>global</code> field of this
+     *         <code>ContentPack</code> instance.
+     */
     public GlobalSchema getGlobal() {
 
         return global;
@@ -213,9 +239,12 @@ public final class ContentPack extends Pack {
         super(schema);
 
         HashMap<AssetType, ImmutableMap<Identifier, AssetSchema>> assetMap = new HashMap<>();
+
+        // The map of assets which must be satisfied by dependencies (i.e missing from
+        // this pack).
         HashMap<AssetType, HashSet<Identifier>> missingAssetsMap = AssetType.createAssetMap(_ -> new HashSet<>());
 
-        // Collects all of the
+        // Collects all of the assets from the dependencies.
         HashMap<AssetType, Set<Identifier>> dependencyAssets = AssetType
                 .createAssetMap(type -> assetDependencies.stream().map(ContentPack::getPack) // Convert from an
                                                                                              // identifier to a pack.
@@ -223,19 +252,26 @@ public final class ContentPack extends Pack {
                                                                                                    // keys.
                         .collect(Collectors.toSet())); // Collect in a set.
 
+        // The map of unvalidated assets (currently all assets).
         HashMap<AssetType, HashMap<Identifier, AssetSchema>> unvalidatedAssets = AssetType
-                .createAssetMap(type -> new HashMap<>(schema.getAssets().get(type))),
-                validatedAssets = AssetType.createAssetMap(_ -> new HashMap<>());
+                .createAssetMap(type -> new HashMap<>(schema.getAssets().get(type)));
 
+        // The map of validated assets (currently no assets).
+        HashMap<AssetType, HashMap<Identifier, AssetSchema>> validatedAssets = AssetType
+                .createAssetMap(_ -> new HashMap<>());
+
+        // Traverse all unvalidated asset types.
         for (Map.Entry<AssetType, HashMap<Identifier, AssetSchema>> typeEntry : unvalidatedAssets.entrySet()) {
 
             AssetType type = typeEntry.getKey();
             HashMap<Identifier, AssetSchema> typeMap = typeEntry.getValue();
 
+            // Validate the next asset while there are unvalidated assets of a certain type.
             while (!typeMap.isEmpty()) {
 
                 try {
 
+                    // This will validate both the next asset and all of its dependencies.
                     validateAsset(typeMap.keySet().iterator().next(), type, unvalidatedAssets, validatedAssets,
                             dependencyAssets, missingAssetsMap);
                 } catch (ReferenceWithoutDefinitionException _) {
@@ -256,13 +292,41 @@ public final class ContentPack extends Pack {
 
     }
 
+    /**
+     * Validates an asset from this <code>ContentPack</code> instance and its
+     * dependencies, also determining any external dependencies which are required.
+     * 
+     * @param identifier       <code>Identifier</code>: The identifier of the asset
+     *                         to validate.
+     * @param type             <code>AssetType</code>: The asset type of the asset
+     *                         to validate.
+     * @param unvalidated      <code>HashMap&lt;AssetType, HashMap&lt;Identifier, AssetSchema&gt;&gt;</code>:
+     *                         The set of currently unvalidated assets in this
+     *                         <code>ContentPack</code> instance.
+     * @param validated        <code>HashMap&lt;AssetType, HashMap&lt;Identifier, AssetSchema&gt;&gt;</code>:
+     *                         The set of currently validated assets in this
+     *                         <code>ContentPack</code> instance.
+     * @param dependencyAssets <code>HashMap&lt;AssetType, Set&lt;Identifier&gt;&gt;</code>:
+     *                         The set of all assets collectively contained within
+     *                         the dependencies of this <code>ContentPack</code>
+     *                         instance.
+     * @param missingAssets    <code>HashMap&lt;AssetType, HashSet&lt;Identifier&gt;&gt;</code>:
+     *                         The set of assets which must be satisfied by the
+     *                         content pack dependencies of this
+     *                         <code>ContentPack</code> instance.
+     * @throws ReferenceWithoutDefinitionException Thrown if the asset referenced
+     *                                             another missing asset.
+     */
     private void validateAsset(Identifier identifier, AssetType type,
             HashMap<AssetType, HashMap<Identifier, AssetSchema>> unvalidated,
             HashMap<AssetType, HashMap<Identifier, AssetSchema>> validated,
             HashMap<AssetType, Set<Identifier>> dependencyAssets, HashMap<AssetType, HashSet<Identifier>> missingAssets)
             throws ReferenceWithoutDefinitionException {
 
+        // Retrieve the asset.
         AssetSchema asset = unvalidated.get(type).remove(identifier);
+
+        // Iterate through each asset dependency.
         for (AssetPresets dependencyPresets : asset.getAssetDependencies()) {
 
             Identifier dependency = dependencyPresets.getIdentifier();
@@ -298,6 +362,8 @@ public final class ContentPack extends Pack {
 
             if (!matchFound) { // If a match was not found, throw an exception.
 
+                // Raise the exception with the definition code of the sentence-case asset type
+                // (e.g 'Animation Controller', 'Element', 'Render Material').
                 throw new ReferenceWithoutDefinitionException(dependencyPresets.getIdentifierEntry(),
                         dependencyType.toSentenceString());
             }
