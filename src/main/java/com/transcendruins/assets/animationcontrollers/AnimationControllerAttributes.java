@@ -24,7 +24,7 @@ import static com.transcendruins.assets.AssetType.ANIMATION;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.scripts.TRScriptValue;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -160,7 +160,7 @@ public final class AnimationControllerAttributes extends AssetAttributes {
          * transitions of this
          * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
          */
-        private final ImmutableMap<String, ImmutableList<TRScriptValue>> stateTransitions;
+        private final ImmutableMap<String, ImmutableList<TRScript>> stateTransitions;
 
         /**
          * Creates a new instance of the
@@ -204,18 +204,18 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
                 TracedDictionary transitionsJson = transitionsEntry.getValue();
 
-                HashMap<String, ImmutableList<TRScriptValue>> stateTransitionsMap = new HashMap<>();
+                HashMap<String, ImmutableList<TRScript>> stateTransitionsMap = new HashMap<>();
 
                 for (String stateName : transitionsJson) {
 
-                    ArrayList<TRScriptValue> transitionsMap = new ArrayList<>();
+                    ArrayList<TRScript> transitionsMap = new ArrayList<>();
 
                     TracedEntry<TracedArray> stateTransitionsEntry = transitionsJson.getAsArray(stateName, false);
                     TracedArray stateTransitionsJson = stateTransitionsEntry.getValue();
 
                     for (int i : stateTransitionsJson) {
 
-                        transitionsMap.add(new TRScriptValue(stateTransitionsJson, i));
+                        transitionsMap.add(new TRScript(stateTransitionsJson, i));
                     }
 
                     stateTransitionsMap.put(stateName, new ImmutableList<>(transitionsMap));
@@ -251,7 +251,7 @@ public final class AnimationControllerAttributes extends AssetAttributes {
          *         <code>AnimationControllerAttributes.AnimationStateSchema</code>
          *         instance.
          */
-        public ImmutableMap<String, ImmutableList<TRScriptValue>> getStateTransitions() {
+        public ImmutableMap<String, ImmutableList<TRScript>> getStateTransitions() {
 
             return stateTransitions;
         }

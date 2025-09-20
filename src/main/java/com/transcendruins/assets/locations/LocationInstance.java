@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
 
@@ -532,7 +531,7 @@ public final class LocationInstance extends AssetInstance {
                 // Retrieve the area number from the name.
                 .map(area -> Integer.valueOf(area.split(" ")[1]))
                 // Sort the area numbers into a list.
-                .sorted().collect(Collectors.toList());
+                .sorted().toList();
 
         int next = matches.isEmpty() ? 0 : matches.getLast() + 1;
         String areaName = "%s %d".formatted(areaId, next);

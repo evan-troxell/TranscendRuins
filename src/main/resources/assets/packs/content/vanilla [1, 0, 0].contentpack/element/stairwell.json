@@ -11,7 +11,7 @@
 
     "permutations": {
         "passagewayInteract": {
-            "interact": {
+            "interaction": {
                 "type": "passageway"
             }
         },

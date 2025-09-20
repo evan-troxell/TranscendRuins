@@ -29,7 +29,7 @@ import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.BoneActorSet;
-import com.transcendruins.assets.scripts.TRScriptValue;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 
@@ -77,11 +77,11 @@ public final class AnimationControllerInstance extends AssetInstance {
     private ArrayList<AnimationInstance> animations;
 
     /**
-     * <code>ImmutableMap&lt;String, ImmutableList&lt;TRScriptValue&gt;&gt;</code>:
-     * The map of transitions of the current state of this
+     * <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>: The
+     * map of transitions of the current state of this
      * <code>AnimationControllerInstance</code> instance.
      */
-    private ImmutableMap<String, ImmutableList<TRScriptValue>> transitions;
+    private ImmutableMap<String, ImmutableList<TRScript>> transitions;
 
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
@@ -182,11 +182,11 @@ public final class AnimationControllerInstance extends AssetInstance {
      */
     private String evaluateTransitions() {
 
-        for (Map.Entry<String, ImmutableList<TRScriptValue>> transition : transitions.entrySet()) {
+        for (Map.Entry<String, ImmutableList<TRScript>> transition : transitions.entrySet()) {
 
             String newState = transition.getKey();
 
-            for (TRScriptValue key : transition.getValue()) {
+            for (TRScript key : transition.getValue()) {
 
                 if (key.evaluateBoolean(AnimationControllerInstance.this)) {
 

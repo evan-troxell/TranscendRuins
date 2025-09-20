@@ -17,13 +17,14 @@
 package com.transcendruins.packs;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.MissingPathException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.StringLengthException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.json.JSONOperator;
@@ -196,52 +197,42 @@ public abstract class Pack {
         name = nameEntry.getValue();
         if (name.isEmpty()) {
 
-            throw new StringLengthException(nameEntry);
+            throw new UnexpectedValueException(nameEntry);
         }
 
         TracedEntry<String> descriptionEntry = metadataJson.getAsString("description", true, "[DESCRIPTION UNLISTED]");
         description = descriptionEntry.getValue();
 
-        ArrayList<String> authorsList = new ArrayList<>();
+        authors = metadataJson.get("author", List.of(metadataJson.stringCase(entry -> {
 
-        TracedEntry<String> authorEntry = metadataJson.getAsString("author", true, null);
-        if (authorEntry.containsValue()) {
+            String author = entry.getValue();
+            return new ImmutableList<>(author);
+        }),
 
-            String author = authorEntry.getValue();
+                metadataJson.arrayCase(entry -> {
 
-            if (author.isEmpty()) {
+                    ArrayList<String> authorsList = new ArrayList<>();
 
-                throw new StringLengthException(authorEntry);
-            }
-            authorsList.add(author);
+                    TracedArray authorsJson = entry.getValue();
+                    if (authorsJson.isEmpty()) {
 
-        }
+                        throw new CollectionSizeException(entry, authorsJson);
+                    }
 
-        TracedEntry<TracedArray> authorsEntry = metadataJson.getAsArray("authors", true);
-        if (authorsEntry.containsValue()) {
+                    for (int i : authorsJson) {
 
-            TracedArray authorsJson = authorsEntry.getValue();
-            if (authorsJson.isEmpty()) {
+                        TracedEntry<String> authorEntry = authorsJson.getAsString(i, false, null);
 
-                throw new CollectionSizeException(authorsEntry, authorsJson);
-            }
+                        String author = authorEntry.getValue();
+                        authorsList.add(author);
+                    }
 
-            for (int i : authorsJson) {
+                    return new ImmutableList<>(authorsList);
+                }),
 
-                TracedEntry<String> newAuthorEntry = authorsJson.getAsString(i, false, null);
-                String author = newAuthorEntry.getValue();
+                metadataJson.nullCase(_ -> new ImmutableList<>())));
 
-                if (author.isEmpty()) {
-
-                    throw new StringLengthException(newAuthorEntry);
-                }
-                authorsList.add(author);
-            }
-        }
-
-        authors = new ImmutableList<>(authorsList);
-
-        TracedEntry<String> displayIconEntry = metadataJson.getAsString("displayIconPath", true, "displayIcon.png");
+        TracedEntry<String> displayIconEntry = metadataJson.getAsString("displayIcon", true, "displayIcon.png");
         TracedPath displayIconPath = root.extend(displayIconEntry.getValue());
         displayIcon = displayIconPath.retrieveImage();
 

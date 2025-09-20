@@ -18,10 +18,11 @@ package com.transcendruins.assets;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.assets.scripts.TRScriptValue;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -45,7 +46,28 @@ public final class AssetEvent {
      * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be
      * passed to execute this <code>AssetEvent</code> instance.
      */
-    private final ImmutableList<TRScriptValue> conditions;
+    private final ImmutableList<TRScript> conditions;
+
+    /**
+     * Determines whether or not this event passes for a given asset.
+     * 
+     * @param asset <code>AssetInstance</code>: The asset to evaluate the conditions
+     *              against.
+     * @return <code>boolean</code>: Whether or not the conditions pass for the
+     *         given asset.
+     */
+    public boolean passes(AssetInstance asset) {
+
+        for (TRScript condition : conditions) {
+
+            if (!condition.evaluateBoolean(asset)) {
+
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * <code>ImmutableList&lt;TracedEntry&lt;String&gt;&gt;</code>: The permutations
@@ -101,34 +123,52 @@ public final class AssetEvent {
         return run;
     }
 
+    /**
+     * <code>ImmutableMap&lt;String, Object&gt;</code>: The properties to set when
+     * this code>AssetEvent</code> instance is triggered.
+     */
     private final ImmutableMap<String, Object> set;
 
+    /**
+     * Retrieves the properties to set when this <code>AssetEvent</code> instance is
+     * triggered.
+     * 
+     * @return <code>ImmutableMap&lt;String, Object&gt;</code>: The <code>set</code>
+     *         field of this <code>AssetEvent</code> instance.
+     */
     public ImmutableMap<String, Object> getSet() {
 
         return set;
     }
 
+    /**
+     * Creates a new instance of the <code>AssetEvent</code> class.
+     * 
+     * @param json <code>TracedDictionary</code>: The JSON information of this
+     *             <code>AssetEvent</code> instance.
+     * @throws LoggedException Thrown if an exception is raised while processing the
+     *                         JSON information.
+     */
     public AssetEvent(TracedDictionary json) throws LoggedException {
 
-        ArrayList<TRScriptValue> conditionsList = new ArrayList<>();
+        conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
 
-        if (json.containsKey("condition")) {
+            ArrayList<TRScript> conditionsList = new ArrayList<>();
 
-            conditionsList.add(new TRScriptValue(json, "condition"));
-        }
-
-        TracedEntry<TracedArray> conditionsEntry = json.getAsArray("conditions", true);
-        if (conditionsEntry.containsValue()) {
-
-            TracedArray conditionsJson = conditionsEntry.getValue();
-
+            TracedArray conditionsJson = entry.getValue();
             for (int i : conditionsJson) {
 
-                conditionsList.add(new TRScriptValue(conditionsJson, i));
+                TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
+                TRScript condition = conditionEntry.getValue();
+                conditionsList.add(condition);
             }
-        }
 
-        conditions = new ImmutableList<>(conditionsList);
+            return new ImmutableList<>(conditionsList);
+        }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+
+            TRScript condition = entry.getValue();
+            return new ImmutableList<>(condition);
+        })));
 
         ArrayList<TracedEntry<String>> addList = new ArrayList<>();
         ArrayList<TracedEntry<String>> removeList = new ArrayList<>();
@@ -196,12 +236,9 @@ public final class AssetEvent {
 
     public boolean execute(AssetInstance asset) {
 
-        for (TRScriptValue condition : conditions) {
+        if (!passes(asset)) {
 
-            if (!condition.evaluateBoolean(asset)) {
-
-                return false;
-            }
+            return false;
         }
 
         for (Map.Entry<String, Object> propertyEntry : set.entrySet()) {

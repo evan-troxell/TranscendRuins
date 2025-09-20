@@ -1,19 +1,20 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:smeltIronOre"
+        "identifier": "TranscendRuins:oreToIron"
     },
     "attributes": {
-        "benches": ["forge"],
-        "processDuration": 5,
+        "duration": 5,
+
         "input": {
             "unordered": true,
             "items": [
                 {
-                    "identifier": "TranscendRuins:ironOre",
+                    "item": "TranscendRuins:ironOre",
                     "count": 5
                 }
             ]
         },
+
         "output": {
             "item": "TranscendRuins:ironBar",
             "count": 2

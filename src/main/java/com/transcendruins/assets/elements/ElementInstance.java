@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.primaryassets.elements;
+package com.transcendruins.assets.elements;
 
 import java.util.HashMap;
 

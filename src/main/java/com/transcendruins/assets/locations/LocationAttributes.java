@@ -17,9 +17,7 @@
 package com.transcendruins.assets.locations;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import static com.transcendruins.assets.AssetType.LAYOUT;
 import com.transcendruins.assets.assets.AssetPresets;
@@ -30,7 +28,6 @@ import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.KeyNameException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.immutable.ImmutableMap;
-import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -228,34 +225,14 @@ public final class LocationAttributes extends AssetAttributes {
                     throw new KeyNameException(areasJson, areaKey);
                 }
 
-                WeightedRoll<AssetPresets> areaOptions = areasJson.get(areaKey, List.of(areasJson.arrayCase(entry -> {
+                WeightedRoll<AssetPresets> areaOptions = areasJson.getAsRoll(areaKey, false, null, "layout",
+                        areasJson.presetsCase(entry -> {
 
-                    TracedArray areasArray = entry.getValue();
-                    ArrayList<WeightedRoll.Entry<AssetPresets>> areaList = new ArrayList<>();
+                            AssetPresets area = entry.getValue();
+                            addAssetDependency(area);
 
-                    for (int i : areasArray) {
-
-                        TracedEntry<TracedDictionary> areaEntry = areasArray.getAsDict(i, false);
-                        TracedDictionary areaJson = areaEntry.getValue();
-
-                        TracedEntry<AssetPresets> presetsEntry = areaJson.getAsPresets("layout", false, LAYOUT);
-                        AssetPresets area = presetsEntry.getValue();
-                        addAssetDependency(area);
-
-                        TracedEntry<Double> chanceEntry = areaJson.getAsDouble("chance", true, 100.0, num -> num > 0.0);
-                        double chance = chanceEntry.getValue();
-
-                        areaList.add(new WeightedRoll.Entry<>(area, chance));
-                    }
-
-                    return new WeightedRoll<>(entry, areasArray, areaList);
-                }), areasJson.presetsCase(entry -> {
-
-                    AssetPresets area = entry.getValue();
-                    addAssetDependency(area);
-
-                    return new WeightedRoll<>(area);
-                }, LAYOUT)));
+                            return area;
+                        }, LAYOUT));
 
                 areasDict.put(areaKey, areaOptions);
             }
@@ -274,38 +251,11 @@ public final class LocationAttributes extends AssetAttributes {
             throw new ReferenceWithoutDefinitionException(primaryEntry, "Area");
         }
 
-        // Coordinates can chosen either from a list of options or just from a single
-        // one.
-        coordinates = json.get("coordinates", List.of(json.arrayCase(entry -> {
+        coordinates = json.getAsRoll("coordinates", false, null, entry -> {
 
-            TracedArray coordinatesJson = entry.getValue();
-
-            ArrayList<WeightedRoll.Entry<Point2D>> coordinatesList = new ArrayList<>();
-
-            // Process the coordinates.
-            for (int i : coordinatesJson) {
-
-                TracedEntry<TracedDictionary> coordinateEntry = coordinatesJson.getAsDict(i, false);
-                TracedDictionary coordinateJson = coordinateEntry.getValue();
-
-                Point2D coordinate = parsePoint(coordinateJson);
-
-                // The chance should be greater than 0.
-                TracedEntry<Double> coordinateChanceEntry = coordinateJson.getAsDouble("chance", true, 100.0,
-                        num -> num > 0);
-                double coordinateChance = coordinateChanceEntry.getValue();
-
-                coordinatesList.add(new WeightedRoll.Entry<>(coordinate, coordinateChance));
-            }
-
-            return new WeightedRoll<>(entry, coordinatesJson, coordinatesList);
-        }),
-
-                json.dictCase(entry -> {
-
-                    TracedDictionary coordinateJson = entry.getValue();
-                    return new WeightedRoll<>(parsePoint(coordinateJson));
-                })));
+            TracedDictionary coordinateJson = entry.getValue();
+            return parsePoint(coordinateJson);
+        });
 
         // If a reset mechanism is defined, process it.
         TracedEntry<TracedDictionary> resetEntry = json.getAsDict("reset", true);

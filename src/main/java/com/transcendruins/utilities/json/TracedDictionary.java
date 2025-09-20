@@ -99,7 +99,6 @@ public final class TracedDictionary extends TracedCollection implements Iterable
      * @return <code>ArrayList&lt;String&gt;</code>: All keys in this
      *         <code>TracedDictionary</code> instance.
      */
-    @SuppressWarnings("unchecked")
     public ArrayList<String> getKeys() {
 
         return new ArrayList<>(dictionary.keySet());

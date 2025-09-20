@@ -24,6 +24,10 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.elements.ElementContext;
+import com.transcendruins.assets.elements.ElementInstance;
+import com.transcendruins.assets.entities.EntityContext;
+import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.assets.extra.Range;
 import com.transcendruins.assets.layouts.LayoutAttributes.AssetGenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.LayoutGenerationSchema;
@@ -31,10 +35,6 @@ import com.transcendruins.assets.layouts.LayoutAttributes.DistributionGeneration
 import com.transcendruins.assets.layouts.LayoutAttributes.GenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.GridGenerationSchema;
 import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
-import com.transcendruins.assets.primaryassets.elements.ElementContext;
-import com.transcendruins.assets.primaryassets.elements.ElementInstance;
-import com.transcendruins.assets.primaryassets.entities.EntityContext;
-import com.transcendruins.assets.primaryassets.entities.EntityInstance;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.world.AreaGrid;
 import com.transcendruins.world.World;
@@ -112,13 +112,6 @@ public final class LayoutInstance extends AssetInstance {
             return componentTags;
         }
 
-        private final double chance;
-
-        public double getChance() {
-
-            return chance;
-        }
-
         private final Range count;
 
         public Range getCount() {
@@ -131,7 +124,6 @@ public final class LayoutInstance extends AssetInstance {
             componentId = schema.getComponentId();
             componentTags = schema.getComponentTags();
 
-            chance = schema.getChance();
             count = schema.getCount();
         }
 
@@ -150,8 +142,6 @@ public final class LayoutInstance extends AssetInstance {
     public final class AssetGenerationInstance extends GenerationInstance {
 
         private final AssetInstance asset;
-
-        private final LayoutAttributes.GenerationType type;
 
         public AssetGenerationInstance(AssetGenerationSchema schema) {
 

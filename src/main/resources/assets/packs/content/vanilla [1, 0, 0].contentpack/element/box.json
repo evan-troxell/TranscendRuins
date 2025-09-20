@@ -22,7 +22,7 @@
             }
         },
 
-        "interact": {
+        "interaction": {
             "type": "inventory"
         }
     }

@@ -314,11 +314,11 @@ public final class World extends PropertyHolder {
         return icon != null ? icon : TextureSet.MISSING_TEXTURE.retrieveImage();
     }
 
-    private StyleSet styles;
+    private StyleSet style;
 
-    public StyleSet getStyles() {
+    public StyleSet getStyle() {
 
-        return styles;
+        return style;
     }
 
     private boolean initialized = false;
@@ -367,8 +367,8 @@ public final class World extends PropertyHolder {
 
     public void applyResources(List<ResourcePack> resources) {
 
-        List<ResourceSet> stack = packs.stream().map(pack -> pack.getResources()).collect(Collectors.toList());
-        stack.addAll(packs.stream().map(pack -> pack.getResources()).collect(Collectors.toList()));
+        List<ResourceSet> stack = packs.stream().map(pack -> pack.getResources()).toList();
+        stack.addAll(packs.stream().map(pack -> pack.getResources()).toList());
 
         languages = ResourceSet.compileLanguages(stack);
 
@@ -378,7 +378,7 @@ public final class World extends PropertyHolder {
         textures = ResourceSet.compileTextures(stack);
         texturePaths = ResourceSet.compilePaths(stack, pack -> pack.getTextures().getPaths());
 
-        styles = ResourceSet.compileStyles(stack);
+        style = ResourceSet.createStyle(stack);
     }
 
     /**

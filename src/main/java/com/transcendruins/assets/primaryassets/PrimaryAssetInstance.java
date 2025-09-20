@@ -19,6 +19,7 @@ package com.transcendruins.assets.primaryassets;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
+import com.transcendruins.assets.primaryassets.PrimaryAssetAttributes.InteractionSchema;
 import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.assets.primaryassets.inventory.InventorySchema;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -65,11 +66,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         return inventory;
     }
 
-    private InteractionType interactionType;
-
-    private double interactionCooldown;
-
-    private ImmutableList<String> interactionEvents;
+    private InteractionInstance interaction;
 
     /**
      * Creates a new instance of the <code>PrimaryAssetInstance</code> class.
@@ -93,20 +90,12 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         // Updates the inventory field.
         computeAttribute(attributes.getInventory(), inventory::applyAttributes, attributes, InventorySchema.DEFAULT);
 
-        // Update the interaction type.
-        interactionType = calculateAttribute(attributes.getInteractionType(), interactionType, attributes,
-                InteractionType.NONE);
-        setProperty("interactionType", interactionType.toString());
+        // Update the interaction.
+        interaction = calculateAttribute(attributes.getInteraction(), PrimaryAssetInstance::createInteraction,
+                interaction, attributes, InteractionInstance.NONE);
 
-        // Update the interaction cooldown time.
-        interactionCooldown = calculateAttribute(attributes.getInteractionCooldown(), interactionCooldown, attributes,
-                0.0);
-        setProperty("interactionCooldown", interactionCooldown);
-
-        // Update the interaction events.
-        interactionEvents = calculateAttribute(attributes.getInteractionEvents(), interactionEvents, attributes,
-                new ImmutableList<>());
-        setProperty("interactionEvents", interactionEvents);
+        setProperty("interactionCooldown", interaction.getCooldown());
+        setProperty("interactionEvents", interaction.getEvents());
 
         applyPrimaryAssetAttributes(attributes);
     }
@@ -136,4 +125,42 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
     public abstract int getTileWidth();
 
     public abstract int getTileLength();
+
+    public static final InteractionInstance createInteraction(InteractionSchema schema) {
+
+        return switch (schema) {
+
+        case InventoryInteractionSchema inventorySchema -> new InventoryInteractionInstance(inventorySchema);
+
+        case PassagewayInteractionSchema passagewaySchema -> new PassagewayInteractionInstance(passagewaySchema);
+
+        default -> InteractionInstance.NONE;
+        };
+    }
+
+    public static abstract class InteractionInstance {
+
+        public static final InteractionInstance NONE = new InteractionInstance(InteractionSchema.NONE) {
+        };
+
+        private final double cooldown;
+
+        public final double getCooldown() {
+
+            return cooldown;
+        }
+
+        private final ImmutableList<String> events;
+
+        public final ImmutableList<String> getEvents() {
+
+            return events;
+        }
+
+        public InteractionInstance(InteractionSchema schema) {
+
+            cooldown = schema.getCooldown();
+            events = schema.getEvents();
+        }
+    }
 }

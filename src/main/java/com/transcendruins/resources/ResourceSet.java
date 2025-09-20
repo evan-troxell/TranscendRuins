@@ -56,11 +56,11 @@ public final class ResourceSet {
         return textures;
     }
 
-    private final StyleSet styles;
+    private final StyleSet style;
 
-    public StyleSet getStyles() {
+    public StyleSet getStyle() {
 
-        return styles;
+        return style;
     }
 
     public ResourceSet(TracedPath path) {
@@ -74,8 +74,8 @@ public final class ResourceSet {
         TracedPath texturePath = path.extend("textures");
         textures = new TextureSet(texturePath);
 
-        TracedPath stylesPath = path.extend("styles.json");
-        styles = new StyleSet(stylesPath);
+        TracedPath stylesPath = path.extend("style.json");
+        style = new StyleSet(stylesPath);
     }
 
     public static ImmutableMap<String, ImmutableMap<String, String>> compileLanguages(List<ResourceSet> resources) {
@@ -127,8 +127,8 @@ public final class ResourceSet {
                         .toMap(Map.Entry::getKey, Map.Entry::getValue, (_, replacement) -> replacement, HashMap::new)));
     }
 
-    public static StyleSet compileStyles(List<ResourceSet> resources) {
+    public static StyleSet createStyle(List<ResourceSet> resources) {
 
-        return StyleSet.compileStyles(resources.stream().map(resource -> resource.styles).collect(Collectors.toList()));
+        return StyleSet.createStyleSet(resources.stream().map(resource -> resource.style).toList());
     }
 }

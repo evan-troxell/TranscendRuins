@@ -18,7 +18,6 @@ package com.transcendruins.assets.animations;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
 import com.transcendruins.assets.animations.interpolation.PermutationFrame;
 import com.transcendruins.assets.animations.interpolation.PositionFrame;
@@ -356,7 +355,7 @@ public final class AnimationAttributes extends AssetAttributes {
             bones = new ImmutableList<>(bonesList);
 
             // Sort the list of timestamps and apply it to this attribute set.
-            timestamps = new ImmutableList<>(timestampsList.stream().sorted().collect(Collectors.toList()));
+            timestamps = new ImmutableList<>(timestampsList.stream().sorted().toList());
 
             ArrayList<ImmutableMap<String, KeyFrame>> keyframesList = new ArrayList<>();
             for (double timestamp : timestamps) {

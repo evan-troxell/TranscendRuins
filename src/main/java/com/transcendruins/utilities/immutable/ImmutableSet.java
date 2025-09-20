@@ -56,7 +56,6 @@ public final class ImmutableSet<E> implements Set<E>, Immutable {
      * @param elements <code>E...</code>: The values to add to this
      *                 <code>ImmutableSet</code> instance.
      */
-    @SuppressWarnings("unchecked")
     public ImmutableSet(E... elements) {
 
         this(Arrays.asList(elements));

@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.global.events;
+package com.transcendruins.assets.catalogue.global.events;
 
 import com.transcendruins.world.World;
 

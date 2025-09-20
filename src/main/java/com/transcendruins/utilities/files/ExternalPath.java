@@ -195,6 +195,6 @@ public final class ExternalPath extends TracedPath {
 
         Stream<File> fileStream = List.of(files).stream();
 
-        return fileStream.map(file -> extend(file.getName())).collect(Collectors.toList());
+        return fileStream.map(file -> extend(file.getName())).toList();
     }
 }

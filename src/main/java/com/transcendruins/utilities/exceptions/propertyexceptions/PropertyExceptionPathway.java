@@ -30,8 +30,8 @@ import com.transcendruins.utilities.immutable.ImmutableList;
 public final class PropertyExceptionPathway {
 
     /**
-     * <code>TracedPath</code>: The directory leading to the collection
-     * containing this <code>PropertyExceptionPathway</code>.
+     * <code>TracedPath</code>: The directory leading to the collection containing
+     * this <code>PropertyExceptionPathway</code>.
      */
     private final TracedPath path;
 
@@ -68,8 +68,8 @@ public final class PropertyExceptionPathway {
     /**
      * Creates a new instance of the <code>TracedProperty</code> class.
      * 
-     * @param path <code>TracedPath</code>: The filepath leading to the
-     *             collection containing this <code>PropertyExceptionPathway</code>.
+     * @param path <code>TracedPath</code>: The filepath leading to the collection
+     *             containing this <code>PropertyExceptionPathway</code>.
      */
     public PropertyExceptionPathway(TracedPath path) {
 
@@ -83,8 +83,8 @@ public final class PropertyExceptionPathway {
      * 
      * @param path <code>PropertyExceptionPathway</code>: The pathway leading to the
      *             collection containing this <code>PropertyExceptionPathway</code>.
-     * @param key  <code>Object</code>: The retrieved key which, if erroneous,
-     *             is the final pointer to the element generating an error.
+     * @param key  <code>Object</code>: The retrieved key which, if erroneous, is
+     *             the final pointer to the element generating an error.
      */
     private PropertyExceptionPathway(PropertyExceptionPathway pathway, Object key) {
 
@@ -98,8 +98,8 @@ public final class PropertyExceptionPathway {
     /**
      * Creates a new instance of the <code>TracedProperty</code> class.
      * 
-     * @param key <code>Object</code>: The retrieved key which, if erroneous,
-     *            is the final pointer to the element generating an error.
+     * @param key <code>Object</code>: The retrieved key which, if erroneous, is the
+     *            final pointer to the element generating an error.
      */
     public PropertyExceptionPathway extend(Object key) {
 
@@ -117,7 +117,7 @@ public final class PropertyExceptionPathway {
     @Override
     public String toString() {
 
-        List<String> strings = internalPath.stream().map(Object::toString).collect(Collectors.toList());
+        List<String> strings = internalPath.stream().map(Object::toString).toList();
         String end = (!strings.isEmpty()) ? " -> " + strings.removeLast() : "";
 
         return String.join(", ", strings) + end;

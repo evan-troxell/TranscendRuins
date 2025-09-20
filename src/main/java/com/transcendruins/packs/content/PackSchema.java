@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.global.GlobalSchema;
+import com.transcendruins.assets.catalogue.AssetCatalogue;
 import com.transcendruins.packs.Pack;
 import com.transcendruins.packs.content.PackDependency.DependencyType;
 import com.transcendruins.resources.ResourceSet;
@@ -126,21 +126,11 @@ public final class PackSchema extends Pack {
         return resources;
     }
 
-    /**
-     * <code>GlobalSchema</code>: The global map data of this
-     * <code>PackSchema</code> instance.
-     */
-    private final GlobalSchema global;
+    private final AssetCatalogue catalogue;
 
-    /**
-     * Retrieves the global map data of this <code>PackSchema</code> instance.
-     * 
-     * @return <code>GlobalSchema</code>: The <code>global</code> field of this
-     *         <code>PackSchema</code> instance.
-     */
-    public GlobalSchema getGlobal() {
+    public AssetCatalogue getCatalogue() {
 
-        return global;
+        return catalogue;
     }
 
     /**
@@ -210,10 +200,10 @@ public final class PackSchema extends Pack {
 
         assets = new ImmutableMap<>(AssetType.createAssetMap(type -> createSchemas(type, root)));
 
+        // Process the resource data (sounds, texture, languages, style).
         resources = new ResourceSet(root);
 
-        TracedPath globalPath = root.extend("global.json");
-        global = new GlobalSchema(globalPath);
+        catalogue = new AssetCatalogue(root);
     }
 
     private ImmutableMap<Identifier, AssetSchema> createSchemas(AssetType assetType, TracedPath root) {

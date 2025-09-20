@@ -11,21 +11,21 @@
                 "entranceStairwell": {
                     "identifier": "TranscendRuins:stairwell",
                     "properties": {
-                        "passagewayMode": "static", // Select an existing location.
-                        "passagewayLocation": "bunkerAlfa", // Designate the location. Default: current location.
+                        "passagewayMode": "static", // Select an existing location. Required for functionality.
+                        "passagewayLocation": "bunkerAlfa", // Designate the location. Default: current location. Required for functionality.
                         "passagewayArea": "floor1", // Designate the area. Default: the current area if location is not specified, otherwise the default area of the specified location.
                         "passagewayTarget": "exitStairwell", // Designate the target spawn coordinate. Default: the default spawn location of the area.
-                        "linkPassagewayTarget": false // Links the return element to point to this one. Default: false IF STATIC
+                        "linkPassagewayTarget": false // Links the return element to point to this one. Default: false IF STATIC.
                     }
                 },
                 "basementStairwell": {
                     "identifier": "TranscendRuins:stairwell",
                     "properties": {
-                        "passagewayMode": "generative", // Create a new location.
-                        "passagewayLocation": "TranscendRuins:basement", // Designate the location.
+                        "passagewayMode": "generative", // Create a new location. Required for functionality.
+                        "passagewayLocation": "TranscendRuins:basement", // Designate the location. Required for functionality.
                         "passagewayArea": "main", // Designate the area. Default: the default area of the specified location.
                         "passagewayTarget": "exitStairwell", // Designate the target spawn coordinate. Default: the default spawn location of the area.
-                        "linkPassagewayTarget": true // Links the return element to point to this one. Default: true IF GENERATIVE
+                        "linkPassagewayTarget": true // Links the return element to point to this one. Default: true IF GENERATIVE.
                     }
                 }
             },

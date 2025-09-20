@@ -581,7 +581,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      */
     public final List<TracedPath> listFiles() {
 
-        return compileEntries().stream().filter(TracedPath::isFile).collect(Collectors.toList());
+        return compileEntries().stream().filter(TracedPath::isFile).toList();
     }
 
     /**
@@ -595,7 +595,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      */
     public final List<TracedPath> listFiles(int fileType) {
 
-        return listFiles().stream().filter(n -> n.getFileType() == fileType).collect(Collectors.toList());
+        return listFiles().stream().filter(n -> n.getFileType() == fileType).toList();
     }
 
     /**
@@ -610,7 +610,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      */
     public final List<TracedPath> listFiles(String regex) {
 
-        return listFiles().stream().filter(n -> n.getFileName().matches(regex)).collect(Collectors.toList());
+        return listFiles().stream().filter(n -> n.getFileName().matches(regex)).toList();
     }
 
     /**
@@ -624,8 +624,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
     public final List<TracedPath> listRecursiveFiles() {
 
         return compileEntries().stream()
-                .flatMap(file -> file.isDirectory() ? file.listRecursiveFiles().stream() : Stream.of(file))
-                .collect(Collectors.toList());
+                .flatMap(file -> file.isDirectory() ? file.listRecursiveFiles().stream() : Stream.of(file)).toList();
     }
 
     /**
@@ -641,7 +640,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
 
         return compileEntries().stream()
                 .flatMap(file -> file.isDirectory() ? file.listRecursiveFiles().stream() : Stream.of(file))
-                .filter(n -> n.getFileType() == fileType).collect(Collectors.toList());
+                .filter(n -> n.getFileType() == fileType).toList();
     }
 
     /**
@@ -658,7 +657,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
 
         return compileEntries().stream()
                 .flatMap(file -> file.isDirectory() ? file.listRecursiveFiles().stream() : Stream.of(file))
-                .filter(n -> n.getFileName().matches(regex)).collect(Collectors.toList());
+                .filter(n -> n.getFileName().matches(regex)).toList();
     }
 
     /**
@@ -671,7 +670,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      */
     public final List<? extends TracedPath> listDirectories() {
 
-        return compileEntries().stream().filter(TracedPath::isDirectory).collect(Collectors.toList());
+        return compileEntries().stream().filter(TracedPath::isDirectory).toList();
     }
 
     /**
@@ -685,7 +684,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      */
     public final List<TracedPath> listDirectories(int fileType) {
 
-        return listDirectories().stream().filter(n -> n.getFileType() == fileType).collect(Collectors.toList());
+        return listDirectories().stream().filter(n -> n.getFileType() == fileType).toList();
     }
 
     /**
@@ -700,7 +699,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      */
     public final List<TracedPath> listDirectories(String regex) {
 
-        return listDirectories().stream().filter(n -> n.getFileName().matches(regex)).collect(Collectors.toList());
+        return listDirectories().stream().filter(n -> n.getFileName().matches(regex)).toList();
     }
 
     /**

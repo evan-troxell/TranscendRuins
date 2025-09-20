@@ -21,9 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 
+/**
+ * <code>PropertyHolder</code>: A class representing a game object which can
+ * hold both public and private properties.
+ */
 public abstract class PropertyHolder {
 
     /**
@@ -172,13 +177,13 @@ public abstract class PropertyHolder {
      * @param tokens <code>String[]</code>: The token pathway to follow. If this has
      *               a length of <code>0</code>, the <code>val</code> parameter will
      *               be returned; otherwise, this pathway will be traced.
-     * @return <code>Object</code>: The retrieved property.
+     * @return <code>TRScript</code>: The retrieved property as a script.
      */
-    private static Object getProperty(Object val, String[] tokens) {
+    private static TRScript getProperty(Object val, String[] tokens) {
 
         if (val == null || tokens.length == 0) {
 
-            return val;
+            return new TRScript(val);
         }
 
         return switch (val) {
@@ -222,9 +227,9 @@ public abstract class PropertyHolder {
      * 
      * @param tokens <code>String[]</code>: The property pathway to follow, split
      *               into tokens between the '<code>.</code>' character.
-     * @return <code>Object</code>: The retrieved property.
+     * @return <code>TRScript</code>: The retrieved property.
      */
-    private Object getProperty(String[] tokens) {
+    private TRScript getProperty(String[] tokens) {
 
         if (tokens.length == 0) {
 
@@ -253,9 +258,9 @@ public abstract class PropertyHolder {
      * Retrieves a property from this <code>PropertyHolder</code> instance.
      * 
      * @param property <code>String</code>: The property to retrieve.
-     * @return <code>Object</code>: The retrieved property
+     * @return <code>TRScript</code>: The retrieved property
      */
-    public final Object getProperty(String property) {
+    public final TRScript getProperty(String property) {
 
         String[] tokens = property.split("\\.");
 

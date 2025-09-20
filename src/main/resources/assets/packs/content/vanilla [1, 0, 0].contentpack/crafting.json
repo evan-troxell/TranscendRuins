@@ -1,0 +1,16 @@
+{
+    "hearth": [
+        "TranscendRuins:oreToIron",
+        "TranscendRuins:scrapToIron",
+
+        "TranscendRuins:oreToAluminum",
+        "TranscendRuins:scrapToAluminum",
+
+        "TranscendRuins:oreToCopper",
+        "TranscendRuins:scrapToCopper"
+    ],
+
+    "forge": [
+        "TranscendRuins:ironToSteel"
+    ]
+}

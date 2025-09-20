@@ -22,9 +22,9 @@ import java.util.stream.Collectors;
 
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.elements.ElementContext;
+import com.transcendruins.assets.elements.ElementInstance;
 import com.transcendruins.assets.extra.RenderInstance;
-import com.transcendruins.assets.primaryassets.elements.ElementContext;
-import com.transcendruins.assets.primaryassets.elements.ElementInstance;
 import com.transcendruins.graphics3d.Camera3D;
 import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;

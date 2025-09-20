@@ -17,22 +17,19 @@
 package com.transcendruins.assets.interfaces;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
+import com.transcendruins.assets.AssetType;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.Style;
 import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
-import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.json.TracedArray;
-import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -41,6 +38,22 @@ import com.transcendruins.utilities.json.TracedEntry;
  * a <code>InterfaceSchema</code> instance.
  */
 public final class InterfaceAttributes extends AssetAttributes {
+
+    public static final String LABEL = "label";
+    public static final String BUTTON = "button";
+    public static final String INPUT = "input";
+    public static final String INTERFACE = "interface";
+
+    public static final String DROPDOWN = "dropdown";
+    public static final String SELECT = "select";
+
+    public static final String LIST = "list";
+    public static final String CONTAINER = "container";
+    public static final String INVENTORY = "inventory";
+    public static final String CRAFTING = "crafting";
+
+    public static final String OPEN_MENU = "openMenu";
+    public static final String CLOSE_MENU = "closeMenu";
 
     /**
      * <code>StyleSet</code>: The styles of this <code>InterfaceAttributes</code>
@@ -60,21 +73,20 @@ public final class InterfaceAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>InterfaceAttributes.ComponentSchema</code>: The root component of this
+     * <code>InterfaceAttributes.ComponentSchema</code>: The body of this
      * <code>InterfaceAttributes</code> instance.
      */
-    private final ComponentSchema component;
+    private final ComponentSchema body;
 
     /**
-     * Retrieves the root component of this <code>InterfaceAttributes</code>
-     * instance.
+     * Retrieves the body of this <code>InterfaceAttributes</code> instance.
      * 
-     * @return <code>ComponentSchema</code>: The <code>component</code> field of
-     *         this <code>InterfaceAttributes</code> instance.
+     * @return <code>ComponentSchema</code>: The <code>body</code> field of this
+     *         <code>InterfaceAttributes</code> instance.
      */
-    public ComponentSchema getComponent() {
+    public ComponentSchema getBody() {
 
-        return component;
+        return body;
     }
 
     /**
@@ -97,18 +109,32 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         // The styles can be overwritten, but note that each style is applied
         // independently, and the styles as a whole are not lost.
-        styles = new StyleSet(json, "styles");
+        styles = new StyleSet(json, "style");
 
-        // The components should only be defined once.
+        // The body should only be defined once.
         if (isBase) {
 
-            component = createComponent(json);
+            TracedEntry<TracedDictionary> bodyEntry = json.getAsDict("body", false);
+            TracedDictionary bodyJson = bodyEntry.getValue();
+
+            body = createComponent(bodyJson);
         } else {
 
-            component = null;
+            body = null;
         }
     }
 
+    /**
+     * Creates a new instance of the
+     * <code>InterfaceAttributes.ComponentSchema</code> class.
+     * 
+     * @param json <code>TracedDictionary</code>: The JSON to create the new
+     *             <code>InterfaceAttributes.ComponentSchema</code> instance from.
+     * @return <code>InterfaceAttributes.ComponentSchema</code>: The created loot
+     *         schema.
+     * @throws LoggedException Thrown if any exception is raised while creating the
+     *                         component.
+     */
     public ComponentSchema createComponent(TracedDictionary json) throws LoggedException {
 
         TracedEntry<String> typeEntry = json.getAsString("type", false, null);
@@ -117,23 +143,28 @@ public final class InterfaceAttributes extends AssetAttributes {
         return switch (type) {
 
         // Primitive component types.
-        case "label" -> new LabelComponentSchema(json);
+        case LABEL -> new LabelComponentSchema(json);
 
-        case "button" -> new ButtonComponentSchema(json);
+        case BUTTON -> new ButtonComponentSchema(json);
 
-        case "input" -> new InputComponentSchema(json);
+        case INPUT -> new InputComponentSchema(json);
 
-        // Dropdown container types (and option).
-        case "dropdown" -> new DropdownComponentSchema(json);
+        // Dropdown container types.
+        case DROPDOWN -> new DropdownComponentSchema(json);
 
-        case "select" -> new SelectComponentSchema(json);
-
-        case "option" -> new OptionComponentSchema(json);
+        case SELECT -> new SelectComponentSchema(json);
 
         // Container types.
-        case "list" -> new ListComponentSchema(json);
+        case LIST -> new ListComponentSchema(json);
 
-        case "container" -> new ContainerComponentSchema(json);
+        case CONTAINER -> new ContainerComponentSchema(json);
+
+        // Custom types.
+        case INVENTORY -> new InventoryComponentSchema(json);
+
+        case CRAFTING -> new CraftingComponentSchema(json);
+
+        case INTERFACE -> new InterfaceComponentSchema(json);
 
         default -> throw new UnexpectedValueException(typeEntry);
         };
@@ -145,181 +176,218 @@ public final class InterfaceAttributes extends AssetAttributes {
      */
     public abstract class ComponentSchema {
 
+        private final String type;
+
+        public final String getType() {
+
+            return type;
+        }
+
         private final String id;
 
-        public String getId() {
+        public final String getId() {
 
             return id;
         }
 
-        private final ComponentSize width;
+        private final Style style;
 
-        public ComponentSize getWidth() {
-
-            return width;
-        }
-
-        private final ComponentSize height;
-
-        public ComponentSize getHeight() {
-
-            return height;
-        }
-
-        private final ComponentSize x;
-
-        public ComponentSize getX() {
-
-            return x;
-        }
-
-        private final ComponentSize y;
-
-        public ComponentSize getY() {
-
-            return y;
-        }
-
-        private final ImmutableList<StylePromise> style;
-
-        public ImmutableList<StylePromise> getStyle() {
+        public final Style getStyle() {
 
             return style;
         }
 
-        private final ImmutableList<StylePromise> onHoverStyle;
+        public ComponentSchema(TracedDictionary json, String type) throws LoggedException {
 
-        public ImmutableList<StylePromise> getOnHoverStyle() {
-
-            return onHoverStyle;
-        }
-
-        private final ImmutableList<StylePromise> onPressStyle;
-
-        public ImmutableList<StylePromise> getOnPressStyle() {
-
-            return onPressStyle;
-        }
-
-        public ComponentSchema(TracedDictionary json) throws LoggedException {
+            this.type = type;
 
             TracedEntry<String> idEntry = json.getAsString("id", true, null);
             id = idEntry.getValue();
 
-            width = ComponentSize.createSize(json, "width", ComponentSize.FULL);
-            height = ComponentSize.createSize(json, "height", ComponentSize.FULL);
-            x = ComponentSize.createSize(json, "x", ComponentSize.NONE);
-            y = ComponentSize.createSize(json, "y", ComponentSize.NONE);
-
-            style = createStyle(json, "style");
-            onHoverStyle = createStyle(json, "onHoverStyle");
-            onPressStyle = createStyle(json, "onPressStyle");
+            style = Style.createStyle(json, "style");
         }
 
-        private ImmutableList<StylePromise> createStyle(TracedCollection collection, Object key)
-                throws LoggedException {
+        public final class LabelComponentSchema extends ComponentSchema {
 
-            return collection.get(key, List.of(
+            private final String text;
 
-                    collection.stringCase(entry -> { // If the entry is a string, retrieve the corresponding style.
+            public String getText() {
 
-                        String styleKey = entry.getValue();
+                return text;
+            }
 
-                        return new ImmutableList<>(createStyle(styleKey));
-                    }),
+            private final String texture;
 
-                    collection.dictCase(entry -> { // If the entry is a dictionary, process it as a style.
+            public String getTexture() {
 
-                        TracedDictionary json = entry.getValue();
-                        return new ImmutableList<>(createStyle(new Style(json)));
-                    }),
+                return texture;
+            }
 
-                    collection.arrayCase(arrayEntry -> { // If the entry is an array, process each subentry as its own
-                                                         // style.
+            private final TRScript value;
 
-                        ArrayList<StylePromise> styleList = new ArrayList<>();
+            public TRScript getValue() {
 
-                        TracedArray array = arrayEntry.getValue();
-                        for (int i : array) {
+                return value;
+            }
 
-                            StylePromise styleRetriever = array.get(i, List.of(
+            public LabelComponentSchema(TracedDictionary json) throws LoggedException {
 
-                                    array.stringCase(entry -> { // If the entry is a string, retrieve the corresponding
-                                                                // style.
+                super(json, LABEL);
 
-                                        String styleKey = entry.getValue();
-                                        return createStyle(styleKey);
-                                    }),
+                TracedEntry<String> textEntry = json.getAsString("text", true, null);
+                text = textEntry.getValue();
 
-                                    array.dictCase(entry -> { // If the entry is a dictionary, process it as a style.
+                TracedEntry<String> textureEntry = json.getAsString("texture", true, null);
+                texture = textureEntry.getValue();
 
-                                        TracedDictionary json = entry.getValue();
-                                        return createStyle(new Style(json));
-                                    })));
-
-                            styleList.add(styleRetriever);
-                        }
-
-                        return new ImmutableList<>(styleList);
-                    })
-
-            ));
+                value = new TRScript(json, "value");
+            }
         }
 
-        /**
-         * Generates a style promise which should be internally fulfilled.
-         * 
-         * @param style <code>Style</code>: The style which fulfills the promise.
-         * @return <code>InterfaceAttributes.StylePromise</code>: The resulting promise.
-         */
-        private StylePromise createStyle(Style style) {
+        public final class ButtonComponentSchema extends ComponentSchema {
 
-            return new StylePromise() {
+            private final String text;
 
-                @Override
-                public Style getStyle(StyleSet... styles) {
+            public String getText() {
 
-                    return style;
-                }
-            };
+                return text;
+            }
+
+            private final String texture;
+
+            public String getTexture() {
+
+                return texture;
+            }
+
+            private final TRScript value;
+
+            public TRScript getValue() {
+
+                return value;
+            }
+
+            private final ImmutableList<ComponentActionSchema> action;
+
+            public ImmutableList<ComponentActionSchema> getAction() {
+
+                return action;
+            }
+
+            public ButtonComponentSchema(TracedDictionary json) throws LoggedException {
+
+                super(json, BUTTON);
+
+                TracedEntry<String> textEntry = json.getAsString("text", true, null);
+                text = textEntry.getValue();
+
+                TracedEntry<String> textureEntry = json.getAsString("texture", true, null);
+                texture = textureEntry.getValue();
+
+                value = new TRScript(json, "value");
+
+                action = json.get("action", List.of(
+
+                        // Process a dictionary into a single action.
+                        json.dictCase(entry -> {
+
+                            TracedDictionary actionJson = entry.getValue();
+                            return new ImmutableList<>(createAction(actionJson));
+                        }),
+
+                        // Process an array into a list of actions.
+                        json.arrayCase(entry -> {
+
+                            ArrayList<ComponentActionSchema> actionsList = new ArrayList<>();
+
+                            TracedArray actionsJson = entry.getValue();
+                            for (int i : actionsJson) {
+
+                                TracedEntry<TracedDictionary> actionEntry = actionsJson.getAsDict(i, false);
+                                TracedDictionary actionJson = actionEntry.getValue();
+
+                                actionsList.add(createAction(actionJson));
+                            }
+
+                            return new ImmutableList<>(actionsList);
+                        })));
+            }
         }
 
-        /**
-         * Generates a style promise which should be externally fulfilled.
-         * 
-         * @param style <code>String</code>: The name of the style which will be
-         *              retrieved.
-         * @return <code>InterfaceAttributes.StylePromise</code>: The resulting promise.
-         */
-        private StylePromise createStyle(String style) {
+        public final class InterfaceComponentSchema extends ComponentSchema {
 
-            return new StylePromise() {
+            private final AssetPresets presets;
 
-                @Override
-                public Style getStyle(StyleSet... styles) {
+            public AssetPresets getPresets() {
 
-                    return StyleSet.getStyle(style, styles);
-                }
-            };
+                return presets;
+            }
+
+            public InterfaceComponentSchema(TracedDictionary json) throws LoggedException {
+
+                super(json, INTERFACE);
+
+                TracedEntry<AssetPresets> presetsEntry = json.getAsPresets("interface", false, AssetType.INTERFACE);
+                presets = presetsEntry.getValue();
+                addAssetDependency(presets);
+            }
         }
 
-        /**
-         * <code>InterfaceAttributes.StylePromise</code>: An abstract class representing
-         * a style to be retrieved. A style can be defined within a component or
-         * referenced to an externally defined style, so this class should be extended
-         * to provide different methods for handling each type of promise.
-         */
-        public abstract class StylePromise {
+    public ComponentActionSchema createAction(TracedDictionary json) throws LoggedException {
 
-            /**
-             * Retrieves the style awaited by this
-             * <code>InterfaceAttributes.StylePromise</code> instance.
-             * 
-             * @param styles <code>StyleSet...</code>: The stack of style sets which may
-             *               need to be searched through to find the style.
-             * @return <code>Style</code>: The resulting style
-             */
-            public abstract Style getStyle(StyleSet... styles);
+        TracedEntry<String> typeEntry = json.getAsString("type", false, null);
+        String type = typeEntry.getValue();
+
+        return switch (type) {
+
+        case OPEN_MENU -> new OpenMenuComponentActionSchema(json);
+
+        case CLOSE_MENU -> new CloseMenuComponentActionSchema(json);
+
+        case SHOW_COMPONENT
+
+        case HIDE_COMPONENT
+
+        case COMPONENT_ACTION
+
+        case SET_PROPERTY
+
+        case SET_GLOBAL_PROPERTY
+
+        default -> throw new UnexpectedValueException(typeEntry);
+        };
+    }
+
+        public abstract class ComponentActionSchema {
+
+            private final ImmutableList<TRScript> conditions;
+
+            public final ImmutableList<TRScript> getConditions() {
+
+                return conditions;
+            }
+
+            public ComponentActionSchema(TracedDictionary json) throws LoggedException {
+
+                conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
+
+                    ArrayList<TRScript> conditionsList = new ArrayList<>();
+
+                    TracedArray conditionsJson = entry.getValue();
+                    for (int i : conditionsJson) {
+
+                        TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
+                        TRScript condition = conditionEntry.getValue();
+                        conditionsList.add(condition);
+                    }
+
+                    return new ImmutableList<>(conditionsList);
+                }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+
+                    TRScript condition = entry.getValue();
+                    return new ImmutableList<>(condition);
+                })));
+            }
         }
     }
 }

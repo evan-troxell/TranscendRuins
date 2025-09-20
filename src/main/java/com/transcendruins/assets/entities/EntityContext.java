@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.primaryassets.entities;
+package com.transcendruins.assets.entities;
 
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;

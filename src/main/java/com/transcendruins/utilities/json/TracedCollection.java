@@ -19,6 +19,7 @@ package com.transcendruins.utilities.json;
 import java.awt.Color;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -28,6 +29,8 @@ import org.json.simple.JSONObject;
 
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.extra.WeightedRoll;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
@@ -39,6 +42,13 @@ import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexcep
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.PropertyTypeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.files.TracedPath;
+import static com.transcendruins.utilities.json.TracedCollection.JSONType.ARRAY;
+import static com.transcendruins.utilities.json.TracedCollection.JSONType.BOOLEAN;
+import static com.transcendruins.utilities.json.TracedCollection.JSONType.DICT;
+import static com.transcendruins.utilities.json.TracedCollection.JSONType.DOUBLE;
+import static com.transcendruins.utilities.json.TracedCollection.JSONType.LONG;
+import static com.transcendruins.utilities.json.TracedCollection.JSONType.NULL;
+import static com.transcendruins.utilities.json.TracedCollection.JSONType.STRING;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.utilities.metadata.Version;
 
@@ -103,7 +113,7 @@ public abstract class TracedCollection {
      * @param val <code>Object</code>: The value to determine the type of.
      * @return <code>JSONType</code>: The determined JSON type.
      */
-    public static JSONType typeOf(Object val) {
+    public static final JSONType typeOf(Object val) {
 
         return switch (val) {
 
@@ -129,7 +139,7 @@ public abstract class TracedCollection {
      * @param key <code>Object</code>: The key to retrieve the value for.
      * @return <code>JSONType</code>: The JSON type of the value.
      */
-    public JSONType getType(Object key) {
+    public final JSONType getType(Object key) {
 
         return typeOf(getValue(key));
     }
@@ -143,7 +153,7 @@ public abstract class TracedCollection {
     @FunctionalInterface
     public interface EntryBuilder<K> {
 
-        TracedEntry<K> create(Object key) throws LoggedException;
+        TracedEntry<K> create(TracedCollection collection, Object key) throws LoggedException;
     }
 
     /**
@@ -153,10 +163,12 @@ public abstract class TracedCollection {
      * @param <K> <code>Object</code>: The type of the key.
      * @param <T> <code>Object</code>: The type of the value.
      */
-    public abstract class TypeCase<K, T> {
+    public final class TypeCase<K, T> {
 
         private final EntryOperator<K, T> onCall;
         private final EntryBuilder<K> getEntry;
+
+        private final JSONType[] types;
 
         /**
          * Creates a new instance of the <code>TypeCase</code> class.
@@ -165,10 +177,14 @@ public abstract class TracedCollection {
          *                 to the entry.
          * @param getEntry <code>EntryBuilder&lt;K&gt;</code>: The builder to create the
          *                 entry.
+         * @param types    <code>JSONType...</code>: The types for which this
+         *                 <code>TypeCase</code> instance is applicable.
          */
-        private TypeCase(EntryOperator<K, T> onCall, EntryBuilder<K> getEntry) {
+        private TypeCase(EntryOperator<K, T> onCall, EntryBuilder<K> getEntry, JSONType... types) {
+
             this.onCall = onCall;
             this.getEntry = getEntry;
+            this.types = types;
         }
 
         /**
@@ -177,18 +193,31 @@ public abstract class TracedCollection {
          * @param compare <code>JSONType</code>: The JSON type to compare.
          * @return <code>boolean</code>: Whether the type case is valid.
          */
-        protected abstract boolean isValid(JSONType compare);
+        public final boolean isValid(JSONType compare) {
+
+            // If no types were provided, assume typing does not matter.
+            if (types.length == 0) {
+
+                return true;
+            }
+
+            // Check if any of the provided types are applicable.
+            return List.of(types).contains(compare);
+        }
 
         /**
          * Retrieves the value for the given key.
          * 
-         * @param key <code>Object</code>: The key to retrieve the value for.
+         * @param collection <code>TracedCollection</code>: The collection to create the
+         *                   entry from.
+         * @param key        <code>Object</code>: The key to retrieve the value for.
          * @return <code>T</code>: The retrieved value.
          * @throws LoggedException Thrown if an exception is raised while retrieving the
          *                         value.
          */
-        public final T get(Object key) throws LoggedException {
-            return onCall.apply(getEntry.create(key));
+        public final T get(TracedCollection collection, Object key) throws LoggedException {
+
+            return onCall.apply(getEntry.create(collection, key));
         }
     }
 
@@ -205,14 +234,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Boolean, T> booleanCase(EntryOperator<Boolean, T> onCall, EntryBuilder<Boolean> getEntry) {
 
-        return new TypeCase<>(onCall, getEntry) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.BOOLEAN;
-            }
-        };
+        return new TypeCase<>(onCall, getEntry, BOOLEAN);
     }
 
     /**
@@ -226,7 +248,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Boolean, T> booleanCase(EntryOperator<Boolean, T> onCall) {
 
-        return booleanCase(onCall, key -> getAsBoolean(key, false, null));
+        return booleanCase(onCall, (collection, key) -> collection.getAsBoolean(key, false, null));
     }
 
     /**
@@ -241,14 +263,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Double, T> doubleCase(EntryOperator<Double, T> onCall, EntryBuilder<Double> getEntry) {
 
-        return new TypeCase<>(onCall, getEntry) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.DOUBLE || compare == JSONType.LONG;
-            }
-        };
+        return new TypeCase<>(onCall, getEntry, DOUBLE, LONG);
     }
 
     /**
@@ -261,7 +276,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Double, T> doubleCase(EntryOperator<Double, T> onCall) {
 
-        return doubleCase(onCall, key -> getAsDouble(key, false, null));
+        return doubleCase(onCall, (collection, key) -> collection.getAsDouble(key, false, null));
     }
 
     /**
@@ -276,14 +291,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall, EntryBuilder<Float> getEntry) {
 
-        return new TypeCase<>(onCall, getEntry) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.DOUBLE || compare == JSONType.LONG;
-            }
-        };
+        return new TypeCase<>(onCall, getEntry, DOUBLE, LONG);
     }
 
     /**
@@ -296,7 +304,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall) {
 
-        return floatCase(onCall, key -> getAsFloat(key, false, null));
+        return floatCase(onCall, (collection, key) -> collection.getAsFloat(key, false, null));
     }
 
     /**
@@ -311,14 +319,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall, EntryBuilder<Long> getEntry) {
 
-        return new TypeCase<>(onCall, getEntry) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.LONG;
-            }
-        };
+        return new TypeCase<>(onCall, getEntry, LONG);
     }
 
     /**
@@ -331,7 +332,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall) {
 
-        return longCase(onCall, key -> getAsLong(key, false, null));
+        return longCase(onCall, (collection, key) -> collection.getAsLong(key, false, null));
     }
 
     /**
@@ -347,14 +348,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Integer, T> intCase(EntryOperator<Integer, T> onCall, EntryBuilder<Integer> getEntry) {
 
-        return new TypeCase<>(onCall, getEntry) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.LONG;
-            }
-        };
+        return new TypeCase<>(onCall, getEntry, LONG);
     }
 
     /**
@@ -368,7 +362,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Integer, T> intCase(EntryOperator<Integer, T> onCall) {
 
-        return intCase(onCall, key -> getAsInteger(key, false, null));
+        return intCase(onCall, (collection, key) -> collection.getAsInteger(key, false, null));
     }
 
     /**
@@ -383,14 +377,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall, EntryBuilder<String> getEntry) {
 
-        return new TypeCase<>(onCall, getEntry) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.STRING;
-            }
-        };
+        return new TypeCase<>(onCall, getEntry, STRING);
     }
 
     /**
@@ -403,7 +390,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall) {
 
-        return stringCase(onCall, key -> getAsString(key, false, null));
+        return stringCase(onCall, (collection, key) -> collection.getAsString(key, false, null));
     }
 
     /**
@@ -416,15 +403,8 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Object, T> scalarCase(EntryOperator<Object, T> onCall) {
 
-        return new TypeCase<>(onCall, key -> getAsScalar(key, false, null)) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.BOOLEAN || compare == JSONType.LONG || compare == JSONType.DOUBLE
-                        || compare == JSONType.STRING;
-            }
-        };
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsScalar(key, false, null), BOOLEAN, LONG,
+                DOUBLE, STRING);
     }
 
     /**
@@ -438,14 +418,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<TracedDictionary, T> dictCase(EntryOperator<TracedDictionary, T> onCall) {
 
-        return new TypeCase<>(onCall, key -> getAsDict(key, false)) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.DICT;
-            }
-        };
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsDict(key, false), DICT);
     }
 
     /**
@@ -459,14 +432,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<TracedArray, T> arrayCase(EntryOperator<TracedArray, T> onCall) {
 
-        return new TypeCase<>(onCall, key -> getAsArray(key, false)) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.ARRAY;
-            }
-        };
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsArray(key, false), ARRAY);
     }
 
     /**
@@ -480,14 +446,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<TracedCollection, T> collectionCase(EntryOperator<TracedCollection, T> onCall) {
 
-        return new TypeCase<>(onCall, key -> getAsCollection(key, false)) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.DICT || compare == JSONType.ARRAY;
-            }
-        };
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsCollection(key, false), DICT, ARRAY);
     }
 
     /**
@@ -502,14 +461,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Vector, T> vectorCase(EntryOperator<Vector, T> onCall, EntryBuilder<Vector> getEntry) {
 
-        return new TypeCase<>(onCall, getEntry) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.ARRAY;
-            }
-        };
+        return new TypeCase<>(onCall, getEntry, ARRAY);
     }
 
     /**
@@ -526,14 +478,7 @@ public abstract class TracedCollection {
     public <T> TypeCase<Identifier, T> identifierCase(EntryOperator<Identifier, T> onCall,
             EntryBuilder<Identifier> getEntry) {
 
-        return new TypeCase<>(onCall, getEntry) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.STRING;
-            }
-        };
+        return new TypeCase<>(onCall, getEntry, STRING);
     }
 
     /**
@@ -549,14 +494,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Version, T> versionCase(EntryOperator<Version, T> onCall, EntryBuilder<Version> getEntry) {
 
-        return new TypeCase<>(onCall, getEntry) {
-
-            @Override
-            protected boolean isValid(JSONType compare) {
-
-                return compare == JSONType.ARRAY;
-            }
-        };
+        return new TypeCase<>(onCall, getEntry, ARRAY);
     }
 
     /**
@@ -571,14 +509,21 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<AssetPresets, T> presetsCase(EntryOperator<AssetPresets, T> onCall, AssetType type) {
 
-        return new TypeCase<>(onCall, key -> getAsPresets(key, false, type)) {
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsPresets(key, false, type), STRING, DICT);
+    }
 
-            @Override
-            protected boolean isValid(JSONType compare) {
+    /**
+     * Creates a script type case.
+     * 
+     * @param <T>    <code>Object</code>: The type of the value.
+     * @param onCall <code>EntryOperator&lt;TRScript, T&gt;</code>: The operator to
+     *               apply to the entry.
+     * @return <code>TypeCase&lt;TRScript, T&gt;</code>: The script type case.
+     */
+    public <T> TypeCase<TRScript, T> scriptCase(EntryOperator<TRScript, T> onCall) {
 
-                return compare == JSONType.STRING || compare == JSONType.DICT;
-            }
-        };
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsScript(key, false), BOOLEAN, LONG, DOUBLE,
+                STRING, DICT);
     }
 
     /**
@@ -590,13 +535,8 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;Void, T&gt;</code>: The created null type case.
      */
     public <T> TypeCase<Void, T> nullCase(EntryOperator<Void, T> onCall) {
-        return new TypeCase<>(onCall, key -> new TracedEntry<>(pathway.extend(key), null)) {
-            @Override
-            protected boolean isValid(JSONType compare) {
 
-                return compare == JSONType.NULL;
-            }
-        };
+        return new TypeCase<>(onCall, (collection, key) -> new TracedEntry<>(collection.extend(key), null), NULL);
     }
 
     /**
@@ -609,13 +549,8 @@ public abstract class TracedCollection {
      *         case.
      */
     public <T> TypeCase<Object, T> defaultCase(EntryOperator<Object, T> onCall) {
-        return new TypeCase<>(onCall, key -> get(key, false, null)) {
-            @Override
-            protected boolean isValid(JSONType compare) {
 
-                return true;
-            }
-        };
+        return new TypeCase<>(onCall, (collection, key) -> collection.get(key, false, null));
     }
 
     /**
@@ -656,11 +591,15 @@ public abstract class TracedCollection {
 
             if (typeCase.isValid(type)) {
 
-                return typeCase.get(key);
+                return typeCase.get(this, key);
             }
         }
 
-        throw new PropertyTypeException(get(key, false, null));
+        // Raise an error if it is missing.
+        TracedEntry<?> entry = get(key, false, null);
+
+        // Raise an error if it is the wrong type.
+        throw new PropertyTypeException(entry);
     }
 
     /**
@@ -1226,44 +1165,49 @@ public abstract class TracedCollection {
      *                        instance is <code>null</code>.
      * @return <code>TracedEntry&lt;Color&gt;</code>: The color retrieved from this
      *         <code>TracedCollection</code> instance.
-     * @throws PropertyTypeException    Thrown if the retrieved field is not of the
-     *                                  <code>JSONArray</code> class.
-     * @throws MissingPropertyException Thrown if the retrieved field is missing and
-     *                                  the <code>nullCaseAllowed</code> parameter
-     *                                  is <code>false</code>.
-     * @throws CollectionSizeException  Thrown if the retrieved array does not have
-     *                                  a length of 3 or 4.
-     * @throws NumberBoundsException    Thrown if any of the color components are
-     *                                  out of the valid range for color values.
+     * @throws LoggedException Thrown if there are any issues processing the color.
      */
     public final TracedEntry<Color> getAsColor(Object key, boolean nullCaseAllowed, Color ifNull)
-            throws PropertyTypeException, MissingPropertyException, CollectionSizeException, NumberBoundsException {
+            throws LoggedException {
 
-        TracedEntry<TracedArray> entry = getAsArray(key, nullCaseAllowed);
+        ArrayList<TypeCase<?, TracedEntry<Color>>> cases = new ArrayList<>(List.of(arrayCase(entry -> {
 
-        if (!entry.containsValue()) {
+            TracedArray array = entry.getValue();
+            int size = array.size();
 
-            return entry.cast(ifNull);
+            if (size != 3 && size != 4) {
+
+                throw new CollectionSizeException(entry, array);
+            }
+
+            int[] rgb = new int[size];
+
+            for (int i : array) {
+
+                TracedEntry<Integer> colorEntry = array.getAsInteger(i, false, null, num -> 0 <= num && num <= 255);
+                rgb[i] = colorEntry.getValue();
+            }
+
+            int alpha = size == 4 ? rgb[3] : 255;
+            return entry.cast(new Color(rgb[0], rgb[1], rgb[2], alpha));
+        }), stringCase(entry -> {
+
+            String color = entry.getValue();
+            try {
+
+                return entry.cast(Color.decode(color));
+            } catch (NumberFormatException e) {
+
+                throw new UnexpectedValueException(entry);
+            }
+        })));
+
+        if (nullCaseAllowed) {
+
+            cases.add(nullCase(entry -> entry.cast(ifNull)));
         }
 
-        TracedArray array = entry.getValue();
-        int size = array.size();
-
-        if (size != 3 && size != 4) {
-
-            throw new CollectionSizeException(entry, array);
-        }
-
-        int[] rgb = new int[size];
-
-        for (int i : array) {
-
-            TracedEntry<Integer> colorEntry = array.getAsInteger(i, false, null, num -> 0 <= num && num <= 255);
-            rgb[i] = colorEntry.getValue();
-        }
-
-        int alpha = size == 4 ? rgb[3] : 255;
-        return entry.cast(new Color(rgb[0], rgb[1], rgb[2], alpha));
+        return get(key, cases);
     }
 
     /**
@@ -1308,7 +1252,7 @@ public abstract class TracedCollection {
             }
 
             throw new PropertyTypeException(entry);
-        }, _ -> getAsIdentifier(key, false, null))));
+        }, (collection, _) -> collection.getAsIdentifier(key, false, null))));
     }
 
     /**
@@ -1413,6 +1357,135 @@ public abstract class TracedCollection {
         AssetPresets presets = (nullCaseAllowed && !containsKey(key)) ? null : new AssetPresets(this, key, type);
 
         return getEntry(key).cast(presets);
+    }
+
+    /**
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses
+     * it into a new <code>WeightedRoll</code> instance with a designated type. This
+     * method assumes that in the case the retrieved entry is an array, the values
+     * to be parsed are contained as a key inside of dictionaries in the array.
+     * 
+     * @param <K>             The type of entry to process.
+     * @param <T>             The type of value to return.
+     * @param key             <code>Object</code>: The key whose entry to retrieve
+     *                        in this <code>TracedCollection</code> instance.
+     * @param nullCaseAllowed <code>boolean</code>: Whether or not a
+     *                        <code>null</code> case should cause an exception.
+     * @param ifNull          <code>T</code>: The value to return if the value
+     *                        retrieved from this <code>TracedCollection</code>
+     *                        instance is <code>null</code>.
+     * @param subKey          <code>String</code>: The key to retrieve from
+     *                        dictionaries in the event of an array entry.
+     * @param operator        <code>TypeCase&lt;K, T&gt;</code>: The operator used
+     *                        to generate return values.
+     * @return <code>WeightedRoll&lt;T&gt;</code>: The weighted roll generated from
+     *         this <code>TracedCollection</code> instance.
+     * @throws LoggedException Thrown if there are any issues processing the
+     *                         weighted roll.
+     */
+    public final <K, T> WeightedRoll<T> getAsRoll(Object key, boolean nullCaseAllowed, T ifNull, String subKey,
+            TypeCase<K, T> operator) throws LoggedException {
+
+        ArrayList<TypeCase<?, WeightedRoll<T>>> cases = new ArrayList<>(List.of(
+
+                // Process an array of values.
+                arrayCase(entry -> {
+
+                    ArrayList<WeightedRoll.Entry<T>> entries = new ArrayList<>();
+
+                    TracedArray json = entry.getValue();
+                    for (int i : json) {
+
+                        TracedEntry<TracedDictionary> indexEntry = json.getAsDict(i, false);
+                        TracedDictionary indexJson = indexEntry.getValue();
+
+                        T val = indexJson.get(subKey, List.of(operator));
+
+                        TracedEntry<Double> chanceEntry = indexJson.getAsDouble("chance", true, 100.0,
+                                num -> num > 0.0);
+                        double chance = chanceEntry.getValue();
+
+                        entries.add(new WeightedRoll.Entry<>(val, chance));
+                    }
+
+                    return new WeightedRoll<>(entry, json, entries);
+                }),
+
+                // Process a single value.
+                new TypeCase<>(entry -> new WeightedRoll<>(operator.onCall.apply(entry)), operator.getEntry,
+                        operator.types)));
+
+        if (nullCaseAllowed) {
+
+            cases.add(nullCase(_ -> new WeightedRoll<>(ifNull)));
+        }
+        return get(key, cases);
+    }
+
+    /**
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses
+     * it into a new <code>WeightedRoll</code> instance with a designated type. This
+     * method assumes that in the case the retrieved entry is an array, the values
+     * to be parsed are the dictionaries in the array.
+     * 
+     * @param <T>             The type of value to return.
+     * @param key             <code>Object</code>: The key whose entry to retrieve
+     *                        in this <code>TracedCollection</code> instance.
+     * @param nullCaseAllowed <code>boolean</code>: Whether or not a
+     *                        <code>null</code> case should cause an exception.
+     * @param ifNull          <code>T</code>: The value to return if the value
+     *                        retrieved from this <code>TracedCollection</code>
+     *                        instance is <code>null</code>.
+     * @param operator        <code>EntryOperator&lt;TracedDictionary, T&gt;</code>:
+     *                        The operator used to generate return values.
+     * @return <code>WeightedRoll&lt;T&gt;</code>: The weighted roll generated from
+     *         this <code>TracedCollection</code> instance.
+     * @throws LoggedException Thrown if there are any issues processing the
+     *                         weighted roll.
+     */
+    public final <T> WeightedRoll<T> getAsRoll(Object key, boolean nullCaseAllowed, T ifNull,
+            EntryOperator<TracedDictionary, T> operator) throws LoggedException {
+
+        ArrayList<TypeCase<?, WeightedRoll<T>>> cases = new ArrayList<>(List.of(
+
+                // Process an array of values.
+                arrayCase(entry -> {
+
+                    ArrayList<WeightedRoll.Entry<T>> entries = new ArrayList<>();
+
+                    TracedArray json = entry.getValue();
+                    for (int i : json) {
+
+                        TracedEntry<TracedDictionary> indexEntry = json.getAsDict(i, false);
+                        TracedDictionary indexJson = indexEntry.getValue();
+
+                        T val = operator.apply(indexEntry);
+
+                        TracedEntry<Double> chanceEntry = indexJson.getAsDouble("chance", true, 100.0,
+                                num -> num > 0.0);
+                        double chance = chanceEntry.getValue();
+
+                        entries.add(new WeightedRoll.Entry<>(val, chance));
+                    }
+
+                    return new WeightedRoll<>(entry, json, entries);
+                }),
+
+                // Process a single value.
+                dictCase(entry -> new WeightedRoll<>(operator.apply(entry)))));
+
+        if (nullCaseAllowed) {
+
+            cases.add(nullCase(_ -> new WeightedRoll<>(ifNull)));
+        }
+
+        return get(key, cases);
+    }
+
+    public final TracedEntry<TRScript> getAsScript(Object key, boolean nullCaseAllowed) throws LoggedException {
+
+        TracedEntry<?> entry = get(key, nullCaseAllowed, null);
+        return getEntry(key).cast(new TRScript(this, key));
     }
 
     /**

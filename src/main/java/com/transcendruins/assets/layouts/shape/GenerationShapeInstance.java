@@ -16,25 +16,25 @@
 
 package com.transcendruins.assets.layouts.shape;
 
-import com.transcendruins.world.World;
+import java.util.Random;
 
 public abstract class GenerationShapeInstance {
 
     public abstract boolean isValidPlacement(int x, int y, int centerX, int centerY);
 
-    public static final GenerationShapeInstance createShape(GenerationShapeSchema schema, World world) {
+    public static final GenerationShapeInstance createShape(GenerationShapeSchema schema, Random random) {
 
         return switch (schema) {
 
         case GenerationShapeSchema.PointSchema _ -> new PointInstance();
 
-        case GenerationShapeSchema.SquareSchema square -> new SquareInstance(square, world);
+        case GenerationShapeSchema.SquareSchema square -> new SquareInstance(square, random);
 
-        case GenerationShapeSchema.RectangleSchema rectangle -> new RectangleInstance(rectangle, world);
+        case GenerationShapeSchema.RectangleSchema rectangle -> new RectangleInstance(rectangle, random);
 
-        case GenerationShapeSchema.CircleSchema circle -> new CircleInstance(circle, world);
+        case GenerationShapeSchema.CircleSchema circle -> new CircleInstance(circle, random);
 
-        case GenerationShapeSchema.RingSchema ring -> new RingInstance(ring, world);
+        case GenerationShapeSchema.RingSchema ring -> new RingInstance(ring, random);
 
         default -> new GenerationShapeInstance() {
 
@@ -60,9 +60,9 @@ public abstract class GenerationShapeInstance {
 
         private final int width;
 
-        protected SquareInstance(GenerationShapeSchema.SquareSchema schema, World world) {
+        protected SquareInstance(GenerationShapeSchema.SquareSchema schema, Random random) {
 
-            width = schema.getWidth().getIntegerValue(world.nextRandom());
+            width = schema.getWidth().getIntegerValue(random.nextDouble());
         }
 
         @Override
@@ -83,10 +83,10 @@ public abstract class GenerationShapeInstance {
 
         private final int length;
 
-        protected RectangleInstance(GenerationShapeSchema.RectangleSchema schema, World world) {
+        protected RectangleInstance(GenerationShapeSchema.RectangleSchema schema, Random random) {
 
-            width = schema.getWidth().getIntegerValue(world.nextRandom());
-            length = schema.getLength().getIntegerValue(world.nextRandom());
+            width = schema.getWidth().getIntegerValue(random.nextDouble());
+            length = schema.getLength().getIntegerValue(random.nextDouble());
         }
 
         @Override
@@ -106,9 +106,9 @@ public abstract class GenerationShapeInstance {
 
         private final int radius;
 
-        protected CircleInstance(GenerationShapeSchema.CircleSchema schema, World world) {
+        protected CircleInstance(GenerationShapeSchema.CircleSchema schema, Random random) {
 
-            radius = schema.getRadius().getIntegerValue(world.nextRandom());
+            radius = schema.getRadius().getIntegerValue(random.nextDouble());
         }
 
         @Override
@@ -129,10 +129,10 @@ public abstract class GenerationShapeInstance {
 
         private final int outer;
 
-        protected RingInstance(GenerationShapeSchema.RingSchema schema, World world) {
+        protected RingInstance(GenerationShapeSchema.RingSchema schema, Random random) {
 
-            inner = schema.getInner().getIntegerValue(world.nextRandom());
-            outer = schema.getInner().getIntegerValue(world.nextRandom());
+            inner = schema.getInner().getIntegerValue(random.nextDouble());
+            outer = schema.getInner().getIntegerValue(random.nextDouble());
         }
 
         @Override

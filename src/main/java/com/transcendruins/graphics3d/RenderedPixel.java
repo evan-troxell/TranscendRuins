@@ -125,7 +125,7 @@ public final class RenderedPixel {
      */
     public synchronized int getColor(int background) {
 
-        List<PixelDepth> depthsSorted = depths.stream().sorted(DEPTH_SORTER).collect(Collectors.toList());
+        List<PixelDepth> depthsSorted = depths.stream().sorted(DEPTH_SORTER).toList();
         if (depthsSorted.isEmpty()) {
 
             return background;

@@ -160,9 +160,9 @@ public final class PolyGroup {
         this.polygons = polygons;
         this.render = render;
 
-        sortedX = polygons.keySet().stream().sorted(X_SORTER).collect(Collectors.toList());
-        sortedY = polygons.keySet().stream().sorted(Y_SORTER).collect(Collectors.toList());
-        sortedZ = polygons.keySet().stream().sorted(Z_SORTER).collect(Collectors.toList());
+        sortedX = polygons.keySet().stream().sorted(X_SORTER).toList();
+        sortedY = polygons.keySet().stream().sorted(Y_SORTER).toList();
+        sortedZ = polygons.keySet().stream().sorted(Z_SORTER).toList();
     }
 
     /**

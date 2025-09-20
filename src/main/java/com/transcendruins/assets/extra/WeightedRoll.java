@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
@@ -62,8 +61,8 @@ public final class WeightedRoll<K> {
      * Creates a new instance of the <code>WeightedRoll</code> class with a single
      * entry.
      * 
-     * @param entry <code>K</cdoe>: The entry to add to this <code>WeightedRoll</code>
-     *              instance.
+     * @param entry <code>K</code>: The entry to add to this
+     *              <code>WeightedRoll</code> instance.
      */
     public WeightedRoll(K entry) {
 
@@ -84,12 +83,12 @@ public final class WeightedRoll<K> {
      */
     public WeightedRoll(Stream<K> entries, Function<K, Double> getWeight) {
 
-        this.entries = new ImmutableList<>(entries.collect(Collectors.toList()));
+        this.entries = new ImmutableList<>(entries.toList());
         weights = new ImmutableList<>(entries.map(getWeight).map(weight -> {
 
             weightSum += weight;
             return weightSum;
-        }).collect(Collectors.toList()));
+        }).toList());
     }
 
     /**

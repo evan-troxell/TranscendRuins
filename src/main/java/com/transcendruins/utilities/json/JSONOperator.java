@@ -154,7 +154,6 @@ public final class JSONOperator {
      * @param map <code>Collection&lt;Object&gt;</code>: The collection to process.
      * @return <code>JSONArray</code>: The generated JSON Array.
      */
-    @SuppressWarnings("unchecked")
     public static JSONArray toJSONArray(Collection<?> json) {
 
         JSONArray recursionList = new JSONArray();

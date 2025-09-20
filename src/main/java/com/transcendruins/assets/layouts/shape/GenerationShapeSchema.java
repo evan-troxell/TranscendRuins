@@ -16,9 +16,6 @@
 
 package com.transcendruins.assets.layouts.shape;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.transcendruins.assets.extra.Range;
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -30,55 +27,20 @@ import com.transcendruins.utilities.json.TracedEntry;
 
 public abstract class GenerationShapeSchema {
 
-    public static final WeightedRoll<GenerationShapeSchema> DEFAULT_SHAPE = new WeightedRoll<>(
-            new GenerationShapeSchema() {
-            });
+    public static final GenerationShapeSchema DEFAULT = new GenerationShapeSchema() {
+    };
 
-    private final double chance;
+    private GenerationShapeSchema() {
 
-    public final double getChance() {
-
-        return chance;
-    }
-
-    protected GenerationShapeSchema() {
-
-        chance = 100.0;
     }
 
     protected GenerationShapeSchema(TracedDictionary json) throws LoggedException {
-
-        TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
-        chance = chanceEntry.getValue();
     }
 
     public static final WeightedRoll<GenerationShapeSchema> createShape(TracedCollection collection, Object key)
             throws LoggedException {
 
-        return collection.get(key, List.of(
-
-                collection.arrayCase(entry -> {
-
-                    TracedArray array = entry.getValue();
-
-                    ArrayList<WeightedRoll.Entry<GenerationShapeSchema>> entries = new ArrayList<>();
-
-                    for (int i : array) {
-
-                        TracedEntry<TracedDictionary> shapeEntry = array.getAsDict(i, false);
-                        TracedDictionary shapeJson = shapeEntry.getValue();
-
-                        GenerationShapeSchema shape = createShape(shapeJson);
-
-                        entries.add(new WeightedRoll.Entry<>(shape, shape.getChance()));
-                    }
-
-                    return new WeightedRoll<>(entry, array, entries);
-                }),
-
-                collection.dictCase(entry -> new WeightedRoll<>(createShape(entry.getValue()))),
-
-                collection.nullCase(_ -> DEFAULT_SHAPE)));
+        return collection.getAsRoll(key, true, DEFAULT, entry -> createShape(entry.getValue()));
     }
 
     private static GenerationShapeSchema createShape(TracedDictionary json) throws LoggedException {

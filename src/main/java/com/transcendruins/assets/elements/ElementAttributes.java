@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.primaryassets.elements;
+package com.transcendruins.assets.elements;
 
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.primaryassets.PrimaryAssetAttributes;

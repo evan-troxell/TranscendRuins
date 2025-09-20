@@ -17,15 +17,15 @@
 package com.transcendruins.assets.scripts;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.transcendruins.PropertyHolder;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.json.TracedArray;
-import com.transcendruins.utilities.json.TracedCollection;
-import com.transcendruins.utilities.json.TracedCollection.JSONType;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -33,13 +33,7 @@ import com.transcendruins.utilities.json.TracedEntry;
  * <code>TRScriptExpression</code>: A class representing an evaluable TRScript
  * expression.
  */
-final class TRScriptExpression {
-
-    /**
-     * <code>String</code>: The regular expression used to match a floating point
-     * value.
-     */
-    private static final String NUMBER_PATTERN = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)$";
+public final class TRScriptExpression {
 
     /**
      * <code>TRScriptOperator</code>: The operator of this
@@ -48,116 +42,64 @@ final class TRScriptExpression {
     private final TRScriptOperator operator;
 
     /**
-     * <code>ImmutableList&lt;TRScriptValue&gt;</code>: The argument list of this
+     * <code>ImmutableList&lt;TRScript&gt;</code>: The argument list of this
      * <code>TRScriptExpression</code> instance.
      */
-    private final ImmutableList<TRScriptValue> args;
+    private final ImmutableList<TRScript> args;
 
     /**
      * Creates a new instance of the <code>TRScriptExpression</code> class.
      * 
-     * @param expressionEntry <code>TracedEntry&lt;?&gt;</code>: The entry
-     *                        containing the expression of this
-     *                        <code>TRScriptExpression</code> instance.
+     * @param json <code>TracedDictionary</code>: The json containing the expression
+     *             of this <code>TRScriptExpression</code> instance.
      * @throws LoggedException Thrown if an error occurs while parsing data from the
      *                         collection.
      */
-    private TRScriptExpression(TracedCollection collection, Object key) throws LoggedException {
+    public TRScriptExpression(TracedDictionary json) throws LoggedException {
 
-        ArrayList<TRScriptValue> argsList = new ArrayList<>();
-        switch (collection.getType(key)) {
+        TracedEntry<String> operatorEntry = json.getAsString("operator", false, null);
+        operator = OperatorSet.getOperator(operatorEntry, OperatorSet.OPERATORS);
 
-        case DICT -> {
+        args = json.get("args", List.of(
 
-            TracedEntry<TracedDictionary> expressionEntry = collection.getAsDict(key, false);
-            TracedDictionary expressionJson = expressionEntry.getValue();
+                // Process a list of arguments.
+                json.arrayCase(entry -> {
 
-            operator = TRScriptOperator.getOperator(expressionJson.getAsString("operator", false, null));
+                    ArrayList<TRScript> argsList = new ArrayList<>();
 
-            switch (expressionJson.getType("args")) {
+                    TracedArray argsArray = entry.getValue();
+                    if (operator.invalidArgs(argsArray.size())) {
 
-            case ARRAY -> {
+                        throw new CollectionSizeException(entry, argsArray);
+                    }
 
-                TracedEntry<TracedArray> argsEntry = expressionJson.getAsArray("args", false);
-                TracedArray argsArray = argsEntry.getValue();
+                    for (int i : argsArray) {
 
-                if (operator.invalidArgs(argsArray.size())) {
+                        argsList.add(new TRScript(argsArray, i));
+                    }
 
-                    throw new CollectionSizeException(argsEntry, argsArray);
-                }
+                    return new ImmutableList<>(argsList);
+                }),
 
-                for (int i : argsArray) {
+                // Process a single argument.
+                json.scalarCase(entry -> {
 
-                    argsList.add(new TRScriptValue(argsArray, i));
-                }
-            }
+                    if (operator.invalidArgs(1)) {
 
-            default -> {
+                        throw new UnexpectedValueException(entry);
+                    }
+                    return new ImmutableList<>(new TRScript(json, "args"));
+                }),
 
-                if (operator.invalidArgs(1)) {
+                // Process no arguments.
+                json.nullCase(entry -> {
 
-                    throw new UnexpectedValueException(expressionEntry);
-                }
-                argsList.add(new TRScriptValue(expressionJson, "args"));
-            }
-            }
+                    if (operator.invalidArgs(0)) {
 
-        }
-
-        case STRING -> {
-
-            TracedEntry<String> operatorEntry = collection.getAsString(key, false, null);
-            operator = TRScriptOperator.getOperator(operatorEntry);
-
-            if (operator.invalidArgs(0)) {
-
-                throw new UnexpectedValueException(operatorEntry);
-            }
-
-        }
-
-        default -> operator = TRScriptOperator.getOperator();
-        }
-
-        args = new ImmutableList<>(argsList);
-    }
-
-    /**
-     * Parses the value of an entry into an expression.
-     * 
-     * @param valueEntry <code>TracedEntry&lt;?&gt;</code>: The entry to parse;
-     * @return <code>Object</code>: The resulting value or expression.
-     * @throws LoggedException Thrown if an error occurs while parsing data from the
-     *                         collection.
-     */
-    public static Object parseExpression(TracedCollection collection, Object key) throws LoggedException {
-
-        if (collection.getType(key) == JSONType.STRING) {
-
-            TracedEntry<String> expressionEntry = collection.getAsString(key, false, null);
-            String stringVal = expressionEntry.getValue();
-
-            if (stringVal.matches(NUMBER_PATTERN)) {
-
-                return Double.valueOf(stringVal);
-            }
-
-            return switch (stringVal) {
-
-            case "PI", "pi" -> Math.PI;
-            case "-PI", "-pi" -> -Math.PI;
-
-            case "TAU", "tau" -> Math.TAU;
-            case "-TAU", "-tau" -> -Math.TAU;
-
-            case "E", "e" -> Math.E;
-            case "-E", "-e" -> -Math.E;
-
-            default -> stringVal;
-            };
-        }
-
-        return new TRScriptExpression(collection, key);
+                        throw new MissingPropertyException(entry);
+                    }
+                    return new ImmutableList<>();
+                })));
     }
 
     /**

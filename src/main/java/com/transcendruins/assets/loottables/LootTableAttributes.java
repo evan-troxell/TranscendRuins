@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.transcendruins.assets.AssetType.ITEM;
 import com.transcendruins.assets.SelectionType;
@@ -29,7 +28,7 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.extra.Range;
-import com.transcendruins.assets.scripts.TRScriptValue;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.PropertyTypeException;
@@ -281,9 +280,10 @@ public final class LootTableAttributes extends AssetAttributes {
      * @param componentIdList <code>Set&lt;String&gt;</code>: The list of component
      *                        IDs contained in this
      *                        <code>LootTableAttributes.LootSchema</code> instance.
-     * @return <code>LootSchema</code>: The created loot schema.
+     * @return <code>LootTableAttributes.LootSchema</code>: The resulting loot
+     *         schema.
      * @throws LoggedException Thrown if any exception is raised while creating the
-     *                         new <code>LootTableAttributes.Loot</code> instance.
+     *                         loot.
      */
     public final LootSchema createLoot(TracedDictionary json, Set<String> componentIdList)
             throws MissingPropertyException, PropertyTypeException, LoggedException {
@@ -342,20 +342,20 @@ public final class LootTableAttributes extends AssetAttributes {
         }
 
         /**
-         * <code>ImmutableList&lt;TRScriptValue&gt;</code>: The conditions required to
-         * apply this <code>LootTableAttributes.LootSchema</code> instance.
+         * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to apply
+         * this <code>LootTableAttributes.LootSchema</code> instance.
          */
-        private final ImmutableList<TRScriptValue> conditions;
+        private final ImmutableList<TRScript> conditions;
 
         /**
          * Retrieves the conditions required to apply this
          * <code>LootTableAttributes.LootSchema</code> instance.
          * 
-         * @return <code>ImmutableList&lt;TRScriptValue&gt;</code>: The
+         * @return <code>ImmutableList&lt;TRScript&gt;</code>: The
          *         <code>conditions</code> field of this
          *         <code>LootTableAttributes.LootSchema</code> instance.
          */
-        public final ImmutableList<TRScriptValue> getConditions() {
+        public final ImmutableList<TRScript> getConditions() {
 
             return conditions;
         }
@@ -401,8 +401,6 @@ public final class LootTableAttributes extends AssetAttributes {
          */
         public LootSchema(TracedDictionary json, Set<String> componentIdList) throws LoggedException {
 
-            ArrayList<TRScriptValue> conditionsList = new ArrayList<>();
-
             TracedEntry<String> componentIdEntry = json.getAsString("componentId", true, null);
             if (componentIdEntry.containsValue()) {
 
@@ -438,17 +436,24 @@ public final class LootTableAttributes extends AssetAttributes {
                 componentTags = new ImmutableList<>();
             }
 
-            TracedEntry<TracedArray> conditionsEntry = json.getAsArray("conditions", true);
-            if (conditionsEntry.containsValue()) {
+            conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
 
-                TracedArray conditionsJson = conditionsEntry.getValue();
+                ArrayList<TRScript> conditionsList = new ArrayList<>();
+
+                TracedArray conditionsJson = entry.getValue();
                 for (int i : conditionsJson) {
 
-                    conditionsList.add(new TRScriptValue(conditionsJson, i));
+                    TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
+                    TRScript condition = conditionEntry.getValue();
+                    conditionsList.add(condition);
                 }
-            }
 
-            conditions = new ImmutableList<>(conditionsList);
+                return new ImmutableList<>(conditionsList);
+            }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+
+                TRScript condition = entry.getValue();
+                return new ImmutableList<>(condition);
+            })));
 
             TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
             chance = chanceEntry.getValue();
@@ -532,7 +537,7 @@ public final class LootTableAttributes extends AssetAttributes {
         @Override
         public List<AssetPresets> getItems() {
 
-            return pools.keySet().stream().flatMap(pool -> pool.getItems().stream()).collect(Collectors.toList());
+            return pools.keySet().stream().flatMap(pool -> pool.getItems().stream()).toList();
         }
     }
 }

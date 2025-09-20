@@ -57,7 +57,6 @@ public final class ImmutableList<E> implements List<E>, Immutable {
      * @param elements <code>E...</code>: The values to add to this
      *                 <code>ImmutableList</code> instance.
      */
-    @SuppressWarnings("unchecked")
     public ImmutableList(E... elements) {
 
         this(Arrays.asList(elements));

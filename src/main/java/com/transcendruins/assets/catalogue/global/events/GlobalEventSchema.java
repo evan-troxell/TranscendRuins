@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.global.events;
+package com.transcendruins.assets.catalogue.global.events;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +23,7 @@ import java.util.List;
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.utilities.immutable.ImmutableSet;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
@@ -114,16 +115,16 @@ public final class GlobalEventSchema {
     private final WeightedRoll<GlobalEventTask> tasks;
 
     /**
-     * <code>ImmutableList&lt;String&gt;</code>: The global locations which this
+     * <code>ImmutableSet&lt;String&gt;</code>: The global locations which this
      * <code>GlobalEventSchema</code> instance depends on.
      */
-    private final ImmutableList<String> locationDependencies;
+    private final ImmutableSet<String> locationDependencies;
 
     /**
-     * <code>ImmutableList&lt;String&gt;</code>: The global events which this
+     * <code>ImmutableSet&lt;String&gt;</code>: The global events which this
      * <code>GlobalEventSchema</code> instance depends on.
      */
-    private final ImmutableList<String> eventDependencies;
+    private final ImmutableSet<String> eventDependencies;
 
     /**
      * Creates a new instance of the <code>GlobalEventSchema</code> class.
@@ -306,30 +307,17 @@ public final class GlobalEventSchema {
             TracedEntry<Double> taskCooldownEntry = tasksJson.getAsDouble("cooldown", true, 0.0, num -> num >= 0.0);
             taskCooldown = taskCooldownEntry.getValue();
 
-            TracedEntry<TracedArray> tasksArrayEntry = tasksJson.getAsArray("tasks", false);
-            TracedArray tasksArray = tasksArrayEntry.getValue();
+            // Process the tasks as a weighted roll.
+            tasks = tasksJson.getAsRoll("tasks", false, null, entry -> {
 
-            ArrayList<WeightedRoll.Entry<GlobalEventTask>> tasksList = new ArrayList<>();
-
-            for (int i : tasksArray) {
-
-                TracedEntry<TracedDictionary> taskEntry = tasksArray.getAsDict(i, false);
-                TracedDictionary taskJson = taskEntry.getValue();
-
-                GlobalEventTask task = new GlobalEventTask(taskJson);
-
-                TracedEntry<Double> chanceEntry = taskJson.getAsDouble("chance", true, 100.0, num -> num > 0.0);
-                double chance = chanceEntry.getValue();
-
-                tasksList.add(new WeightedRoll.Entry<>(task, chance));
-
+                GlobalEventTask task = new GlobalEventTask(entry.getValue());
                 if (task.hasLocation()) {
 
-                    locationDependenciesList.add(task.getLocation());
+                    locationDependenciesList.addAll(task.getLocation());
                 }
-            }
 
-            tasks = new WeightedRoll<>(tasksArrayEntry, tasksArray, tasksList);
+                return task;
+            });
         } else {
 
             tasksRequired = 0;
@@ -339,7 +327,7 @@ public final class GlobalEventSchema {
             tasks = null;
         }
 
-        locationDependencies = new ImmutableList<>(locationDependenciesList);
-        eventDependencies = new ImmutableList<>(eventDependenciesList);
+        locationDependencies = new ImmutableSet<>(locationDependenciesList);
+        eventDependencies = new ImmutableSet<>(eventDependenciesList);
     }
 }

@@ -4,7 +4,7 @@
         "version": [1, 0, 0],
         "name": "Vanilla",
         "author": "Evan Troxell",
-        "displayIconPath": "displayIcon.png",
+        "displayIcon": "displayIcon.png",
         "description": "A vanilla content pack for Transcend Ruins.",
 
         "website": "https://example.com",

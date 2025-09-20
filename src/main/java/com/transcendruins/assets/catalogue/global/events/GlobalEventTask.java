@@ -14,11 +14,16 @@
  *
  */
 
-package com.transcendruins.assets.global.events;
+package com.transcendruins.assets.catalogue.global.events;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.transcendruins.PropertyHolder;
-import com.transcendruins.assets.scripts.TRScriptValue;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -60,13 +65,14 @@ public final class GlobalEventTask {
     }
 
     /**
-     * <code>boolean</code>: Whether or not this task has a location associated with
-     * it.
+     * <code>boolean</code>: Whether or not this task has a location or locations
+     * associated with it.
      */
     private final boolean hasLocation;
 
     /**
-     * Retrieves whether or not this task has a location associated with it.
+     * Retrieves whether or not this task has a location or locations associated
+     * with it.
      *
      * @return <code>boolean</code>: The <code>hasLocation</code> field of this
      *         <code>GlobalEventTask</code> instance.
@@ -77,17 +83,17 @@ public final class GlobalEventTask {
     }
 
     /**
-     * <code>String</code>: The location of this task.
+     * <code>ImmutableList&lt;String&gt;</code>: The location(s) of this task.
      */
-    private final String location;
+    private final ImmutableList<String> location;
 
     /**
-     * Retrieves the location of this task.
+     * Retrieves the location(s) of this task.
      *
-     * @return <code>String</code>: The <code>location</code> field of this
-     *         <code>GlobalEventTask</code> instance.
+     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>location</code>
+     *         field of this <code>GlobalEventTask</code> instance.
      */
-    public String getLocation() {
+    public ImmutableList<String> getLocation() {
 
         return location;
     }
@@ -109,16 +115,15 @@ public final class GlobalEventTask {
     }
 
     /**
-     * <code>TRScriptValue</code>: The method to evaluate the counter value of this
-     * task.
+     * <code>TRScript</code>: The method to evaluate the counter value of this task.
      */
-    private final TRScriptValue counterValue;
+    private final TRScript counterValue;
 
     /**
      * Retrieves the method to evaluate the counter value of this task.
      *
-     * @return <code>TRScriptValue</code>: The <code>counterValue</code> field of
-     *         this <code>GlobalEventTask</code> instance.
+     * @return <code>TRScript</code>: The <code>counterValue</code> field of this
+     *         <code>GlobalEventTask</code> instance.
      */
     private final double counterTarget;
 
@@ -142,22 +147,30 @@ public final class GlobalEventTask {
     }
 
     /**
-     * <code>TRScriptValue</code>: The conditions that must be met for this task to
-     * pass.
+     * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions that must be met
+     * for this task to pass.
      */
-    private final TRScriptValue conditions;
+    private final ImmutableList<TRScript> conditions;
 
     /**
      * Determines whether or not this task passes for a given asset.
      * 
-     * @param asset <code>PropertyHolder</code>: The asset to evaluate the task
-     *              against.
-     * @return <code>boolean</code>: Whether or not the task passes for the given
-     *         asset.
+     * @param asset <code>PropertyHolder</code>: The asset to evaluate the
+     *              conditions against.
+     * @return <code>boolean</code>: Whether or not the conditions pass for the
+     *         given asset.
      */
     public boolean passes(PropertyHolder asset) {
 
-        return conditions.evaluateBoolean(asset);
+        for (TRScript condition : conditions) {
+
+            if (!condition.evaluateBoolean(asset)) {
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -175,9 +188,32 @@ public final class GlobalEventTask {
         TracedEntry<String> descriptionEntry = json.getAsString("description", false, null);
         description = descriptionEntry.getValue();
 
-        TracedEntry<String> locationEntry = json.getAsString("location", true, null);
-        hasLocation = locationEntry.containsValue();
-        location = locationEntry.getValue();
+        location = json.get("location", List.of(
+
+                // Process a single location.
+                json.stringCase(entry -> {
+
+                    return new ImmutableList<>(entry.getValue());
+                }),
+
+                // Process a list of locations.
+                json.arrayCase(entry -> {
+
+                    ArrayList<String> locationList = new ArrayList<>();
+
+                    TracedArray locationArray = entry.getValue();
+                    for (int i : locationArray) {
+
+                        TracedEntry<String> locationEntry = locationArray.getAsString(i, false, null);
+                        locationList.add(locationEntry.getValue());
+                    }
+
+                    return new ImmutableList<>(locationList);
+                }),
+
+                // Process no locations.
+                json.nullCase(_ -> new ImmutableList<>())));
+        hasLocation = !location.isEmpty();
 
         TracedEntry<TracedDictionary> counterEntry = json.getAsDict("counter", true);
         hasCounter = counterEntry.containsValue();
@@ -185,7 +221,7 @@ public final class GlobalEventTask {
 
             TracedDictionary counterJson = counterEntry.getValue();
 
-            counterValue = new TRScriptValue(counterJson, "value");
+            counterValue = new TRScript(counterJson, "value");
 
             TracedEntry<Double> counterTargetEntry = counterJson.getAsDouble("target", false, null);
             counterTarget = counterTargetEntry.getValue();
@@ -195,6 +231,23 @@ public final class GlobalEventTask {
             counterTarget = 0.0;
         }
 
-        conditions = new TRScriptValue(json, "conditions");
+        conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
+
+            ArrayList<TRScript> conditionsList = new ArrayList<>();
+
+            TracedArray conditionsJson = entry.getValue();
+            for (int i : conditionsJson) {
+
+                TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
+                TRScript condition = conditionEntry.getValue();
+                conditionsList.add(condition);
+            }
+
+            return new ImmutableList<>(conditionsList);
+        }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+
+            TRScript condition = entry.getValue();
+            return new ImmutableList<>(condition);
+        })));
     }
 }

@@ -37,7 +37,6 @@ import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.KeyNameException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.PropertyTypeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
@@ -216,26 +215,6 @@ public final class LayoutAttributes extends AssetAttributes {
         }
 
         /**
-         * <code>double</code>: The chance of selection of this
-         * <code>LayoutAttributes.GenerationSchema</code> instance. This value
-         * represents the weight (chance compared to other entries) in a limited
-         * selection, but a independent chance (% of total) in a full selection.
-         */
-        private final double chance;
-
-        /**
-         * Retrieves the chance of selection of this
-         * <code>LayoutAttributes.GenerationSchema</code> instance.
-         * 
-         * @return <code>double</code>: The <code>chance</code> field of this
-         *         <code>LayoutAttributes.GenerationSchema</code> instance.
-         */
-        public double getChance() {
-
-            return chance;
-        }
-
-        /**
          * <code>Range</code>: The count of this
          * <code>LayoutAttributes.GenerationSchema</code> instance. This value
          * represents the range of how many times this
@@ -264,9 +243,6 @@ public final class LayoutAttributes extends AssetAttributes {
         }
 
         public GenerationSchema(TracedDictionary json) throws LoggedException {
-
-            TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
-            chance = chanceEntry.getValue();
 
             count = Range.createRange(json, "count", true, num -> num >= 1);
 
@@ -424,19 +400,7 @@ public final class LayoutAttributes extends AssetAttributes {
 
             iterationType = parseSelectionType(json, "iterationType");
 
-            TracedEntry<TracedArray> componentsEntry = json.getAsArray("components", false);
-            TracedArray componentsJson = componentsEntry.getValue();
-
-            ArrayList<WeightedRoll.Entry<GenerationSchema>> componentsList = new ArrayList<>(componentsJson.size());
-
-            for (int i : componentsJson) {
-
-                TracedEntry<TracedDictionary> componentEntry = componentsJson.getAsDict(i, false);
-                GenerationSchema component = createGeneration(componentEntry.getValue());
-                componentsList.add(new WeightedRoll.Entry<>(component, component.getChance()));
-            }
-
-            components = new WeightedRoll<>(componentsEntry, componentsJson, componentsList);
+            components = json.getAsRoll("components", false, null, entry -> createGeneration(entry.getValue()));
         }
     }
 
@@ -479,19 +443,9 @@ public final class LayoutAttributes extends AssetAttributes {
 
             iterationType = parseSelectionType(json, "iterationType");
 
-            TracedEntry<TracedArray> componentsEntry = json.getAsArray("components", false);
-            TracedArray componentsJson = componentsEntry.getValue();
+            components =
 
-            ArrayList<WeightedRoll.Entry<GenerationSchema>> componentsList = new ArrayList<>(componentsJson.size());
-
-            for (int i : componentsJson) {
-
-                TracedEntry<TracedDictionary> componentEntry = componentsJson.getAsDict(i, false);
-                GenerationSchema component = createGeneration(componentEntry.getValue());
-                componentsList.add(new WeightedRoll.Entry<>(component, component.getChance()));
-            }
-
-            components = new WeightedRoll<>(componentsEntry, componentsJson, componentsList);
+                    json.getAsRoll("components", entry -> createGeneration(entry.getValue()));
         }
     }
 
@@ -508,36 +462,18 @@ public final class LayoutAttributes extends AssetAttributes {
     public WeightedRoll<GenerationPlacementSchema> createPlacement(TracedCollection json, Object key)
             throws LoggedException {
 
-        return json.get(key, List.of(
-
-                json.arrayCase(entry -> {
-                    TracedArray placementsJson = entry.getValue();
-
-                    ArrayList<WeightedRoll.Entry<GenerationPlacementSchema>> placements = new ArrayList<>();
-                    for (int i : placementsJson) {
-
-                        TracedEntry<TracedDictionary> placementEntry = placementsJson.getAsDict(i, false);
-                        TracedDictionary placementJson = placementEntry.getValue();
-
-                        GenerationPlacementSchema placement = new GenerationPlacementSchema(placementJson);
-
-                        placements.add(new WeightedRoll.Entry<>(placement, placement.getChance()));
-                    }
-
-                    return new WeightedRoll<>(entry, placementsJson, placements);
-                }),
-
-                json.dictCase(entry -> {
-
-                    TracedDictionary placementsJson = entry.getValue();
-
-                    return new WeightedRoll<>(new GenerationPlacementSchema(placementsJson));
-                }),
-
-                json.nullCase(_ -> new WeightedRoll<>(new GenerationPlacementSchema()))));
+        return json.getAsRoll(key, true, GenerationPlacementSchema.DEFAULT,
+                entry -> new GenerationPlacementSchema(entry.getValue()));
     }
 
-    public final class GenerationPlacementSchema {
+    public static final class GenerationPlacementSchema {
+
+        public static final GenerationPlacementSchema DEFAULT = new GenerationPlacementSchema();
+
+        private GenerationPlacementSchema() {
+
+            shape = GenerationShapeSchema.DEFAULT;
+        }
 
         private final WeightedRoll<GenerationShapeSchema> shape;
 
@@ -560,20 +496,6 @@ public final class LayoutAttributes extends AssetAttributes {
             return center;
         }
 
-        private final double chance;
-
-        public double getChance() {
-
-            return chance;
-        }
-
-        private GenerationPlacementSchema() {
-
-            shape = GenerationShapeSchema.DEFAULT_SHAPE;
-
-            chance = 100.0;
-        }
-
         private GenerationPlacementSchema(TracedDictionary json) throws LoggedException {
 
             shape = GenerationShapeSchema.createShape(json, "shape");
@@ -581,32 +503,13 @@ public final class LayoutAttributes extends AssetAttributes {
             distribution = createDistribution(json, "distribution");
 
             center = createCenter(json, "center");
-
-            TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
-            chance = chanceEntry.getValue();
         }
 
         public final WeightedRoll<GenerationPlacementCenterSchema> createCenter(TracedCollection collection, Object key)
                 throws LoggedException {
 
-            return collection.get(key,
-                    List.of(collection.dictCase(entry -> new WeightedRoll<>(createCenter(entry.getValue()))),
-                            collection.arrayCase(entry -> {
-
-                                TracedArray array = entry.getValue();
-
-                                ArrayList<WeightedRoll.Entry<GenerationPlacementCenterSchema>> centers = new ArrayList<>();
-
-                                for (int i : array) {
-                                    TracedEntry<TracedDictionary> placementEntry = array.getAsDict(i, false);
-                                    TracedDictionary placementJson = placementEntry.getValue();
-
-                                    GenerationPlacementCenterSchema placement = createCenter(placementJson);
-                                    centers.add(new WeightedRoll.Entry<>(placement, placement.getChance()));
-                                }
-
-                                return new WeightedRoll<>(entry, array, centers);
-                            }), collection.nullCase(_ -> new WeightedRoll<>(new GenerationPlacementCenterSchema()))));
+            return collection.getAsRoll(key, true, GenerationPlacementCenterSchema.DEFAULT,
+                    entry -> createCenter(entry.getValue()));
         }
 
         private final GenerationPlacementCenterSchema createCenter(TracedDictionary dict) throws LoggedException {
@@ -627,24 +530,16 @@ public final class LayoutAttributes extends AssetAttributes {
             };
         }
 
-        public abstract class GenerationPlacementCenterSchema {
+        public static abstract class GenerationPlacementCenterSchema {
 
-            private final double chance;
+            public static final GenerationPlacementCenterSchema DEFAULT = new GenerationPlacementCenterSchema() {
+            };
 
-            public final double getChance() {
+            private GenerationPlacementCenterSchema() {
 
-                return chance;
-            }
-
-            public GenerationPlacementCenterSchema() {
-
-                chance = 100.0;
             }
 
             public GenerationPlacementCenterSchema(TracedDictionary dict) throws LoggedException {
-
-                TracedEntry<Double> chanceEntry = dict.getAsDouble("chance", true, 100.0, num -> num > 0);
-                chance = chanceEntry.getValue();
             }
         }
 
