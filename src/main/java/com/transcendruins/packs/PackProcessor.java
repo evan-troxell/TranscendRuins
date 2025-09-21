@@ -96,7 +96,7 @@ public final class PackProcessor {
     public synchronized void process(TracedPath root) {
 
         TracedPath resourcePath = root.extend("resources");
-        List<TracedPath> resourcePaths = resourcePath.listDirectories(TracedPath.RESOURCE_PACK);
+        List<? extends TracedPath> resourcePaths = resourcePath.listDirectories(TracedPath.RESOURCE_PACK);
 
         for (TracedPath resource : resourcePaths) {
 
@@ -104,7 +104,7 @@ public final class PackProcessor {
         }
 
         TracedPath contentPath = root.extend("content");
-        List<TracedPath> contentPaths = contentPath.listDirectories(TracedPath.CONTENT_PACK);
+        List<? extends TracedPath> contentPaths = contentPath.listDirectories(TracedPath.CONTENT_PACK);
 
         if (!contentPaths.isEmpty()) {
 

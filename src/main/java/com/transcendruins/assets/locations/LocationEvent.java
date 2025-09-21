@@ -37,26 +37,25 @@ public final class LocationEvent {
     public enum InactiveModeType {
 
         /**
-         * <code>LocationEvent.InactiveModeType</code>: An inactive mode type
-         * representing a location which is hidden while inactive.
+         * <code>InactiveModeType</code>: An inactive mode type representing a location
+         * which is hidden while inactive.
          */
         HIDDEN,
 
         /**
-         * <code>LocationEvent.InactiveModeType</code>: An inactive mode type
-         * representing a location which is visible but locked while inactive.
+         * <code>InactiveModeType</code>: An inactive mode type representing a location
+         * which is visible but locked while inactive.
          */
         LOCKED;
 
         /**
          * Parses a value from a <code>TracedCollection</code> instance into a
-         * <code>LocationEvent.InactiveModeType</code> enum.
+         * <code>InactiveModeType</code> enum.
          * 
          * @param collection <code>TracedCollection</code>: The collection to parse
          *                   from.
          * @param key        <code>Object</code>: The key to search for.
-         * @return <code>LocationEvent.InactiveModeType</code>: The parsed inactive mode
-         *         type.
+         * @return <code>InactiveModeType</code>: The parsed inactive mode type.
          * @throws LoggedException Thrown if the inactive mode type could not be parsed.
          */
         public static InactiveModeType parseInactiveModeType(TracedCollection collection, Object key)

@@ -575,11 +575,11 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      * Constructs a list of files contained within this <code>TracedPath</code>
      * instance.
      * 
-     * @return <code>Collection&lt;TracedPath&gt;</code>: A list of
+     * @return <code>Collection&lt;? extends TracedPath&gt;</code>: A list of
      *         <code>TracedPath</code> instances corresponding to files within the
      *         root directory.
      */
-    public final List<TracedPath> listFiles() {
+    public final List<? extends TracedPath> listFiles() {
 
         return compileEntries().stream().filter(TracedPath::isFile).toList();
     }
@@ -589,11 +589,11 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      * instance.
      * 
      * @param fileType <code>int</code>: The file type to match each file to.
-     * @return <code>List&lt;TracedPath&gt;</code>: A list of
+     * @return <code>List&lt;? extends TracedPath&gt;</code>: A list of
      *         <code>TracedPath</code> instances corresponding to files within the
      *         root directory.
      */
-    public final List<TracedPath> listFiles(int fileType) {
+    public final List<? extends TracedPath> listFiles(int fileType) {
 
         return listFiles().stream().filter(n -> n.getFileType() == fileType).toList();
     }
@@ -604,11 +604,11 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      * 
      * @param regex <code>String</code>: The regular expression to match each
      *              filename to.
-     * @return <code>List&lt;TracedPath&gt;</code>: A list of
+     * @return <code>List&lt;? extends TracedPath&gt;</code>: A list of
      *         <code>TracedPath</code> instances corresponding to files within the
      *         root directory.
      */
-    public final List<TracedPath> listFiles(String regex) {
+    public final List<? extends TracedPath> listFiles(String regex) {
 
         return listFiles().stream().filter(n -> n.getFileName().matches(regex)).toList();
     }
@@ -664,7 +664,7 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      * Constructs a recursive list of the immediate directories contained within
      * this <code>TracedPath</code> instance.
      * 
-     * @return <code>Collection&lt;TracedPath&gt;</code>: A list of
+     * @return <code>Collection&lt;? extends TracedPath&gt;</code>: A list of
      *         <code>TracedPath</code> instances corresponding to the immediate
      *         directories within the root directory.
      */
@@ -678,11 +678,11 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      * this <code>TracedPath</code> instance.
      * 
      * @param fileType <code>int</code>: The file type to match each file to.
-     * @return <code>List&lt;TracedPath&gt;</code>: A list of
+     * @return <code>List&lt;? extends TracedPath&gt;</code>: A list of
      *         <code>TracedPath</code> instances corresponding to the immediate
      *         directories within the root directory.
      */
-    public final List<TracedPath> listDirectories(int fileType) {
+    public final List<? extends TracedPath> listDirectories(int fileType) {
 
         return listDirectories().stream().filter(n -> n.getFileType() == fileType).toList();
     }
@@ -693,11 +693,11 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
      * 
      * @param regex <code>String</code>: The regular expression to match each
      *              filename to.
-     * @return <code>List&lt;TracedPath&gt;</code>: A list of
+     * @return <code>List&lt;? extends TracedPath&gt;</code>: A list of
      *         <code>TracedPath</code> instances corresponding to the immediate
      *         directories within the root directory.
      */
-    public final List<TracedPath> listDirectories(String regex) {
+    public final List<? extends TracedPath> listDirectories(String regex) {
 
         return listDirectories().stream().filter(n -> n.getFileName().matches(regex)).toList();
     }

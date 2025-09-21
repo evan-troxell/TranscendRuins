@@ -97,10 +97,10 @@ public final class AnimationInstance extends AssetInstance {
     }
 
     /**
-     * <code>ImmutableList&lt;ImmutableMap&lt;String, AnimationAttributes.KeyFrame&gt;&gt;</code>:
-     * The key frames of this <code>AnimationInstance</code> instance.
+     * <code>ImmutableList&lt;ImmutableMap&lt;String, KeyFrame&gt;&gt;</code>: The
+     * key frames of this <code>AnimationInstance</code> instance.
      */
-    private ImmutableList<ImmutableMap<String, AnimationAttributes.KeyFrame>> keyframes;
+    private ImmutableList<ImmutableMap<String, KeyFrame>> keyframes;
 
     /**
      * <code>ImmutableList&lt;String&gt;</code>: The set of all bones in this

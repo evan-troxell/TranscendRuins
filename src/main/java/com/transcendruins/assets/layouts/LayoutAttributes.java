@@ -172,23 +172,21 @@ public final class LayoutAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>LayoutAttributes.GenerationSchema</code>: A class representing any
-     * generation schema.
+     * <code>GenerationSchema</code>: A class representing any generation schema.
      */
     public abstract class GenerationSchema {
 
         /**
-         * <code>String</code>: The component ID of this
-         * <code>LayoutAttributes.GenerationSchema</code> instance.
+         * <code>String</code>: The component ID of this <code>GenerationSchema</code>
+         * instance.
          */
         private final String componentId;
 
         /**
-         * Retrieves the component ID of this
-         * <code>LayoutAttributes.GenerationSchema</code> instance.
+         * Retrieves the component ID of this <code>GenerationSchema</code> instance.
          * 
          * @return <code>String</code>: The <code>componentId</code> field of this
-         *         <code>LayoutAttributes.GenerationSchema</code> instance.
+         *         <code>GenerationSchema</code> instance.
          */
         public String getComponentId() {
 
@@ -197,17 +195,16 @@ public final class LayoutAttributes extends AssetAttributes {
 
         /**
          * <code>ImmutableList&lt;String&gt;</code>: The component tags of this
-         * <code>LayoutAttributes.GenerationSchema</code> instance.
+         * <code>GenerationSchema</code> instance.
          */
         private final ImmutableList<String> componentTags;
 
         /**
-         * Retrieves the component tags of this
-         * <code>LayoutAttributes.GenerationSchema</code> instance.
+         * Retrieves the component tags of this <code>GenerationSchema</code> instance.
          * 
          * @return <code>ImmutableList&lt;String&gt;</code>: The
          *         <code>componentTags</code> field of this
-         *         <code>LayoutAttributes.GenerationSchema</code> instance.
+         *         <code>GenerationSchema</code> instance.
          */
         public ImmutableList<String> getComponentTags() {
 
@@ -215,11 +212,10 @@ public final class LayoutAttributes extends AssetAttributes {
         }
 
         /**
-         * <code>Range</code>: The count of this
-         * <code>LayoutAttributes.GenerationSchema</code> instance. This value
-         * represents the range of how many times this
-         * <code>LayoutAttributes.GenerationSchema</code> instance can be selected in a
-         * limited selection, but a fixed count in a full selection.
+         * <code>Range</code>: The count of this <code>GenerationSchema</code> instance.
+         * This value represents the range of how many times this
+         * <code>GenerationSchema</code> instance can be selected in a limited
+         * selection, but a fixed count in a full selection.
          */
         private final Range count;
 

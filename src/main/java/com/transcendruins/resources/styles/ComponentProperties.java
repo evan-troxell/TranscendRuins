@@ -53,6 +53,7 @@ public abstract class ComponentProperties {
     }
 
     public ComponentProperties(String type, String id, Set<String> classes, Set<String> states) {
+
         this.type = type;
         this.id = id;
         this.classes = new ImmutableSet<>(classes);

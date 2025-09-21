@@ -203,29 +203,28 @@ public final class WeightedRoll<K> {
     }
 
     /**
-     * <code>WeightedRoll.Entry&lt;K&gt;</code>: A class representing an entry in a
+     * <code>Entry&lt;K&gt;</code>: A class representing an entry in a
      * <code>WeightedRoll</code> instance.
      */
     public static final class Entry<K> {
 
         /**
-         * <code>K</code>: The value of this <code>WeightedRoll.Entry</code> instance.
+         * <code>K</code>: The value of this <code>Entry</code> instance.
          */
         private final K val;
 
         /**
-         * <code>double</code>: The weight of this <code>WeightedRoll.Entry</code>
-         * instance as a positive number.
+         * <code>double</code>: The weight of this <code>Entry</code> instance as a
+         * positive number.
          */
         private final double weight;
 
         /**
-         * Creates a new instance of the <code>WeightedRoll.Entry</code> class.
+         * Creates a new instance of the <code>Entry</code> class.
          * 
-         * @param val    <code>K</code>: The value of this
-         *               <code>WeightedRoll.Entry</code> instance.
-         * @param weight <code>double</code>: The weight of this
-         *               <code>WeightedRoll.Entry</code> instance as a positive number.
+         * @param val    <code>K</code>: The value of this <code>Entry</code> instance.
+         * @param weight <code>double</code>: The weight of this <code>Entry</code>
+         *               instance as a positive number.
          */
         public Entry(K val, double weight) {
 
@@ -234,11 +233,9 @@ public final class WeightedRoll<K> {
         }
 
         /**
-         * Creates a new instance of the <code>WeightedRoll.Entry</code> class with a
-         * weight of 1.
+         * Creates a new instance of the <code>Entry</code> class with a weight of 1.
          * 
-         * @param val <code>K</code>: The value of this <code>WeightedRoll.Entry</code>
-         *            instance.
+         * @param val <code>K</code>: The value of this <code>Entry</code> instance.
          */
         public Entry(K val) {
 

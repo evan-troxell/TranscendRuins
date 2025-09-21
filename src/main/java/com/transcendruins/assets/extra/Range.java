@@ -148,7 +148,7 @@ public final class Range {
                 collection.doubleCase(entry -> {
 
                     return new Range(entry);
-                }, _ -> collection.getAsDouble(key, false, null, inRange)),
+                }, (_, _) -> collection.getAsDouble(key, false, null, inRange)),
 
                 collection.nullCase(entry -> {
 

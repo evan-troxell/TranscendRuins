@@ -171,8 +171,8 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ImmutableList&lt;ImmutableMap&lt;String, AnimationAttributes.KeyFrame&gt;&gt;</code>:
-     * The key frame time stamps of this <code>AnimationAttributes</code> instance
+     * <code>ImmutableList&lt;ImmutableMap&lt;String, KeyFrame&gt;&gt;</code>: The
+     * key frame time stamps of this <code>AnimationAttributes</code> instance
      * paired with the key frames of the bone actors.
      */
     private final ImmutableList<ImmutableMap<String, KeyFrame>> keyframes;
@@ -417,8 +417,7 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>AnimationAttributes.KeyFrame</code>: A class representing a keyframe in
-     * an animation.
+     * <code>KeyFrame</code>: A class representing a keyframe in an animation.
      */
     public final class KeyFrame {
 
@@ -440,14 +439,12 @@ public final class AnimationAttributes extends AssetAttributes {
         private final PermutationFrame next = new PermutationFrame();
 
         /**
-         * Creates a new instance of the <code>AnimationAttributes.KeyFrame</code>
-         * class.
+         * Creates a new instance of the <code>KeyFrame</code> class.
          * 
          * @param keyframeJson <code>TracedDictionary</code>: The JSON from which this
-         *                     <code>AnimationAttributes.KeyFrame</code> instance should
-         *                     be constructed.
+         *                     <code>KeyFrame</code> instance should be constructed.
          * @param timestamp    <code>double</code>: The timestamp of this
-         *                     <code>AnimationAttributes.KeyFrame</code> instance.
+         *                     <code>KeyFrame</code> instance.
          * @throws LoggedException Thrown to indicate any raised exception while
          *                         creating this key frame.
          */

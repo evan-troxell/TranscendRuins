@@ -136,43 +136,36 @@ public final class AnimationControllerAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>AnimationControllerAttributes.AnimationStateSchema</code>: A class
-     * representing a specific state of this
-     * <code>AnimationControllerAttributes</code> instance.
+     * <code>AnimationStateSchema</code>: A class representing a specific state of
+     * this <code>AnimationControllerAttributes</code> instance.
      */
     public final class AnimationStateSchema {
 
         /**
          * <code>TracedEntry&lt;TracedDictionary&gt;</code>: The dictionary entry of all
-         * transitions in this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
+         * transitions in this <code>AnimationStateSchema</code> instance.
          */
         private final TracedEntry<TracedDictionary> transitionsEntry;
 
         /**
          * <code>ImmutableList&lt;AssetPresets&gt;</code>: The animations of this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
+         * <code>AnimationStateSchema</code> instance.
          */
         private final ImmutableList<AssetPresets> stateAnimations;
 
         /**
          * <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>: The
-         * transitions of this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
+         * transitions of this <code>AnimationStateSchema</code> instance.
          */
         private final ImmutableMap<String, ImmutableList<TRScript>> stateTransitions;
 
         /**
-         * Creates a new instance of the
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code> class.
+         * Creates a new instance of the <code>AnimationStateSchema</code> class.
          * 
          * @param json <code>TracedDictionary</code>: The JSON used to compile this
-         *             <code>AnimationControllerAttributes.AnimationStateSchema</code>
-         *             instance.
+         *             <code>AnimationStateSchema</code> instance.
          * @throws LoggedException Thrown if an exception is raised while processing
-         *                         this
-         *                         <code>AnimationControllerAttributes.AnimationStateSchema</code>
-         *                         instance.
+         *                         this <code>AnimationStateSchema</code> instance.
          */
         private AnimationStateSchema(TracedDictionary json) throws LoggedException {
 
@@ -229,13 +222,11 @@ public final class AnimationControllerAttributes extends AssetAttributes {
         }
 
         /**
-         * Retrieves the animations of this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
+         * Retrieves the animations of this <code>AnimationStateSchema</code> instance.
          * 
          * @return <code>ImmutableList&lt;AssetPresets&gt;</code>: The
          *         <code>stateAnimations</code> field of this
-         *         <code>AnimationControllerAttributes.AnimationStateSchema</code>
-         *         instance.
+         *         <code>AnimationStateSchema</code> instance.
          */
         public ImmutableList<AssetPresets> getStateAnimations() {
 
@@ -243,13 +234,12 @@ public final class AnimationControllerAttributes extends AssetAttributes {
         }
 
         /**
-         * Retrieves the state transitions of this
-         * <code>AnimationControllerAttributes.AnimationStateSchema</code> instance.
+         * Retrieves the state transitions of this <code>AnimationStateSchema</code>
+         * instance.
          * 
          * @return <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>:
          *         The <code>stateTransitions</code> field of this
-         *         <code>AnimationControllerAttributes.AnimationStateSchema</code>
-         *         instance.
+         *         <code>AnimationStateSchema</code> instance.
          */
         public ImmutableMap<String, ImmutableList<TRScript>> getStateTransitions() {
 

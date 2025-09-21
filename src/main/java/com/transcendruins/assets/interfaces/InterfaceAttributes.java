@@ -73,7 +73,7 @@ public final class InterfaceAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>InterfaceAttributes.ComponentSchema</code>: The body of this
+     * <code>ComponentSchema</code>: The body of this
      * <code>InterfaceAttributes</code> instance.
      */
     private final ComponentSchema body;
@@ -125,13 +125,11 @@ public final class InterfaceAttributes extends AssetAttributes {
     }
 
     /**
-     * Creates a new instance of the
-     * <code>InterfaceAttributes.ComponentSchema</code> class.
+     * Creates a new instance of the <code>ComponentSchema</code> class.
      * 
      * @param json <code>TracedDictionary</code>: The JSON to create the new
-     *             <code>InterfaceAttributes.ComponentSchema</code> instance from.
-     * @return <code>InterfaceAttributes.ComponentSchema</code>: The created loot
-     *         schema.
+     *             <code>ComponentSchema</code> instance from.
+     * @return <code>ComponentSchema</code>: The created loot schema.
      * @throws LoggedException Thrown if any exception is raised while creating the
      *                         component.
      */
@@ -171,8 +169,8 @@ public final class InterfaceAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>InterfaceAttributes.ComponentSchema</code>: A class representing the
-     * schema of a visual component.
+     * <code>ComponentSchema</code>: A class representing the schema of a visual
+     * component.
      */
     public abstract class ComponentSchema {
 

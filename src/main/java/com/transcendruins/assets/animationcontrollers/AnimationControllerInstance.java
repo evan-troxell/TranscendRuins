@@ -23,6 +23,7 @@ import java.util.Map;
 
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Attributes;
+import com.transcendruins.assets.animationcontrollers.AnimationControllerAttributes.AnimationStateSchema;
 import com.transcendruins.assets.animations.AnimationContext;
 import com.transcendruins.assets.animations.AnimationInstance;
 import com.transcendruins.assets.assets.AssetContext;
@@ -40,11 +41,10 @@ import com.transcendruins.utilities.immutable.ImmutableMap;
 public final class AnimationControllerInstance extends AssetInstance {
 
     /**
-     * <code>ImmutableMap&lt;String, AnimationControllerAttributes.AnimationStateSchema&gt;</code>:
-     * All animation states of this <code>AnimationControllerInstance</code>
-     * instance.
+     * <code>ImmutableMap&lt;String, AnimationStateSchema&gt;</code>: All animation
+     * states of this <code>AnimationControllerInstance</code> instance.
      */
-    private ImmutableMap<String, AnimationControllerAttributes.AnimationStateSchema> states;
+    private ImmutableMap<String, AnimationStateSchema> states;
 
     /**
      * <code>String</code>: The default animation state of this

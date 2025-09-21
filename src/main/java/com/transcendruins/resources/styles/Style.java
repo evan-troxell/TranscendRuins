@@ -17,6 +17,8 @@
 package com.transcendruins.resources.styles;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -38,7 +40,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         BackgroundStyle background, BorderStyle borderTop, BorderStyle borderBottom, BorderStyle borderLeft,
         BorderStyle borderRight, SizeDimensions rTL, SizeDimensions rTR, SizeDimensions rBL, SizeDimensions rBR,
         Size marginTop, Size marginBottom, Size marginLeft, Size marginRight, Size paddingTop, Size paddingBottom,
-        Size paddingLeft, Size paddingRight, TextStyle textStyle, SizeDimensions gap, Direction listDirection) {
+        Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize, Size lineHeight,
+        String fontFamily, Size gap, Direction listDirection) {
 
     /**
      * Creates a new instance of the <code>Style</code> class.
@@ -52,29 +55,48 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         Size x = null;
         Size y = null;
+
         Size width = null;
         Size height = null;
         Size minWidth = null;
         Size minHeight = null;
+
         BackgroundStyle background = null;
+
         BorderStyle borderTop = null;
         BorderStyle borderBottom = null;
         BorderStyle borderLeft = null;
         BorderStyle borderRight = null;
+
         SizeDimensions rTL = null;
         SizeDimensions rTR = null;
         SizeDimensions rBL = null;
         SizeDimensions rBR = null;
+
         Size marginTop = null;
         Size marginBottom = null;
         Size marginLeft = null;
         Size marginRight = null;
+
         Size paddingTop = null;
         Size paddingBottom = null;
         Size paddingLeft = null;
         Size paddingRight = null;
-        TextStyle textStyle = null;
-        SizeDimensions gap = null;
+
+        Integer fontStyle = null;
+        Integer fontWeight = null;
+        Size fontSize = null;
+        Size lineHeight = null;
+        String fontFamily = null;
+
+        // overflow (overflowX, overflowY) <- hidden (default), scroll (always show scrollbar), auto (show scrollbar when needed)
+        OverflowStyle overflowX = null;
+        OverflowStyle overflowY = null;;
+
+        // text-overflow <- clip (cut-off), ellipses (…), text (ex.)
+        String textOverflow = null;
+
+        Size gap = null;
         Direction listDirection = null;
 
         TracedEntry<TracedDictionary> entry = collection.getAsDict(key, true);
@@ -140,11 +162,63 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 case "paddingLeft" -> paddingLeft = Size.createSize(json, property);
                 case "paddingRight" -> paddingRight = Size.createSize(json, property);
 
-                // Process the text style.
-                case "textStyle" -> textStyle = TextStyle.createTextStyle(json, property);
+                // Process the font properties.
+                case "font" -> {
 
-                // Process the gap.
-                case "gap" -> gap = SizeDimensions.createSizeDimensions(json, property);
+                    TracedEntry<TracedDictionary> fontEntry = json.getAsDict(key, false);
+                    TracedDictionary fontJson = fontEntry.getValue();
+
+                    // If the font dictionary has a style, apply it.
+                    if (fontJson.containsKey("style")) {
+
+                        fontStyle = createFontStyle(fontJson, "style");
+                    }
+
+                    // If the font dictionary has a weight, apply it.
+                    if (fontJson.containsKey("weight")) {
+
+                        fontWeight = createFontWeight(fontJson, "weight");
+                    }
+
+                    // If the font dictionary has a size, apply it.
+                    if (fontJson.containsKey("size")) {
+
+                        fontSize = Size.createSize(fontJson, "size");
+                    }
+
+                    // If the font dictionary has a height, apply it.
+                    if (fontJson.containsKey("height")) {
+
+                        lineHeight = createLineHeight(fontJson, "height");
+                    }
+
+                    // If the font dictionary has a family, apply it.
+                    if (fontJson.containsKey("family")) {
+
+                        fontFamily = createFontFamily(fontJson, "family");
+                    }
+                }
+                case "fontStyle" -> fontStyle = createFontStyle(json, key);
+                case "fontWeight" -> fontWeight = createFontWeight(json, key);
+                case "fontSize" -> fontSize = Size.createSize(json, key);
+                case "lineHeight" -> lineHeight = createLineHeight(json, key);
+                case "fontFamily" -> fontFamily = createFontFamily(json, key);
+                
+                // Process the text wrapping and overflow.
+                case
+                case "textOverflow" -> {
+                    
+                    TracedEntry<String> textOverflowEntry = json.getAsString(key, false, null);
+                    textOverflow = textOverflowEntry.getValue();
+                }
+
+                // Process the overflow.
+                case "overflow" -> overflowX = overflowY = ;
+                case "overflowX" -> overflowX = ;
+                case "overflowY" -> overflowY = ;
+
+                // Process the list element gap.
+                case "gap" -> gap = Size.createSize(json, property);
 
                 // Process the list direction.
                 case "listDirection" -> listDirection = Direction.createDirection(json, property);
@@ -154,7 +228,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         return new Style(x, y, width, height, minWidth, minHeight, background, borderTop, borderBottom, borderLeft,
                 borderRight, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft, marginRight, paddingTop,
-                paddingBottom, paddingLeft, paddingRight, textStyle, gap, listDirection);
+                paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize, lineHeight, fontFamily, gap,
+                listDirection);
     }
 
     public static Style createStyle(List<Style> styles) {
@@ -176,8 +251,10 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::marginLeft, Size.NONE), parseVal(styles, Style::marginRight, Size.NONE),
                 parseVal(styles, Style::paddingTop, Size.NONE), parseVal(styles, Style::paddingBottom, Size.NONE),
                 parseVal(styles, Style::paddingLeft, Size.NONE), parseVal(styles, Style::paddingRight, Size.NONE),
-                parseVal(styles, Style::textStyle, TextStyle.DEFAULT),
-                parseVal(styles, Style::gap, SizeDimensions.NONE),
+                parseVal(styles, Style::fontStyle, Font.PLAIN), parseVal(styles, Style::fontWeight, Font.PLAIN),
+                parseVal(styles, Style::fontSize, Size.FULL),
+                parseVal(styles, Style::lineHeight, new Size(parent -> parent * 1.2)),
+                parseVal(styles, Style::fontFamily, null), parseVal(styles, Style::gap, Size.NONE),
                 parseVal(styles, Style::listDirection, Direction.VERTICAL));
     }
 
@@ -413,7 +490,15 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         }
     }
 
+    /**
+     * <code>TextureSize</code>: A class representing the size configuration of a
+     * texture.
+     */
     public static abstract class TextureSize {
+
+        /**
+         * <code>TextureSize</code>: A texture size representing constant, 1:1 scaling.
+         */
         public static final TextureSize AUTO = new TextureSize() {
 
             @Override
@@ -429,6 +514,10 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             }
         };
 
+        /**
+         * <code>TextureSize</code>: A texture size representing scaling to contain the
+         * entire graphic in the parent's bounds.
+         */
         public static final TextureSize CONTAIN = new TextureSize() {
 
             @Override
@@ -445,6 +534,10 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             }
         };
 
+        /**
+         * <code>TextureSize</code>: A texture size representing scaling to fill the
+         * parent's bounds.
+         */
         public static final TextureSize FILL = new TextureSize() {
 
             @Override
@@ -461,6 +554,14 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             }
         };
 
+        /**
+         * Creates a new instance of the <code>TextureSize</code> class sized based on
+         * the variable dimensions of a parent component.
+         * 
+         * @param width  <code>Size</code>: The width to calculate using.
+         * @param height <code>Size</code>: The height to calculate using.
+         * @return <code>TextureSize</code>: The generated texture size.
+         */
         public static TextureSize createSize(Size width, Size height) {
 
             return new TextureSize() {
@@ -479,6 +580,13 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             };
         }
 
+        /**
+         * Creates a new instance of the <code>TextureSize</code> class of constant
+         * proportions sized based on the variable dimensions of a parent component.
+         * 
+         * @param width <code>Size</code>: The width to calculate using.
+         * @return <code>TextureSize</code>: The generated texture size.
+         */
         public static TextureSize createSize(Size width) {
 
             return new TextureSize() {
@@ -497,43 +605,80 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             };
         }
 
+        /**
+         * Parses a collection into a new instance of the <code>Style</code> class.
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse.
+         * @param key        <code>Object</code>: The key to retrieve from the
+         *                   collection.
+         * @return <code>TextureSize</code>: The generated texture size.
+         * @throws LoggedException Thrown if the collection could not be parsed.
+         */
         public static TextureSize createSize(TracedCollection collection, Object key) throws LoggedException {
 
-            return collection.get(key, List.of(collection.arrayCase(sizeEntry -> {
+            return collection.get(key, List.of(
 
-                TracedArray sizeJson = sizeEntry.getValue();
-                if (sizeJson.size() != 2) {
+                    // Parse into a width-height texture size.
+                    collection.arrayCase(sizeEntry -> {
 
-                    throw new CollectionSizeException(sizeEntry, sizeJson);
-                }
+                        TracedArray sizeJson = sizeEntry.getValue();
+                        if (sizeJson.size() != 2) {
 
-                return TextureSize.createSize(Size.createSize(sizeJson, 0, Size.FULL),
-                        Size.createSize(sizeJson, 1, Size.FULL));
-            }), collection.dictCase(sizeEntry -> {
+                            throw new CollectionSizeException(sizeEntry, sizeJson);
+                        }
 
-                TracedDictionary sizeJson = sizeEntry.getValue();
+                        return TextureSize.createSize(Size.createSize(sizeJson, 0, Size.FULL),
+                                Size.createSize(sizeJson, 1, Size.FULL));
+                    }),
 
-                return TextureSize.createSize(Size.createSize(sizeJson, "width", Size.FULL),
-                        Size.createSize(sizeJson, "height", Size.FULL));
-            }), collection.stringCase(sizeEntry -> {
+                    // Parse into a width-height texture size.
+                    collection.dictCase(sizeEntry -> {
 
-                String sizeString = sizeEntry.getValue();
-                return switch (sizeString) {
+                        TracedDictionary sizeJson = sizeEntry.getValue();
 
-                case "contain" -> TextureSize.CONTAIN;
+                        return TextureSize.createSize(Size.createSize(sizeJson, "width", Size.FULL),
+                                Size.createSize(sizeJson, "height", Size.FULL));
+                    }), collection.stringCase(sizeEntry -> {
 
-                case "fill" -> TextureSize.FILL;
+                        String sizeString = sizeEntry.getValue();
+                        return switch (sizeString) {
 
-                case "auto" -> TextureSize.AUTO;
+                        case "contain" -> TextureSize.CONTAIN;
 
-                default -> TextureSize.createSize(Size.createStringSize(sizeEntry));
-                };
-            }), collection.doubleCase(sizeEntry -> TextureSize.createSize(Size.createDoubleSize(sizeEntry))),
+                        case "fill" -> TextureSize.FILL;
+
+                        case "auto" -> TextureSize.AUTO;
+
+                        default -> TextureSize.createSize(Size.createStringSize(sizeEntry));
+                        };
+                    }), collection.doubleCase(sizeEntry -> TextureSize.createSize(Size.createDoubleSize(sizeEntry))),
                     collection.nullCase(_ -> TextureSize.AUTO)));
         };
 
+        /**
+         * Retrieves the width of this <code>TextureSize</code> instance in pixels.
+         * 
+         * @param textureWidth  <code>int</code>: The width, in pixels, of the texture.
+         * @param textureHeight <code>int</code>: The height, in pixels, of the texture.
+         * @param parentWidth   <code>int</code>: The width, in pixels, of the parent
+         *                      component.
+         * @param parentHeight  <code>int</code>: The height, in pixels, of the parent
+         *                      component.
+         * @return <code>int</code>: The generated width.
+         */
         public abstract int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight);
 
+        /**
+         * Retrieves the height of this <code>TextureSize</code> instance in pixels.
+         * 
+         * @param textureWidth  <code>int</code>: The width, in pixels, of the texture.
+         * @param textureHeight <code>int</code>: The height, in pixels, of the texture.
+         * @param parentWidth   <code>int</code>: The width, in pixels, of the parent
+         *                      component.
+         * @param parentHeight  <code>int</code>: The height, in pixels, of the parent
+         *                      component.
+         * @return <code>int</code>: The generated height.
+         */
         public abstract int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight);
 
     }
@@ -618,59 +763,184 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         }
     }
 
+    /**
+     * <code>SizeDimensions</code>: A record representing a set of horizontal and
+     * vertical dimensions.
+     * 
+     * @param width  <code>Size</code>: The width of this
+     *               <code>SizeDimensions</code> instance.
+     * @param height <code>Size</code>: The height of this
+     *               <code>SizeDimensions</code> instance.
+     */
     public static final record SizeDimensions(Size width, Size height) {
 
+        /**
+         * <code>SizeDimensions</code>: A size dimension of <code>0px</code> by
+         * <code>0px</code>.
+         */
         public static final SizeDimensions NONE = new SizeDimensions(Size.NONE, Size.NONE);
 
+        /**
+         * Creates a new instance of the <code>SizeDimensions</code> class.
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse
+         *                   from.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @return <code>SizeDimensions</code>: The generated size dimensions.
+         * @throws LoggedException Thrown if the collection could not be parsed.
+         */
         public static SizeDimensions createSizeDimensions(TracedCollection collection, Object key)
                 throws LoggedException {
 
-            return collection.get(key, List.of(collection.arrayCase(entry -> {
+            return collection.get(key, List.of(
 
-                TracedArray json = entry.getValue();
-                if (json.size() != 2) {
+                    // Parse into a width-height size dimensions.
+                    collection.arrayCase(entry -> {
 
-                    throw new CollectionSizeException(entry, json);
+                        TracedArray json = entry.getValue();
+                        if (json.size() != 2) {
+
+                            throw new CollectionSizeException(entry, json);
+                        }
+
+                        Size width = Size.createSize(json, 0, Size.NONE);
+                        Size height = Size.createSize(json, 1, Size.NONE);
+
+                        return new SizeDimensions(width, height);
+                    }),
+
+                    // Parse into a width-height size dimensions.
+                    collection.dictCase(entry -> {
+
+                        TracedDictionary json = entry.getValue();
+                        Size width = Size.createSize(json, "width", Size.NONE);
+                        Size height = Size.createSize(json, "height", Size.NONE);
+
+                        return new SizeDimensions(width, height);
+                    }),
+
+                    // Parse into a square dimension.
+                    collection.stringCase(entry -> {
+
+                        Size size = Size.createStringSize(entry);
+                        return new SizeDimensions(size, size);
+                    }),
+
+                    // Parse into a square dimension.
+                    collection.doubleCase(entry -> {
+
+                        Size size = Size.createDoubleSize(entry);
+                        return new SizeDimensions(size, size);
+                    })));
+        }
+    }
+
+    public static final int createFontStyle(TracedCollection json, Object key) throws LoggedException {
+
+        TracedEntry<String> fontStyleEntry = json.getAsString(key, false, null);
+        String fontStyle = fontStyleEntry.getValue();
+        return switch (fontStyle) {
+
+        case "normal" -> Font.PLAIN;
+        case "italic" -> Font.ITALIC;
+        default -> throw new UnexpectedValueException(fontStyleEntry);
+        };
+    }
+
+    public static final int createFontWeight(TracedCollection json, Object key) throws LoggedException {
+
+        TracedEntry<String> fontWeightEntry = json.getAsString(key, false, null);
+        String fontWeight = fontWeightEntry.getValue();
+        return switch (fontWeight) {
+
+        case "normal" -> Font.PLAIN;
+        case "bold" -> Font.BOLD;
+        default -> throw new UnexpectedValueException(fontWeightEntry);
+        };
+    }
+
+    public static final Size createLineHeight(TracedCollection json, Object key) throws LoggedException {
+
+        return json.get(key, List.of(
+
+                // A line width of x should really be x*100% of the text size.
+                json.doubleCase(entry -> {
+
+                    double factor = entry.getValue();
+                    return new Size(parent -> parent * factor);
+                }),
+
+                // Any other size should work normally.
+                json.defaultCase(_ -> Size.createSize(json, key))));
+    }
+
+    public static final String createFontFamily(TracedCollection json, Object key) throws LoggedException {
+
+        return json.get(key, List.of(json.stringCase(fontFamilyEntry -> {
+
+            String fontFamily = fontFamilyEntry.getValue();
+            return getFirstAvailableFont(List.of(fontFamily));
+        }), json.arrayCase(fontFamiliesEntry -> {
+
+            TracedArray fontFamiliesArray = fontFamiliesEntry.getValue();
+
+            ArrayList<String> fontFamilies = new ArrayList<>();
+            for (int i : fontFamiliesArray) {
+
+                TracedEntry<String> fontFamilyEntry = fontFamiliesArray.getAsString(i, false, null);
+                String fontFamily = fontFamilyEntry.getValue();
+
+                fontFamilies.add(fontFamily);
+            }
+
+            return getFirstAvailableFont(fontFamilies);
+        })));
+    }
+
+    private static String getFirstAvailableFont(List<String> fontFamilies) {
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        String[] availableFonts = ge.getAvailableFontFamilyNames();
+
+        for (String family : fontFamilies) {
+
+            for (String available : availableFonts) {
+
+                if (available.equalsIgnoreCase(family)) {
+
+                    // Return the first font.
+                    return available;
                 }
-
-                Size width = Size.createSize(json, 0, Size.NONE);
-                Size height = Size.createSize(json, 1, Size.NONE);
-
-                return new SizeDimensions(width, height);
-            }), collection.dictCase(entry -> {
-
-                TracedDictionary json = entry.getValue();
-                Size width = Size.createSize(json, "width", Size.NONE);
-                Size height = Size.createSize(json, "height", Size.NONE);
-
-                return new SizeDimensions(width, height);
-            }), collection.stringCase(entry -> {
-
-                Size size = Size.createStringSize(entry);
-                return new SizeDimensions(size, size);
-            }), collection.doubleCase(entry -> {
-
-                Size size = Size.createDoubleSize(entry);
-                return new SizeDimensions(size, size);
-            })));
+            }
         }
 
+        // If all fonts are exhausted, return null.
+        return null;
     }
 
-    public static final record TextStyle() {
-
-        public static final TextStyle DEFAULT = new TextStyle();
-
-        public static TextStyle createTextStyle(TracedCollection collection, Object key) {
-
-            return new TextStyle();
-        }
-    }
-
+    /**
+     * <code>Direction</code>: An enum class representing a vertical or horizontal
+     * direction.
+     */
     public static enum Direction {
 
-        HORIZONTAL, VERTICAL;
+        /**
+         * <code>Direction</code>: An enum constant representing a horizontal direction.
+         */
+        HORIZONTAL,
 
+        /**
+         * <code>Direction</code>: An enum constant representing a vertical direction.
+         */
+        VERTICAL;
+
+        /**
+         * Parses a collection into a horizontal or vertical direction.
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @return <code>Direction</code>: The resulting direction.
+         */
         public static Direction createDirection(TracedCollection collection, Object key) throws LoggedException {
 
             return collection.get(key, List.of(collection.stringCase(entry -> {

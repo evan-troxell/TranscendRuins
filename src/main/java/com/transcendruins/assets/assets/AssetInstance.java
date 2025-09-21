@@ -71,7 +71,7 @@ public abstract class AssetInstance extends Instance {
 
     /**
      * <code>double</code>: The randomized ID of this <code>AssetInstance</code>
-     * instance, in the range of <code>[0.0, 1.0]</code>.
+     * instance, in the range of <code>[0.0, 1.0)</code>.
      */
     private final double randomId;
 
