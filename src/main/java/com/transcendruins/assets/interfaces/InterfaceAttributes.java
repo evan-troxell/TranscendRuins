@@ -173,51 +173,24 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         case BUTTON -> new ButtonComponentSchema(json);
 
-        case INPUT -> new InputComponentSchema(json);
+        // case INPUT -> new InputComponentSchema(json);
 
-        case DROPDOWN -> new DropdownComponentSchema(json);
+        // case DROPDOWN -> new DropdownComponentSchema(json);
 
-        case SELECT -> new SelectComponentSchema(json);
+        // case SELECT -> new SelectComponentSchema(json);
 
-        case LIST -> new ListComponentSchema(json);
+        // case LIST -> new ListComponentSchema(json);
 
-        case CONTAINER -> new ContainerComponentSchema(json);
+        // case CONTAINER -> new ContainerComponentSchema(json);
 
         case INTERFACE -> new InterfaceComponentSchema(json);
 
-        case INVENTORY -> new InventoryComponentSchema(json);
+        // case INVENTORY -> new InventoryComponentSchema(json);
 
-        case CRAFTING -> new CraftingComponentSchema(json);
+        // case CRAFTING -> new CraftingComponentSchema(json);
 
         default -> throw new UnexpectedValueException(typeEntry);
         };
-    }
-
-    public final ComponentSchema createNonInteractiveComponent(TracedCollection collection, Object key)
-            throws LoggedException {
-
-        // If the child is a string, it is guaranteed to be non-interactive.
-        if (collection.getType(key) == TracedCollection.JSONType.STRING) {
-
-            TracedEntry<String> stringEntry = collection.getAsString(key, false, null);
-            String string = stringEntry.getValue();
-            return new StringComponentSchema(string);
-        }
-
-        TracedEntry<TracedDictionary> jsonEntry = collection.getAsDict(key, false);
-        TracedDictionary json = jsonEntry.getValue();
-
-        ComponentSchema child = createDictComponent(json);
-
-        // If the child is a dictionary, check that it is text or a texture; else, throw
-        // an error.
-        if (child.getType().equals(TEXT) || child.getType().equals(TEXTURE)) {
-
-            return child;
-        }
-
-        TracedEntry<String> typeEntry = json.getAsString("type", false, null);
-        throw new UnexpectedValueException(typeEntry);
     }
 
     /**
@@ -251,6 +224,18 @@ public final class InterfaceAttributes extends AssetAttributes {
         public final TRScript getValue() {
 
             return value;
+        }
+
+        private final ArrayList<ComponentSchema> children = new ArrayList<>();
+
+        protected final void addChild(ComponentSchema child) {
+
+            children.add(child);
+        }
+
+        public final ImmutableList<ComponentSchema> getChildren() {
+
+            return new ImmutableList<>(children);
         }
 
         public ComponentSchema(String string, String type) {
@@ -293,20 +278,13 @@ public final class InterfaceAttributes extends AssetAttributes {
 
     public final class TextComponentSchema extends ComponentSchema {
 
-        private final StringComponentSchema text;
-
-        public final StringComponentSchema getText() {
-
-            return text;
-        }
-
         public TextComponentSchema(TracedDictionary json) throws LoggedException {
 
             super(json, TEXT);
 
             TracedEntry<String> textEntry = json.getAsString("text", true, null);
-            String textString = textEntry.getValue();
-            text = new StringComponentSchema(textString);
+            StringComponentSchema text = new StringComponentSchema(textEntry.getValue());
+            addChild(text);
         }
     }
 
@@ -330,13 +308,6 @@ public final class InterfaceAttributes extends AssetAttributes {
 
     public final class ButtonComponentSchema extends ComponentSchema {
 
-        private final ImmutableList<ComponentSchema> components;
-
-        public final ImmutableList<ComponentSchema> getComponents() {
-
-            return components;
-        }
-
         private final ImmutableList<ComponentActionSchema> action;
 
         public final ImmutableList<ComponentActionSchema> getAction() {
@@ -348,29 +319,11 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             super(json, BUTTON);
 
-            components = json.get("components", List.of(
+            if (json.containsKey("content")) {
 
-                    // Create multiple children.
-                    json.arrayCase(componentsEntry -> {
-
-                        ArrayList<ComponentSchema> componentsList = new ArrayList<>();
-                        TracedArray componentsJson = componentsEntry.getValue();
-
-                        // Process all of the children components.
-                        for (int i : componentsJson) {
-
-                            ComponentSchema component = createNonInteractiveComponent(componentsJson, i);
-                            componentsList.add(component);
-                        }
-
-                        return new ImmutableList<>(componentsList);
-                    }),
-
-                    // Create a single child.
-                    json.defaultCase(_ -> {
-
-                        return new ImmutableList<>(createNonInteractiveComponent(json, "components"));
-                    })));
+                ComponentSchema component = createComponent(json, "content");
+                addChild(component);
+            }
 
             action = json.get("action", List.of(
 
@@ -421,28 +374,31 @@ public final class InterfaceAttributes extends AssetAttributes {
 
     public final ComponentActionSchema createAction(TracedDictionary json) throws LoggedException {
 
-            TracedEntry<String> typeEntry = json.getAsString("type", false, null);
-            String type = typeEntry.getValue();
+        TracedEntry<String> typeEntry = json.getAsString("type", false, null);
+        String type = typeEntry.getValue();
 
-            return switch (type) {
+        // TODO: Add rest of action types
+        return switch (type) {
 
-            case OPEN_MENU -> new OpenMenuComponentActionSchema(json);
+        // case OPEN_MENU -> new OpenMenuComponentActionSchema(json);
 
-            case CLOSE_MENU -> new CloseMenuComponentActionSchema(json);
+        // case CLOSE_MENU -> new CloseMenuComponentActionSchema(json);
 
-            case SHOW_COMPONENT
+        // case SHOW_COMPONENT
 
-            case HIDE_COMPONENT
+        // case HIDE_COMPONENT
 
-            case COMPONENT_ACTION
+        // case COMPONENT_ACTION
 
-            case SET_PROPERTY
+        // case SET_PROPERTY
 
-            case SET_GLOBAL_PROPERTY
+        // case SET_GLOBAL_PROPERTY
 
-            default -> throw new UnexpectedValueException(typeEntry);
-            };
-        }
+        case "PLACEHOLDER" -> null;
+
+        case null, default -> throw new UnexpectedValueException(typeEntry);
+        };
+    }
 
     public abstract class ComponentActionSchema {
 

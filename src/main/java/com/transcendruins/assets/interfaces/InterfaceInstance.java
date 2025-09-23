@@ -107,6 +107,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
      */
     public ComponentInstance createComponent(ComponentSchema schema, ComponentInstance parent) {
 
+        // TODO: Add rest of UI component types
         return switch (schema) {
 
         case TextComponentSchema labelSchema -> new TextComponentInstance(labelSchema, parent);
@@ -115,17 +116,22 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         case ButtonComponentSchema buttonSchema -> new ButtonComponentInstance(buttonSchema, parent);
 
-        case InputComponentSchema inputSchema -> new InputComponentInstance(inputSchema, parent);
+        // case InputComponentSchema inputSchema -> new
+        // InputComponentInstance(inputSchema, parent);
+
+        // case DropdownComponentSchema dropdownSchema -> new
+        // DropdownComponentInstance(dropdownSchema, parent);
+
+        // case SelectComponentSchema selectSchema -> new
+        // SelectComponentInstance(selectSchema, parent);
+
+        // case ListComponentSchema listSchema -> new ListComponentInstance(listSchema,
+        // parent);
+
+        // case ContainerComponentSchema panelSchema -> new
+        // ContainerComponentInstance(panelSchema, parent);
 
         case InterfaceComponentSchema interfaceSchema -> new InterfaceComponentInstance(interfaceSchema, parent);
-
-        case DropdownComponentSchema dropdownSchema -> new DropdownComponentInstance(dropdownSchema, parent);
-
-        case SelectComponentSchema selectSchema -> new SelectComponentInstance(selectSchema, parent);
-
-        case ListComponentSchema listSchema -> new ListComponentInstance(listSchema, parent);
-
-        case PanelComponentSchema panelSchema -> new PanelComponentInstance(panelSchema, parent);
 
         default -> null;
         };
@@ -146,13 +152,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private final ArrayList<ComponentInstance> children = new ArrayList<>();
 
-        protected final void addChild(ComponentInstance child) {
+        protected final void addChild(ComponentSchema schema) {
 
+            ComponentInstance child = createComponent(schema, this);
             children.add(child);
         }
 
         @Override
-        public final ArrayList<UIComponent> getChildren() {
+        public List<UIComponent> getChildren() {
 
             return new ArrayList<>(children);
         }
@@ -238,6 +245,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 marginTop, marginBottom, rxTL, ryTL, rxTR, ryTR, rxBL, ryBL, rxBR, ryBR, paddingLeft, paddingRight,
                 paddingTop, paddingBottom, fontSize, lineHeight;
 
+        private Boolean eventPropagation;
+
+        private final boolean defaultEventPropagation;
+
         public final int getWidth() {
 
             return width;
@@ -276,20 +287,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private int maxScrollX = 0;
         private int scrollY = 0;
         private int maxScrollY = 0;
-
-        @Override
-        public final void onScroll(int mouseX, int mouseY, Point displacement) {
-
-            // Calculate the adjustment to scroll.
-            int newScrollX = Math.clamp(scrollX + displacement.x, 0, maxScrollX);
-            int newScrollY = Math.clamp(scrollY + displacement.y, 0, maxScrollX);
-
-            // Remove the adjustment from the scroll
-            displacement.translate(scrollX - newScrollX, scrollY - newScrollY);
-
-            scrollX = newScrollX;
-            scrollY = newScrollY;
-        }
 
         /**
          * Resizes this <code>ComponentInstance</code> to a new set of dimensions. This
@@ -333,7 +330,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private Font font;
         private FontMetrics fm;
 
-        public ComponentInstance(ComponentSchema schema, ComponentInstance parent) {
+        public ComponentInstance(ComponentSchema schema, ComponentInstance parent, boolean defaultEventPropagation) {
 
             this.parent = parent;
 
@@ -341,23 +338,13 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             id = schema.getId();
             style = schema.getStyle();
             value = schema.getValue();
-        }
 
-        public final void exit() {
+            this.defaultEventPropagation = defaultEventPropagation;
 
-            removeState("hover");
-            removeState("active");
-        }
+            for (ComponentSchema child : schema.getChildren()) {
 
-        public final void hover() {
-
-            addState("hover");
-            removeState("active");
-        }
-
-        public final void press() {
-
-            addState("active");
+                addChild(child);
+            }
         }
 
         /**
@@ -513,6 +500,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             // Generate the current style.
             Style s = getStyle(parentStyle);
+
+            // Update the event propagation immediately.
+            eventPropagation = s.eventPropagation();
 
             // Calculate the initial size.
             measure(s, parentWidth, parentHeight, parentFontSize);
@@ -891,20 +881,80 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private String textOverflow(FontMetrics fm, String line, int maxWidth) {
 
-            if (!textOverflow.equals("clip") && fm.stringWidth(line) > maxWidth) {
+            if (!textOverflow != TextOverflowSchema.CLIP && fm.stringWidth(line) > maxWidth) {
 
                 while (line.length() > 1) {
 
                     line = line.substring(0, line.length() - 1);
                     if (fm.stringWidth(line) <= maxWidth) {
 
-                        line += textOverflow;
+                        line += textOverflow.getValue();
                         break;
                     }
                 }
             }
 
             return line;
+        }
+
+        @Override
+        public final void unhover(int mouseX, int mouseY) {
+
+            removeState("hover");
+        }
+
+        @Override
+        public final void hover(int mouseX, int mouseY) {
+
+            addState("hover");
+        }
+
+        @Override
+        public final void release(int mouseX, int mouseY) {
+
+            removeState("active");
+        }
+
+        @Override
+        public final boolean press(int mouseX, int mouseY) {
+
+            addState("active");
+
+            if (eventPropagation == null) {
+
+                return defaultEventPropagation;
+            }
+
+            return eventPropagation;
+        }
+
+        @Override
+        public final boolean onClick(int mouseX, int mouseY, TRScript value) {
+
+            onComponentClick(mouseX, mouseY, value);
+
+            if (eventPropagation == null) {
+
+                return defaultEventPropagation;
+            }
+
+            return eventPropagation;
+        }
+
+        public abstract void onComponentClick(int mouseX, int mouesY, TRScript value);
+
+        @Override
+        public final void scroll(int mouseX, int mouseY, Point displacement) {
+
+            // Calculate the adjustment to scroll.
+            int newScrollX = Math.clamp(scrollX + displacement.x, 0, maxScrollX);
+            int newScrollY = Math.clamp(scrollY + displacement.y, 0, maxScrollX);
+
+            // Remove the adjustment from the scroll
+            displacement.translate(scrollX - newScrollX, scrollY - newScrollY);
+
+            scrollX = newScrollX;
+            scrollY = newScrollY;
         }
     }
 
@@ -916,14 +966,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         public StringComponentInstance(StringComponentSchema schema, ComponentInstance parent) {
 
-            super(schema, parent);
+            super(schema, parent, true);
             string = schema.getString();
-        }
-
-        @Override
-        public boolean onClick(TRScript value) {
-
-            return true;
         }
 
         private Point calculateTextPosition(String text, Style style) {
@@ -948,22 +992,18 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             drawText(g2d, string, style.color(), textX, textY);
         }
+
+        @Override
+        public final void onComponentClick(int mouseX, int mouseY, TRScript value) {
+
+        }
     }
 
     public final class TextComponentInstance extends ComponentInstance {
 
         public TextComponentInstance(TextComponentSchema schema, ComponentInstance parent) {
 
-            super(schema, parent);
-
-            StringComponentSchema textSchema = schema.getText();
-            addChild(new StringComponentInstance(textSchema, this));
-        }
-
-        @Override
-        public final boolean onClick(int mouseX, int mouseY, TRScript value) {
-
-            return true;
+            super(schema, parent, true);
         }
 
         @Override
@@ -983,6 +1023,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             drawImage(g2d, text, textRender.x(), textRender.y());
         }
+
+        @Override
+        public final void onComponentClick(int mouseX, int mouseY, TRScript value) {
+
+        }
     }
 
     public final class TextureComponentInstance extends ComponentInstance {
@@ -993,15 +1038,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         public TextureComponentInstance(TextureComponentSchema schema, ComponentInstance parent) {
 
-            super(schema, parent);
+            super(schema, parent, true);
 
             texture = schema.getTexture();
-        }
-
-        @Override
-        public final boolean onClick(TRScript value) {
-
-            return true;
         }
 
         private Point calculateTexturePosition(String texture, Style style) {
@@ -1024,6 +1063,53 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             drawTexture(g2d, texture, textureX, textureY, size);
         }
+
+        @Override
+        public final void onComponentClick(int mouseX, int mouseY, TRScript value) {
+
+        }
+    }
+
+    public final class ButtonComponentInstance extends ComponentInstance {
+
+        public ButtonComponentInstance(ButtonComponentSchema schema, ComponentInstance parent) {
+
+            super(schema, parent, false);
+        }
+
+        @Override
+        public Dimension calculateContentSize(Style style, List<ImageClip> children) {
+
+            // Buttons are not required to have a child.
+            if (children.isEmpty()) {
+
+                return new Dimension();
+            }
+
+            ImageClip child = children.getFirst();
+            BufferedImage childRender = child.image();
+            return new Dimension(child.x() + childRender.getWidth(), child.y() + childRender.getHeight());
+        }
+
+        @Override
+        public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            // Buttons are not required to have a child.
+            if (children.isEmpty()) {
+
+                return;
+            }
+
+            ImageClip child = children.getFirst();
+            BufferedImage childRender = child.image();
+            drawImage(g2d, childRender, child.x(), child.y());
+        }
+
+        @Override
+        public void onComponentClick(int mouseX, int mouesY, TRScript value) {
+
+            // TODO add button actions
+        }
     }
 
     public final class InterfaceComponentInstance extends ComponentInstance {
@@ -1034,7 +1120,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         public InterfaceComponentInstance(InterfaceComponentSchema schema, ComponentInstance parent) {
 
-            super(schema, parent);
+            super(schema, parent, true);
 
             AssetPresets presets = schema.getPresets();
             InterfaceContext context = new InterfaceContext(presets, getWorld(), InterfaceInstance.this, this);
@@ -1043,38 +1129,18 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final boolean onExit(int mouseX, int mouseY) {
+        public final List<UIComponent> getChildren() {
 
-            return asset.onExit(mouseX, mouseY);
-        }
-
-        @Override
-        public final boolean onHover(int mouseX, int mouseY) {
-
-            return asset.onHover(mouseX, mouseY);
-        }
-
-        @Override
-        public final boolean onPress(int mouseX, int mouseY) {
-
-            return asset.onPress(mouseX, mouseY);
-        }
-
-        @Override
-        public final boolean onClick(int mouseX, int mouseY, TRScript value) {
-
-            return asset.onClick(mouseX, mouseY, asset.getValue());
+            return List.of(asset);
         }
 
         @Override
         public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
 
-            ComponentInstance body = asset.getBody();
-
             int width = getTotalWidth();
             int height = getTotalHeight();
             int fontSize = getFontSize();
-            BufferedImage image = body.render(width, height, fontSize, style);
+            BufferedImage image = asset.render(width, height, fontSize, style);
 
             int x = body.x;
             int y = body.y;
@@ -1089,6 +1155,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             BufferedImage body = bodyRender.image();
 
             drawImage(g2d, body, bodyRender.x(), bodyRender.y());
+        }
+
+        @Override
+        public final void onComponentClick(int mouseX, int mouseY, TRScript value) {
+
         }
     }
 
@@ -1124,54 +1195,33 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
     }
 
     @Override
-    public final boolean onExit(int mouseX, int mouseY) {
-
-        if (body.contains(mouseX, mouseY)) {
-
-            return body.onExit(mouseX, mouseY);
-        }
-
-        return true;
+    public final void unhover(int mouseX, int mouseY) {
     }
 
     @Override
-    public final boolean onHover(int mouseX, int mouseY) {
+    public final void hover(int mouseX, int mouseY) {
 
-        if (body.contains(mouseX, mouseY)) {
-
-            return body.onHover(mouseX, mouseY);
-        }
-
-        return true;
+        // Nothing should happen when the mouse hovers the interface wrapper.
     }
 
     @Override
-    public final void onScroll(int mouseX, int mouseY, Point displacement) {
+    public final void scroll(int mouseX, int mouseY, Point displacement) {
 
-        if (body.contains(mouseX, mouseY)) {
-
-            body.onScroll(mouseX, mouseY, displacement);
-        }
+        // Nothing should happen when the mouse scrolls the interface wrapper.
     }
 
     @Override
-    public final boolean onPress(int mouseX, int mouseY) {
+    public final void release(int mouseX, int mouseY) {
+    }
 
-        if (body.contains(mouseX, mouseY)) {
-
-            return body.onPress(mouseX, mouseY);
-        }
+    @Override
+    public final boolean press(int mouseX, int mouseY) {
 
         return true;
     }
 
     @Override
     public final boolean onClick(int mouseX, int mouseY, TRScript value) {
-
-        if (body.contains(mouseX, mouseY)) {
-
-            return body.onClick(mouseX, mouseY, value);
-        }
 
         return true;
     }
@@ -1185,31 +1235,33 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
     @Override
     public final TRScript getValue() {
 
-        return body.getValue();
+        return TRScript.EMPTY;
     }
 
     @Override
     public final int getX() {
 
-        return body.getX();
+        return 0;
     }
 
     @Override
     public final int getY() {
 
-        return body.getY();
+        return 0;
     }
 
     @Override
     public final Dimension getSize() {
 
-        return body.getSize();
+        // Create the size such that it starts in the top left corner of the parent
+        // element and ends at the boundaries of the body.
+        return new Dimension(body.getX() + body.getTotalWidth(), body.getY() + body.getTotalHeight());
     }
 
     @Override
     public final BufferedImage render(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
 
-        body.render(parentWidth, parentHeight, parentFontSize, parentStyle);
-        return body.getRender();
+        // This interface should be treated as essentially covering the entire parent.
+        return body.render(parentWidth, parentHeight, parentFontSize, parentStyle);
     }
 }

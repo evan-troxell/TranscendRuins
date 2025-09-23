@@ -19,7 +19,6 @@ package com.transcendruins.assets.interfaces;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.transcendruins.assets.scripts.TRScript;
@@ -31,40 +30,37 @@ import com.transcendruins.resources.styles.Style;
  */
 public interface UIComponent {
 
-    public boolean onExit(int mouseX, int mouseY);
+    public void unhover(int mouseX, int mouseY);
 
-    public boolean onHover(int mouseX, int mouseY);
+    public void hover(int mouseX, int mouseY);
 
-    public default List<UIComponent> hover(int mouseX, int mouseY) {
+    public default boolean hover(int mouseX, int mouseY, List<UIComponent> stack) {
 
-        ArrayList<UIComponent> stack = new ArrayList<>();
-        propagateAction(mouseX, mouseY, UIComponent::onHover, stack);
+        return propagateAction(mouseX, mouseY, (component, x, y) -> {
 
-        return stack;
+            component.hover(x, y);
+            return true;
+        }, stack);
     }
 
-    public void onScroll(int mouseX, int mouseY, Point displacement);
+    public void scroll(int mouseX, int mouseY, Point displacement);
 
-    public default List<UIComponent> scroll(int mouseX, int mouseY, Point displacement) {
+    public default boolean scroll(int mouseX, int mouseY, Point displacement, List<UIComponent> stack) {
 
-        ArrayList<UIComponent> stack = new ArrayList<>();
-        propagateAction(mouseX, mouseY, (component, x, y) -> {
+        return propagateAction(mouseX, mouseY, (component, x, y) -> {
 
-            component.onScroll(x, y, displacement);
+            component.scroll(x, y, displacement);
             return displacement.x != 0 || displacement.y != 0;
         }, stack);
-
-        return stack;
     }
 
-    public boolean onPress(int mouseX, int mouseY);
+    public void release(int mouseX, int mouseY);
 
-    public default List<UIComponent> press(int mouseX, int mouseY) {
+    public boolean press(int mouseX, int mouseY);
 
-        ArrayList<UIComponent> stack = new ArrayList<>();
-        propagateAction(mouseX, mouseY, UIComponent::onPress, stack);
+    public default boolean press(int mouseX, int mouseY, List<UIComponent> stack) {
 
-        return stack;
+        return propagateAction(mouseX, mouseY, UIComponent::press, stack);
     }
 
     /**
@@ -80,12 +76,10 @@ public interface UIComponent {
      */
     public boolean onClick(int mouseX, int mouseY, TRScript value);
 
-    public default List<UIComponent> click(int mouseX, int mouseY) {
+    public default boolean click(int mouseX, int mouseY, List<UIComponent> stack) {
 
-        ArrayList<UIComponent> stack = new ArrayList<>();
-        propagateAction(mouseX, mouseY, (component, x, y) -> component.onClick(x, y, component.getValue()), stack);
-
-        return stack;
+        return propagateAction(mouseX, mouseY, (component, x, y) -> component.onClick(x, y, component.getValue()),
+                stack);
     }
 
     public List<UIComponent> getChildren();

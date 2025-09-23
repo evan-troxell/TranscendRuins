@@ -41,11 +41,11 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         BorderStyle borderRight, SizeDimensions rTL, SizeDimensions rTR, SizeDimensions rBL, SizeDimensions rBR,
         Size marginTop, Size marginBottom, Size marginLeft, Size marginRight, Size paddingTop, Size paddingBottom,
         Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize, Size lineHeight,
-        String fontFamily, Color color, Size gap, Direction listDirection) {
+        String fontFamily, Color color, Size gap, Direction listDirection, Boolean eventPropagation) {
 
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null);
+            null, null);
 
     public static final Size AUTO = new Size(parent -> parent);
 
@@ -105,6 +105,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         Size gap = null;
         Direction listDirection = null;
+
+        Boolean eventPropagation = null;
 
         TracedEntry<TracedDictionary> entry = collection.getAsDict(key, true);
         if (entry.containsValue()) {
@@ -237,6 +239,13 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
                 // Process the list direction.
                 case "listDirection" -> listDirection = Direction.createDirection(json, property);
+
+                // Process the event propagation behavior.
+                case "eventPropagation" -> {
+
+                    TracedEntry<Boolean> eventPropagationEntry = json.getAsBoolean(key, false, null);
+                    eventPropagation = eventPropagationEntry.getValue();
+                }
                 }
             }
         }
@@ -244,7 +253,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         return new Style(x, y, width, height, minWidth, minHeight, background, borderTop, borderBottom, borderLeft,
                 borderRight, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft, marginRight, paddingTop,
                 paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize, lineHeight, fontFamily,
-                color, gap, listDirection);
+                color, gap, listDirection, eventPropagation);
     }
 
     public static Style createStyle(List<Style> styles, Style parent) {
@@ -278,7 +287,9 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::fontFamily, parent, null), parseVal(styles, Style::color, parent, Color.BLACK),
 
                 // All listing properties should be independent.
-                parseVal(styles, Style::gap, Size.NONE), parseVal(styles, Style::listDirection, Direction.VERTICAL));
+                parseVal(styles, Style::gap, Size.NONE), parseVal(styles, Style::listDirection, Direction.VERTICAL),
+
+                parseVal(styles, Style::eventPropagation, null));
     }
 
     /**

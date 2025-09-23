@@ -17,32 +17,31 @@
 package com.transcendruins.assets.interfaces;
 
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.JPanel;
 
-import com.transcendruins.assets.interfaces.InterfaceInstance.ComponentInstance;
+import com.transcendruins.resources.styles.Style;
 
 public final class InterfaceCanvasComponent extends JPanel {
 
-    private final HashMap<String, InterfaceInstance> menus = new HashMap<>();
-
     private final ArrayList<String> keys = new ArrayList<>();
 
-    public void addMenu(String key, InterfaceInstance menu) {
+    private final HashMap<String, InterfaceInstance> menus = new HashMap<>();
+
+    public final void addMenu(String key, InterfaceInstance menu) {
 
         menus.put(key, menu);
         keys.add(key);
     }
 
-    public void removeMenu(String key) {
+    public final void removeMenu(String key) {
 
         menus.remove(key);
         keys.remove(key);
@@ -50,28 +49,24 @@ public final class InterfaceCanvasComponent extends JPanel {
 
     private InterfaceInstance activeMenu = null;
 
-    public boolean hasActiveMenu() {
+    public final boolean hasActiveMenu() {
 
         return activeMenu != null;
     }
 
-    public void setActiveMenu(InterfaceInstance activeMenu) {
+    public final void setActiveMenu(InterfaceInstance activeMenu) {
 
         this.activeMenu = activeMenu;
     }
 
-    private ComponentInstance hover = null;
+    public final void exitActiveMenu() {
 
-    private List<ComponentInstance> hovers = List.of();
-
-    public boolean hasHover() {
-
-        return hover != null;
+        activeMenu = null;
     }
 
-    private boolean mouseOver = false;
+    private final ArrayList<UIComponent> hovered = new ArrayList<>();
 
-    private boolean mouseDown = false;
+    private final ArrayList<UIComponent> pressed = new ArrayList<>();
 
     public InterfaceCanvasComponent() {
 
@@ -85,45 +80,47 @@ public final class InterfaceCanvasComponent extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
 
-                mouseDown = true;
+                int mouseX = e.getX();
+                int mouseY = e.getY();
 
-                press();
+                pressed.addAll(getPressedAt(mouseX, mouseY));
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
 
-                mouseDown = false;
+                int mouseX = e.getX();
+                int mouseY = e.getY();
 
-                hover();
+                for (UIComponent component : pressed) {
 
-                if (hasHover()) {
-
-                    for (ComponentInstance hovered : hovers) {
-
-                        if (!hovered.onPress(hovered.getValue())) {
-
-                            break;
-                        }
-                    }
+                    component.release(mouseX, mouseY);
                 }
+
+                pressed.clear();
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
 
-                mouseOver = true;
+                int mouseX = e.getX();
+                int mouseY = e.getY();
 
-                mouseOver(e.getPoint());
+                hovered.addAll(getHoveredAt(mouseX, mouseY));
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
 
-                mouseDown = false;
-                mouseOver = false;
+                int mouseX = e.getX();
+                int mouseY = e.getY();
 
-                exit();
+                for (UIComponent component : hovered) {
+
+                    component.unhover(mouseX, mouseY);
+                }
+
+                hovered.clear();
             }
         });
 
@@ -132,123 +129,130 @@ public final class InterfaceCanvasComponent extends JPanel {
             @Override
             public void mouseDragged(MouseEvent e) {
 
-                mouseOver(e.getPoint());
+                int mouseX = e.getX();
+                int mouseY = e.getY();
+
+                moveMouse(mouseX, mouseY);
+                dragMouse(mouseX, mouseY);
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
 
-                mouseOver(e.getPoint());
+                int mouseX = e.getX();
+                int mouseY = e.getY();
+
+                moveMouse(mouseX, mouseY);
             }
+        });
+    
+        addMouseWheelListener(new MouseWheelListener() {
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                /
+                e.get
+            }
+            
         });
     }
 
-    private void exit() {
+    private synchronized void moveMouse(int mouseX, int mouseY) {
 
-        // Check if the hover exists.
-        if (hasHover()) {
+        // Press the new components.
+        ArrayList<UIComponent> newPressed = getPressedAt(mouseX, mouseY);
 
-            hover.exit();
-            hover = null;
+        // Unpress old components that are no longer pressed.
+        pressed.removeAll(newPressed);
+        for (UIComponent component : pressed) {
 
-            hovers = List.of();
+            component.release(mouseX, mouseY);
         }
+
+        // Reset the pressed components.
+        pressed.clear();
+        pressed.addAll(newPressed);
     }
 
-    private void enter(List<ComponentInstance> hovers) {
+    private synchronized ArrayList<UIComponent> getHoveredAt(int mouseX, int mouseY) {
 
-        hover = hovers.getFirst();
-        this.hovers = hovers;
-
-        if (mouseDown) {
-
-            press();
-        } else {
-
-            hover();
-        }
-    }
-
-    private void hover() {
-
-        // Check if the hover exists.
-        if (hasHover()) {
-
-            hover.hover();
-        }
-    }
-
-    private void press() {
-
-        // Check if the hover exists.
-        if (hasHover()) {
-
-            hover.press();
-        }
-    }
-
-    private void mouseOver(Point point) {
-
-        if (!mouseOver) {
-
-            exit();
-        }
-
-        // Retrieve the new focus, or null if the mouse is not over a menu.
-        List<ComponentInstance> focus = getHoverAt(point.x, point.y);
-
-        if (focus != hover) {
-
-            exit();
-            enter(focus);
-        }
-    }
-
-    private List<ComponentInstance> getHoverAt(int x, int y) {
+        ArrayList<UIComponent> components = new ArrayList<>();
 
         if (hasActiveMenu()) {
 
-            ComponentInstance body = activeMenu.getBody();
-            if (body.mouseOver(x, y)) {
+            activeMenu.hover(mouseX, mouseY, components);
+        } else {
 
-                return body.getStackAt(x, y);
+            for (int i = keys.size() - 1; i >= 0; i--) {
+
+                String menuKey = keys.get(i);
+                InterfaceInstance menu = menus.get(menuKey);
+                menu.hover(mouseX, mouseY, components);
             }
+        }
 
-            return null;
+        return components;
+    }
+
+    private synchronized void dragMouse(int mouseX, int mouseY) {
+
+        // Hover the new components.
+        ArrayList<UIComponent> newHovered = getHoveredAt(mouseX, mouseY);
+
+        // Unhover old components that are no longer hovered.
+        hovered.removeAll(newHovered);
+        for (UIComponent component : hovered) {
+
+            component.unhover(mouseX, mouseY);
+        }
+
+        // Reset the hovered components.
+        hovered.clear();
+        hovered.addAll(newHovered);
+    }
+
+    private synchronized ArrayList<UIComponent> getPressedAt(int mouseX, int mouseY) {
+
+        ArrayList<UIComponent> components = new ArrayList<>();
+
+        if (hasActiveMenu()) {
+
+            activeMenu.press(mouseX, mouseY, components);
+        } else {
+
+            for (int i = keys.size() - 1; i >= 0; i--) {
+
+                String menuKey = keys.get(i);
+                InterfaceInstance menu = menus.get(menuKey);
+                if (!menu.press(mouseX, mouseY, components)) {
+
+                    break;
+                }
+            }
+        }
+
+        return components;
+    }
+
+    @Override
+    public final void paint(Graphics g) {
+
+        super.paint(g);
+
+        int width = getWidth();
+        int height = getHeight();
+        int defaultFontSize = 16;
+
+        if (hasActiveMenu()) {
+
+            activeMenu.render(width, height, defaultFontSize, Style.EMPTY);
+            return;
         }
 
         for (String key : keys) {
 
             InterfaceInstance menu = menus.get(key);
-            ComponentInstance body = menu.getBody();
-            if (body.mouseOver(x, y)) {
-
-                return body.getStackAt(x, y);
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public void paint(Graphics g) {
-
-        super.paint(g);
-
-        Graphics2D g2d = (Graphics2D) g;
-        int width = getWidth();
-        int height = getHeight();
-
-        if (hasActiveMenu()) {
-
-            activeMenu.draw(g2d, width, height);
-            return;
-        }
-
-        for (String key : keys.reversed()) {
-
-            InterfaceInstance menu = menus.get(key);
-            menu.draw(g2d, width, height);
+            menu.render(width, height, defaultFontSize, Style.EMPTY);
         }
     }
 }
