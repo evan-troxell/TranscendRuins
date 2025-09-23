@@ -18,9 +18,11 @@ package com.transcendruins.assets.interfaces;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Path2D;
@@ -37,11 +39,7 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema.ButtonComponentSchema;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema.ComponentActionSchema;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema.InterfaceComponentSchema;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema.LabelComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.*;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.ComponentProperties;
 import com.transcendruins.resources.styles.Style;
@@ -53,7 +51,9 @@ import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 
-public final class InterfaceInstance extends AssetInstance {
+public final class InterfaceInstance extends AssetInstance implements UIComponent {
+
+    private final ComponentInstance componentParent;
 
     private StyleSet styles;
 
@@ -68,6 +68,8 @@ public final class InterfaceInstance extends AssetInstance {
 
         super(assetContext, key);
         InterfaceContext context = (InterfaceContext) assetContext;
+
+        componentParent = context.getComponentParent();
     }
 
     @Override
@@ -84,7 +86,7 @@ public final class InterfaceInstance extends AssetInstance {
         // Apply the new styles to the old.
         styles = calculateAttribute(attributes.getStyles(), set -> styles.extend(set), styles);
 
-        body = calculateAttribute(attributes.getBody(), schema -> createComponent(schema, null), body);
+        body = calculateAttribute(attributes.getBody(), schema -> createComponent(schema, componentParent), body);
     }
 
     @Override
@@ -97,6 +99,8 @@ public final class InterfaceInstance extends AssetInstance {
      * 
      * @param schema <code>ComponentSchema</code>: The schema to create the new
      *               <code>ComponentInstance</code> instance from.
+     * @param parent <code>ComponentInstance</code>: The parent component to the new
+     *               <code>ComponentInstance</code> instance.
      * @return <code>ComponentInstance</code>: The resulting loot instance.
      * @throws LoggedException Thrown if any exception is raised while creating the
      *                         new loot instance.
@@ -105,7 +109,9 @@ public final class InterfaceInstance extends AssetInstance {
 
         return switch (schema) {
 
-        case LabelComponentSchema labelSchema -> new LabelComponentInstance(labelSchema, parent);
+        case TextComponentSchema labelSchema -> new TextComponentInstance(labelSchema, parent);
+
+        case TextureComponentSchema labelSchema -> new TextureComponentInstance(labelSchema, parent);
 
         case ButtonComponentSchema buttonSchema -> new ButtonComponentInstance(buttonSchema, parent);
 
@@ -129,7 +135,7 @@ public final class InterfaceInstance extends AssetInstance {
      * <code>ComponentInstance</code>: A class representing an instance of a visual
      * component.
      */
-    public abstract class ComponentInstance {
+    public abstract class ComponentInstance implements UIComponent {
 
         private final ComponentInstance parent;
 
@@ -145,13 +151,19 @@ public final class InterfaceInstance extends AssetInstance {
             children.add(child);
         }
 
+        @Override
+        public final ArrayList<UIComponent> getChildren() {
+
+            return new ArrayList<>(children);
+        }
+
         private final String type;
 
         private final String id;
 
-        private final Style styleX; // TODO: Return to 'style'
+        private final Style style;
 
-        public final Style getStyle() {
+        public final Style getStyle(Style parentStyle) {
 
             ComponentProperties properties = getProperties();
 
@@ -164,7 +176,7 @@ public final class InterfaceInstance extends AssetInstance {
             // The instance styles should be the top.
             evaluated.add(style);
 
-            return Style.createStyle(evaluated);
+            return Style.createStyle(evaluated, parentStyle);
         }
 
         private final HashSet<String> classes = new HashSet<>();
@@ -209,52 +221,91 @@ public final class InterfaceInstance extends AssetInstance {
             };
         }
 
-        protected int x, y, width, height, borderLeft, borderRight, borderTop, borderBottom, marginLeft, marginRight,
+        private TRScript value;
+
+        protected final void setValue(TRScript value) {
+
+            this.value = value;
+        }
+
+        @Override
+        public final TRScript getValue() {
+
+            return value;
+        }
+
+        private int x, y, width, height, borderLeft, borderRight, borderTop, borderBottom, marginLeft, marginRight,
                 marginTop, marginBottom, rxTL, ryTL, rxTR, ryTR, rxBL, ryBL, rxBR, ryBR, paddingLeft, paddingRight,
                 paddingTop, paddingBottom, fontSize, lineHeight;
 
-        protected Font font;
+        public final int getWidth() {
+
+            return width;
+        }
+
+        public final int getHeight() {
+
+            return height;
+        }
+
+        public final int getFontSize() {
+
+            return fontSize;
+        }
+
+        @Override
+        public final int getX() {
+
+            return x + marginLeft;
+        }
+
+        @Override
+        public final int getY() {
+
+            return y + marginTop;
+        }
+
+        @Override
+        public final Dimension getSize() {
+
+            return new Dimension(borderLeft + paddingLeft + width + paddingRight + borderRight,
+                    borderTop + paddingTop + height + paddingBottom + borderBottom);
+        }
+
+        private int scrollX = 0;
+        private int maxScrollX = 0;
+        private int scrollY = 0;
+        private int maxScrollY = 0;
+
+        @Override
+        public final void onScroll(int mouseX, int mouseY, Point displacement) {
+
+            // Calculate the adjustment to scroll.
+            int newScrollX = Math.clamp(scrollX + displacement.x, 0, maxScrollX);
+            int newScrollY = Math.clamp(scrollY + displacement.y, 0, maxScrollX);
+
+            // Remove the adjustment from the scroll
+            displacement.translate(scrollX - newScrollX, scrollY - newScrollY);
+
+            scrollX = newScrollX;
+            scrollY = newScrollY;
+        }
 
         /**
          * Resizes this <code>ComponentInstance</code> to a new set of dimensions. This
          * should be used when resizing a component to account for the size of children.
          * 
-         * @param contentWidth  <code>int</code>: The width of the content of this
-         *                      <code>ComponentInstance</code>, which is equal to the
-         *                      width minus the horizontal padding.
-         * @param contentHeight <code>int</code>: The height of the content ofthis
-         *                      <code>ComponentInstance</code>, which is equal to the
-         *                      height minus the vertical padding.
+         * @param width  <code>int</code>: The width of the content of this
+         *               <code>ComponentInstance</code>, which is equal to the width
+         *               minus the horizontal padding.
+         * @param height <code>int</code>: The height of the content ofthis
+         *               <code>ComponentInstance</code>, which is equal to the height
+         *               minus the vertical padding.
          */
-        protected final void resize(int contentWidth, int contentHeight) {
+        protected final void resize(int width, int height) {
 
-            this.width = contentWidth + paddingLeft + paddingRight;
-            this.height = contentHeight + paddingTop + paddingBottom;
-        }
-
-        /**
-         * Retrieves the width of the content of this <code>ComponentInstance</code>
-         * instance.
-         * 
-         * @return <code>int</code>: The width of this <code>ComponentInstance</code>
-         *         instance minus the horizontal padding and half of the horizontal
-         *         border.
-         */
-        protected final int getContentWidth() {
-
-            return width - paddingLeft - paddingRight - (borderLeft + borderRight) / 2;
-        }
-
-        /**
-         * Retrieves the height of the content of this <code>ComponentInstance</code>
-         * instance.
-         * 
-         * @return <code>int</code>: The height of this <code>ComponentInstance</code>
-         *         instance minus the vertical padding and half of the vertical border.
-         */
-        protected final int getContentHeight() {
-
-            return height - paddingTop - paddingBottom - (borderTop + borderBottom) / 2;
+            this.width = width;
+            this.height = height;
         }
 
         /**
@@ -265,7 +316,7 @@ public final class InterfaceInstance extends AssetInstance {
          */
         protected final int getTotalWidth() {
 
-            return width + marginLeft + marginRight + (borderLeft + borderRight);
+            return width + paddingLeft + paddingRight + marginLeft + marginRight + (borderLeft + borderRight);
         }
 
         /**
@@ -276,8 +327,11 @@ public final class InterfaceInstance extends AssetInstance {
          */
         protected final int getTotalHeight() {
 
-            return height + marginTop + marginBottom + (borderTop + borderBottom);
+            return height + paddingTop + paddingBottom + marginTop + marginBottom + (borderTop + borderBottom);
         }
+
+        private Font font;
+        private FontMetrics fm;
 
         public ComponentInstance(ComponentSchema schema, ComponentInstance parent) {
 
@@ -286,6 +340,7 @@ public final class InterfaceInstance extends AssetInstance {
             type = schema.getType();
             id = schema.getId();
             style = schema.getStyle();
+            value = schema.getValue();
         }
 
         public final void exit() {
@@ -306,114 +361,60 @@ public final class InterfaceInstance extends AssetInstance {
         }
 
         /**
-         * Evaluates the event which should be run when this
-         * <code>ComponentInstance</code> instance is pressed.
-         * 
-         * @param value <code>TRScript</code>: The value of this
-         *              <code>ComponentInstance</code> instance.
-         * @return <code>boolean</code>: Whether or not the event should continue to
-         *         propogate.
-         */
-        public abstract boolean onPress(TRScript value);
-
-        /**
-         * Evaluates the event which should be run when this
-         * <code>ComponentInstance</code> instance is scrolled.
-         * 
-         * @param scrolled <code>int[2]</code>: The displacement which has been
-         *                 scrolled.
-         * @return <code>boolean</code>: Whether or not the event should continue to
-         *         propogate.
-         */
-        public abstract boolean onScroll(int[] scrolled);
-
-        public abstract TRScript getValue();
-
-        public abstract ComponentInstance getHighestAt(int x, int y);
-
-        public abstract List<ComponentInstance> getStackAt(int x, int y);
-
-        public abstract List<ComponentInstance> getComponents();
-
-        /**
          * Calculates the initial size of this component based on the measurements of
          * the parent. This is the first step in sizing this
          * <code>ComponentInstance</code> instance, and an additional step in resizing
          * may occur.
          * 
-         * @param style               <code>Style</code>: The style to measure using.
-         * @param parentContentWidth  <code>int</code>: The width of the internal space
-         *                            in the parent of this
-         *                            <code>InterfaceInstance</code> instance. This
-         *                            value should be equal to the width of the parent
-         *                            minus the horizontal padding of the parent.
-         * @param parentContentHeight <code>int</code>: The height of the internal space
-         *                            in the parent of this
-         *                            <code>InterfaceInstance</code> instance. This
-         *                            value should be equal to the height of the parent
-         *                            minus the vertical padding of the parent.
-         * @param parentFontSize      <code>int</code>: The font size of the parent of
-         *                            this <code>ComponentInstance</code> instance.
+         * @param style          <code>Style</code>: The style to measure using.
+         * @param parentWidth    <code>int</code>: The width of the internal space in
+         *                       the parent of this <code>InterfaceInstance</code>
+         *                       instance. This value should be equal to the width of
+         *                       the parent minus the horizontal padding of the parent.
+         * @param parentHeight   <code>int</code>: The height of the internal space in
+         *                       the parent of this <code>InterfaceInstance</code>
+         *                       instance. This value should be equal to the height of
+         *                       the parent minus the vertical padding of the parent.
+         * @param parentFontSize <code>int</code>: The font size of the parent of this
+         *                       <code>ComponentInstance</code> instance.
          */
-        private void measure(Style style, int parentContentWidth, int parentContentHeight, int parentFontSize) {
+        private void measure(Style style, int parentWidth, int parentHeight, int parentFontSize) {
 
             // Update the coordinates.
-            x = style.x().getSize(parentContentWidth, 0);
-            y = style.y().getSize(parentContentHeight, 0);
+            x = style.x().getSize(parentWidth, 0);
+            y = style.y().getSize(parentHeight, 0);
 
             // Calculate the width.
-            int minWidth = style.minWidth().getSize(parentContentWidth, 0);
-            width = style.width().getSize(parentContentWidth, minWidth);
+            int minWidth = style.minWidth().getSize(parentWidth, 0);
+            width = style.width().getSize(parentHeight, minWidth);
+
+            // Calculate the horizontal borders.
+            borderLeft = style.borderLeft().width().getSize(parentWidth, 0);
+            borderRight = style.borderRight().width().getSize(parentWidth, 0);
 
             // Calculate the horizontal margins.
-            marginLeft = style.marginLeft().getSize(parentContentWidth, 0);
-            marginRight = style.marginRight().getSize(parentContentWidth, 0);
+            marginLeft = style.marginLeft().getSize(parentWidth, 0);
+            marginRight = style.marginRight().getSize(parentWidth, 0);
 
-            // If the horizontal margins extend beyond the parent, adjust them so they fit.
-            if (width + marginLeft + marginRight > parentContentWidth) {
-
-                double partial = (double) (parentContentWidth - width) / (marginLeft + marginRight);
-
-                marginLeft *= partial;
-                marginRight *= partial;
-            }
+            // Calculate the horizontal padding.
+            paddingLeft = style.paddingLeft().getSize(width, 0);
+            paddingRight = style.paddingRight().getSize(width, 0);
 
             // Calculate the height.
-            int minHeight = style.minHeight().getSize(parentContentHeight, 0);
-            height = style.height().getSize(parentContentHeight, minHeight);
+            int minHeight = style.minHeight().getSize(parentHeight, 0);
+            height = style.height().getSize(parentHeight, minHeight);
+
+            // Calculate the vertical borders.
+            borderTop = style.borderTop().width().getSize(parentHeight, 0);
+            borderBottom = style.borderBottom().width().getSize(parentHeight, 0);
 
             // Calculate the vertical margins.
-            marginTop = style.marginTop().getSize(parentContentHeight, 0);
-            marginBottom = style.marginBottom().getSize(parentContentHeight, 0);
+            marginTop = style.marginTop().getSize(parentHeight, 0);
+            marginBottom = style.marginBottom().getSize(parentHeight, 0);
 
-            // If the verical margins extend beyond the parent, adjust them so they fit.
-            if (height + marginTop + marginBottom > parentContentHeight) {
-
-                double partial = (double) (parentContentHeight - height) / (marginTop + marginBottom);
-
-                marginTop *= partial;
-                marginBottom *= partial;
-            }
-
-            // Adjust the full width and height.
-            int marginWidth = width + marginLeft + marginRight;
-
-            if (x + marginWidth > parentContentWidth) {
-
-                x = parentContentWidth - marginWidth;
-            }
-
-            int marginHeight = height + marginTop + marginBottom;
-
-            if (y + marginHeight > parentContentHeight) {
-
-                y = parentContentHeight - marginHeight;
-            }
-
-            borderLeft = style.borderLeft().width().getSize(parentContentWidth, 0);
-            borderRight = style.borderRight().width().getSize(parentContentWidth, 0);
-            borderTop = style.borderTop().width().getSize(parentContentHeight, 0);
-            borderBottom = style.borderBottom().width().getSize(parentContentHeight, 0);
+            // Calculate the vertical padding.
+            paddingTop = style.paddingTop().getSize(height, 0);
+            paddingBottom = style.paddingBottom().getSize(height, 0);
 
             SizeDimensions rTL = style.rTL();
             rxTL = rTL.width().getSize(width, 0);
@@ -467,28 +468,6 @@ public final class InterfaceInstance extends AssetInstance {
                 ryTR *= partial;
             }
 
-            paddingLeft = style.paddingLeft().getSize(width, 0);
-            paddingRight = style.paddingRight().getSize(width, 0);
-
-            if (paddingLeft + paddingRight > width) {
-
-                double partial = (double) width / (paddingLeft + paddingRight);
-
-                paddingLeft *= partial;
-                paddingRight *= partial;
-            }
-
-            paddingTop = style.paddingTop().getSize(height, 0);
-            paddingBottom = style.paddingBottom().getSize(height, 0);
-
-            if (paddingTop + paddingBottom > height) {
-
-                double partial = (double) height / (paddingTop + paddingBottom);
-
-                paddingTop *= partial;
-                paddingBottom *= partial;
-            }
-
             // The font size should be based on the parent font size and have a minimum of
             // 8px.
             fontSize = style.fontSize().getSize(parentFontSize, 8);
@@ -499,35 +478,9 @@ public final class InterfaceInstance extends AssetInstance {
 
             // Create the font.
             font = new Font(style.fontFamily(), style.fontStyle() | style.fontWeight(), fontSize);
-        }
-
-        /**
-         * <code>BufferedImage</code>: The image containing the current content of this
-         * <code>ComponentInstance</code> instance.
-         */
-        private BufferedImage content;
-
-        /**
-         * Generates the content of this <code>ComponentInstance</code> instance.
-         * 
-         * @param style    <code>Style</code>: The style to draw using.
-         * @param children <code>List&lt;ComponentInstance&gt;</code>: The drawn
-         *                 children of this <code>ComponentInstance</code> instance.
-         */
-        protected abstract void createContent(Style style, List<ComponentInstance> children);
-
-        /**
-         * Generates the content box of this <code>ComponentInstance</code> instance.
-         * This is the box that contains all images, text, and children element (also
-         * known as the internal box).
-         * 
-         * @return <code>Graphics2D</code>: The graphics of the content image.
-         */
-        protected final Graphics2D createContentBox() {
-
-            content = new BufferedImage(getContentWidth(), getContentHeight(), BufferedImage.TYPE_INT_ARGB);
-
-            return content.createGraphics();
+            BufferedImage fontImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = fontImage.createGraphics();
+            fm = g2d.getFontMetrics(font);
         }
 
         private BufferedImage render;
@@ -537,43 +490,74 @@ public final class InterfaceInstance extends AssetInstance {
             return render;
         }
 
-        /**
-         * Draws this <code>ComponentInstance</code> instance.
-         * 
-         * @param parentContentWidth  <code>int</code>: The content width of the parent
-         *                            of this <code>ComponentInstance</code> instance.
-         * @param parentContentHeight <code>int</code>: The content height of the parent
-         *                            of this <code>ComponentInstance</code> instance.
-         * @param parentFontSize      <code>int</code>: The font size of the parent of
-         *                            this <code>ComponentInstance</code> instance.
-         */
-        public final void render(int parentContentWidth, int parentContentHeight, int parentFontSize) {
+        public static final record ImageClip(int x, int y, BufferedImage image) {
+        }
 
-            // Nullify the current content and render so they cannot be reused by accident.
-            content = null;
+        public abstract Dimension calculateContentSize(Style style, List<ImageClip> children);
+
+        /**
+         * Generates the content of this <code>ComponentInstance</code> instance.
+         * 
+         * @param g2d      <code>Graphics2D</code>: The graphics to render using.
+         * @param style    <code>Style</code>: The style to draw using.
+         * @param children <code>List&lt;ImageClip&gt;</code>: The drawn children of
+         *                 this <code>ComponentInstance</code> instance.
+         */
+        public abstract void createContent(Graphics2D g2d, Style style, List<ImageClip> children);
+
+        @Override
+        public final BufferedImage render(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
+
+            // Nullify the render so it cannot be reused by accident.
             render = null;
 
             // Generate the current style.
-            Style s = getStyle();
+            Style s = getStyle(parentStyle);
 
             // Calculate the initial size.
-            measure(s, parentContentWidth, parentContentHeight, parentFontSize);
-
-            // This is the internal width of the component (i.e. the space the children will
-            // use).
-            int contentWidth = getContentWidth();
-            int contentHeight = getContentHeight();
+            measure(s, parentWidth, parentHeight, parentFontSize);
 
             // Draw the children.
+            ArrayList<ImageClip> childrenRenders = new ArrayList<>();
             for (ComponentInstance child : children) {
 
-                child.render(contentWidth, contentHeight, fontSize);
+                BufferedImage childRender = child.render(width, height, fontSize, s);
+                childrenRenders.add(new ImageClip(child.x, child.y, childRender));
             }
 
-            // Create all internal content and perform resizing.
-            createContent(s, children);
+            // Calculate the content size.
+            Dimension contentSize = calculateContentSize(s, childrenRenders);
 
-            // Create the final component.
+            // If the content width/height is larger than the render width/height and it can
+            // be resized, do so.
+            if (contentSize.width > width && s.x() == Style.AUTO) {
+
+                width = contentSize.width;
+            }
+
+            if (contentSize.height > height && s.y() == Style.AUTO) {
+
+                height = contentSize.height;
+            }
+
+            // TODO: Update the width/height to fit content
+
+            // The scroll X/Y cannot go beyond the content width/height.
+            maxScrollX = Math.max(contentSize.width - width, 0);
+            maxScrollY = Math.max(contentSize.height - height, 0);
+
+            scrollX = Math.clamp(scrollX, 0, maxScrollX);
+            scrollY = Math.clamp(scrollY, 0, maxScrollY);
+
+            BufferedImage content = new BufferedImage(contentSize.width, contentSize.height,
+                    BufferedImage.TYPE_INT_ARGB);
+
+            // Create all internal content and perform resizing.
+            Graphics2D contentG2d = content.createGraphics();
+            createContent(contentG2d, s, childrenRenders);
+            contentG2d.dispose();
+
+            // Create the component border and background.
             BufferedImage component = new BufferedImage(getTotalWidth(), getTotalHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2d = component.createGraphics();
 
@@ -583,7 +567,9 @@ public final class InterfaceInstance extends AssetInstance {
             g2d.translate(marginLeft + Math.ceil(borderLeft / 2.0), marginTop + Math.ceil(borderTop / 2.0));
 
             // Creates the content bounds.
-            Shape contentBounds = createBounds(width, height, rxTR, ryTR, rxTL, ryTL, rxBL, ryBL, rxBR, ryBR);
+            Shape contentBounds = createBounds(width + paddingLeft + paddingRight + (borderLeft + borderRight) / 2,
+                    height + paddingTop + paddingBottom + (borderTop + borderBottom) / 2, rxTR, ryTR, rxTL, ryTL, rxBL,
+                    ryBL, rxBR, ryBR);
 
             // Process the background color and image.
             BackgroundStyle background = s.background();
@@ -593,8 +579,10 @@ public final class InterfaceInstance extends AssetInstance {
             Graphics2D g2 = (Graphics2D) g2d.create();
 
             // Find the exact center of the component.
-            int centerX = width / 2;
-            int centerY = height / 2;
+            int centerX = (width + borderLeft) / 2 + paddingLeft;
+            int centerY = (height + borderTop) / 2 + paddingTop;
+            int internalWidth = width + paddingLeft + paddingRight + (borderLeft + borderRight) / 2;
+            int internalHeight = height + paddingTop + paddingBottom + (borderTop + borderBottom) / 2;
 
             BorderStyle bR = s.borderRight();
             Color borderRightColor = bR.color();
@@ -605,7 +593,7 @@ public final class InterfaceInstance extends AssetInstance {
 
                 g2.setColor(borderRightColor);
                 g2.setStroke(new BasicStroke(borderRightWidth));
-                Shape right = createSide(centerX, centerY, width, height, rxTR, ryTR, rxBR, ryBR);
+                Shape right = createSide(centerX, centerY, internalWidth, internalHeight, rxTR, ryTR, rxBR, ryBR);
                 g2.draw(right);
             }
 
@@ -620,7 +608,7 @@ public final class InterfaceInstance extends AssetInstance {
 
                 g2.setColor(borderBottomColor);
                 g2.setStroke(new BasicStroke(borderBottomWidth));
-                Shape bottom = createSide(centerX, centerY, height, width, ryBR, rxBR, ryBL, rxBL);
+                Shape bottom = createSide(centerX, centerY, internalHeight, internalWidth, ryBR, rxBR, ryBL, rxBL);
                 g2.draw(bottom);
             }
 
@@ -635,7 +623,7 @@ public final class InterfaceInstance extends AssetInstance {
 
                 g2.setColor(borderLeftColor);
                 g2.setStroke(new BasicStroke(borderLeftWidth));
-                Shape left = createSide(centerX, centerY, width, height, rxBL, ryBL, rxTL, ryTL);
+                Shape left = createSide(centerX, centerY, internalWidth, internalHeight, rxBL, ryBL, rxTL, ryTL);
                 g2.draw(left);
             }
 
@@ -650,7 +638,7 @@ public final class InterfaceInstance extends AssetInstance {
 
                 g2.setColor(borderTopColor);
                 g2.setStroke(new BasicStroke(borderTopWidth));
-                Shape top = createSide(centerX, centerY, height, width, ryTL, rxTL, ryTR, rxTR);
+                Shape top = createSide(centerX, centerY, internalHeight, internalWidth, ryTL, rxTL, ryTR, rxTR);
                 g2.draw(top);
             }
 
@@ -660,9 +648,14 @@ public final class InterfaceInstance extends AssetInstance {
             // Draw the content after the border and the remaining half of the padding.
             int contentX = borderLeft / 2 + paddingLeft;
             int contentY = borderTop / 2 + paddingTop;
-            g2d.drawImage(content, contentX, contentY, null);
+
+            // Ensure the shape is self-contained
+            g2d.clip(contentBounds);
+            g2d.drawImage(content, contentX - scrollX, contentY - scrollY, null);
 
             g2d.dispose();
+
+            return component;
         }
 
         private Shape createBounds(int width, int height, int rxTR, int ryTR, int rxTL, int ryTL, int rxBL, int ryBL,
@@ -737,12 +730,17 @@ public final class InterfaceInstance extends AssetInstance {
             String backgroundTexture = background.texture();
             if (backgroundTexture != null) {
 
-                drawImage(g2d, backgroundTexture, 0, 0, background.size());
+                drawTexture(g2d, backgroundTexture, 0, 0, background.size());
                 g2d.dispose();
             }
         }
 
-        protected final void drawImage(Graphics2D g2d, String texture, int x, int y, TextureSize size) {
+        protected final void drawImage(Graphics2D g2d, BufferedImage image, int x, int y) {
+
+            g2d.drawImage(image, x, y, null);
+        }
+
+        protected final void drawTexture(Graphics2D g2d, String texture, int x, int y, TextureSize size) {
 
             ImageIcon icon = getTexture(texture);
             int textureWidth = icon.getIconWidth();
@@ -759,71 +757,272 @@ public final class InterfaceInstance extends AssetInstance {
             g2d.drawImage(icon.getImage(), x, y, backgroundWidth, backgroundHeight, null);
         }
 
-        protected final void drawText(Graphics2D g2d, String text, Color color, int x, int y, int width, int height) {
+        protected final void drawText(Graphics2D g2d, String text, Color color, int x, int y) {
 
-            g2d.setFont(font);
             g2d.setColor(color);
-            if (!textWrapping) {
+            g2d.setFont(font);
 
+            if (textWrapping == TextWrapping.NOWRAP) {
+
+                text = textOverflow(fm, text, width - x);
                 g2d.drawString(text, x, y);
                 return;
             }
-
-            FontMetrics fm = g2d.getFontMetrics();
 
             ArrayList<String> lines = wrapText(text, fm, width - x);
 
             for (int i = 0; i < lines.size(); i++) {
 
-                g2d.drawString(lines.get(i), x, y + i * lineHeight);
+                text = textOverflow(fm, lines.get(i), width - x);
+                g2d.drawString(text, x, y + i * lineHeight);
             }
         }
 
-        public ArrayList<String> wrapText(String text, FontMetrics fm, int maxWidth) {
+        protected final Dimension calculateTextureSize(String texture, int x, int y, TextureSize size) {
+
+            ImageIcon icon = getTexture(texture);
+            int textureWidth = icon.getIconWidth();
+            int textureHeight = icon.getIconHeight();
+
+            if (textureWidth == 0 || textureHeight == 0) {
+
+                return new Dimension(0, 0);
+            }
+
+            int backgroundWidth = size.getWidth(textureWidth, textureHeight, width, height);
+            int backgroundHeight = size.getHeight(textureWidth, textureHeight, width, height);
+
+            return new Dimension(backgroundWidth, backgroundHeight);
+        }
+
+        protected final Dimension calculateTextSize(String text, int x, int y) {
+
+            if (textWrapping == TextWrapping.NOWRAP) {
+
+                text = textOverflow(fm, text, width - x);
+                int lineWidth = fm.stringWidth(text);
+                return new Dimension(lineWidth, lineHeight);
+            }
+
+            ArrayList<String> lines = wrapText(text, fm, width - x);
+            int lineWidth = 0;
+
+            for (int i = 0; i < lines.size(); i++) {
+
+                text = textOverflow(fm, lines.get(i), width - x);
+                lineWidth = Math.max(lineWidth, fm.stringWidth(text));
+            }
+            return new Dimension(lineWidth, lineHeight * lines.size());
+        }
+
+        private ArrayList<String> wrapText(String text, FontMetrics fm, int maxWidth) {
 
             ArrayList<String> lines = new ArrayList<>();
-            StringBuilder line = new StringBuilder();
+            String line = "";
 
-            for (String word : text.split(" ")) {
+            // Handle the case when the overflow wrap breaks between words and hyphens.
+            if (overflowWrap == OverflowWrap.BREAK_WORD) {
 
-                int lineWidth = fm.stringWidth(line + word + " ");
-                if (lineWidth > maxWidth && line.length() > 0) {
+                int lineStart = 0;
 
-                    lines.add(line.toString());
-                    line = new StringBuilder(word + " ");
-                } else {
+                for (int i = 0; i < text.length(); i++) {
 
-                    line.append(word).append(" ");
+                    line = text.substring(lineStart, i + 1);
+
+                    int lineLength = fm.stringWidth(line);
+
+                    // If the line is too long and can be broken, split into 2 new lines.
+                    if (lineLength > maxWidth) {
+
+                        // Cap the old line off with the space/hyphen.
+                        String prevLine = text.substring(lineStart, i);
+                        lines.add(prevLine);
+
+                        // Start the new line.
+                        lineStart = i;
+                        line = text.substring(lineStart, i + 1);
+                    }
+                }
+            } else {
+
+                int lineStart = 0;
+                int prevBreak = -1;
+                for (int i = 0; i < text.length(); i++) {
+
+                    line = text.substring(lineStart, i + 1);
+
+                    char c = text.charAt(i);
+                    if (c == ' ' || c == '-') {
+
+                        prevBreak = i;
+                    }
+
+                    // The only time a line can break is when a breaking character has been found.
+                    if (prevBreak == -1) {
+
+                        continue;
+                    }
+
+                    int lineLength = fm.stringWidth(line);
+
+                    // If the line is too long and can be broken, split into 2 new lines.
+                    if (lineLength > maxWidth) {
+
+                        // Cap the old line off with the space/hyphen.
+                        String prevLine = text.substring(lineStart, prevBreak + 1);
+                        lines.add(prevLine);
+
+                        // Start the new line.
+                        lineStart = prevBreak + 1;
+                        prevBreak = -1;
+                        line = text.substring(lineStart, i + 1);
+                    }
                 }
             }
-            lines.add(line.toString());
+
+            // If the last line is not empty, add it as well.
+            if (!line.isEmpty()) {
+
+                lines.add(line);
+            }
+
             return lines;
+        }
+
+        private String textOverflow(FontMetrics fm, String line, int maxWidth) {
+
+            if (!textOverflow.equals("clip") && fm.stringWidth(line) > maxWidth) {
+
+                while (line.length() > 1) {
+
+                    line = line.substring(0, line.length() - 1);
+                    if (fm.stringWidth(line) <= maxWidth) {
+
+                        line += textOverflow;
+                        break;
+                    }
+                }
+            }
+
+            return line;
         }
     }
 
-    public abstract class LeafComponentInstance extends ComponentInstance {
+    public final class StringComponentInstance extends ComponentInstance {
 
-        public LeafComponentInstance(ComponentSchema schema, ComponentInstance parent) {
+        private final String string;
+
+        private int textX, textY;
+
+        public StringComponentInstance(StringComponentSchema schema, ComponentInstance parent) {
 
             super(schema, parent);
+            string = schema.getString();
         }
 
         @Override
-        public final ComponentInstance getHighestAt(int x, int y) {
+        public boolean onClick(TRScript value) {
 
-            return this;
+            return true;
+        }
+
+        private Point calculateTextPosition(String text, Style style) {
         }
 
         @Override
-        public final List<ComponentInstance> getStackAt(int x, int y) {
+        public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
 
-            return List.of(this);
+            Point textPosition = calculateTextPosition(string, style);
+
+            // Update the position.
+            textX = textPosition.x;
+            textY = textPosition.y;
+
+            Dimension textSize = calculateTextSize(string, textX, textY);
+
+            return new Dimension(textX + textSize.width, textY + textSize.height);
         }
 
         @Override
-        public final List<ComponentInstance> getComponents() {
+        public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            return new ArrayList<>();
+            drawText(g2d, string, style.color(), textX, textY);
+        }
+    }
+
+    public final class TextComponentInstance extends ComponentInstance {
+
+        public TextComponentInstance(TextComponentSchema schema, ComponentInstance parent) {
+
+            super(schema, parent);
+
+            StringComponentSchema textSchema = schema.getText();
+            addChild(new StringComponentInstance(textSchema, this));
+        }
+
+        @Override
+        public final boolean onClick(int mouseX, int mouseY, TRScript value) {
+
+            return true;
+        }
+
+        @Override
+        public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
+
+            ImageClip textSize = children.getFirst();
+            BufferedImage image = textSize.image();
+
+            return new Dimension(textSize.x() + image.getWidth(), textSize.y() + image.getHeight());
+        }
+
+        @Override
+        public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            ImageClip textRender = children.getFirst();
+            BufferedImage text = textRender.image();
+
+            drawImage(g2d, text, textRender.x(), textRender.y());
+        }
+    }
+
+    public final class TextureComponentInstance extends ComponentInstance {
+
+        private final String texture;
+
+        private int textureX, textureY;
+
+        public TextureComponentInstance(TextureComponentSchema schema, ComponentInstance parent) {
+
+            super(schema, parent);
+
+            texture = schema.getTexture();
+        }
+
+        @Override
+        public final boolean onClick(TRScript value) {
+
+            return true;
+        }
+
+        private Point calculateTexturePosition(String texture, Style style) {
+        }
+
+        @Override
+        public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
+
+            Point texturePosition = calculateTexturePosition(texture, style);
+            textureX = texturePosition.x;
+            textureY = texturePosition.y;
+
+            Dimension textureSize = calculateTextureSize(texture, textureX, textureY, size);
+
+            return new Dimension(textureX + textureSize.width, textureY + textureSize.height);
+        }
+
+        @Override
+        public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            drawTexture(g2d, texture, textureX, textureY, size);
         }
     }
 
@@ -831,32 +1030,65 @@ public final class InterfaceInstance extends AssetInstance {
 
         private final InterfaceInstance asset;
 
+        private ImageClip bodyRender;
+
         public InterfaceComponentInstance(InterfaceComponentSchema schema, ComponentInstance parent) {
 
             super(schema, parent);
 
             AssetPresets presets = schema.getPresets();
-            InterfaceContext context = new InterfaceContext(presets, getWorld(), InterfaceInstance.this);
+            InterfaceContext context = new InterfaceContext(presets, getWorld(), InterfaceInstance.this, this);
 
             asset = (InterfaceInstance) INTERFACE.createAsset(context);
         }
 
         @Override
-        public void onPress(TRScript value) {
+        public final boolean onExit(int mouseX, int mouseY) {
 
+            return asset.onExit(mouseX, mouseY);
         }
 
         @Override
-        public TRScript getValue() {
+        public final boolean onHover(int mouseX, int mouseY) {
+
+            return asset.onHover(mouseX, mouseY);
+        }
+
+        @Override
+        public final boolean onPress(int mouseX, int mouseY) {
+
+            return asset.onPress(mouseX, mouseY);
+        }
+
+        @Override
+        public final boolean onClick(int mouseX, int mouseY, TRScript value) {
+
+            return asset.onClick(mouseX, mouseY, asset.getValue());
+        }
+
+        @Override
+        public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
 
             ComponentInstance body = asset.getBody();
-            return body.getValue();
+
+            int width = getTotalWidth();
+            int height = getTotalHeight();
+            int fontSize = getFontSize();
+            BufferedImage image = body.render(width, height, fontSize, style);
+
+            int x = body.x;
+            int y = body.y;
+            bodyRender = new ImageClip(x, y, image);
+
+            return new Dimension(x + image.getWidth(), y + image.getHeight());
         }
 
         @Override
-        protected void paint(Style s, Graphics2D g2d, int width, int height) {
+        public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            asset.draw(g2d, width, height);
+            BufferedImage body = bodyRender.image();
+
+            drawImage(g2d, body, bodyRender.x(), bodyRender.y());
         }
     }
 
@@ -872,7 +1104,7 @@ public final class InterfaceInstance extends AssetInstance {
          * @return <code>boolean</code>: Whether or not the conditions pass for the
          *         given asset.
          */
-        public boolean passes(AssetInstance asset) {
+        public final boolean passes(AssetInstance asset) {
 
             for (TRScript condition : conditions) {
 
@@ -891,8 +1123,93 @@ public final class InterfaceInstance extends AssetInstance {
         }
     }
 
-    public void draw(Graphics2D g2d, int parentWidth, int parentHeight) {
+    @Override
+    public final boolean onExit(int mouseX, int mouseY) {
 
-        body.draw(g2d, parentWidth, parentHeight);
+        if (body.contains(mouseX, mouseY)) {
+
+            return body.onExit(mouseX, mouseY);
+        }
+
+        return true;
+    }
+
+    @Override
+    public final boolean onHover(int mouseX, int mouseY) {
+
+        if (body.contains(mouseX, mouseY)) {
+
+            return body.onHover(mouseX, mouseY);
+        }
+
+        return true;
+    }
+
+    @Override
+    public final void onScroll(int mouseX, int mouseY, Point displacement) {
+
+        if (body.contains(mouseX, mouseY)) {
+
+            body.onScroll(mouseX, mouseY, displacement);
+        }
+    }
+
+    @Override
+    public final boolean onPress(int mouseX, int mouseY) {
+
+        if (body.contains(mouseX, mouseY)) {
+
+            return body.onPress(mouseX, mouseY);
+        }
+
+        return true;
+    }
+
+    @Override
+    public final boolean onClick(int mouseX, int mouseY, TRScript value) {
+
+        if (body.contains(mouseX, mouseY)) {
+
+            return body.onClick(mouseX, mouseY, value);
+        }
+
+        return true;
+    }
+
+    @Override
+    public final List<UIComponent> getChildren() {
+
+        return List.of(body);
+    }
+
+    @Override
+    public final TRScript getValue() {
+
+        return body.getValue();
+    }
+
+    @Override
+    public final int getX() {
+
+        return body.getX();
+    }
+
+    @Override
+    public final int getY() {
+
+        return body.getY();
+    }
+
+    @Override
+    public final Dimension getSize() {
+
+        return body.getSize();
+    }
+
+    @Override
+    public final BufferedImage render(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
+
+        body.render(parentWidth, parentHeight, parentFontSize, parentStyle);
+        return body.getRender();
     }
 }

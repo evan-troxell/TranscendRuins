@@ -30,6 +30,7 @@ import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.json.TracedArray;
+import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -39,16 +40,24 @@ import com.transcendruins.utilities.json.TracedEntry;
  */
 public final class InterfaceAttributes extends AssetAttributes {
 
-    public static final String LABEL = "label";
-    public static final String BUTTON = "button";
-    public static final String INPUT = "input";
-    public static final String INTERFACE = "interface";
+    // Primative component types.
+    public static final String STRING = "string";
+    public static final String TEXT = "text";
+    public static final String TEXTURE = "texture";
 
-    public static final String DROPDOWN = "dropdown";
-    public static final String SELECT = "select";
+    // Traditional input component types.
+    public static final String BUTTON = "button"; // Button input
+    public static final String INPUT = "input"; // Text input
 
+    // Dropdown component types.
+    public static final String DROPDOWN = "dropdown"; // Drops down to reveal a list of elements.
+    public static final String SELECT = "select"; // Drops down to reveal a list of elements that can be selected.
+
+    // Container component types.
     public static final String LIST = "list";
     public static final String CONTAINER = "container";
+    public static final String INTERFACE = "interface";
+
     public static final String INVENTORY = "inventory";
     public static final String CRAFTING = "crafting";
 
@@ -67,7 +76,7 @@ public final class InterfaceAttributes extends AssetAttributes {
      * @return <code>StyleSet</code>: The <code>styles</code> field of this
      *         <code>InterfaceAttributes</code> instance.
      */
-    public StyleSet getStyles() {
+    public final StyleSet getStyles() {
 
         return styles;
     }
@@ -84,7 +93,7 @@ public final class InterfaceAttributes extends AssetAttributes {
      * @return <code>ComponentSchema</code>: The <code>body</code> field of this
      *         <code>InterfaceAttributes</code> instance.
      */
-    public ComponentSchema getBody() {
+    public final ComponentSchema getBody() {
 
         return body;
     }
@@ -114,10 +123,7 @@ public final class InterfaceAttributes extends AssetAttributes {
         // The body should only be defined once.
         if (isBase) {
 
-            TracedEntry<TracedDictionary> bodyEntry = json.getAsDict("body", false);
-            TracedDictionary bodyJson = bodyEntry.getValue();
-
-            body = createComponent(bodyJson);
+            body = createComponent(json, "body");
         } else {
 
             body = null;
@@ -127,50 +133,95 @@ public final class InterfaceAttributes extends AssetAttributes {
     /**
      * Creates a new instance of the <code>ComponentSchema</code> class.
      * 
-     * @param json <code>TracedDictionary</code>: The JSON to create the new
-     *             <code>ComponentSchema</code> instance from.
+     * @param collection <code>TracedDictionary</code>: The collection to create the
+     *                   new <code>ComponentSchema</code> instance from.
+     * @param key        <code>Object</code>: The key to retrieve from the
+     *                   collection.
      * @return <code>ComponentSchema</code>: The created loot schema.
      * @throws LoggedException Thrown if any exception is raised while creating the
      *                         component.
      */
-    public ComponentSchema createComponent(TracedDictionary json) throws LoggedException {
+    public final ComponentSchema createComponent(TracedCollection collection, Object key) throws LoggedException {
+
+        return collection.get(key, List.of(
+
+                // Handle a string literal.
+                collection.stringCase(entry -> {
+
+                    String string = entry.getValue();
+                    return new StringComponentSchema(string);
+                }),
+
+                // Handle a dictionary component.
+                collection.dictCase(entry -> {
+
+                    TracedDictionary json = entry.getValue();
+                    return createDictComponent(json);
+                })));
+    }
+
+    public final ComponentSchema createDictComponent(TracedDictionary json) throws LoggedException {
 
         TracedEntry<String> typeEntry = json.getAsString("type", false, null);
         String type = typeEntry.getValue();
 
         return switch (type) {
 
-        // Primitive component types.
-        case LABEL -> new LabelComponentSchema(json);
+        case TEXT -> new TextComponentSchema(json);
+
+        case TEXTURE -> new TextureComponentSchema(json);
 
         case BUTTON -> new ButtonComponentSchema(json);
 
         case INPUT -> new InputComponentSchema(json);
 
-        // Dropdown container types.
         case DROPDOWN -> new DropdownComponentSchema(json);
 
         case SELECT -> new SelectComponentSchema(json);
 
-        // Container types.
         case LIST -> new ListComponentSchema(json);
 
         case CONTAINER -> new ContainerComponentSchema(json);
 
-        // Custom types.
+        case INTERFACE -> new InterfaceComponentSchema(json);
+
         case INVENTORY -> new InventoryComponentSchema(json);
 
         case CRAFTING -> new CraftingComponentSchema(json);
-
-        case INTERFACE -> new InterfaceComponentSchema(json);
 
         default -> throw new UnexpectedValueException(typeEntry);
         };
     }
 
+    public final ComponentSchema createNonInteractiveComponent(TracedCollection collection, Object key)
+            throws LoggedException {
+
+        // If the child is a string, it is guaranteed to be non-interactive.
+        if (collection.getType(key) == TracedCollection.JSONType.STRING) {
+
+            TracedEntry<String> stringEntry = collection.getAsString(key, false, null);
+            String string = stringEntry.getValue();
+            return new StringComponentSchema(string);
+        }
+
+        TracedEntry<TracedDictionary> jsonEntry = collection.getAsDict(key, false);
+        TracedDictionary json = jsonEntry.getValue();
+
+        ComponentSchema child = createDictComponent(json);
+
+        // If the child is a dictionary, check that it is text or a texture; else, throw
+        // an error.
+        if (child.getType().equals(TEXT) || child.getType().equals(TEXTURE)) {
+
+            return child;
+        }
+
+        TracedEntry<String> typeEntry = json.getAsString("type", false, null);
+        throw new UnexpectedValueException(typeEntry);
+    }
+
     /**
-     * <code>ComponentSchema</code>: A class representing the schema of a visual
-     * component.
+     * <code>ComponentSchema</code>: A class representing the schema of a component.
      */
     public abstract class ComponentSchema {
 
@@ -195,6 +246,21 @@ public final class InterfaceAttributes extends AssetAttributes {
             return style;
         }
 
+        private final TRScript value;
+
+        public final TRScript getValue() {
+
+            return value;
+        }
+
+        public ComponentSchema(String string, String type) {
+
+            this.type = type;
+            id = null;
+            style = Style.EMPTY;
+            value = new TRScript(string);
+        }
+
         public ComponentSchema(TracedDictionary json, String type) throws LoggedException {
 
             this.type = type;
@@ -203,189 +269,210 @@ public final class InterfaceAttributes extends AssetAttributes {
             id = idEntry.getValue();
 
             style = Style.createStyle(json, "style");
+
+            value = new TRScript(json, "value");
         }
-
-        public final class LabelComponentSchema extends ComponentSchema {
-
-            private final String text;
-
-            public String getText() {
-
-                return text;
-            }
-
-            private final String texture;
-
-            public String getTexture() {
-
-                return texture;
-            }
-
-            private final TRScript value;
-
-            public TRScript getValue() {
-
-                return value;
-            }
-
-            public LabelComponentSchema(TracedDictionary json) throws LoggedException {
-
-                super(json, LABEL);
-
-                TracedEntry<String> textEntry = json.getAsString("text", true, null);
-                text = textEntry.getValue();
-
-                TracedEntry<String> textureEntry = json.getAsString("texture", true, null);
-                texture = textureEntry.getValue();
-
-                value = new TRScript(json, "value");
-            }
-        }
-
-        public final class ButtonComponentSchema extends ComponentSchema {
-
-            private final String text;
-
-            public String getText() {
-
-                return text;
-            }
-
-            private final String texture;
-
-            public String getTexture() {
-
-                return texture;
-            }
-
-            private final TRScript value;
-
-            public TRScript getValue() {
-
-                return value;
-            }
-
-            private final ImmutableList<ComponentActionSchema> action;
-
-            public ImmutableList<ComponentActionSchema> getAction() {
-
-                return action;
-            }
-
-            public ButtonComponentSchema(TracedDictionary json) throws LoggedException {
-
-                super(json, BUTTON);
-
-                TracedEntry<String> textEntry = json.getAsString("text", true, null);
-                text = textEntry.getValue();
-
-                TracedEntry<String> textureEntry = json.getAsString("texture", true, null);
-                texture = textureEntry.getValue();
-
-                value = new TRScript(json, "value");
-
-                action = json.get("action", List.of(
-
-                        // Process a dictionary into a single action.
-                        json.dictCase(entry -> {
-
-                            TracedDictionary actionJson = entry.getValue();
-                            return new ImmutableList<>(createAction(actionJson));
-                        }),
-
-                        // Process an array into a list of actions.
-                        json.arrayCase(entry -> {
-
-                            ArrayList<ComponentActionSchema> actionsList = new ArrayList<>();
-
-                            TracedArray actionsJson = entry.getValue();
-                            for (int i : actionsJson) {
-
-                                TracedEntry<TracedDictionary> actionEntry = actionsJson.getAsDict(i, false);
-                                TracedDictionary actionJson = actionEntry.getValue();
-
-                                actionsList.add(createAction(actionJson));
-                            }
-
-                            return new ImmutableList<>(actionsList);
-                        })));
-            }
-        }
-
-        public final class InterfaceComponentSchema extends ComponentSchema {
-
-            private final AssetPresets presets;
-
-            public AssetPresets getPresets() {
-
-                return presets;
-            }
-
-            public InterfaceComponentSchema(TracedDictionary json) throws LoggedException {
-
-                super(json, INTERFACE);
-
-                TracedEntry<AssetPresets> presetsEntry = json.getAsPresets("interface", false, AssetType.INTERFACE);
-                presets = presetsEntry.getValue();
-                addAssetDependency(presets);
-            }
-        }
-
-    public ComponentActionSchema createAction(TracedDictionary json) throws LoggedException {
-
-        TracedEntry<String> typeEntry = json.getAsString("type", false, null);
-        String type = typeEntry.getValue();
-
-        return switch (type) {
-
-        case OPEN_MENU -> new OpenMenuComponentActionSchema(json);
-
-        case CLOSE_MENU -> new CloseMenuComponentActionSchema(json);
-
-        case SHOW_COMPONENT
-
-        case HIDE_COMPONENT
-
-        case COMPONENT_ACTION
-
-        case SET_PROPERTY
-
-        case SET_GLOBAL_PROPERTY
-
-        default -> throw new UnexpectedValueException(typeEntry);
-        };
     }
 
-        public abstract class ComponentActionSchema {
+    public final class StringComponentSchema extends ComponentSchema {
 
-            private final ImmutableList<TRScript> conditions;
+        private final String string;
 
-            public final ImmutableList<TRScript> getConditions() {
+        public final String getString() {
 
-                return conditions;
-            }
+            return string;
+        }
 
-            public ComponentActionSchema(TracedDictionary json) throws LoggedException {
+        public StringComponentSchema(String string) {
 
-                conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
+            super(string, STRING);
 
-                    ArrayList<TRScript> conditionsList = new ArrayList<>();
+            this.string = string;
+        }
+    }
 
-                    TracedArray conditionsJson = entry.getValue();
-                    for (int i : conditionsJson) {
+    public final class TextComponentSchema extends ComponentSchema {
 
-                        TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
-                        TRScript condition = conditionEntry.getValue();
-                        conditionsList.add(condition);
-                    }
+        private final StringComponentSchema text;
 
-                    return new ImmutableList<>(conditionsList);
-                }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+        public final StringComponentSchema getText() {
 
-                    TRScript condition = entry.getValue();
-                    return new ImmutableList<>(condition);
-                })));
-            }
+            return text;
+        }
+
+        public TextComponentSchema(TracedDictionary json) throws LoggedException {
+
+            super(json, TEXT);
+
+            TracedEntry<String> textEntry = json.getAsString("text", true, null);
+            String textString = textEntry.getValue();
+            text = new StringComponentSchema(textString);
+        }
+    }
+
+    public final class TextureComponentSchema extends ComponentSchema {
+
+        private final String texture;
+
+        public final String getTexture() {
+
+            return texture;
+        }
+
+        public TextureComponentSchema(TracedDictionary json) throws LoggedException {
+
+            super(json, TEXTURE);
+
+            TracedEntry<String> textureEntry = json.getAsString("texture", true, null);
+            texture = textureEntry.getValue();
+        }
+    }
+
+    public final class ButtonComponentSchema extends ComponentSchema {
+
+        private final ImmutableList<ComponentSchema> components;
+
+        public final ImmutableList<ComponentSchema> getComponents() {
+
+            return components;
+        }
+
+        private final ImmutableList<ComponentActionSchema> action;
+
+        public final ImmutableList<ComponentActionSchema> getAction() {
+
+            return action;
+        }
+
+        public ButtonComponentSchema(TracedDictionary json) throws LoggedException {
+
+            super(json, BUTTON);
+
+            components = json.get("components", List.of(
+
+                    // Create multiple children.
+                    json.arrayCase(componentsEntry -> {
+
+                        ArrayList<ComponentSchema> componentsList = new ArrayList<>();
+                        TracedArray componentsJson = componentsEntry.getValue();
+
+                        // Process all of the children components.
+                        for (int i : componentsJson) {
+
+                            ComponentSchema component = createNonInteractiveComponent(componentsJson, i);
+                            componentsList.add(component);
+                        }
+
+                        return new ImmutableList<>(componentsList);
+                    }),
+
+                    // Create a single child.
+                    json.defaultCase(_ -> {
+
+                        return new ImmutableList<>(createNonInteractiveComponent(json, "components"));
+                    })));
+
+            action = json.get("action", List.of(
+
+                    // Process a dictionary into a single action.
+                    json.dictCase(entry -> {
+
+                        TracedDictionary actionJson = entry.getValue();
+                        return new ImmutableList<>(createAction(actionJson));
+                    }),
+
+                    // Process an array into a list of actions.
+                    json.arrayCase(entry -> {
+
+                        ArrayList<ComponentActionSchema> actionsList = new ArrayList<>();
+
+                        TracedArray actionsJson = entry.getValue();
+                        for (int i : actionsJson) {
+
+                            TracedEntry<TracedDictionary> actionEntry = actionsJson.getAsDict(i, false);
+                            TracedDictionary actionJson = actionEntry.getValue();
+
+                            actionsList.add(createAction(actionJson));
+                        }
+
+                        return new ImmutableList<>(actionsList);
+                    })));
+        }
+    }
+
+    public final class InterfaceComponentSchema extends ComponentSchema {
+
+        private final AssetPresets presets;
+
+        public AssetPresets getPresets() {
+
+            return presets;
+        }
+
+        public InterfaceComponentSchema(TracedDictionary json) throws LoggedException {
+
+            super(json, INTERFACE);
+
+            TracedEntry<AssetPresets> presetsEntry = json.getAsPresets("interface", false, AssetType.INTERFACE);
+            presets = presetsEntry.getValue();
+            addAssetDependency(presets);
+        }
+    }
+
+    public final ComponentActionSchema createAction(TracedDictionary json) throws LoggedException {
+
+            TracedEntry<String> typeEntry = json.getAsString("type", false, null);
+            String type = typeEntry.getValue();
+
+            return switch (type) {
+
+            case OPEN_MENU -> new OpenMenuComponentActionSchema(json);
+
+            case CLOSE_MENU -> new CloseMenuComponentActionSchema(json);
+
+            case SHOW_COMPONENT
+
+            case HIDE_COMPONENT
+
+            case COMPONENT_ACTION
+
+            case SET_PROPERTY
+
+            case SET_GLOBAL_PROPERTY
+
+            default -> throw new UnexpectedValueException(typeEntry);
+            };
+        }
+
+    public abstract class ComponentActionSchema {
+
+        private final ImmutableList<TRScript> conditions;
+
+        public final ImmutableList<TRScript> getConditions() {
+
+            return conditions;
+        }
+
+        public ComponentActionSchema(TracedDictionary json) throws LoggedException {
+
+            conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
+
+                ArrayList<TRScript> conditionsList = new ArrayList<>();
+
+                TracedArray conditionsJson = entry.getValue();
+                for (int i : conditionsJson) {
+
+                    TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
+                    TRScript condition = conditionEntry.getValue();
+                    conditionsList.add(condition);
+                }
+
+                return new ImmutableList<>(conditionsList);
+            }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+
+                TRScript condition = entry.getValue();
+                return new ImmutableList<>(condition);
+            })));
         }
     }
 }

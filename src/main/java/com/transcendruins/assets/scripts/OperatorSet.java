@@ -432,7 +432,7 @@ public final class OperatorSet {
                 return World.getWorld().getProperty(property);
             }, argsLength -> argsLength == 0));
 
-    public final record OperatorEntry(String key, TRScriptOperator operator) {
+    public static final record OperatorEntry(String key, TRScriptOperator operator) {
     }
 
     public static OperatorEntry entry(String key, BiFunction<List<TRScript>, PropertyHolder, Object> operator,

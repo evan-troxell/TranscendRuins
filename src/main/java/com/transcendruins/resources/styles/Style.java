@@ -41,7 +41,13 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         BorderStyle borderRight, SizeDimensions rTL, SizeDimensions rTR, SizeDimensions rBL, SizeDimensions rBR,
         Size marginTop, Size marginBottom, Size marginLeft, Size marginRight, Size paddingTop, Size paddingBottom,
         Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize, Size lineHeight,
-        String fontFamily, Size gap, Direction listDirection) {
+        String fontFamily, Color color, Size gap, Direction listDirection) {
+
+    public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null);
+
+    public static final Size AUTO = new Size(parent -> parent);
 
     /**
      * Creates a new instance of the <code>Style</code> class.
@@ -88,13 +94,14 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Size fontSize = null;
         Size lineHeight = null;
         String fontFamily = null;
+        Color color = null;
 
-        // overflow (overflowX, overflowY) <- hidden (default), scroll (always show scrollbar), auto (show scrollbar when needed)
-        OverflowStyle overflowX = null;
-        OverflowStyle overflowY = null;;
+        WhiteSpaceStyle whiteSpace = null; // If text extends too far, should it wrap?
+        OverflowWrapStyle overflowWrap = null; // If text needs to wrap, where should it break?
+        TextOverflowStyle textOverflow = null; // If a line is still off the screen, what should the line end with?
 
-        // text-overflow <- clip (cut-off), ellipses (…), text (ex.)
-        String textOverflow = null;
+        OverflowStyle overflowX = null; // When do you scroll X?
+        OverflowStyle overflowY = null; // When do you scroll Y?
 
         Size gap = null;
         Direction listDirection = null;
@@ -114,8 +121,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 case "y" -> y = Size.createSize(json, property);
 
                 // Process the size.
-                case "width" -> width = Size.createSize(json, property);
-                case "height" -> height = Size.createSize(json, property);
+                case "width" -> width = createAutoSize(json, property);
+                case "height" -> height = createAutoSize(json, property);
                 case "minWidth" -> minWidth = Size.createSize(json, property);
                 case "minHeight" -> minHeight = Size.createSize(json, property);
 
@@ -203,19 +210,27 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 case "fontSize" -> fontSize = Size.createSize(json, key);
                 case "lineHeight" -> lineHeight = createLineHeight(json, key);
                 case "fontFamily" -> fontFamily = createFontFamily(json, key);
-                
-                // Process the text wrapping and overflow.
-                case
-                case "textOverflow" -> {
-                    
-                    TracedEntry<String> textOverflowEntry = json.getAsString(key, false, null);
-                    textOverflow = textOverflowEntry.getValue();
+                case "color" -> {
+
+                    TracedEntry<Color> colorEntry = json.getAsColor(key, false, null);
+                    color = colorEntry.getValue();
                 }
 
+                // Process the text wrapping and overflow.
+                case "whiteSpace" -> whiteSpace = WhiteSpaceStyle.createWhiteSpace(json, key); // normal (default),
+                                                                                               // nowrap
+                case "overflowWrap" -> overflowWrap = OverflowWrapStyle.createOverflowWrap(json, key); // normal
+                                                                                                       // (default),
+                                                                                                       // breakWord
+                case "textOverflow" -> textOverflow = TextOverflowStyle.createTextOverflow(json, key); // clip
+                                                                                                       // (default),
+                                                                                                       // ellipses
+
                 // Process the overflow.
-                case "overflow" -> overflowX = overflowY = ;
-                case "overflowX" -> overflowX = ;
-                case "overflowY" -> overflowY = ;
+                case "overflow" -> overflowX = overflowY = OverflowStyle.createOverflow(json, key); // hidden (default),
+                                                                                                    // auto, scroll
+                case "overflowX" -> overflowX = OverflowStyle.createOverflow(json, key);
+                case "overflowY" -> overflowY = OverflowStyle.createOverflow(json, key);
 
                 // Process the list element gap.
                 case "gap" -> gap = Size.createSize(json, property);
@@ -228,17 +243,20 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         return new Style(x, y, width, height, minWidth, minHeight, background, borderTop, borderBottom, borderLeft,
                 borderRight, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft, marginRight, paddingTop,
-                paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize, lineHeight, fontFamily, gap,
-                listDirection);
+                paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize, lineHeight, fontFamily,
+                color, gap, listDirection);
     }
 
-    public static Style createStyle(List<Style> styles) {
+    public static Style createStyle(List<Style> styles, Style parent) {
 
         // The latter elements in styles should be caught first.
         styles = styles.reversed();
 
-        return new Style(parseVal(styles, Style::x, Size.NONE), parseVal(styles, Style::y, Size.NONE),
-                parseVal(styles, Style::width, Size.FULL), parseVal(styles, Style::height, Size.FULL),
+        return new Style(
+
+                // All sizing properties should be independent.
+                parseVal(styles, Style::x, Size.NONE), parseVal(styles, Style::y, Size.NONE),
+                parseVal(styles, Style::width, Size.FULL), parseVal(styles, Style::height, AUTO),
                 parseVal(styles, Style::minWidth, Size.NONE), parseVal(styles, Style::minHeight, Size.NONE),
                 parseVal(styles, Style::background, BackgroundStyle.DEFAULT),
                 parseVal(styles, Style::borderTop, BorderStyle.DEFAULT),
@@ -251,11 +269,16 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::marginLeft, Size.NONE), parseVal(styles, Style::marginRight, Size.NONE),
                 parseVal(styles, Style::paddingTop, Size.NONE), parseVal(styles, Style::paddingBottom, Size.NONE),
                 parseVal(styles, Style::paddingLeft, Size.NONE), parseVal(styles, Style::paddingRight, Size.NONE),
-                parseVal(styles, Style::fontStyle, Font.PLAIN), parseVal(styles, Style::fontWeight, Font.PLAIN),
-                parseVal(styles, Style::fontSize, Size.FULL),
-                parseVal(styles, Style::lineHeight, new Size(parent -> parent * 1.2)),
-                parseVal(styles, Style::fontFamily, null), parseVal(styles, Style::gap, Size.NONE),
-                parseVal(styles, Style::listDirection, Direction.VERTICAL));
+
+                // All font properties should inherit parent properties.
+                parseVal(styles, Style::fontStyle, parent, Font.PLAIN),
+                parseVal(styles, Style::fontWeight, parent, Font.PLAIN),
+                parseVal(styles, Style::fontSize, parent, Size.FULL),
+                parseVal(styles, Style::lineHeight, parent, new Size(value -> value * 1.2)),
+                parseVal(styles, Style::fontFamily, parent, null), parseVal(styles, Style::color, parent, Color.BLACK),
+
+                // All listing properties should be independent.
+                parseVal(styles, Style::gap, Size.NONE), parseVal(styles, Style::listDirection, Direction.VERTICAL));
     }
 
     /**
@@ -266,8 +289,9 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
      *               through.
      * @param getter <code>Function&lt;Style, K&gt;</code>: The retrieval function
      *               to use.
-     * @return <code>K</code>: The first retrieved property, or <code>null</code> if
-     *         the property was not found.
+     * @param ifNull <code>K</code>: The value to return if one was not found.
+     * @return <code>K</code>: The first retrieved property, or <code>ifNull</code>
+     *         if the property was not found.
      */
     private static <K> K parseVal(List<Style> styles, Function<Style, K> getter, K ifNull) {
 
@@ -281,6 +305,32 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         }
 
         return ifNull;
+    }
+
+    /**
+     * Finds the first defined property from a list of styles.
+     * 
+     * @param <K>    The property type.
+     * @param styles <code>List&lt;Style&gt;</code>: The list of styles to search
+     *               through.
+     * @param getter <code>Function&lt;Style, K&gt;</code>: The retrieval function
+     *               to use.
+     * @param parent <code>Style</code>: The parent whose value to return if one was
+     *               not found.
+     * @param ifNull <code>K</code>: The value to return if one was not found in the
+     *               parent.
+     * @return <code>K</code>: The first retrieved property, or the property in
+     *         <code>parent</code> if the property was not found.
+     */
+    public static <K> K parseVal(List<Style> styles, Function<Style, K> getter, Style parent, K ifNull) {
+
+        // Use the parent values as the ifnull if it exists.
+        K sub = getter.apply(parent);
+        if (sub == null) {
+
+            sub = ifNull;
+        }
+        return parseVal(styles, getter, sub);
     }
 
     /**
@@ -490,6 +540,20 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         }
     }
 
+    private static Size createAutoSize(TracedCollection collection, Object key) throws LoggedException {
+
+        return collection.get(key, List.of(collection.stringCase(entry -> {
+
+            String size = entry.getValue();
+            if (size.equals("auto")) {
+
+                return AUTO;
+            }
+
+            return Size.createSize(collection, key);
+        }), collection.defaultCase(_ -> Size.createSize(collection, key))));
+    }
+
     /**
      * <code>TextureSize</code>: A class representing the size configuration of a
      * texture.
@@ -538,7 +602,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
          * <code>TextureSize</code>: A texture size representing scaling to fill the
          * parent's bounds.
          */
-        public static final TextureSize FILL = new TextureSize() {
+        public static final TextureSize COVER = new TextureSize() {
 
             @Override
             public int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
@@ -645,7 +709,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
                         case "contain" -> TextureSize.CONTAIN;
 
-                        case "fill" -> TextureSize.FILL;
+                        case "cover" -> TextureSize.COVER;
 
                         case "auto" -> TextureSize.AUTO;
 
@@ -766,11 +830,6 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     /**
      * <code>SizeDimensions</code>: A record representing a set of horizontal and
      * vertical dimensions.
-     * 
-     * @param width  <code>Size</code>: The width of this
-     *               <code>SizeDimensions</code> instance.
-     * @param height <code>Size</code>: The height of this
-     *               <code>SizeDimensions</code> instance.
      */
     public static final record SizeDimensions(Size width, Size height) {
 

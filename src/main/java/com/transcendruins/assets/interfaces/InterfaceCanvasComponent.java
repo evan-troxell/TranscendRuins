@@ -30,7 +30,7 @@ import javax.swing.JPanel;
 
 import com.transcendruins.assets.interfaces.InterfaceInstance.ComponentInstance;
 
-public final class MenuComponent extends JPanel {
+public final class InterfaceCanvasComponent extends JPanel {
 
     private final HashMap<String, InterfaceInstance> menus = new HashMap<>();
 
@@ -73,7 +73,7 @@ public final class MenuComponent extends JPanel {
 
     private boolean mouseDown = false;
 
-    public MenuComponent() {
+    public InterfaceCanvasComponent() {
 
         addMouseListener(new MouseListener() {
 

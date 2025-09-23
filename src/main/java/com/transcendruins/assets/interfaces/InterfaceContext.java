@@ -19,12 +19,23 @@ package com.transcendruins.assets.interfaces;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.interfaces.InterfaceInstance.ComponentInstance;
 import com.transcendruins.world.World;
 
 public final class InterfaceContext extends AssetContext {
 
-    public InterfaceContext(AssetPresets presets, World world, AssetInstance parent) {
+    private final ComponentInstance componentParent;
+
+    public final ComponentInstance getComponentParent() {
+
+        return componentParent;
+    }
+
+    public InterfaceContext(AssetPresets presets, World world, AssetInstance parent,
+            ComponentInstance componentParent) {
 
         super(presets, world, parent);
+
+        this.componentParent = componentParent;
     }
 }

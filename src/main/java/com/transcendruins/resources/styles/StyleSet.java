@@ -392,7 +392,9 @@ public final class StyleSet {
     }
 
     /**
-     * Retrieves a style from a stack of style sets.
+     * Retrieves a style from a stack of style sets. Styles which have higher
+     * priority will be placed at the end of the list, while lesser priorities will
+     * be closer to the beginning.
      * 
      * @param properties <code>ComponentProperties</code>: The component properties
      *                   to match.
