@@ -21,8 +21,23 @@ import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
+/**
+ * <code>LocationContext</code>: A class representing the instantiation context
+ * of a location.
+ */
 public final class LocationContext extends AssetContext {
 
+    /**
+     * Creates a new instance of the <code>LocationContext</code> class.
+     * 
+     * @param presets <code>AssetPresets</code>: The presets containing schema and
+     *                instantiation information of this <code>LocationContext</code>
+     *                instance.
+     * @param world   <code>World</code>: The world copy of this
+     *                <code>LocationContext</code> instance.
+     * @param parent  <code>AssetInstance</code>: The parent to assign to this
+     *                <code>LocationContext</code> instance.
+     */
     public LocationContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world, parent);

@@ -18,6 +18,10 @@ package com.transcendruins.assets.assets;
 
 import com.transcendruins.world.World;
 
+/**
+ * <code>AssetContext</code>: A class representing the instantiation context of
+ * an asset.
+ */
 public abstract class AssetContext {
 
     private final AssetPresets presets;

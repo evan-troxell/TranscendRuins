@@ -294,7 +294,7 @@ public final class GlobalEventSchema {
             // There should be a positive number of active tasks which should not exceeed
             // the required tasks.
             TracedEntry<Integer> activeEntry = tasksJson.getAsInteger("active", false, null,
-                    num -> tasksRequired >= num && num > 0);
+                    num -> 0 < num && num <= tasksRequired);
             tasksActive = activeEntry.getValue();
 
             // The task duration should be positive unless it is -1.0, which represents an

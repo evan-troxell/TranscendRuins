@@ -67,13 +67,13 @@ public final class InterfaceAttributes extends AssetAttributes {
     public static final String CLOSE_MENU = "closeMenu";
 
     /**
-     * <code>StyleSet</code>: The styles of this <code>InterfaceAttributes</code>
+     * <code>StyleSet</code>: The style set of this <code>InterfaceAttributes</code>
      * instance.
      */
     private final StyleSet styles;
 
     /**
-     * Retrieves the styles of this <code>InterfaceAttributes</code> instance.
+     * Retrieves the style set of this <code>InterfaceAttributes</code> instance.
      * 
      * @return <code>StyleSet</code>: The <code>styles</code> field of this
      *         <code>InterfaceAttributes</code> instance.
@@ -162,11 +162,19 @@ public final class InterfaceAttributes extends AssetAttributes {
                 })));
     }
 
+    /**
+     * Creates a UI component schema from a dictionary.
+     * 
+     * @param json <code>TracedDictionary</code>: The dictionary to parse.
+     * @return <code>ComponentSchema</code>: The generated schema.
+     * @throws LoggedException Thrown if the dictionary could not be parsed.
+     */
     public final ComponentSchema createDictComponent(TracedDictionary json) throws LoggedException {
 
         TracedEntry<String> typeEntry = json.getAsString("type", false, null);
         String type = typeEntry.getValue();
 
+        // TODO Add rest of UI component types
         return switch (type) {
 
         case TEXT -> new TextComponentSchema(json);
@@ -196,19 +204,40 @@ public final class InterfaceAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ComponentSchema</code>: A class representing the schema of a component.
+     * <code>ComponentSchema</code>: A class representing the schema of a UI
+     * component.
      */
     public abstract class ComponentSchema {
 
+        /**
+         * <code>String</code>: The component type of this <code>ComponentSchema</code>
+         * instance.
+         */
         private final String type;
 
+        /**
+         * Retrieves the component type of this <code>ComponentSchema</code> instance.
+         * 
+         * @return <code>String</code>: The <code>type</code> field of this
+         *         <code>ComponentSchema</code> instance.
+         */
         public final String getType() {
 
             return type;
         }
 
+        /**
+         * <code>String</code>: The component id of this <code>ComponentSchema</code>
+         * instance.
+         */
         private final String id;
 
+        /**
+         * Retrieves the component id of this <code>ComponentSchema</code> instance.
+         * 
+         * @return <code>String</code>: The <code>id</code> field of this
+         *         <code>ComponentSchema</code> instance.
+         */
         public final String getId() {
 
             return id;
@@ -231,41 +260,92 @@ public final class InterfaceAttributes extends AssetAttributes {
             return classes;
         }
 
+        /**
+         * <code>String</code>: The top-level style of this <code>ComponentSchema</code>
+         * instance.
+         */
         private final Style style;
 
+        /**
+         * Retrieves the top-level style of this <code>ComponentSchema</code> instance.
+         * 
+         * @return <code>Style</code>: The <code>style</code> field of this
+         *         <code>ComponentSchema</code> instance.
+         */
         public final Style getStyle() {
 
             return style;
         }
 
+        /**
+         * <code>TRScript</code>: The value of this <code>ComponentSchema</code>
+         * instance.
+         */
         private final TRScript value;
 
+        /**
+         * Retrieves the value of this <code>ComponentSchema</code> instance.
+         * 
+         * @return <code>TRScript</code>: The <code>value</code> field of this
+         *         <code>ComponentSchema</code> instance.
+         */
         public final TRScript getValue() {
 
             return value;
         }
 
+        /**
+         * <code>ArrayList&lt;ComponentSchema&gt;</code>: The children components of
+         * this <code>ComponentSchema</code> instance. These will automatically be
+         * generated and added when the parent is instantiated.
+         */
         private final ArrayList<ComponentSchema> children = new ArrayList<>();
 
+        /**
+         * Adds a child to this <code>ComponentSchema</code> instance.
+         * 
+         * @param child <code>ComponentSchema</code>: The child component to add.
+         */
         protected final void addChild(ComponentSchema child) {
 
             children.add(child);
         }
 
+        /**
+         * Retrieves the children of this <code>ComponentSchema</code> instance.
+         * 
+         * @return <code>ImmutableList&lt;ComponentSchema&gt;</code>: A copy of the
+         *         <code>children</code> field of this code>ComponentSchema</code>
+         *         instance.
+         */
         public final ImmutableList<ComponentSchema> getChildren() {
 
             return new ImmutableList<>(children);
         }
 
-        public ComponentSchema(String string, String type) {
+        /**
+         * Creates a new instance of the <code>ComponentSchema</code> class from a
+         * string literal.
+         * 
+         * @param string <code>String</code>: The string value to use.
+         */
+        public ComponentSchema(String string) {
 
-            this.type = type;
+            type = STRING;
             id = null;
             classes = new ImmutableSet<>();
             style = Style.EMPTY;
             value = new TRScript(string);
         }
 
+        /**
+         * Creates a new instance of the <code>ComponentSchema</code> class from a
+         * dictionary.
+         * 
+         * @param json <code>TracedDictionary</code>: The dictionary to parse.
+         * @param type <code>String</code>: The component type to use.
+         * @throws LoggedException Thrown if the dictionary could not be parsed.
+         */
         public ComponentSchema(TracedDictionary json, String type) throws LoggedException {
 
             this.type = type;
@@ -295,25 +375,55 @@ public final class InterfaceAttributes extends AssetAttributes {
         }
     }
 
+    /**
+     * <code>StringComponentSchema</code>: A class representing the schema of a
+     * string literal UI component.
+     */
     public final class StringComponentSchema extends ComponentSchema {
 
+        /**
+         * <code>String</code>: The string value of this
+         * <code>StringComponentSchema</code> instance.
+         */
         private final String string;
 
+        /**
+         * Retrieves the string value of this <code>StringComponentSchema</code>
+         * instance.
+         * 
+         * @return <code>String</code>: The <code>string</code> field of this
+         *         <code>StringComponentSchema</code> instance.
+         */
         public final String getString() {
 
             return string;
         }
 
+        /**
+         * Creates a new instance of the <code>StringComponentSchema</code> class.
+         * 
+         * @param string <code>String</code>: The string value to use.
+         */
         public StringComponentSchema(String string) {
 
-            super(string, STRING);
+            super(string);
 
             this.string = string;
         }
     }
 
+    /**
+     * <code>TextComponentSchema</code>: A class representing the schema of a text
+     * UI component.
+     */
     public final class TextComponentSchema extends ComponentSchema {
 
+        /**
+         * Creates a new instance of the <code>TextComponentSchema</code> class.
+         * 
+         * @param json <code>TracedDictionary</code>: The dictionary to parse.
+         * @throws LoggedException Thrown if the dictionary could not be parsed.
+         */
         public TextComponentSchema(TracedDictionary json) throws LoggedException {
 
             super(json, TEXT);
@@ -324,15 +434,35 @@ public final class InterfaceAttributes extends AssetAttributes {
         }
     }
 
+    /**
+     * <code>TextureComponentSchema</code>: A class representing the schema of a
+     * texture UI component.
+     */
     public final class TextureComponentSchema extends ComponentSchema {
 
+        /**
+         * <code>String</code>: The texture of this <code>TextureComponentSchema</code>
+         * instance.
+         */
         private final String texture;
 
+        /**
+         * Retrieves the texture of this <code>TextureComponentSchema</code> instance.
+         * 
+         * @return <code>String</code>: The <code>texture</code> field of this
+         *         <code>TextureComponentSchema</code> instance.
+         */
         public final String getTexture() {
 
             return texture;
         }
 
+        /**
+         * Creates a new instance of the <code>TextureComponentSchema</code> class.
+         * 
+         * @param json <code>TracedDictionary</code>: The dictionary to parse.
+         * @throws LoggedException Thrown if the dictionary could not be parsed.
+         */
         public TextureComponentSchema(TracedDictionary json) throws LoggedException {
 
             super(json, TEXTURE);
@@ -342,15 +472,36 @@ public final class InterfaceAttributes extends AssetAttributes {
         }
     }
 
+    /**
+     * <code>ButtonComponentSchema</code>: A class representing the schema of a
+     * button UI component.
+     */
     public final class ButtonComponentSchema extends ComponentSchema {
 
+        /**
+         * <code>ImmutableList&lt;ComponentActionSchema&gt;</code>: The action to run
+         * when pressed.
+         */
         private final ImmutableList<ComponentActionSchema> action;
 
+        /**
+         * Retrieves the action to run when pressed.
+         * 
+         * @return <code>ImmutableList&lt;ComponentActionSchema&gt;</code>: The
+         *         <code>action</code> field of this <code>ButtonComponentSchema</code>
+         *         instance.
+         */
         public final ImmutableList<ComponentActionSchema> getAction() {
 
             return action;
         }
 
+        /**
+         * Creates a new instance of the <code>ButtonComponentSchema</code> class.
+         * 
+         * @param json <code>TracedDictionary</code>: The dictionary to parse.
+         * @throws LoggedException Thrown if the dictionary could not be parsed.
+         */
         public ButtonComponentSchema(TracedDictionary json) throws LoggedException {
 
             super(json, BUTTON);
@@ -367,7 +518,7 @@ public final class InterfaceAttributes extends AssetAttributes {
                     json.dictCase(entry -> {
 
                         TracedDictionary actionJson = entry.getValue();
-                        return new ImmutableList<>(createAction(actionJson));
+                        return new ImmutableList<>(ComponentActionSchema.createAction(actionJson));
                     }),
 
                     // Process an array into a list of actions.
@@ -381,7 +532,7 @@ public final class InterfaceAttributes extends AssetAttributes {
                             TracedEntry<TracedDictionary> actionEntry = actionsJson.getAsDict(i, false);
                             TracedDictionary actionJson = actionEntry.getValue();
 
-                            actionsList.add(createAction(actionJson));
+                            actionsList.add(ComponentActionSchema.createAction(actionJson));
                         }
 
                         return new ImmutableList<>(actionsList);
@@ -389,62 +540,37 @@ public final class InterfaceAttributes extends AssetAttributes {
         }
     }
 
-    public final class InterfaceComponentSchema extends ComponentSchema {
-
-        private final AssetPresets presets;
-
-        public AssetPresets getPresets() {
-
-            return presets;
-        }
-
-        public InterfaceComponentSchema(TracedDictionary json) throws LoggedException {
-
-            super(json, INTERFACE);
-
-            TracedEntry<AssetPresets> presetsEntry = json.getAsPresets("interface", false, AssetType.INTERFACE);
-            presets = presetsEntry.getValue();
-            addAssetDependency(presets);
-        }
-    }
-
-    public final ComponentActionSchema createAction(TracedDictionary json) throws LoggedException {
-
-        TracedEntry<String> typeEntry = json.getAsString("type", false, null);
-        String type = typeEntry.getValue();
-
-        // TODO: Add rest of action types
-        return switch (type) {
-
-        // case OPEN_MENU -> new OpenMenuComponentActionSchema(json);
-
-        // case CLOSE_MENU -> new CloseMenuComponentActionSchema(json);
-
-        // case SHOW_COMPONENT
-
-        // case HIDE_COMPONENT
-
-        // case COMPONENT_ACTION
-
-        // case SET_PROPERTY
-
-        // case SET_GLOBAL_PROPERTY
-
-        case "PLACEHOLDER" -> null;
-
-        case null, default -> throw new UnexpectedValueException(typeEntry);
-        };
-    }
-
+    /**
+     * <code>ComponentActionSchema</code>: An abstract class representing the schema
+     * of a UI component action.
+     */
     public abstract class ComponentActionSchema {
 
+        /**
+         * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
+         * to apply this <code>ComponentactionSchema</code> instance.
+         */
         private final ImmutableList<TRScript> conditions;
 
+        /**
+         * Retrieves the conditions required to be met to apply this
+         * <code>ComponentActionSchema</code> instance.
+         * 
+         * @return <code>ImmutableList&lt;TRScript&gt;</code>: The
+         *         <code>conditions</code> field of this
+         *         <code>ComponentActionSchema</code> instance.
+         */
         public final ImmutableList<TRScript> getConditions() {
 
             return conditions;
         }
 
+        /**
+         * Creates a new instance of the <code>ComponentActionSchema</code> class.
+         * 
+         * @param json <code>TracedDictionary</code>: The dictionary to parse.
+         * @throws LoggedException Thrown if the dictionary could not be parsed.
+         */
         public ComponentActionSchema(TracedDictionary json) throws LoggedException {
 
             conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
@@ -465,6 +591,81 @@ public final class InterfaceAttributes extends AssetAttributes {
                 TRScript condition = entry.getValue();
                 return new ImmutableList<>(condition);
             })));
+        }
+
+        /**
+         * Creates a component action schema from a dictionary.
+         * 
+         * @param json <code>TracedDictionary</code>: The dictionary to parse.
+         * @return <code>ComponentActionSchema</code>: The created action schema.
+         * @throws LoggedException Thrown if the dictionary could not be parsed.
+         */
+        public static final ComponentActionSchema createAction(TracedDictionary json) throws LoggedException {
+
+            TracedEntry<String> typeEntry = json.getAsString("type", false, null);
+            String type = typeEntry.getValue();
+
+            // TODO: Add rest of action types
+            return switch (type) {
+
+            // case OPEN_MENU -> new OpenMenuComponentActionSchema(json);
+
+            // case CLOSE_MENU -> new CloseMenuComponentActionSchema(json);
+
+            // case SHOW_COMPONENT
+
+            // case HIDE_COMPONENT
+
+            // case COMPONENT_ACTION
+
+            // case SET_PROPERTY
+
+            // case SET_GLOBAL_PROPERTY
+
+            case "PLACEHOLDER" -> null;
+
+            case null, default -> throw new UnexpectedValueException(typeEntry);
+            };
+        }
+    }
+
+    /**
+     * <code>InterfaceComponentSchema</code>: A class representing the schema of a
+     * UI component which displays the content of another UI interface.
+     */
+    public final class InterfaceComponentSchema extends ComponentSchema {
+
+        /**
+         * <code>AssetPresets</code>: The presets of the interface to substitute for the
+         * content of this <code>InterfaceComponentSchema</code> instance.
+         */
+        private final AssetPresets presets;
+
+        /**
+         * Retrieves the presets of the interface to substitute for the content of this
+         * <code>InterfaceComponentSchema</code> instance.
+         * 
+         * @return <code>AssetPresets</code>: The <code>presets</code> field of this
+         *         <code>InterfaceComponentSchema</code> instance.
+         */
+        public final AssetPresets getPresets() {
+
+            return presets;
+        }
+
+        /**
+         * Creates a new instance of the <code>InterfaceComponentSchema</code> class.
+         * 
+         * @param json <code>TracedDictionary</code>: The dictionary to parse.
+         * @throws LoggedException Thrown if the dictionary could not be parsed.
+         */
+        public InterfaceComponentSchema(TracedDictionary json) throws LoggedException {
+
+            super(json, INTERFACE);
+
+            TracedEntry<AssetPresets> presetsEntry = json.getAsPresets("interface", false, AssetType.INTERFACE);
+            presets = presetsEntry.getValue();
+            addAssetDependency(presets);
         }
     }
 }

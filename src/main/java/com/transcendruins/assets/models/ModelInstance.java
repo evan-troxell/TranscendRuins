@@ -146,8 +146,10 @@ public final class ModelInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>ModelInstance</code> class.
      * 
-     * @param context <code>ModelContext</code>: The context used to generate this
-     *                <code>ModelInstance</code> instance.
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>ModelInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
      */
     public ModelInstance(AssetContext assetContext, Object key) {
 

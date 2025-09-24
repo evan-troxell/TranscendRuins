@@ -440,6 +440,14 @@ public final class LocationInstance extends AssetInstance {
      */
     private final Random locationGenerator;
 
+    /**
+     * Creates a new instance of the <code>LocationInstance</code> class.
+     * 
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>LocationInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
+     */
     public LocationInstance(AssetContext assetContext, Object key) {
 
         super(assetContext, key);

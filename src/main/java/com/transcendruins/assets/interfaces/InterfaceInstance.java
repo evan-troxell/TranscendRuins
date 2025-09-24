@@ -39,32 +39,61 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.*;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.ButtonComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentActionSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InterfaceComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.StringComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.TextComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.TextureComponentSchema;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.ComponentProperties;
 import com.transcendruins.resources.styles.Style;
-import com.transcendruins.resources.styles.Style.BackgroundStyle;
 import com.transcendruins.resources.styles.Style.BorderStyle;
+import com.transcendruins.resources.styles.Style.Overflow;
+import com.transcendruins.resources.styles.Style.OverflowWrap;
 import com.transcendruins.resources.styles.Style.SizeDimensions;
+import com.transcendruins.resources.styles.Style.TextOverflow;
 import com.transcendruins.resources.styles.Style.TextureSize;
+import com.transcendruins.resources.styles.Style.WhiteSpace;
 import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableSet;
 
+/**
+ * <code>InterfaceInstance</code>: A class representing a generated interface
+ * instance.
+ */
 public final class InterfaceInstance extends AssetInstance implements UIComponent {
 
+    /**
+     * <code>ComponentInstance</code>: The parent component of this
+     * <code>InterfaceInstance</code> instance. This is the parent which will be
+     * used when generating the body content.
+     */
     private final ComponentInstance componentParent;
 
+    /**
+     * <code>StyleSet</code>: The style set of this <code>InterfaceInstance</code>
+     * instance.
+     */
     private StyleSet styles;
 
+    /**
+     * <code>ComponentInstance</code>: The content body of this
+     * <code>InterfaceInstance</code> instance.
+     */
     private ComponentInstance body;
 
-    public ComponentInstance getBody() {
-
-        return body;
-    }
-
+    /**
+     * Creates a new instance of the <code>InterfaceInstance</code> class.
+     * 
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>InterfaceInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
+     */
     public InterfaceInstance(AssetContext assetContext, Object key) {
 
         super(assetContext, key);
@@ -318,8 +347,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return height + paddingTop + paddingBottom + marginTop + marginBottom + (borderTop + borderBottom);
         }
 
-        private Font font;
-        private FontMetrics fm;
+        private Font font = null;
+        private FontMetrics fm = null;
+
+        private WhiteSpace whiteSpace = null;
+        private OverflowWrap overflowWrap = null;
+        private TextOverflow textOverflow = null;
+        private Overflow overflowX = null;
+        private Overflow overflowY = null;
 
         public ComponentInstance(ComponentSchema schema, ComponentInstance parent, boolean defaultEventPropagation) {
 
@@ -463,6 +498,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             BufferedImage fontImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2d = fontImage.createGraphics();
             fm = g2d.getFontMetrics(font);
+
+            whiteSpace = style.whiteSpace();
+            overflowWrap = style.overflowWrap();
+            textOverflow = style.textOverflow();
+            overflowX = style.overflowX();
+            overflowY = style.overflowY();
+
+            eventPropagation = style.eventPropagation();
         }
 
         private BufferedImage render;
@@ -496,9 +539,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             // Generate the current style.
             Style s = getStyle(parentStyle);
 
-            // Update the event propagation immediately.
-            eventPropagation = s.eventPropagation();
-
             // Calculate the initial size.
             measure(s, parentWidth, parentHeight, parentFontSize);
 
@@ -520,7 +560,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 width = contentSize.width;
             }
 
-            if (contentSize.height > height && s.width() == Style.Size.AUTO) {
+            if (contentSize.height > height && s.height() == Style.Size.AUTO) {
 
                 height = contentSize.height;
             }
@@ -742,7 +782,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             g2d.setColor(color);
             g2d.setFont(font);
 
-            if (textWrapping == TextWrapping.NOWRAP) {
+            if (whiteSpace == WhiteSpace.NOWRAP) {
 
                 text = textOverflow(fm, text, width - x);
                 g2d.drawString(text, x, y);
@@ -777,7 +817,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         protected final Dimension calculateTextSize(String text, int x, int y) {
 
-            if (textWrapping == TextWrapping.NOWRAP) {
+            if (whiteSpace == WhiteSpace.NOWRAP) {
 
                 text = textOverflow(fm, text, width - x);
                 int lineWidth = fm.stringWidth(text);
@@ -871,14 +911,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private String textOverflow(FontMetrics fm, String line, int maxWidth) {
 
-            if (!textOverflow != TextOverflowSchema.CLIP && fm.stringWidth(line) > maxWidth) {
+            if (textOverflow != TextOverflow.CLIP && fm.stringWidth(line) > maxWidth) {
 
                 while (line.length() > 1) {
 
                     line = line.substring(0, line.length() - 1);
                     if (fm.stringWidth(line) <= maxWidth) {
 
-                        line += textOverflow.getValue();
+                        line += textOverflow.overflow();
                         break;
                     }
                 }
@@ -937,8 +977,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         public final void scroll(int mouseX, int mouseY, Point displacement) {
 
             // Calculate the adjustment to scroll.
-            int newScrollX = Math.clamp(scrollX + displacement.x, 0, maxScrollX);
-            int newScrollY = Math.clamp(scrollY + displacement.y, 0, maxScrollX);
+            int newScrollX = overflowX == Overflow.CLIP ? scrollX : Math.clamp(scrollX + displacement.x, 0, maxScrollX);
+            int newScrollY = overflowY == Overflow.CLIP ? scrollY : Math.clamp(scrollY + displacement.y, 0, maxScrollX);
 
             // Remove the adjustment from the scroll
             displacement.translate(scrollX - newScrollX, scrollY - newScrollY);

@@ -29,8 +29,10 @@ public final class RecipeInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>RecipeInstance</code> class.
      * 
-     * @param context <code>RecipeContext</code>: The context used to generate this
-     *                <code>RecipeInstance</code> instance.
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>RecipeInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
      */
     public RecipeInstance(AssetContext assetContext, Object key) {
 

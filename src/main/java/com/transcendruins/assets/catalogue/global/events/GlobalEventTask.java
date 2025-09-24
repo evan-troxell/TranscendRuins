@@ -147,7 +147,7 @@ public final class GlobalEventTask {
     }
 
     /**
-     * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions that must be met
+     * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
      * for this task to pass.
      */
     private final ImmutableList<TRScript> conditions;

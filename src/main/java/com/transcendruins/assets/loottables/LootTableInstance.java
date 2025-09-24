@@ -143,8 +143,8 @@ public final class LootTableInstance extends AssetInstance {
         private final ImmutableList<String> componentTags;
 
         /**
-         * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to apply
-         * this <code>LootInstance</code> instance.
+         * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
+         * to apply this <code>LootInstance</code> instance.
          */
         private final ImmutableList<TRScript> conditions;
 

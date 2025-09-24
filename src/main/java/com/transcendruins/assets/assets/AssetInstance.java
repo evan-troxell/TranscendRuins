@@ -164,10 +164,17 @@ public abstract class AssetInstance extends Instance {
     /**
      * Creates a new instance of the <code>AssetInstance</code> class.
      * 
-     * @param context <code>AssetContext</code>: The context used to generate this
-     *                <code>AssetInstance</code> instance.
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>AssetInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
      */
     public AssetInstance(AssetContext assetContext, Object key) {
+
+        if (key != AssetType.KEY) {
+
+            throw new IllegalArgumentException("Invalid instantiation key passed to asset instance.");
+        }
 
         assetPresets = assetContext.getPresets();
 

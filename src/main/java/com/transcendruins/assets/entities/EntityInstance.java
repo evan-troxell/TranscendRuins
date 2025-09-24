@@ -57,8 +57,10 @@ public final class EntityInstance extends PrimaryAssetInstance {
     /**
      * Creates a new instance of the <code>EntityInstance</code> class.
      * 
-     * @param presets <code>EntityPresets</code>: The presets used to generate this
-     *                <code>EntityInstance</code> instance.
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>EntityInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
      */
     public EntityInstance(AssetContext assetContext, Object key) {
 

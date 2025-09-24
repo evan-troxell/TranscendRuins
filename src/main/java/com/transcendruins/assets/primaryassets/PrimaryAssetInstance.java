@@ -71,8 +71,10 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
     /**
      * Creates a new instance of the <code>PrimaryAssetInstance</code> class.
      * 
-     * @param context <code>AssetContext</code>: The context used to generate this
-     *                <code>PrimaryAssetInstance</code> instance.
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>PrimaryAssetInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
      */
     public PrimaryAssetInstance(AssetContext assetContext, Object key) {
 

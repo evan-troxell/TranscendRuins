@@ -21,18 +21,22 @@ import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
+/**
+ * <code>PrimaryAssetContext</code>: A class representing the instantiation
+ * context of a primary asset.
+ */
 public class PrimaryAssetContext extends AssetContext {
 
     /**
-     * Creates a new instance of the <code>EntityContext</code> class.
+     * Creates a new instance of the <code>PrimaryAssetContext</code> class.
      * 
      * @param presets <code>AssetPresets</code>: The presets containing schema and
-     *                instantiation information of this <code>EntityContext</code>
-     *                instance.
+     *                instantiation information of this
+     *                <code>PrimaryAssetContext</code> instance.
      * @param world   <code>World</code>: The world copy of this
-     *                <code>EntityContext</code> instance.
+     *                <code>PrimaryAssetContext</code> instance.
      * @param parent  <code>AssetInstance</code>: The parent to assign to this
-     *                <code>EntityContext</code> instance.
+     *                <code>PrimaryAssetContext</code> instance.
      */
     public PrimaryAssetContext(AssetPresets presets, World world, AssetInstance parent) {
 

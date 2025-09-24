@@ -337,14 +337,14 @@ public final class LootTableAttributes extends AssetAttributes {
         }
 
         /**
-         * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to apply
-         * this <code>LootSchema</code> instance.
+         * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
+         * to apply this <code>LootSchema</code> instance.
          */
         private final ImmutableList<TRScript> conditions;
 
         /**
-         * Retrieves the conditions required to apply this <code>LootSchema</code>
-         * instance.
+         * Retrieves the conditions required to be met to apply this
+         * <code>LootSchema</code> instance.
          * 
          * @return <code>ImmutableList&lt;TRScript&gt;</code>: The
          *         <code>conditions</code> field of this <code>LootSchema</code>

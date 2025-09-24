@@ -43,8 +43,9 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Size borderRightWidth, Color borderRightColor, SizeDimensions rTL, SizeDimensions rTR, SizeDimensions rBL,
         SizeDimensions rBR, Size marginTop, Size marginBottom, Size marginLeft, Size marginRight, Size paddingTop,
         Size paddingBottom, Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize,
-        String fontFamily, Size lineHeight, Color color, TextureSize textureFit, Size gap, Direction listDirection,
-        Boolean eventPropagation) {
+        String fontFamily, Size lineHeight, Color color, TextureSize textureFit, WhiteSpace whiteSpace,
+        OverflowWrap overflowWrap, TextOverflow textOverflow, Overflow overflowX, Overflow overflowY, Size gap,
+        Direction listDirection, Boolean eventPropagation) {
 
     /**
      * <code>Style</code>: A style without any defined attributes which will inherit
@@ -52,8 +53,11 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
      */
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, null, null, null, null, null);
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
+    /**
+     * <code>Color</code>: A fully transparent color.
+     */
     public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
     /**
@@ -74,9 +78,9 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Size minWidth = null;
         Size minHeight = null;
 
-        Color backgroundColor = null; // new Color(0, 0, 0, 0)
-        String backgroundTexture = null; // null
-        TextureSize backgroundSize = null; // TextureSize.AUTO
+        Color backgroundColor = null;
+        String backgroundTexture = null;
+        TextureSize backgroundSize = null;
 
         BorderStyle borderTopStyle = null;
         Size borderTopWidth = null;
@@ -118,12 +122,11 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Color color = null;
         TextureSize textureFit = null;
 
-        WhiteSpaceStyle whiteSpace = null; // If text extends too far, should it wrap?
-        OverflowWrapStyle overflowWrap = null; // If text needs to wrap, where should it break?
-        TextOverflowStyle textOverflow = null; // If a line is still off the screen, what should the line end with?
-
-        OverflowStyle overflowX = null; // When do you scroll X?
-        OverflowStyle overflowY = null; // When do you scroll Y?
+        WhiteSpace whiteSpace = null;
+        OverflowWrap overflowWrap = null;
+        TextOverflow textOverflow = null;
+        Overflow overflowX = null;
+        Overflow overflowY = null;
 
         Size gap = null;
         Direction listDirection = null;
@@ -381,21 +384,14 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 case "textureFit" -> textureFit = TextureSize.createSize(json, property);
 
                 // Process the text wrapping and overflow.
-                case "whiteSpace" -> whiteSpace = WhiteSpaceStyle.createWhiteSpace(json, property); // normal (default),
-                // nowrap
-                case "overflowWrap" -> overflowWrap = OverflowWrapStyle.createOverflowWrap(json, property); // normal
-                // (default),
-                // breakWord
-                case "textOverflow" -> textOverflow = TextOverflowStyle.createTextOverflow(json, property); // clip
-                // (default),
-                // ellipses
+                case "whiteSpace" -> whiteSpace = WhiteSpace.createWhiteSpace(json, property);
+                case "overflowWrap" -> overflowWrap = OverflowWrap.createOverflowWrap(json, property);
+                case "textOverflow" -> textOverflow = TextOverflow.createTextOverflow(json, property);
 
                 // Process the overflow.
-                case "overflow" -> overflowX = overflowY = OverflowStyle.createOverflow(json, property); // hidden
-                                                                                                         // (default),
-                // auto, scroll
-                case "overflowX" -> overflowX = OverflowStyle.createOverflow(json, property);
-                case "overflowY" -> overflowY = OverflowStyle.createOverflow(json, property);
+                case "overflow" -> overflowX = overflowY = Overflow.createOverflow(json, property);
+                case "overflowX" -> overflowX = Overflow.createOverflow(json, property);
+                case "overflowY" -> overflowY = Overflow.createOverflow(json, property);
 
                 // Process the list element gap.
                 case "gap" -> gap = Size.createSize(json, property);
@@ -404,11 +400,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 case "listDirection" -> listDirection = Direction.createDirection(json, property);
 
                 // Process the event propagation behavior.
-                case "eventPropagation" -> {
-
-                    TracedEntry<Boolean> eventPropagationEntry = json.getAsBoolean(property, false, null);
-                    eventPropagation = eventPropagationEntry.getValue();
-                }
+                case "eventPropagation" -> createBoolean(json, property);
                 }
             }
         }
@@ -418,7 +410,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 borderLeftStyle, borderLeftWidth, borderLeftColor, borderRightStyle, borderRightWidth, borderRightColor,
                 rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft, marginRight, paddingTop, paddingBottom,
                 paddingLeft, paddingRight, fontStyle, fontWeight, fontSize, fontFamily, lineHeight, color, textureFit,
-                gap, listDirection, eventPropagation);
+                whiteSpace, overflowWrap, textOverflow, overflowX, overflowY, gap, listDirection, eventPropagation);
     }
 
     /**
@@ -472,6 +464,12 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 inheritVal(styles, Style::color, parent, Color.BLACK),
 
                 parseVal(styles, Style::textureFit, TextureSize.FILL),
+
+                // All overflow and wrapping properties should be independent.
+                parseVal(styles, Style::whiteSpace, WhiteSpace.NORMAL),
+                parseVal(styles, Style::overflowWrap, OverflowWrap.NORMAL),
+                parseVal(styles, Style::textOverflow, TextOverflow.CLIP),
+                parseVal(styles, Style::overflowX, Overflow.CLIP), parseVal(styles, Style::overflowY, Overflow.CLIP),
 
                 // All listing properties should be independent.
                 parseVal(styles, Style::gap, Size.NONE), parseVal(styles, Style::listDirection, Direction.VERTICAL),
@@ -533,13 +531,28 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     }
 
     /**
+     * Parses a boolean from a collection.
+     * 
+     * @param collection <code>TracedCollection</code>: The collection to parse
+     *                   from.
+     * @param key        <code>Object</code>: The key to retrieve.
+     * @return <code>boolean</code>: The retrieved boolean.
+     * @throws LoggedException Thrown if the collection could not be parsed.
+     */
+    public static final boolean createBoolean(TracedCollection collection, Object key) throws LoggedException {
+
+        TracedEntry<Boolean> booleanEntry = collection.getAsBoolean(key, false, null);
+        return booleanEntry.getValue();
+    }
+
+    /**
      * Parses a string from a collection.
      * 
      * @param collection <code>TracedCollection</code>: The collection to parse
      *                   from.
      * @param key        <code>Object</code>: The key to retrieve.
      * @return <code>String</code>: The retrieved string.
-     * @throws LoggedException Thrown if the string could not be parsed.
+     * @throws LoggedException Thrown if the collection could not be parsed.
      */
     public static final String createString(TracedCollection collection, Object key) throws LoggedException {
 
@@ -554,7 +567,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
      *                   from.
      * @param key        <code>Object</code>: The key to retrieve.
      * @return <code>Color</code>: The retrieved color.
-     * @throws LoggedException Thrown if the color could not be parsed.
+     * @throws LoggedException Thrown if the collection could not be parsed.
      */
     public static final Color createColor(TracedCollection collection, Object key) throws LoggedException {
 
@@ -1238,6 +1251,174 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     }
 
     /**
+     * <code>WhiteSpace</code>: An enum class representing the behavior for choosing
+     * whether or not to overflow text.
+     */
+    public static enum WhiteSpace {
+
+        /**
+         * <code>WhiteSpace</code>: An enum constant representing overflowing when
+         * necessary.
+         */
+        NORMAL,
+
+        /**
+         * <code>WhiteSpace</code>: An enum constant representing forcing all text onto
+         * a single line.
+         */
+        NOWRAP;
+
+        /**
+         * Parses a collection into a white space.
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @return <code>Direction</code>: The resulting white space.
+         * @throws LoggedException Thrown if the collection could not be parsed.
+         */
+        public static final WhiteSpace createWhiteSpace(TracedCollection collection, Object key)
+                throws LoggedException {
+
+            TracedEntry<String> whiteSpaceEntry = collection.getAsString(key, false, null);
+            String whiteSpace = whiteSpaceEntry.getValue();
+
+            return switch (whiteSpace) {
+
+            case "normal" -> NORMAL;
+            case "nowrap" -> NOWRAP;
+            default -> throw new UnexpectedValueException(whiteSpaceEntry);
+            };
+        }
+    }
+
+    /**
+     * <code>OverflowWrap</code>: An enum class representing the behavior for how to
+     * split tokens when overflowing text.
+     */
+    public static enum OverflowWrap {
+
+        /**
+         * <code>OverflowWrap</code>: An enum constant representing overflowing between
+         * words or hyphens.
+         */
+        NORMAL,
+
+        /**
+         * <code>OverflowWrap</code>: An enum constant representing overflowing in the
+         * middle of words.
+         */
+        BREAK_WORD;
+
+        /**
+         * Parses a collection into an overflow wrap.
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @return <code>Direction</code>: The resulting overflow wrap.
+         * @throws LoggedException Thrown if the collection could not be parsed.
+         */
+        public static final OverflowWrap createOverflowWrap(TracedCollection collection, Object key)
+                throws LoggedException {
+
+            TracedEntry<String> overflowWrapEntry = collection.getAsString(key, false, null);
+            String overflowWrap = overflowWrapEntry.getValue();
+
+            return switch (overflowWrap) {
+
+            case "normal" -> NORMAL;
+            case "breakWord" -> BREAK_WORD;
+            default -> throw new UnexpectedValueException(overflowWrapEntry);
+            };
+        }
+    }
+
+    /**
+     * <code>TextOverflow</code>: An enum class representing the behavior for how to
+     * end a line of text when overflowing.
+     */
+    public static final record TextOverflow(String overflow) {
+
+        /**
+         * <code>TextOverflow</code>: A constant representing clipping a line of text
+         * beyond its containment in text overflow.
+         */
+        public static final TextOverflow CLIP = new TextOverflow("clip");
+
+        /**
+         * <code>TextOverflow</code>: A constant representing ending a line of text with
+         * ellipses.
+         */
+        public static final TextOverflow ELLIPSES = new TextOverflow("…");
+
+        /**
+         * Parses a collection into a text overflow.
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @return <code>Direction</code>: The resulting text overflow.
+         * @throws LoggedException Thrown if the collection could not be parsed.
+         */
+        public static final TextOverflow createTextOverflow(TracedCollection collection, Object key)
+                throws LoggedException {
+
+            TracedEntry<String> textOverflowEntry = collection.getAsString(key, false, null);
+            String textOverflow = textOverflowEntry.getValue();
+
+            return switch (textOverflow) {
+            case "clip" -> CLIP;
+            case "ellipses" -> ELLIPSES;
+            default -> new TextOverflow(textOverflow);
+            };
+        }
+    }
+
+    /**
+     * <code>Overflow</code>: An enum class representing the behavior for when to
+     * allow scrolling.
+     */
+    public static enum Overflow {
+
+        /**
+         * <code>Overflow</code>: An enum constant representing always clipping content
+         * at the boundaries and hiding the scroll bar.
+         */
+        CLIP,
+
+        /**
+         * <code>Overflow</code>: An enum constant representing only showing the scroll
+         * bar when the content overflows the content box.
+         */
+        AUTO,
+
+        /**
+         * <code>Overflow</code>: An enum constant representing always showing the
+         * scroll bar, regardless of whether or not the content overflows the content
+         * box.
+         */
+        SCROLL;
+
+        /**
+         * Parses a collection into an overflow.
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @return <code>Direction</code>: The resulting overflow.
+         * @throws LoggedException Thrown if the collection could not be parsed.
+         */
+        public static final Overflow createOverflow(TracedCollection collection, Object key) throws LoggedException {
+
+            TracedEntry<String> overflowEntry = collection.getAsString(key, false, null);
+            String overflow = overflowEntry.getValue();
+            return switch (overflow) {
+            case "clip" -> CLIP;
+            case "auto" -> AUTO;
+            case "scroll" -> SCROLL;
+            default -> throw new UnexpectedValueException(overflowEntry);
+            };
+        }
+    }
+
+    /**
      * <code>Direction</code>: An enum class representing a vertical or horizontal
      * direction.
      */
@@ -1259,6 +1440,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
          * @param collection <code>TracedCollection</code>: The collection to parse.
          * @param key        <code>Object</code>: The key to retrieve.
          * @return <code>Direction</code>: The resulting direction.
+         * @throws LoggedException Thrown if the collection could not be parsed.
          */
         public static Direction createDirection(TracedCollection collection, Object key) throws LoggedException {
 

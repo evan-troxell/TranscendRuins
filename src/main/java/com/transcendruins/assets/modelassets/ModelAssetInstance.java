@@ -268,8 +268,10 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
     /**
      * Creates a new instance of the <code>ModelAssetInstance</code> class.
      * 
-     * @param context <code>AssetContext</code>: The context used to generate this
-     *                <code>ModelAssetInstance</code> instance.
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>ModelAssetInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
      */
     public ModelAssetInstance(AssetContext assetContext, Object key) {
 

@@ -21,8 +21,23 @@ import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
+/**
+ * <code>LootTableContext</code>: A class representing the instantiation context
+ * of a loot table.
+ */
 public final class LootTableContext extends AssetContext {
 
+    /**
+     * Creates a new instance of the <code>LootTableContext</code> class.
+     * 
+     * @param presets <code>AssetPresets</code>: The presets containing schema and
+     *                instantiation information of this
+     *                <code>LootTableContext</code> instance.
+     * @param world   <code>World</code>: The world copy of this
+     *                <code>LootTableContext</code> instance.
+     * @param parent  <code>AssetInstance</code>: The parent to assign to this
+     *                <code>LootTableContext</code> instance.
+     */
     public LootTableContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world, parent);

@@ -21,8 +21,23 @@ import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
+/**
+ * <code>RenderMaterialContext</code>: A class representing the instantiation
+ * context of a render material.
+ */
 public final class RenderMaterialContext extends AssetContext {
 
+    /**
+     * Creates a new instance of the <code>RenderMaterialContext</code> class.
+     * 
+     * @param presets <code>AssetPresets</code>: The presets containing schema and
+     *                instantiation information of this
+     *                <code>RenderMaterialContext</code> instance.
+     * @param world   <code>World</code>: The world copy of this
+     *                <code>RenderMaterialContext</code> instance.
+     * @param parent  <code>AssetInstance</code>: The parent to assign to this
+     *                <code>RenderMaterialContext</code> instance.
+     */
     public RenderMaterialContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world, parent);

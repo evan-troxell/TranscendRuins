@@ -117,8 +117,10 @@ public final class AnimationInstance extends AssetInstance {
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
      * 
-     * @param context <code>AnimationContext</code>: The context used to generate
-     *                this <code>AnimationInstance</code> instance.
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>AnimationInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
      */
     public AnimationInstance(AssetContext assetContext, Object key) {
 

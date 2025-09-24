@@ -43,8 +43,8 @@ public final class AssetEvent {
     public static final String ON_DESTRUCTION = "TranscendRuins:onDestroyed";
 
     /**
-     * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be
-     * passed to execute this <code>AssetEvent</code> instance.
+     * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
+     * to execute this <code>AssetEvent</code> instance.
      */
     private final ImmutableList<TRScript> conditions;
 

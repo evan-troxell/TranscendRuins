@@ -21,8 +21,23 @@ import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
+/**
+ * <code>AnimationControllerContext</code>: A class representing the
+ * instantiation context of an animation controller.
+ */
 public final class AnimationControllerContext extends AssetContext {
 
+    /**
+     * Creates a new instance of the <code>AnimationControllerContext</code> class.
+     * 
+     * @param presets <code>AssetPresets</code>: The presets containing schema and
+     *                instantiation information of this
+     *                <code>AnimationControllerContext</code> instance.
+     * @param world   <code>World</code>: The world copy of this
+     *                <code>AnimationControllerContext</code> instance.
+     * @param parent  <code>AssetInstance</code>: The parent to assign to this
+     *                <code>AnimationControllerContext</code> instance.
+     */
     public AnimationControllerContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world, parent);

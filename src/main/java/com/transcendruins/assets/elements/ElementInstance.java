@@ -162,8 +162,10 @@ public final class ElementInstance extends PrimaryAssetInstance {
     /**
      * Creates a new instance of the <code>ElementInstance</code> class.
      * 
-     * @param context <code>ElementContext</code>: The context used to generate this
-     *                <code>ElementInstance</code> instance.
+     * @param assetContext <code>AssetContext</code>: The context used to generate
+     *                     this <code>ElementInstance</code> instance.
+     * @param key          <code>Object</code>: The instantiation key, which is
+     *                     required to match <code>AssetType.KEY</code>.
      */
     public ElementInstance(AssetContext assetContext, Object key) {
 

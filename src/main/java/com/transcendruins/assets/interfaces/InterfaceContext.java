@@ -22,15 +22,44 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.interfaces.InterfaceInstance.ComponentInstance;
 import com.transcendruins.world.World;
 
+/**
+ * <code>InterfaceContext</code>: A class representing the instantiation context
+ * of an interface.
+ */
 public final class InterfaceContext extends AssetContext {
 
+    /**
+     * <code>ComponentInstance</code>: The parent component to this
+     * <code>InterfaceContext</code> instance.
+     */
     private final ComponentInstance componentParent;
 
+    /**
+     * Retrieves the parent component to this <code>InterfaceContext</code>
+     * instance.
+     * 
+     * @return <code>ComponentInstance</code>: The <code>componentParent</code>
+     *         field of this <code>InterfaceContext</code> instance.
+     */
     public final ComponentInstance getComponentParent() {
 
         return componentParent;
     }
 
+    /**
+     * Creates a new instance of the <code>InterfaceContext</code> class.
+     * 
+     * @param presets         <code>AssetPresets</code>: The presets containing
+     *                        schema and instantiation information of this
+     *                        <code>InterfaceContext</code> instance.
+     * @param world           <code>World</code>: The world copy of this
+     *                        <code>InterfaceContext</code> instance.
+     * @param parent          <code>AssetInstance</code>: The parent to assign to
+     *                        this <code>InterfaceContext</code> instance.
+     * @param componentParent <code>ComponentInstance</code>: The parent component
+     *                        to assign to this <code>InterfaceContext</code>
+     *                        instance.
+     */
     public InterfaceContext(AssetPresets presets, World world, AssetInstance parent,
             ComponentInstance componentParent) {
 

@@ -205,7 +205,7 @@ public enum AssetType {
      * where the asset is guaranteed to be initialized properly, which is why asset
      * types are responsible for the creation of new assets.
      */
-    private static final Object KEY = new Object();
+    public static final Object KEY = new Object();
 
     /**
      * <code>InstanceCreater</code>: The asset instancer creater of this

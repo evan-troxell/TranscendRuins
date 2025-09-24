@@ -21,8 +21,23 @@ import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
+/**
+ * <code>RecipeContext</code>: A class representing the instantiation context of
+ * a recipe.
+ */
 public final class RecipeContext extends AssetContext {
 
+    /**
+     * Creates a new instance of the <code>RecipeContext</code> class.
+     * 
+     * @param presets <code>AssetPresets</code>: The presets containing schema and
+     *                instantiation information of this <code>RecipeContext</code>
+     *                instance.
+     * @param world   <code>World</code>: The world copy of this
+     *                <code>RecipeContext</code> instance.
+     * @param parent  <code>AssetInstance</code>: The parent to assign to this
+     *                <code>RecipeContext</code> instance.
+     */
     public RecipeContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world, parent);

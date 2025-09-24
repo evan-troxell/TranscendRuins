@@ -21,8 +21,23 @@ import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
+/**
+ * <code>LayoutContext</code>: A class representing the instantiation context of
+ * an layout.
+ */
 public final class LayoutContext extends AssetContext {
 
+    /**
+     * Creates a new instance of the <code>LayoutContext</code> class.
+     * 
+     * @param presets <code>AssetPresets</code>: The presets containing schema and
+     *                instantiation information of this <code>LayoutContext</code>
+     *                instance.
+     * @param world   <code>World</code>: The world copy of this
+     *                <code>LayoutContext</code> instance.
+     * @param parent  <code>AssetInstance</code>: The parent to assign to this
+     *                <code>LayoutContext</code> instance.
+     */
     public LayoutContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world, parent);
