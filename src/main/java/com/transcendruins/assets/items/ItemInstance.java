@@ -46,7 +46,7 @@ public final class ItemInstance extends ModelAssetInstance {
      * @return <code>int</code>: The <code>maxStackSize</code> field of this
      *         <code>ItemInstance</code> instance.
      */
-    public int getMaxStackSize() {
+    public final int getMaxStackSize() {
 
         return maxStackSize;
     }
@@ -62,7 +62,7 @@ public final class ItemInstance extends ModelAssetInstance {
      * @return <code>int</code>: The <code>stackSize</code> field of this
      *         <code>ItemInstance</code> instance.
      */
-    public int getStackSize() {
+    public final int getStackSize() {
 
         return stackSize;
     }
@@ -75,7 +75,7 @@ public final class ItemInstance extends ModelAssetInstance {
      *         </code>maxStackSize</code> fields of this <code>ItemInstance</code>
      *         instance are equal.
      */
-    public boolean atCapacity() {
+    public final boolean atCapacity() {
 
         return stackSize >= maxStackSize;
     }
@@ -96,7 +96,7 @@ public final class ItemInstance extends ModelAssetInstance {
      *         the <code>maxStackSize</code> field of this <code>ItemInstance</code>
      *         instance otherwise.
      */
-    public int setStackSize(int stackSize) {
+    public final int setStackSize(int stackSize) {
 
         this.stackSize = Math.min(stackSize, maxStackSize);
 
@@ -123,7 +123,7 @@ public final class ItemInstance extends ModelAssetInstance {
      * @param slot      <code>InventorySlotInstance</code>: The inventory slot
      *                  containing this <code>ItemInstance</code> instance.
      */
-    public void setSlot(ModelAssetInstance inventory, InventorySlotInstance slot) {
+    public final void setSlot(ModelAssetInstance inventory, InventorySlotInstance slot) {
 
         setParent(inventory);
 
@@ -134,9 +134,9 @@ public final class ItemInstance extends ModelAssetInstance {
     /**
      * Retrieves the bone socket of this <code>ItemInstance</code> instance.
      * 
-     * @return <code>ModelAttributes.Bone</code>: The retrieved model socket.
+     * @return <code>Bone</code>: The retrieved model socket.
      */
-    public ModelAttributes.Bone getSocket() {
+    public final ModelAttributes.Bone getSocket() {
 
         return parent.getModel().getBone(slot.getModelSocket());
     }
@@ -156,7 +156,7 @@ public final class ItemInstance extends ModelAssetInstance {
     }
 
     @Override
-    public void applyModelAssetAttributes(ModelAssetAttributes attributeSet) {
+    public final void applyModelAssetAttributes(ModelAssetAttributes attributeSet) {
 
         ItemAttributes attributes = (ItemAttributes) attributeSet;
 
@@ -184,7 +184,7 @@ public final class ItemInstance extends ModelAssetInstance {
      *         <code>item</code> parameter minus the removed stack; otherwise, this
      *         will be <code>null</code>.
      */
-    public ItemInstance combine(ItemInstance item) {
+    public final ItemInstance combine(ItemInstance item) {
 
         if (!isLikeAsset(item)) {
 
@@ -204,20 +204,20 @@ public final class ItemInstance extends ModelAssetInstance {
     }
 
     @Override
-    public Vector getPosition() {
+    public final Vector getPosition() {
 
         return parent.getPosition();
     }
 
     @Override
-    public Quaternion getRotation() {
+    public final Quaternion getRotation() {
 
         return parent.getRotation();
     }
 
     @Override
-    protected HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, ModelInstance model, Vector position,
-            Quaternion rotation) {
+    protected final HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, ModelInstance model,
+            Vector position, Quaternion rotation) {
 
         BoneActorSet parentBoneActors = parent.getBoneActors();
         BoneActorSet mergedBoneActors = new BoneActorSet(boneActors, parentBoneActors);

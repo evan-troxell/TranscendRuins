@@ -123,7 +123,7 @@ public final class ModelInstance extends AssetInstance {
      * Retrieves a bone from this <code>ModelInstance</code> instance by its name.
      * 
      * @param bone <code>String</code>: The name of the bone to retrieve.
-     * @return <code>ModelAttributes.Bone</code>: The bone retrieved from this
+     * @return <code>Bone</code>: The bone retrieved from this
      *         <code>ModelInstance</code> instance.
      */
     public ModelAttributes.Bone getBone(String bone) {
@@ -216,9 +216,10 @@ public final class ModelInstance extends AssetInstance {
      * @param boneActors       <code>BoneActorSet</code>: The bone actors to animate
      *                         this <code>ModelInstance</code> with.
      * @param parentBoneActors <code>BoneActorSet</code>: The bone actors of the
-     *                         parent animation. These will <b>NOT</b>
-     * @param bone             <code>ModelAttributes.Bone</code>: The bone at which
-     *                         to position this <code>ModelInstance</code> instance.
+     *                         parent animation. These will <b>NOT</b> //TODO
+     *                         clarify what this was supposed to do
+     * @param bone             <code>Bone</code>: The bone at which to position this
+     *                         <code>ModelInstance</code> instance.
      * @param position         <code>Vector</code>: The position to center the
      *                         vertices at. This should effectively be the position
      *                         of the parent which this <code>ModelInstance</code>

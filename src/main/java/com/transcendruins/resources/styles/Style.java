@@ -36,18 +36,25 @@ import com.transcendruins.utilities.json.TracedEntry;
  * <code>Style</code>: A record representing the schema of the style of a visual
  * component.
  */
-public final record Style(Size x, Size y, Size width, Size height, Size minWidth, Size minHeight,
-        BackgroundStyle background, BorderStyle borderTop, BorderStyle borderBottom, BorderStyle borderLeft,
-        BorderStyle borderRight, SizeDimensions rTL, SizeDimensions rTR, SizeDimensions rBL, SizeDimensions rBR,
-        Size marginTop, Size marginBottom, Size marginLeft, Size marginRight, Size paddingTop, Size paddingBottom,
-        Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize, Size lineHeight,
-        String fontFamily, Color color, Size gap, Direction listDirection, Boolean eventPropagation) {
+public final record Style(Size x, Size y, Size width, Size height, Size minWidth, Size minHeight, Color backgroundColor,
+        String backgroundTexture, TextureSize backgroundSize, BorderStyle borderTopStyle, Size borderTopWidth,
+        Color borderTopColor, BorderStyle borderBottomStyle, Size borderBottomWidth, Color borderBottomColor,
+        BorderStyle borderLeftStyle, Size borderLeftWidth, Color borderLeftColor, BorderStyle borderRightStyle,
+        Size borderRightWidth, Color borderRightColor, SizeDimensions rTL, SizeDimensions rTR, SizeDimensions rBL,
+        SizeDimensions rBR, Size marginTop, Size marginBottom, Size marginLeft, Size marginRight, Size paddingTop,
+        Size paddingBottom, Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize,
+        String fontFamily, Size lineHeight, Color color, TextureSize textureFit, Size gap, Direction listDirection,
+        Boolean eventPropagation) {
 
+    /**
+     * <code>Style</code>: A style without any defined attributes which will inherit
+     * all default values.
+     */
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null);
+            null, null, null, null, null, null, null, null, null, null, null, null, null);
 
-    public static final Size AUTO = new Size(parent -> parent);
+    public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
     /**
      * Creates a new instance of the <code>Style</code> class.
@@ -67,12 +74,25 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Size minWidth = null;
         Size minHeight = null;
 
-        BackgroundStyle background = null;
+        Color backgroundColor = null; // new Color(0, 0, 0, 0)
+        String backgroundTexture = null; // null
+        TextureSize backgroundSize = null; // TextureSize.AUTO
 
-        BorderStyle borderTop = null;
-        BorderStyle borderBottom = null;
-        BorderStyle borderLeft = null;
-        BorderStyle borderRight = null;
+        BorderStyle borderTopStyle = null;
+        Size borderTopWidth = null;
+        Color borderTopColor = null;
+
+        BorderStyle borderBottomStyle = null;
+        Size borderBottomWidth = null;
+        Color borderBottomColor = null;
+
+        BorderStyle borderLeftStyle = null;
+        Size borderLeftWidth = null;
+        Color borderLeftColor = null;
+
+        BorderStyle borderRightStyle = null;
+        Size borderRightWidth = null;
+        Color borderRightColor = null;
 
         SizeDimensions rTL = null;
         SizeDimensions rTR = null;
@@ -92,9 +112,11 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Integer fontStyle = null;
         Integer fontWeight = null;
         Size fontSize = null;
-        Size lineHeight = null;
         String fontFamily = null;
+
+        Size lineHeight = null;
         Color color = null;
+        TextureSize textureFit = null;
 
         WhiteSpaceStyle whiteSpace = null; // If text extends too far, should it wrap?
         OverflowWrapStyle overflowWrap = null; // If text needs to wrap, where should it break?
@@ -113,7 +135,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
             TracedDictionary json = entry.getValue();
 
-            // Iterate through each key in the JSON.
+            // Iterate through each property in the JSON.
             for (String property : json) {
 
                 switch (property) {
@@ -123,23 +145,182 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 case "y" -> y = Size.createSize(json, property);
 
                 // Process the size.
-                case "width" -> width = createAutoSize(json, property);
-                case "height" -> height = createAutoSize(json, property);
+                case "width" -> width = Size.createSize(json, property);
+                case "height" -> height = Size.createSize(json, property);
                 case "minWidth" -> minWidth = Size.createSize(json, property);
                 case "minHeight" -> minHeight = Size.createSize(json, property);
 
                 // Process the background.
-                case "background" -> background = BackgroundStyle.createBackgroundStyle(json, property);
+                case "background" -> {
 
-                // Process the border.
-                case "border" -> borderTop = borderBottom = borderLeft = borderRight = BorderStyle
+                    TracedEntry<TracedDictionary> backgroundEntry = json.getAsDict(property, false);
+                    TracedDictionary backgroundJson = backgroundEntry.getValue();
+
+                    for (String backgroundProperty : backgroundJson) {
+
+                        switch (backgroundProperty) {
+
+                        case "color" -> backgroundColor = createColor(backgroundJson, backgroundProperty);
+                        case "texture" -> backgroundTexture = createString(backgroundJson, backgroundProperty);
+                        case "size" -> backgroundSize = TextureSize.createSize(backgroundJson, backgroundProperty);
+                        }
+                    }
+                }
+                case "backgroundColor" -> backgroundColor = createColor(json, property);
+                case "backgroundTexture" -> backgroundTexture = createString(json, property);
+                case "backgroundSize" -> backgroundSize = TextureSize.createSize(json, property);
+
+                // Process all four borders.
+                case "border" -> {
+
+                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                    TracedDictionary borderJson = borderEntry.getValue();
+
+                    for (String borderProperty : borderJson) {
+
+                        switch (borderProperty) {
+
+                        case "style" -> borderLeftStyle = borderRightStyle = borderTopStyle = borderBottomStyle = BorderStyle
+                                .createBorderStyle(borderJson, borderProperty);
+                        case "width" -> borderLeftWidth = borderRightWidth = borderTopWidth = borderBottomWidth = Size
+                                .createSize(borderJson, borderProperty);
+                        case "color" -> borderLeftColor = borderRightColor = borderTopColor = borderBottomColor = createColor(
+                                borderJson, borderProperty);
+                        }
+                    }
+                }
+                case "borderStyle" -> borderLeftStyle = borderRightStyle = borderTopStyle = borderBottomStyle = BorderStyle
                         .createBorderStyle(json, property);
-                case "borderVertical" -> borderTop = borderBottom = BorderStyle.createBorderStyle(json, property);
-                case "borderHorizontal" -> borderLeft = borderRight = BorderStyle.createBorderStyle(json, property);
-                case "borderTop" -> borderTop = BorderStyle.createBorderStyle(json, property);
-                case "borderBottom" -> borderBottom = BorderStyle.createBorderStyle(json, property);
-                case "borderLeft" -> borderLeft = BorderStyle.createBorderStyle(json, property);
-                case "borderRight" -> borderRight = BorderStyle.createBorderStyle(json, property);
+                case "borderWidth" -> borderLeftWidth = borderRightWidth = borderTopWidth = borderBottomWidth = Size
+                        .createSize(json, property);
+                case "borderColor" -> borderLeftColor = borderRightColor = borderTopColor = borderBottomColor = createColor(
+                        json, property);
+
+                // Process the top and bottom borders.
+                case "borderVertical" -> {
+
+                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                    TracedDictionary borderJson = borderEntry.getValue();
+
+                    for (String borderProperty : borderJson) {
+
+                        switch (borderProperty) {
+
+                        case "style" -> borderTopStyle = borderBottomStyle = BorderStyle.createBorderStyle(borderJson,
+                                borderProperty);
+                        case "width" -> borderTopWidth = borderBottomWidth = Size.createSize(borderJson,
+                                borderProperty);
+                        case "color" -> borderTopColor = borderBottomColor = createColor(borderJson, borderProperty);
+                        }
+                    }
+                }
+                case "borderVerticalStyle" -> borderTopStyle = borderBottomStyle = BorderStyle.createBorderStyle(json,
+                        property);
+                case "borderVerticalWidth" -> borderTopWidth = borderBottomWidth = Size.createSize(json, property);
+                case "borderVerticalColor" -> borderTopColor = borderBottomColor = createColor(json, property);
+
+                // Process the top border.
+                case "borderTop" -> {
+
+                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                    TracedDictionary borderJson = borderEntry.getValue();
+
+                    for (String borderProperty : borderJson) {
+
+                        switch (borderProperty) {
+
+                        case "style" -> borderTopStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
+                        case "width" -> borderTopWidth = Size.createSize(borderJson, borderProperty);
+                        case "color" -> borderTopColor = createColor(borderJson, borderProperty);
+                        }
+                    }
+                }
+                case "borderTopStyle" -> borderTopStyle = BorderStyle.createBorderStyle(json, property);
+                case "borderTopWidth" -> borderTopWidth = Size.createSize(json, property);
+                case "borderTopColor" -> borderTopColor = createColor(json, property);
+
+                // Process the bottom border.
+                case "borderBottom" -> {
+
+                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                    TracedDictionary borderJson = borderEntry.getValue();
+
+                    for (String borderProperty : borderJson) {
+
+                        switch (borderProperty) {
+
+                        case "style" -> borderBottomStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
+                        case "width" -> borderBottomWidth = Size.createSize(borderJson, borderProperty);
+                        case "color" -> borderBottomColor = createColor(borderJson, borderProperty);
+                        }
+                    }
+                }
+                case "borderBottomStyle" -> borderBottomStyle = BorderStyle.createBorderStyle(json, property);
+                case "borderBottomWidth" -> borderBottomWidth = Size.createSize(json, property);
+                case "borderBottomColor" -> borderBottomColor = createColor(json, property);
+
+                // Process the left and right border.
+                case "borderHorizontal" -> {
+
+                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                    TracedDictionary borderJson = borderEntry.getValue();
+
+                    for (String borderProperty : borderJson) {
+
+                        switch (borderProperty) {
+
+                        case "style" -> borderLeftStyle = borderRightStyle = BorderStyle.createBorderStyle(borderJson,
+                                borderProperty);
+                        case "width" -> borderLeftWidth = borderRightWidth = Size.createSize(borderJson,
+                                borderProperty);
+                        case "color" -> borderLeftColor = borderRightColor = createColor(borderJson, borderProperty);
+                        }
+                    }
+                }
+                case "borderHorizontalStyle" -> borderLeftStyle = borderRightStyle = BorderStyle.createBorderStyle(json,
+                        property);
+                case "borderHorizontalWidth" -> borderLeftWidth = borderRightWidth = Size.createSize(json, property);
+                case "borderHorizontalColor" -> borderLeftColor = borderRightColor = createColor(json, property);
+
+                // Process the left border.
+                case "borderLeft" -> {
+
+                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                    TracedDictionary borderJson = borderEntry.getValue();
+
+                    for (String borderProperty : borderJson) {
+
+                        switch (borderProperty) {
+
+                        case "style" -> borderLeftStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
+                        case "width" -> borderLeftWidth = Size.createSize(borderJson, borderProperty);
+                        case "color" -> borderLeftColor = createColor(borderJson, borderProperty);
+                        }
+                    }
+                }
+                case "borderLeftStyle" -> borderLeftStyle = BorderStyle.createBorderStyle(json, property);
+                case "borderLeftWidth" -> borderLeftWidth = Size.createSize(json, property);
+                case "borderLeftColor" -> borderLeftColor = createColor(json, property);
+
+                // Process the right border.
+                case "borderRight" -> {
+
+                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                    TracedDictionary borderJson = borderEntry.getValue();
+
+                    for (String borderProperty : borderJson) {
+
+                        switch (borderProperty) {
+
+                        case "style" -> borderRightStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
+                        case "width" -> borderRightWidth = Size.createSize(borderJson, borderProperty);
+                        case "color" -> borderRightColor = createColor(borderJson, borderProperty);
+                        }
+                    }
+                }
+                case "borderRightStyle" -> borderRightStyle = BorderStyle.createBorderStyle(json, property);
+                case "borderRightWidth" -> borderRightWidth = Size.createSize(json, property);
+                case "borderRightColor" -> borderRightColor = createColor(json, property);
 
                 // Process the border radius.
                 case "borderRadius" -> rTL = rTR = rBL = rBR = SizeDimensions.createSizeDimensions(json, property);
@@ -150,7 +331,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 case "borderRadiusTopLeft" -> rTL = SizeDimensions.createSizeDimensions(json, property);
                 case "borderRadiusTopRight" -> rTR = SizeDimensions.createSizeDimensions(json, property);
                 case "borderRadiusBottomLeft" -> rBL = SizeDimensions.createSizeDimensions(json, property);
-                case "borderRadiusBottomRightv" -> rBR = SizeDimensions.createSizeDimensions(json, property);
+                case "borderRadiusBottomRight" -> rBR = SizeDimensions.createSizeDimensions(json, property);
 
                 // Process the margin.
                 case "margin" -> marginTop = marginBottom = marginLeft = marginRight = Size.createSize(json, property);
@@ -174,65 +355,47 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 // Process the font properties.
                 case "font" -> {
 
-                    TracedEntry<TracedDictionary> fontEntry = json.getAsDict(key, false);
+                    TracedEntry<TracedDictionary> fontEntry = json.getAsDict(property, false);
                     TracedDictionary fontJson = fontEntry.getValue();
 
-                    // If the font dictionary has a style, apply it.
-                    if (fontJson.containsKey("style")) {
+                    for (String fontProperty : fontJson) {
 
-                        fontStyle = createFontStyle(fontJson, "style");
-                    }
+                        switch (fontProperty) {
 
-                    // If the font dictionary has a weight, apply it.
-                    if (fontJson.containsKey("weight")) {
-
-                        fontWeight = createFontWeight(fontJson, "weight");
-                    }
-
-                    // If the font dictionary has a size, apply it.
-                    if (fontJson.containsKey("size")) {
-
-                        fontSize = Size.createSize(fontJson, "size");
-                    }
-
-                    // If the font dictionary has a height, apply it.
-                    if (fontJson.containsKey("height")) {
-
-                        lineHeight = createLineHeight(fontJson, "height");
-                    }
-
-                    // If the font dictionary has a family, apply it.
-                    if (fontJson.containsKey("family")) {
-
-                        fontFamily = createFontFamily(fontJson, "family");
+                        case "style" -> fontStyle = createFontStyle(fontJson, fontProperty);
+                        case "weight" -> fontWeight = createFontWeight(fontJson, fontProperty);
+                        case "size" -> fontSize = Size.createSize(fontJson, fontProperty);
+                        case "family" -> fontFamily = createFontFamily(fontJson, fontProperty);
+                        }
                     }
                 }
-                case "fontStyle" -> fontStyle = createFontStyle(json, key);
-                case "fontWeight" -> fontWeight = createFontWeight(json, key);
-                case "fontSize" -> fontSize = Size.createSize(json, key);
-                case "lineHeight" -> lineHeight = createLineHeight(json, key);
-                case "fontFamily" -> fontFamily = createFontFamily(json, key);
-                case "color" -> {
+                case "fontStyle" -> fontStyle = createFontStyle(json, property);
+                case "fontWeight" -> fontWeight = createFontWeight(json, property);
+                case "fontSize" -> fontSize = Size.createSize(json, property);
+                case "fontFamily" -> fontFamily = createFontFamily(json, property);
 
-                    TracedEntry<Color> colorEntry = json.getAsColor(key, false, null);
-                    color = colorEntry.getValue();
-                }
+                // Process text properties.
+                case "lineHeight" -> lineHeight = createLineHeight(json, property);
+                case "color" -> createColor(json, property);
+
+                case "textureFit" -> textureFit = TextureSize.createSize(json, property);
 
                 // Process the text wrapping and overflow.
-                case "whiteSpace" -> whiteSpace = WhiteSpaceStyle.createWhiteSpace(json, key); // normal (default),
-                                                                                               // nowrap
-                case "overflowWrap" -> overflowWrap = OverflowWrapStyle.createOverflowWrap(json, key); // normal
-                                                                                                       // (default),
-                                                                                                       // breakWord
-                case "textOverflow" -> textOverflow = TextOverflowStyle.createTextOverflow(json, key); // clip
-                                                                                                       // (default),
-                                                                                                       // ellipses
+                case "whiteSpace" -> whiteSpace = WhiteSpaceStyle.createWhiteSpace(json, property); // normal (default),
+                // nowrap
+                case "overflowWrap" -> overflowWrap = OverflowWrapStyle.createOverflowWrap(json, property); // normal
+                // (default),
+                // breakWord
+                case "textOverflow" -> textOverflow = TextOverflowStyle.createTextOverflow(json, property); // clip
+                // (default),
+                // ellipses
 
                 // Process the overflow.
-                case "overflow" -> overflowX = overflowY = OverflowStyle.createOverflow(json, key); // hidden (default),
-                                                                                                    // auto, scroll
-                case "overflowX" -> overflowX = OverflowStyle.createOverflow(json, key);
-                case "overflowY" -> overflowY = OverflowStyle.createOverflow(json, key);
+                case "overflow" -> overflowX = overflowY = OverflowStyle.createOverflow(json, property); // hidden
+                                                                                                         // (default),
+                // auto, scroll
+                case "overflowX" -> overflowX = OverflowStyle.createOverflow(json, property);
+                case "overflowY" -> overflowY = OverflowStyle.createOverflow(json, property);
 
                 // Process the list element gap.
                 case "gap" -> gap = Size.createSize(json, property);
@@ -243,20 +406,32 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 // Process the event propagation behavior.
                 case "eventPropagation" -> {
 
-                    TracedEntry<Boolean> eventPropagationEntry = json.getAsBoolean(key, false, null);
+                    TracedEntry<Boolean> eventPropagationEntry = json.getAsBoolean(property, false, null);
                     eventPropagation = eventPropagationEntry.getValue();
                 }
                 }
             }
         }
 
-        return new Style(x, y, width, height, minWidth, minHeight, background, borderTop, borderBottom, borderLeft,
-                borderRight, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft, marginRight, paddingTop,
-                paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize, lineHeight, fontFamily,
-                color, gap, listDirection, eventPropagation);
+        return new Style(x, y, width, height, minWidth, minHeight, backgroundColor, backgroundTexture, backgroundSize,
+                borderTopStyle, borderTopWidth, borderTopColor, borderBottomStyle, borderBottomWidth, borderBottomColor,
+                borderLeftStyle, borderLeftWidth, borderLeftColor, borderRightStyle, borderRightWidth, borderRightColor,
+                rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft, marginRight, paddingTop, paddingBottom,
+                paddingLeft, paddingRight, fontStyle, fontWeight, fontSize, fontFamily, lineHeight, color, textureFit,
+                gap, listDirection, eventPropagation);
     }
 
-    public static Style createStyle(List<Style> styles, Style parent) {
+    /**
+     * Creates a new instance of the <code>Style</code> class from a style list
+     * ordered from lowest priority to highest, with a parent styles used for
+     * implicit inherited values.
+     * 
+     * @param styles <code>List&lt;Style&gt;</code>: The style list to select from.
+     * @param parent <code>Style</code>: The parent style to use when attempting to
+     *               inherit values (e.g. font, text size & color).
+     * @return <code>Style</code>: The parsed style.
+     */
+    public static final Style createStyle(List<Style> styles, Style parent) {
 
         // The latter elements in styles should be caught first.
         styles = styles.reversed();
@@ -265,13 +440,22 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
                 // All sizing properties should be independent.
                 parseVal(styles, Style::x, Size.NONE), parseVal(styles, Style::y, Size.NONE),
-                parseVal(styles, Style::width, Size.FULL), parseVal(styles, Style::height, AUTO),
+                parseVal(styles, Style::width, Size.FULL), parseVal(styles, Style::height, Size.AUTO),
                 parseVal(styles, Style::minWidth, Size.NONE), parseVal(styles, Style::minHeight, Size.NONE),
-                parseVal(styles, Style::background, BackgroundStyle.DEFAULT),
-                parseVal(styles, Style::borderTop, BorderStyle.DEFAULT),
-                parseVal(styles, Style::borderBottom, BorderStyle.DEFAULT),
-                parseVal(styles, Style::borderLeft, BorderStyle.DEFAULT),
-                parseVal(styles, Style::borderRight, BorderStyle.DEFAULT),
+                parseVal(styles, Style::backgroundColor, TRANSPARENT), parseVal(styles, Style::backgroundTexture, null),
+                parseVal(styles, Style::backgroundSize, TextureSize.AUTO),
+                parseVal(styles, Style::borderTopStyle, BorderStyle.NONE),
+                parseVal(styles, Style::borderTopWidth, Size.PX_1),
+                parseVal(styles, Style::borderTopColor, Color.BLACK),
+                parseVal(styles, Style::borderBottomStyle, BorderStyle.NONE),
+                parseVal(styles, Style::borderBottomWidth, Size.PX_1),
+                parseVal(styles, Style::borderBottomColor, Color.BLACK),
+                parseVal(styles, Style::borderLeftStyle, BorderStyle.NONE),
+                parseVal(styles, Style::borderLeftWidth, Size.PX_1),
+                parseVal(styles, Style::borderLeftColor, Color.BLACK),
+                parseVal(styles, Style::borderRightStyle, BorderStyle.NONE),
+                parseVal(styles, Style::borderRightWidth, Size.PX_1),
+                parseVal(styles, Style::borderRightColor, Color.BLACK),
                 parseVal(styles, Style::rTL, SizeDimensions.NONE), parseVal(styles, Style::rTR, SizeDimensions.NONE),
                 parseVal(styles, Style::rBL, SizeDimensions.NONE), parseVal(styles, Style::rBR, SizeDimensions.NONE),
                 parseVal(styles, Style::marginTop, Size.NONE), parseVal(styles, Style::marginBottom, Size.NONE),
@@ -280,11 +464,14 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::paddingLeft, Size.NONE), parseVal(styles, Style::paddingRight, Size.NONE),
 
                 // All font properties should inherit parent properties.
-                parseVal(styles, Style::fontStyle, parent, Font.PLAIN),
-                parseVal(styles, Style::fontWeight, parent, Font.PLAIN),
-                parseVal(styles, Style::fontSize, parent, Size.FULL),
-                parseVal(styles, Style::lineHeight, parent, new Size(value -> value * 1.2)),
-                parseVal(styles, Style::fontFamily, parent, null), parseVal(styles, Style::color, parent, Color.BLACK),
+                inheritVal(styles, Style::fontStyle, parent, Font.PLAIN),
+                inheritVal(styles, Style::fontWeight, parent, Font.PLAIN),
+                inheritVal(styles, Style::fontSize, parent, Size.FULL),
+                inheritVal(styles, Style::fontFamily, parent, null),
+                inheritVal(styles, Style::lineHeight, parent, new Size(value -> value * 1.2)),
+                inheritVal(styles, Style::color, parent, Color.BLACK),
+
+                parseVal(styles, Style::textureFit, TextureSize.FILL),
 
                 // All listing properties should be independent.
                 parseVal(styles, Style::gap, Size.NONE), parseVal(styles, Style::listDirection, Direction.VERTICAL),
@@ -319,7 +506,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     }
 
     /**
-     * Finds the first defined property from a list of styles.
+     * Finds the first defined property from a list of styles, or inherits from a
+     * parent if absent.
      * 
      * @param <K>    The property type.
      * @param styles <code>List&lt;Style&gt;</code>: The list of styles to search
@@ -333,7 +521,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
      * @return <code>K</code>: The first retrieved property, or the property in
      *         <code>parent</code> if the property was not found.
      */
-    public static <K> K parseVal(List<Style> styles, Function<Style, K> getter, Style parent, K ifNull) {
+    public static <K> K inheritVal(List<Style> styles, Function<Style, K> getter, Style parent, K ifNull) {
 
         // Use the parent values as the ifnull if it exists.
         K sub = getter.apply(parent);
@@ -345,7 +533,37 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     }
 
     /**
-     * <code>Style.Size</code>: A class representing a dimension within a component.
+     * Parses a string from a collection.
+     * 
+     * @param collection <code>TracedCollection</code>: The collection to parse
+     *                   from.
+     * @param key        <code>Object</code>: The key to retrieve.
+     * @return <code>String</code>: The retrieved string.
+     * @throws LoggedException Thrown if the string could not be parsed.
+     */
+    public static final String createString(TracedCollection collection, Object key) throws LoggedException {
+
+        TracedEntry<String> stringEntry = collection.getAsString(key, false, null);
+        return stringEntry.getValue();
+    }
+
+    /**
+     * Parses a color from a collection.
+     * 
+     * @param collection <code>TracedCollection</code>: The collection to parse
+     *                   from.
+     * @param key        <code>Object</code>: The key to retrieve.
+     * @return <code>Color</code>: The retrieved color.
+     * @throws LoggedException Thrown if the color could not be parsed.
+     */
+    public static final Color createColor(TracedCollection collection, Object key) throws LoggedException {
+
+        TracedEntry<Color> colorEntry = collection.getAsColor(key, false, null);
+        return colorEntry.getValue();
+    }
+
+    /**
+     * <code>Size</code>: A class representing a dimension within a component.
      */
     public static final class Size {
 
@@ -356,28 +574,34 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         private static final String NUMBER_PATTERN = "^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)$";
 
         /**
-         * <code>Style.Size</code>: A constant representing a size of 0 pixels.
+         * <code>Size</code>: A constant representing a size of 0 pixels.
          */
         public static final Size NONE = new Size(_ -> 0.0);
 
         /**
-         * <code>Style.Size</code>: A constant representing a size of 100%.
+         * <code>Size</code>: A constant representing a size of 100%.
          */
         public static final Size FULL = new Size(parent -> parent);
 
         /**
-         * <code>Style.Size</code>: A constant representing a size of 1 pixel.
+         * <code>Size</code>: A constant representing a size of 1 pixel.
          */
         public static final Size PX_1 = new Size(_ -> 1.0);
 
         /**
+         * <code>Size</code>: A size representing an automatically-sized dimension,
+         * which can expand to fit content.
+         */
+        public static final Size AUTO = new Size(parent -> parent);
+
+        /**
          * <code>Function&lt;Integer, Double&gt;</code>: The operator used to calculate
-         * the size of this <code>Style.Size</code> instance.
+         * the size of this <code>Size</code> instance.
          */
         private final Function<Double, Double> operator;
 
         /**
-         * Retrieves the size of this <code>Style.Size</code> instance in pixels.
+         * Retrieves the size of this <code>Size</code> instance in pixels.
          * 
          * @param parent <code>double</code>: The size of the parent, in pixels, to use.
          *               This is typically the width or height of the parent.
@@ -393,10 +617,10 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         }
 
         /**
-         * Creates a new instance of the <code>Style.Size</code> class.
+         * Creates a new instance of the <code>Size</code> class.
          * 
          * @param operator <code>Function&lt;Double, Double&gt;</code>: The operator
-         *                 used to calculate the size of this <code>Style.Size</code>
+         *                 used to calculate the size of this <code>Size</code>
          *                 instance.
          */
         private Size(Function<Double, Double> operator) {
@@ -405,15 +629,23 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         }
 
         /**
-         * Parses a string-formatted size into a new <code>Style.Size</code> instance.
+         * Parses a string-formatted size into a new <code>Size</code> instance.
          * 
          * @param entry <code>TracedEntry&lt;String&gt;</code>: The entry to parse.
-         * @return <code>Style.Size</code>: The parsed size.
+         * @return <code>Size</code>: The parsed size.
          * @throws LoggedException Thrown if an error occurs while parsing the entry.
          */
-        public static Size createStringSize(TracedEntry<String> entry) throws LoggedException {
+        public static final Size createStringSize(TracedEntry<String> entry) throws LoggedException {
 
-            String full = entry.getValue().replaceAll(" ", "");
+            String full = entry.getValue();
+
+            // If the full string is 'auto', return AUTO.
+            if (full.equals("auto")) {
+
+                return AUTO;
+            }
+
+            full = full.replaceAll(" ", "");
             if (full.charAt(0) != '+' && full.charAt(0) != '-') {
 
                 full = '+' + full;
@@ -469,6 +701,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         private static Function<Double, Double> createOperator(TracedEntry<String> entry, String full)
                 throws LoggedException {
 
+            // Strip the suffix off of the number section.
             String numberPart = full.replaceAll("[^\\d.]+.*$", "");
             if (!numberPart.matches(NUMBER_PATTERN)) {
 
@@ -494,13 +727,13 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         }
 
         /**
-         * Parses a double into a new <code>Style.Size</code> instance.
+         * Parses a double into a new <code>Size</code> instance.
          * 
          * @param entry <code>TracedEntry&lt;Double&gt;</code>: The entry to parse.
-         * @return <code>Style.Size</code>: The parsed size.
+         * @return <code>Size</code>: The parsed size.
          * @throws LoggedException Thrown if an error occurs while parsing the entry.
          */
-        public static Size createDoubleSize(TracedEntry<Double> entry) throws LoggedException {
+        public static final Size createDoubleSize(TracedEntry<Double> entry) throws LoggedException {
 
             double number = entry.getValue();
             if (number < 0) {
@@ -513,16 +746,16 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         /**
          * Parses a value from a <code>TracedCollection</code> instance into a new
-         * <code>Style.Size</code> instance.
+         * <code>Size</code> instance.
          * 
          * @param collection <code>TracedCollection</code>: The collection to parse
          *                   from.
          * @param key        <code>Object</code>: The key to search for.
-         * @return <code>Style.Size</code>: The parsed size.
+         * @return <code>Size</code>: The parsed size.
          * @throws LoggedException Thrown if an error occurs while parsing the
          *                         collection.
          */
-        public static Size createSize(TracedCollection collection, Object key) throws LoggedException {
+        public static final Size createSize(TracedCollection collection, Object key) throws LoggedException {
 
             return collection.get(key, List.of(
 
@@ -531,38 +764,25 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         /**
          * Parses a value from a <code>TracedCollection</code> instance into a new
-         * <code>Style.Size</code> instance.
+         * <code>Size</code> instance.
          * 
          * @param collection <code>TracedCollection</code>: The collection to parse
          *                   from.
          * @param key        <code>Object</code>: The key to search for.
-         * @param ifNull     <code>Style.Size</code>: The value to return if a size
-         *                   could not be created.
-         * @return <code>Style.Size</code>: The parsed size.
+         * @param ifNull     <code>Size</code>: The value to return if a size could not
+         *                   be created.
+         * @return <code>Size</code>: The parsed size.
          * @throws LoggedException Thrown if an error occurs while parsing the
          *                         collection.
          */
-        public static Size createSize(TracedCollection collection, Object key, Size ifNull) throws LoggedException {
+        public static final Size createSize(TracedCollection collection, Object key, Size ifNull)
+                throws LoggedException {
 
             return collection.get(key, List.of(
 
                     collection.stringCase(Size::createStringSize), collection.doubleCase(Size::createDoubleSize),
                     collection.nullCase(_ -> ifNull)));
         }
-    }
-
-    private static Size createAutoSize(TracedCollection collection, Object key) throws LoggedException {
-
-        return collection.get(key, List.of(collection.stringCase(entry -> {
-
-            String size = entry.getValue();
-            if (size.equals("auto")) {
-
-                return AUTO;
-            }
-
-            return Size.createSize(collection, key);
-        }), collection.defaultCase(_ -> Size.createSize(collection, key))));
     }
 
     /**
@@ -591,7 +811,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         /**
          * <code>TextureSize</code>: A texture size representing scaling to contain the
-         * entire graphic in the parent's bounds.
+         * entire graphic in the parent's bounds without distorting the texture.
          */
         public static final TextureSize CONTAIN = new TextureSize() {
 
@@ -611,7 +831,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         /**
          * <code>TextureSize</code>: A texture size representing scaling to fill the
-         * parent's bounds.
+         * parent's bounds without distorting the texture.
          */
         public static final TextureSize COVER = new TextureSize() {
 
@@ -626,6 +846,25 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
                 return Math.max(textureHeight * parentWidth / textureWidth,
                         textureHeight * parentHeight / textureHeight);
+            }
+        };
+
+        /**
+         * <code>TextureSize</code>: A texture size representing scaling to fill the
+         * parent's bounds by distorting the texture.
+         */
+        public static final TextureSize FILL = new TextureSize() {
+
+            @Override
+            public int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+
+                return parentWidth;
+            }
+
+            @Override
+            public int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+
+                return parentHeight;
             }
         };
 
@@ -718,11 +957,17 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                         String sizeString = sizeEntry.getValue();
                         return switch (sizeString) {
 
-                        case "contain" -> TextureSize.CONTAIN;
+                        // Use the original image size.
+                        case "auto" -> AUTO;
 
-                        case "cover" -> TextureSize.COVER;
+                        // Maximize the image size while fitting it in the component.
+                        case "contain" -> CONTAIN;
 
-                        case "auto" -> TextureSize.AUTO;
+                        // Maximize the image size to fully cover the component.
+                        case "cover" -> COVER;
+
+                        // Distort the image to fully cover the component.
+                        case "fill" -> FILL;
 
                         default -> TextureSize.createSize(Size.createStringSize(sizeEntry));
                         };
@@ -755,86 +1000,45 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
          * @return <code>int</code>: The generated height.
          */
         public abstract int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight);
-
     }
 
     /**
-     * <code>Style.BackgroundStyle</code>: A record representing the style of a
-     * background.
+     * <code>BorderStyle</code>: An enum class representing the drawing method to
+     * use on a border.
      */
-    public static final record BackgroundStyle(Color color, String texture, TextureSize size) {
-
-        public static final BackgroundStyle DEFAULT = new BackgroundStyle(new Color(0, 0, 0, 0), null,
-                TextureSize.AUTO);
+    public static enum BorderStyle {
 
         /**
-         * Parses a value from a <code>TracedCollection</code> instance into a new
-         * <code>Style.BackgroundStyle</code> instance.
+         * <code>BorderStyle</code>: An enum constant representing no border.
+         */
+        NONE,
+
+        /**
+         * <code>BorderStyle</code>: An enum constant representing a solid border.
+         */
+        SOLID;
+
+        /**
+         * Parses a collection into a border style.
          * 
          * @param collection <code>TracedCollection</code>: The collection to parse
          *                   from.
-         * @param key        <code>Object</code>: The key to search for.
-         * @return <code>Style.BackgroundStyle</code>: The parsed background style.
-         * @throws LoggedException Thrown if an error occurs while parsing the
-         *                         collection.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @return <code>BorderStyle</code>: The generated border style.
+         * @throws LoggedException Thrown if the collection could not be parsed.
          */
-        public static BackgroundStyle createBackgroundStyle(TracedCollection collection, Object key)
+        public static final BorderStyle createBorderStyle(TracedCollection collection, Object key)
                 throws LoggedException {
 
-            TracedEntry<TracedDictionary> entry = collection.getAsDict(key, true);
-            if (!entry.containsValue()) {
+            TracedEntry<String> borderEntry = collection.getAsString(key, false, null);
+            String border = borderEntry.getValue();
 
-                return null;
-            }
+            return switch (border) {
 
-            TracedDictionary json = entry.getValue();
-
-            TracedEntry<Color> colorEntry = json.getAsColor("color", true, null);
-            Color color = colorEntry.getValue();
-
-            TracedEntry<String> textureEntry = json.getAsString("texture", true, null);
-            String texture = textureEntry.getValue();
-
-            TextureSize size = TextureSize.createSize(json, "size");
-            return new BackgroundStyle(color, texture, size);
-        }
-    }
-
-    /**
-     * <code>Style.BorderStyle</code>: A record representing the style of a border.
-     */
-    public static final record BorderStyle(Size width, Color color) {
-
-        public static final BorderStyle DEFAULT = new BorderStyle(Size.PX_1, null);
-
-        /**
-         * Parses a value from a <code>TracedCollection</code> instance into a new
-         * <code>Style.BorderStyle</code> instance.
-         * 
-         * @param collection <code>TracedCollection</code>: The collection to parse
-         *                   from.
-         * @param key        <code>Object</code>: The key to search for.
-         * @param ifNull     <code>BorderStyle</code>: The value to return if a border
-         *                   style could not be created.
-         * @return <code>Style.BorderStyle</code>: The parsed border style.
-         * @throws LoggedException Thrown if an error occurs while parsing the
-         *                         collection.
-         */
-        public static BorderStyle createBorderStyle(TracedCollection collection, Object key) throws LoggedException {
-
-            return collection.get(key, List.of(
-
-                    collection.dictCase(entry -> {
-
-                        TracedDictionary json = entry.getValue();
-
-                        Size width = Size.createSize(json, "size", Size.PX_1);
-
-                        TracedEntry<Color> colorEntry = json.getAsColor("color", true, Color.BLACK);
-                        Color color = colorEntry.getValue();
-
-                        return new BorderStyle(width, color);
-                    })));
+            case "none" -> NONE;
+            case "solid" -> SOLID;
+            default -> throw new UnexpectedValueException(borderEntry);
+            };
         }
     }
 
@@ -905,9 +1109,19 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         }
     }
 
-    public static final int createFontStyle(TracedCollection json, Object key) throws LoggedException {
+    /**
+     * Parses a font style from a collection.
+     * 
+     * @param collection <code>TracedCollection</code>: The collection to parse
+     *                   from.
+     * @param key        <code>Object</code>: The key to retrieve.
+     * @return <code>int</code>: The retrieved font size, as the
+     *         <code>Font.PLAIN</code> or <code>Font.ITALIC</code> constants.
+     * @throws LoggedException Thrown if the font size could not be parsed.
+     */
+    public static final int createFontStyle(TracedCollection collection, Object key) throws LoggedException {
 
-        TracedEntry<String> fontStyleEntry = json.getAsString(key, false, null);
+        TracedEntry<String> fontStyleEntry = collection.getAsString(key, false, null);
         String fontStyle = fontStyleEntry.getValue();
         return switch (fontStyle) {
 
@@ -917,9 +1131,19 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         };
     }
 
-    public static final int createFontWeight(TracedCollection json, Object key) throws LoggedException {
+    /**
+     * Parses a font weight from a collection.
+     * 
+     * @param collection <code>TracedCollection</code>: The collection to parse
+     *                   from.
+     * @param key        <code>Object</code>: The key to retrieve.
+     * @return <code>int</code>: The retrieved font weight, as the
+     *         <code>Font.PLAIN</code> or <code>Font.BOLD</code> constants.
+     * @throws LoggedException Thrown if the font weight could not be parsed.
+     */
+    public static final int createFontWeight(TracedCollection collection, Object key) throws LoggedException {
 
-        TracedEntry<String> fontWeightEntry = json.getAsString(key, false, null);
+        TracedEntry<String> fontWeightEntry = collection.getAsString(key, false, null);
         String fontWeight = fontWeightEntry.getValue();
         return switch (fontWeight) {
 
@@ -929,28 +1153,46 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         };
     }
 
-    public static final Size createLineHeight(TracedCollection json, Object key) throws LoggedException {
+    /**
+     * Parses a line height from a collection.
+     * 
+     * @param collection <code>TracedCollection</code>: The collection to parse
+     *                   from.
+     * @param key        <code>Object</code>: The key to retrieve.
+     * @return <code>Size</code>: The retrieved line height as a size.
+     * @throws LoggedException Thrown if the line height could not be parsed.
+     */
+    public static final Size createLineHeight(TracedCollection collection, Object key) throws LoggedException {
 
-        return json.get(key, List.of(
+        return collection.get(key, List.of(
 
-                // A line width of x should really be x*100% of the text size.
-                json.doubleCase(entry -> {
+                // A line width of x should really be 100x% of the text size.
+                collection.doubleCase(entry -> {
 
                     double factor = entry.getValue();
                     return new Size(parent -> parent * factor);
                 }),
 
-                // Any other size should work normally.
-                json.defaultCase(_ -> Size.createSize(json, key))));
+                // String sizes should work normally.
+                collection.stringCase(entry -> Size.createStringSize(entry))));
     }
 
-    public static final String createFontFamily(TracedCollection json, Object key) throws LoggedException {
+    /**
+     * Parses a font family from a collection.
+     * 
+     * @param collection <code>TracedCollection</code>: The collection to parse
+     *                   from.
+     * @param key        <code>Object</code>: The key to retrieve.
+     * @return <code>int</code>: The topmost valid font family retrieved.
+     * @throws LoggedException Thrown if the font family could not be parsed.
+     */
+    public static final String createFontFamily(TracedCollection collection, Object key) throws LoggedException {
 
-        return json.get(key, List.of(json.stringCase(fontFamilyEntry -> {
+        return collection.get(key, List.of(collection.stringCase(fontFamilyEntry -> {
 
             String fontFamily = fontFamilyEntry.getValue();
             return getFirstAvailableFont(List.of(fontFamily));
-        }), json.arrayCase(fontFamiliesEntry -> {
+        }), collection.arrayCase(fontFamiliesEntry -> {
 
             TracedArray fontFamiliesArray = fontFamiliesEntry.getValue();
 
@@ -967,6 +1209,13 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         })));
     }
 
+    /**
+     * Retrieves the first valid font family from a list of options.
+     * 
+     * @param fontFamilies <code>String</code>: The font families to parse through.
+     * @return <code>String</code>: The first font available in the Java Graphics
+     *         Environment, or <code>null</code> if a font could not be found.
+     */
     private static String getFirstAvailableFont(List<String> fontFamilies) {
 
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();

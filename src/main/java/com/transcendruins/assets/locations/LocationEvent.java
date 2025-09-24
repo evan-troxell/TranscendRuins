@@ -166,19 +166,18 @@ public final class LocationEvent {
     }
 
     /**
-     * <code>LocationEvent.InactiveModeType</code>: The inactive mode of this
+     * <code>InactiveModeType</code>: The inactive mode of this
      * <code>LocationEvent</code> instance.
      */
-    private final LocationEvent.InactiveModeType inactiveMode;
+    private final InactiveModeType inactiveMode;
 
     /**
      * Retrieves the inactive mode of this <code>LocationEvent</code> instance.
      *
-     * @return <code>LocationEvent.InactiveModeType</code>: The
-     *         <code>inactiveMode</code> field of this <code>LocationEvent</code>
-     *         instance.
+     * @return <code>InactiveModeType</code>: The <code>inactiveMode</code> field of
+     *         this <code>LocationEvent</code> instance.
      */
-    public LocationEvent.InactiveModeType getInactiveMode() {
+    public InactiveModeType getInactiveMode() {
 
         return inactiveMode;
     }

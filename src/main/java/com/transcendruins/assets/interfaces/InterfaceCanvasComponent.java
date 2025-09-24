@@ -117,7 +117,7 @@ public final class InterfaceCanvasComponent extends JPanel {
 
                 for (UIComponent component : hovered) {
 
-                    component.unhover(mouseX, mouseY);
+                    component.exit(mouseX, mouseY);
                 }
 
                 hovered.clear();
@@ -145,15 +145,13 @@ public final class InterfaceCanvasComponent extends JPanel {
                 moveMouse(mouseX, mouseY);
             }
         });
-    
+
         addMouseWheelListener(new MouseWheelListener() {
 
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                /
-                e.get
+
             }
-            
         });
     }
 
@@ -199,11 +197,11 @@ public final class InterfaceCanvasComponent extends JPanel {
         // Hover the new components.
         ArrayList<UIComponent> newHovered = getHoveredAt(mouseX, mouseY);
 
-        // Unhover old components that are no longer hovered.
+        // Exit old components that are no longer hovered.
         hovered.removeAll(newHovered);
         for (UIComponent component : hovered) {
 
-            component.unhover(mouseX, mouseY);
+            component.exit(mouseX, mouseY);
         }
 
         // Reset the hovered components.

@@ -98,14 +98,11 @@ public final class LootTableInstance extends AssetInstance {
     }
 
     /**
-     * Creates a new instance of the <code>LootTableInstance.LootInstance</code>
-     * class.
+     * Creates a new instance of the <code>LootInstance</code> class.
      * 
-     * @param schema <code>LootTableAttributes.LootSchema</code>: The schema to
-     *               create the new <code>LootTableInstance.LootInstance</code>
-     *               instance from.
-     * @return <code>LootTableInstance.LootInstance</code>: The resulting loot
-     *         instance.
+     * @param schema <code>LootSchema</code>: The schema to create the new
+     *               <code>LootInstance</code> instance from.
+     * @return <code>LootInstance</code>: The resulting loot instance.
      * @throws LoggedException Thrown if any exception is raised while creating the
      *                         new loot instance.
      */
@@ -127,35 +124,33 @@ public final class LootTableInstance extends AssetInstance {
     }
 
     /**
-     * <code>LootTableInstance.LootInstance</code>: A class representing any loot
-     * type.
+     * <code>LootInstance</code>: A class representing any loot type.
      */
     public abstract class LootInstance {
 
         /**
-         * <code>String</code>: The component ID of this
-         * <code>LootTableInstance.LootInstance</code> instance.
+         * <code>String</code>: The component ID of this <code>LootInstance</code>
+         * instance.
          */
         private final String componentId;
 
         /**
-         * Retrieves the component tags of this
-         * <code>LootTableInstance.LootInstance</code> instance.
+         * Retrieves the component tags of this <code>LootInstance</code> instance.
          * 
          * @return <code>String</code>: The <code>componentId</code> field of this
-         *         <code>LootTableInstance.LootInstance</code> instance.
+         *         <code>LootInstance</code> instance.
          */
         private final ImmutableList<String> componentTags;
 
         /**
          * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to apply
-         * this <code>LootTableInstance.LootInstance</code> instance.
+         * this <code>LootInstance</code> instance.
          */
         private final ImmutableList<TRScript> conditions;
 
         /**
-         * Determines whether or not this <code>LootTableInstance.LootInstance</code>
-         * passes the applied conditions.
+         * Determines whether or not this <code>LootInstance</code> passes the applied
+         * conditions.
          * 
          * @return <code>boolean</code>: If this loot passes its conditions.
          */
@@ -176,18 +171,16 @@ public final class LootTableInstance extends AssetInstance {
         }
 
         /**
-         * <code>double</code>: The chance value of this
-         * <code>LootTableInstance.LootInstance</code> instance, represented as a
-         * percentage greater than 0.
+         * <code>double</code>: The chance value of this <code>LootInstance</code>
+         * instance, represented as a percentage greater than 0.
          */
         private final double chance;
 
         /**
-         * Retrieves the chance value of this
-         * <code>LootTableInstance.LootInstance</code> instance.
+         * Retrieves the chance value of this <code>LootInstance</code> instance.
          * 
          * @return <code>double</code>: The <code>chance</code> field of this
-         *         <code>LootTableInstance.LootInstance</code> instance.
+         *         <code>LootInstance</code> instance.
          */
         public final double getChance() {
 
@@ -195,21 +188,19 @@ public final class LootTableInstance extends AssetInstance {
         }
 
         /**
-         * <code>Range</code>: The count range of this
-         * <code>LootTableInstance.LootInstance</code> instance, which is used to
-         * determine how many items to generate.
+         * <code>Range</code>: The count range of this <code>LootInstance</code>
+         * instance, which is used to determine how many items to generate.
          */
         private final Range count;
 
         /**
-         * Retrieves the count range of this <code>LootTableInstance.LootInstance</code>
-         * instance.
+         * Retrieves the count range of this <code>LootInstance</code> instance.
          * 
          * @param random <code>Random</code>: The random number generator to use for
          *               generating the count.
          * 
          * @return <code>Range</code>: The <code>count</code> field of this
-         *         <code>LootTableInstance.LootInstance</code> instance.
+         *         <code>LootInstance</code> instance.
          */
         public final int getCount(Random random) {
 
@@ -217,12 +208,10 @@ public final class LootTableInstance extends AssetInstance {
         }
 
         /**
-         * Creates a new instance of the <code>LootTableInstance.LootInstance</code>
-         * class.
+         * Creates a new instance of the <code>LootInstance</code> class.
          * 
-         * @param schema <code>LootTableAttributes.LootSchema</code>: The schema to
-         *               create this <code>LootTableInstance.LootInstance</code>
-         *               instance from.
+         * @param schema <code>LootSchema</code>: The schema to create this
+         *               <code>LootInstance</code> instance from.
          */
         public LootInstance(LootTableAttributes.LootSchema schema) {
 
@@ -235,8 +224,8 @@ public final class LootTableInstance extends AssetInstance {
         }
 
         /**
-         * Evaluates this <code>LootTableInstance.LootInstance</code> instance into a
-         * set of item contexts.
+         * Evaluates this <code>LootInstance</code> instance into a set of item
+         * contexts.
          * 
          * @param world  <code>World</code>: The world to use processing item preset(s).
          * @param random <code>Random</code>: The random number generator to use for

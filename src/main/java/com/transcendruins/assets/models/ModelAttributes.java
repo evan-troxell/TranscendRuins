@@ -458,25 +458,24 @@ public final class ModelAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ModelAttributes.WeightedVertex</code>: A class representing a vertex of
-     * a parent <code>ModelAttributes</code> instance which can be modified using a
-     * weighting system.
+     * <code>WeightedVertex</code>: A class representing a vertex of a parent
+     * <code>ModelAttributes</code> instance which can be modified using a weighting
+     * system.
      */
     public final class WeightedVertex {
 
         /**
-         * <code>Vector</code>: The initial position of this
-         * <code>ModelAttributes.WeightedVertex</code> instance.
+         * <code>Vector</code>: The initial position of this <code>WeightedVertex</code>
+         * instance.
          */
         private final Vector baseVertex;
 
         /**
-         * Creates a new instance of the <code>ModelAttributes.WeightedVertex</code>
-         * class.
+         * Creates a new instance of the <code>WeightedVertex</code> class.
          * 
          * @param baseVertex <code>Vector</code>: The initial position of this
-         *                   <code>ModelAttributes.WeightedVertex</code> instance, and
-         *                   the vertex which will be returned if no weights are added.
+         *                   <code>WeightedVertex</code> instance, and the vertex which
+         *                   will be returned if no weights are added.
          */
         private WeightedVertex(Vector baseVertex) {
 
@@ -484,8 +483,7 @@ public final class ModelAttributes extends AssetAttributes {
         }
 
         /**
-         * Retrieves the weighted vertex of this
-         * <code>ModelAttributes.WeightedVertex</code> instance.
+         * Retrieves the weighted vertex of this <code>WeightedVertex</code> instance.
          * 
          * @param weights <code>HashMap&lt;String, Vector&gt;</code>: The map of bones
          *                to their respective vertex which should be applied.
@@ -518,31 +516,30 @@ public final class ModelAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ModelAttributes.IndexedPolygon</code>: A class representing a polygon
-     * which is defined only with the indices of vertices in another list.
+     * <code>IndexedPolygon</code>: A class representing a polygon which is defined
+     * only with the indices of vertices in another list.
      */
     public final class IndexedPolygon {
 
         /**
-         * <code>int[3]</code>: The vertex indices of this
-         * <code>ModelAttributes.IndexedPolygon</code> instance.
+         * <code>int[3]</code>: The vertex indices of this <code>IndexedPolygon</code>
+         * instance.
          */
         private final int[] vertexIndices;
 
         /**
-         * <code>Triangle</code>: The texture UVs of this
-         * <code>ModelAttributes.IndexedPolygon</code> instance.
+         * <code>Triangle</code>: The texture UVs of this <code>IndexedPolygon</code>
+         * instance.
          */
         private final Triangle uvs;
 
         /**
-         * Creates a new instance of the <code>ModelAttributes.IndexedPolygon</code>
-         * class.
+         * Creates a new instance of the <code>IndexedPolygon</code> class.
          * 
          * @param vertexIndices <code>int[3]</code>: The vertex index of this
-         *                      <code>ModelAttributes.IndexedPolygon</code> instance.
+         *                      <code>IndexedPolygon</code> instance.
          * @param uvs           <code>Triangle</code>: The texture UVs of this
-         *                      <code>ModelAttributes.IndexedPolygon</code> instance.
+         *                      <code>IndexedPolygon</code> instance.
          */
         private IndexedPolygon(int[] vertexIndices, Triangle uvs) {
 
@@ -551,8 +548,7 @@ public final class ModelAttributes extends AssetAttributes {
         }
 
         /**
-         * Retrieves the polygon of this <code>ModelAttributes.IndexedPolygon</code>
-         * instance.
+         * Retrieves the polygon of this <code>IndexedPolygon</code> instance.
          * 
          * @param modelledVertices <code>List&lt;Vector&gt;</code>: The modelled
          *                         vertices to index when creating the polygon.
@@ -574,11 +570,10 @@ public final class ModelAttributes extends AssetAttributes {
         }
 
         /**
-         * Retrieves the texture UVs of this <code>ModelAttributes.IndexedPolygon</code>
-         * instance.
+         * Retrieves the texture UVs of this <code>IndexedPolygon</code> instance.
          * 
          * @return <code>Triangle</code>: The <code>uvs</code> field of this
-         *         <code>ModelAttributes.IndexedPolygon</code> instance.
+         *         <code>IndexedPolygon</code> instance.
          */
         public Triangle getUvs() {
 
@@ -587,7 +582,7 @@ public final class ModelAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ModelAttributes.Bone</code>: A class representing a polygon layout of a
+     * <code>Bone</code>: A class representing a polygon layout of a
      * <code>ModelAttributes</code> instance.
      */
     public final class Bone {
@@ -600,15 +595,15 @@ public final class ModelAttributes extends AssetAttributes {
 
         /**
          * <code>ImmutableMap&lt;String, Bone&gt;</code>: The tags of this
-         * <code>ModelAttributes.Bone</code> instance.
+         * <code>Bone</code> instance.
          */
         private final ImmutableList<String> tags;
 
         /**
-         * Retrieves the tags of this <code>ModelAttributes.Bone</code> instance.
+         * Retrieves the tags of this <code>Bone</code> instance.
          * 
          * @return <code>ImmutableList&lt;String&gt;</code>: The <code>tags</code> field
-         *         of this <code>ModelAttributes.Bone</code> instance.
+         *         of this <code>Bone</code> instance.
          */
         public ImmutableList<String> getTags() {
 
@@ -617,17 +612,15 @@ public final class ModelAttributes extends AssetAttributes {
 
         /**
          * <code>ImmutableMap&lt;Integer, Double&gt;</code>: The vertex weights of this
-         * <code>ModelAttributes.Bone</code> instance.
+         * <code>Bone</code> instance.
          */
         private final ImmutableMap<Integer, Double> vertexWeights;
 
         /**
-         * Retrieves the vertex weights of this <code>ModelAttributes.Bone</code>
-         * instance.
+         * Retrieves the vertex weights of this <code>Bone</code> instance.
          * 
          * @return <code>ImmutableMap&lt;Integer, Double&gt;</code>: The
-         *         <code>vertexWeights</code> field of this
-         *         <code>ModelAttributes.Bone</code> instance.
+         *         <code>vertexWeights</code> field of this <code>Bone</code> instance.
          */
         public ImmutableMap<Integer, Double> getVertexWeights() {
 
@@ -636,17 +629,16 @@ public final class ModelAttributes extends AssetAttributes {
 
         /**
          * <code>ImmutableList&lt;String&gt;</code>: The pathway of bones traced to
-         * arrive at this <code>ModelAttributes.Bone</code> instance.
+         * arrive at this <code>Bone</code> instance.
          */
         private final ImmutableList<String> bonePathway;
 
         /**
-         * Retrieves the pathway of bones traced to arrive at this
-         * <code>ModelAttributes.Bone</code> instance.
+         * Retrieves the pathway of bones traced to arrive at this <code>Bone</code>
+         * instance.
          * 
          * @return <code>ImmutableList&lt;String&gt;</code>: The
-         *         <code>bonePathway</code> field of this
-         *         <code>ModelAttributes.Bone</code> instance.
+         *         <code>bonePathway</code> field of this <code>Bone</code> instance.
          */
         public ImmutableList<String> getBonePathway() {
 
@@ -654,19 +646,18 @@ public final class ModelAttributes extends AssetAttributes {
         }
 
         /**
-         * <code>Vector</code>: The pivot point around which this
-         * <code>ModelAttributes.Bone</code> should rotate and scale about during
-         * animations. Note that this value is in relative space, assuming the model is
-         * centered at (0, 0, 0).
+         * <code>Vector</code>: The pivot point around which this <code>Bone</code>
+         * should rotate and scale about during animations. Note that this value is in
+         * relative space, assuming the model is centered at (0, 0, 0).
          */
         private final Vector pivotPoint;
 
         /**
-         * Retrieves the pivot point around which this <code>ModelAttributes.Bone</code>
-         * should rotate and scale about during animations.
+         * Retrieves the pivot point around which this <code>Bone</code> should rotate
+         * and scale about during animations.
          * 
          * @return <code>Vector</code>: The <code>pivotPoint</code> field of this
-         *         <code>ModelAttributes.Bone</code> instance.
+         *         <code>Bone</code> instance.
          */
         public Vector getPivotPoint() {
 
@@ -674,10 +665,10 @@ public final class ModelAttributes extends AssetAttributes {
         }
 
         /**
-         * Creates a new instance of the <code>ModelAttributes.Bone</code> class.
+         * Creates a new instance of the <code>Bone</code> class.
          * 
          * @param modelJson <code>TracedDictionary</code>: The JSON from which to create
-         *                  this <code>ModelAttributes.Bone</code> instance.
+         *                  this <code>Bone</code> instance.
          * @throws LoggedException Thrown to represent any exception raised which
          *                         creating the bone.
          */
@@ -765,15 +756,12 @@ public final class ModelAttributes extends AssetAttributes {
         }
 
         /**
-         * Retrieves the vertex weights of this <code>ModelAttributes.Bone</code>
-         * instance.
+         * Retrieves the vertex weights of this <code>Bone</code> instance.
          * 
          * @param boneActors <code>List&lt;BoneActorSet&gt;</code>: The bone actors used
-         *                   to model the bones of this
-         *                   <code>ModelAttributes.Bone</code> instance.
+         *                   to model the bones of this <code>Bone</code> instance.
          * @return <code>HashMap&lt;Integer, HashMap&lt;Vector, Double&gt;&gt;</code>:
-         *         The retrieved vertex weights of this
-         *         <code>ModelAttributes.Bone</code> instance.
+         *         The retrieved vertex weights of this <code>Bone</code> instance.
          */
         public HashMap<Integer, HashMap<Vector, Double>> getVertexWeights(BoneActorSet boneActors) {
 

@@ -220,11 +220,10 @@ public final class LayoutAttributes extends AssetAttributes {
         private final Range count;
 
         /**
-         * Retrieves the count of this <code>LayoutAttributes.GenerationSchema</code>
-         * instance.
+         * Retrieves the count of this <code>GenerationSchema</code> instance.
          * 
          * @return <code>Range</code>: The <code>count</code> field of this
-         *         <code>LayoutAttributes.GenerationSchema</code> instance.
+         *         <code>GenerationSchema</code> instance.
          */
         public Range getCount() {
 

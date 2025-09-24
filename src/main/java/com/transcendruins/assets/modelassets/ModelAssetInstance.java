@@ -146,7 +146,7 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
     private final HashMap<ModelAssetInstance, String> children = new HashMap<>();
 
     /**
-     * Adds a child model to this <cdoe>ModelAssetInstance</code> instance. The
+     * Adds a child model to this <code>ModelAssetInstance</code> instance. The
      * child model will be attached to the bone with the specified name.
      * 
      * @param child    <code>ModelAssetInstance</code>: The child model to add to

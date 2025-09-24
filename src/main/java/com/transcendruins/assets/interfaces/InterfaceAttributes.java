@@ -17,6 +17,7 @@
 package com.transcendruins.assets.interfaces;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import com.transcendruins.assets.AssetType;
@@ -29,6 +30,7 @@ import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.utilities.immutable.ImmutableSet;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -212,6 +214,23 @@ public final class InterfaceAttributes extends AssetAttributes {
             return id;
         }
 
+        /**
+         * <code>StyleSet</code>: The classes of this <code>ComponentSchema</code>
+         * instance.
+         */
+        private final ImmutableSet<String> classes;
+
+        /**
+         * Retrieves the classes of this <code>ComponentSchema</code> instance.
+         * 
+         * @return <code>StyleSet</code>: The <code>classes</code> field of this
+         *         <code>ComponentSchema</code> instance.
+         */
+        public final ImmutableSet<String> getClasses() {
+
+            return classes;
+        }
+
         private final Style style;
 
         public final Style getStyle() {
@@ -242,6 +261,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             this.type = type;
             id = null;
+            classes = new ImmutableSet<>();
             style = Style.EMPTY;
             value = new TRScript(string);
         }
@@ -252,6 +272,22 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             TracedEntry<String> idEntry = json.getAsString("id", true, null);
             id = idEntry.getValue();
+
+            HashSet<String> classesList = new HashSet<>();
+
+            // Process the class list.
+            TracedEntry<TracedArray> classesEntry = json.getAsArray("classes", true);
+            if (classesEntry.containsValue()) {
+
+                TracedArray classesJson = classesEntry.getValue();
+                for (int i : classesJson) {
+
+                    TracedEntry<String> classEntry = classesJson.getAsString(i, false, null);
+                    classesList.add(classEntry.getValue());
+                }
+            }
+
+            classes = new ImmutableSet<>(classesList);
 
             style = Style.createStyle(json, "style");
 
@@ -282,7 +318,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             super(json, TEXT);
 
-            TracedEntry<String> textEntry = json.getAsString("text", true, null);
+            TracedEntry<String> textEntry = json.getAsString("text", false, null);
             StringComponentSchema text = new StringComponentSchema(textEntry.getValue());
             addChild(text);
         }
@@ -301,7 +337,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             super(json, TEXTURE);
 
-            TracedEntry<String> textureEntry = json.getAsString("texture", true, null);
+            TracedEntry<String> textureEntry = json.getAsString("texture", false, null);
             texture = textureEntry.getValue();
         }
     }

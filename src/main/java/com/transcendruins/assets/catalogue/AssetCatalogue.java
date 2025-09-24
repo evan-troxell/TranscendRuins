@@ -26,6 +26,7 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.global.events.GlobalEventSchema;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.FileException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -36,22 +37,23 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>GlobalSchema</code>: A class representing the global map schema of a
- * <code>ContentPack</code> instance.
+ * <code>AssetCatalogue</code>: A class representing the predefined asset
+ * catalogue information of a <code>ContentPack</code> instance.
  */
 public final class AssetCatalogue {
 
     /**
-     * <code>ImmutableMap&lt;String, AssetPresets&gt;</code>: The global locations
-     * of this <code>GlobalSchema</code> instance.
+     * <code>ImmutableMap&lt;String, AssetPresets&gt;</code>: The global location
+     * catalogue of this <code>AssetCatalogue</code> instance.
      */
     private final ImmutableMap<String, AssetPresets> locations;
 
     /**
-     * Retrieves the global locations of this <code>GlobalSchema</code> instance.
+     * Retrieves the global location catalogue of this <code>AssetCatalogue</code>
+     * instance.
      * 
      * @return <code>ImmutableMap&lt;String, AssetPresets&gt;</code>: The
-     *         <code>locations</code> field of this <code>GlobalSchema</code>
+     *         <code>locations</code> field of this <code>AssetCatalogue</code>
      *         instance.
      */
     public ImmutableMap<String, AssetPresets> getLocations() {
@@ -61,15 +63,16 @@ public final class AssetCatalogue {
 
     /**
      * <code>ImmutableMap&lt;String, ImmutableList&lt;GlobalEventSchema&gt;&gt;</code>:
-     * The global events of this <code>GlobalSchema</code> instance.
+     * The global event catalogue of this <code>AssetCatalogue</code> instance.
      */
     private final ImmutableMap<String, ImmutableList<GlobalEventSchema>> events;
 
     /**
-     * Retrieves the global events of this <code>GlobalSchema</code> instance.
+     * Retrieves the global event catalogue of this <code>AssetCatalogue</code>
+     * instance.
      * 
      * @return <code>ImmutableMap&lt;String, ImmutableList&lt;GlobalEventSchema&gt;&gt;</code>:
-     *         The <code>events</code> field of this <code>GlobalSchema</code>
+     *         The <code>events</code> field of this <code>AssetCatalogue</code>
      *         instance.
      */
     public ImmutableMap<String, ImmutableList<GlobalEventSchema>> getEvents() {
@@ -77,25 +80,66 @@ public final class AssetCatalogue {
         return events;
     }
 
+    /**
+     * <code>ImmutableMap&lt;String, AssetPreset&gt;</code>: The screen overlay
+     * catalogue of this <code>AssetCatalogue</code> instance.
+     */
+    private final ImmutableMap<String, AssetPresets> overlays;
+
+    /**
+     * Retrieves the screen overlay catalogue of this <code>AssetCatalogue</code>
+     * instance.
+     * 
+     * @return <code>ImmutableMap&lt;String, AssetPreset&gt;</code>: The
+     *         <code>overlays</code> field of this <code>AssetCatalogue</code>
+     *         instance.
+     */
+    public final ImmutableMap<String, AssetPresets> getOverlays() {
+
+        return overlays;
+    }
+
+    /**
+     * <code>ImmutableMpa&lt;String, AssetPreset&gt;</code>: The UI menu catalogue
+     * of this <code>AssetCatalogue</code> instance.
+     */
     private final ImmutableMap<String, AssetPresets> menus;
 
-    public ImmutableMap<String, AssetPresets> getMenus() {
+    /**
+     * Retrieves the UI menu catalogue of this <code>AssetCatalogue</code> instance.
+     * 
+     * @return <code>ImmutableMap&lt;String, AssetPreset&gt;</code>: The
+     *         <code>menus</code> field of this <code>AssetCatalogue</code>
+     *         instance.
+     */
+    public final ImmutableMap<String, AssetPresets> getMenus() {
 
         return menus;
     }
 
+    /**
+     * <code>ImmutableMap&lt;String, ImmutableMap&lt;String, AssetPresets&gt;&gt;</code>:
+     * The recipe catalogue of this <code>AssetCatalogue</code> instance.
+     */
     private final ImmutableMap<String, ImmutableMap<String, AssetPresets>> recipes;
 
+    /**
+     * Retrieves the recipe catalogue of this <code>AssetCatalogue</code> instance.
+     * 
+     * @return <code>ImmutableMap&lt;String, ImmutableMap&lt;String, AssetPresets&gt;&gt;</code>:
+     *         The <code>recipes</code> field of this <code>AssetCatalogue</code>
+     *         instance.
+     */
     public ImmutableMap<String, ImmutableMap<String, AssetPresets>> getRecipes() {
 
         return recipes;
     }
 
     /**
-     * Creates a new instance of the <code>GlobalSchema</code> class.
+     * Creates a new instance of the <code>AssetCatalogue</code> class.
      * 
      * @param path <code>TracedPath</code>: The filepath to the JSON information of
-     *             this <code>GlobalSchema</code> instance.
+     *             this <code>AssetCatalogue</code> instance.
      */
     public AssetCatalogue(TracedPath path) {
 
@@ -122,6 +166,7 @@ public final class AssetCatalogue {
         locations = locationsMap;
         events = eventsMap;
 
+        ImmutableMap<String, AssetPresets> overlaysMap = new ImmutableMap<>();
         ImmutableMap<String, AssetPresets> menusMap = new ImmutableMap<>();
 
         // Process the hud data.
@@ -132,12 +177,34 @@ public final class AssetCatalogue {
 
                 TracedDictionary json = JSONOperator.retrieveJSON(hudPath);
 
+                // Attempt to process the overlays.
+                try {
+
+                    TracedEntry<TracedDictionary> overlaysEntry = json.getAsDict("overlays", true);
+                    if (overlaysEntry.containsValue()) {
+
+                        TracedDictionary overlaysJson = overlaysEntry.getValue();
+                        overlaysMap = createMenus(overlaysJson);
+                    }
+                } catch (PropertyException e) {
+                }
+
                 // Attempt to process the menus.
-                menusMap = createMenus(json);
+                try {
+
+                    TracedEntry<TracedDictionary> menusEntry = json.getAsDict("menus", true);
+                    if (menusEntry.containsValue()) {
+
+                        TracedDictionary menusJson = menusEntry.getValue();
+                        menusMap = createMenus(menusJson);
+                    }
+                } catch (PropertyException e) {
+                }
             } catch (FileException _) {
             }
         }
 
+        overlays = overlaysMap;
         menus = menusMap;
 
         ImmutableMap<String, ImmutableMap<String, AssetPresets>> recipesMap = new ImmutableMap<>();
@@ -152,7 +219,6 @@ public final class AssetCatalogue {
 
                 // Attempt to process the recipes.
                 recipesMap = createRecipes(json);
-
             } catch (FileException _) {
             }
         }

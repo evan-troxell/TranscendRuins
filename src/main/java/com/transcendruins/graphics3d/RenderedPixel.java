@@ -20,7 +20,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * <code>RenderedPixel</code>: A class representing a pixel in a rendered 3D
@@ -184,14 +183,13 @@ public final class RenderedPixel {
     }
 
     /**
-     * <code>RenderedPixel.PixelDepth</code>: The depth of a color on an individual
-     * pixel in a <code>RenderedPixel</code> instance.
+     * <code>PixelDepth</code>: The depth of a color on an individual pixel in a
+     * <code>RenderedPixel</code> instance.
      */
     private final class PixelDepth {
 
         /**
-         * <code>double</code>: The depth of this <code>RenderedPixel.PixelDepth</code>
-         * instance.
+         * <code>double</code>: The depth of this <code>PixelDepth</code> instance.
          */
         private final double depth;
 

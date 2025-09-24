@@ -91,7 +91,8 @@ public final class InternalPath extends TracedPath {
      * Adds a child path to this <code> InternalPath</code> instance.
      * 
      * @param depth      <code>int</code>: The current file depth, ranging from
-     *                   <code>0</code> to <code>components.length - 1</code>.
+     *                   <code>0</code> to one less than the length of the
+     *                   <code>components</code> parameter.
      * @param bytes      <code>long</code>: The size, in bytes, of the file being
      *                   added.
      * @param components <code>String...</code>: The array of file components to

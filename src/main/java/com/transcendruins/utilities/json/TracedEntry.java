@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyExceptionPathway;
+import com.transcendruins.utilities.json.TracedCollection.JSONType;
 
 /**
  * <code>TracedEntry&lt;K&gt;</code>: A class representing an entry of type K in
@@ -39,7 +40,7 @@ public final class TracedEntry<K> {
      * @return <code>PropertyExceptionPathway</code>: The pathway of this
      *         <code>TracedEntry&lt;K&gt;</code> instance.
      */
-    public PropertyExceptionPathway getPathway() {
+    public final PropertyExceptionPathway getPathway() {
 
         return pathway;
     }
@@ -56,7 +57,7 @@ public final class TracedEntry<K> {
      * @return <code>K</code>: The value of this <code>TracedEntry&lt;K&gt;</code>
      *         instance.
      */
-    public K getValue() {
+    public final K getValue() {
 
         return value;
     }
@@ -64,10 +65,10 @@ public final class TracedEntry<K> {
     /**
      * Retrieves the type of this <code>TracedEntry&lt;K&gt;</code> instance.
      * 
-     * @return <code>TracedCollection.JSONType</code>: The type of this
+     * @return <code>JSONType</code>: The type of this
      *         <code>TracedEntry&lt;K&gt;</code> instance.
      */
-    public TracedCollection.JSONType getType() {
+    public final JSONType getType() {
 
         return TracedCollection.typeOf(value);
     }
@@ -95,7 +96,7 @@ public final class TracedEntry<K> {
      * @return <code>TracedEntry&lt;T&gt;</code>: The new entry with the specified
      *         value.
      */
-    public <T> TracedEntry<T> cast(T val) {
+    public final <T> TracedEntry<T> cast(T val) {
 
         return new TracedEntry<>(pathway, val);
     }
@@ -109,7 +110,7 @@ public final class TracedEntry<K> {
      *                entries to unbox.
      * @return <code>ArrayList&lt;T&gt;</code>: The list of unboxed entries.
      */
-    public static <T> ArrayList<T> unboxValues(Collection<TracedEntry<T>> entries) {
+    public static final <T> ArrayList<T> unboxValues(Collection<TracedEntry<T>> entries) {
 
         ArrayList<T> values = new ArrayList<>(entries.size());
         for (TracedEntry<T> entry : entries) {
@@ -126,7 +127,7 @@ public final class TracedEntry<K> {
      * @return <code>boolean</code>: Whether or not the <code>value</code> field of
      *         this <code>TracedEntry</code> instance is not equal to null.
      */
-    public boolean containsValue() {
+    public final boolean containsValue() {
 
         return value != null;
     }
@@ -138,7 +139,7 @@ public final class TracedEntry<K> {
      *         <code>pathway</code> field of this <code>TracedEntry</code> instance.
      */
     @Override
-    public String toString() {
+    public final String toString() {
 
         return pathway.toString();
     }

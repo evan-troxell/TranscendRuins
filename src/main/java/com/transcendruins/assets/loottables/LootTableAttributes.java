@@ -271,17 +271,14 @@ public final class LootTableAttributes extends AssetAttributes {
     }
 
     /**
-     * Creates a new instance of the <code>LootTableAttributes.LootSchema</code>
-     * class.
+     * Creates a new instance of the <code>LootSchema</code> class.
      * 
      * @param json            <code>TracedDictionary</code>: The JSON to create the
-     *                        new <code>LootTableAttributes.LootSchema</code>
-     *                        instance from.
+     *                        new <code>LootSchema</code> instance from.
      * @param componentIdList <code>Set&lt;String&gt;</code>: The list of component
-     *                        IDs contained in this
-     *                        <code>LootTableAttributes.LootSchema</code> instance.
-     * @return <code>LootTableAttributes.LootSchema</code>: The resulting loot
-     *         schema.
+     *                        IDs contained in this <code>LootSchema</code>
+     *                        instance.
+     * @return <code>LootSchema</code>: The resulting loot schema.
      * @throws LoggedException Thrown if any exception is raised while creating the
      *                         loot.
      */
@@ -299,23 +296,21 @@ public final class LootTableAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>LootTableAttributes.LootSchema</code>: A class representing any loot
-     * schema.
+     * <code>LootSchema</code>: A class representing any loot schema.
      */
     public abstract class LootSchema {
 
         /**
-         * <code>String</code>: The component ID of this
-         * <code>LootTableAttributes.LootSchema</code> instance.
+         * <code>String</code>: The component ID of this <code>LootSchema</code>
+         * instance.
          */
         private final String componentId;
 
         /**
-         * Retrieves the component ID of this
-         * <code>LootTableAttributes.LootSchema</code> instance.
+         * Retrieves the component ID of this <code>LootSchema</code> instance.
          * 
          * @return <code>String</code>: The <code>componentId</code> field of this
-         *         <code>LootTableAttributes.LootSchema</code> instance.
+         *         <code>LootSchema</code> instance.
          */
         public String getComponentId() {
 
@@ -324,17 +319,17 @@ public final class LootTableAttributes extends AssetAttributes {
 
         /**
          * <code>ImmutableList&lt;String&gt;</code>: The list of component tags of this
-         * <code>LootTableAttributes.LootSchema</code> instance.
+         * <code>LootSchema</code> instance.
          */
         private final ImmutableList<String> componentTags;
 
         /**
-         * Retrieves the list of component tags of this
-         * <code>LootTableAttributes.LootSchema</code> instance.
+         * Retrieves the list of component tags of this <code>LootSchema</code>
+         * instance.
          * 
          * @return <code>ImmutableList&lt;String&gt;</code>: The
-         *         <code>componentTags</code> field of this
-         *         <code>LootTableAttributes.LootSchema</code> instance.
+         *         <code>componentTags</code> field of this <code>LootSchema</code>
+         *         instance.
          */
         public ImmutableList<String> getComponentTags() {
 
@@ -343,17 +338,17 @@ public final class LootTableAttributes extends AssetAttributes {
 
         /**
          * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to apply
-         * this <code>LootTableAttributes.LootSchema</code> instance.
+         * this <code>LootSchema</code> instance.
          */
         private final ImmutableList<TRScript> conditions;
 
         /**
-         * Retrieves the conditions required to apply this
-         * <code>LootTableAttributes.LootSchema</code> instance.
+         * Retrieves the conditions required to apply this <code>LootSchema</code>
+         * instance.
          * 
          * @return <code>ImmutableList&lt;TRScript&gt;</code>: The
-         *         <code>conditions</code> field of this
-         *         <code>LootTableAttributes.LootSchema</code> instance.
+         *         <code>conditions</code> field of this <code>LootSchema</code>
+         *         instance.
          */
         public final ImmutableList<TRScript> getConditions() {
 
@@ -361,18 +356,16 @@ public final class LootTableAttributes extends AssetAttributes {
         }
 
         /**
-         * <code>double</code>: The chance value of this
-         * <code>LootTableAttributes.LootSchema</code> instance, represented as a
-         * percentage greater than 0.
+         * <code>double</code>: The chance value of this <code>LootSchema</code>
+         * instance, represented as a percentage greater than 0.
          */
         private final double chance;
 
         /**
-         * Retrieves the chance value of this
-         * <code>LootTableAttributes.LootSchema</code> instance.
+         * Retrieves the chance value of this <code>LootSchema</code> instance.
          * 
          * @return <code>double</code>: The <code>chance</code> field of this
-         *         <code>LootTableAttributes.LootSchema</code> instance.
+         *         <code>LootSchema</code> instance.
          */
         public double getChance() {
 
@@ -387,17 +380,15 @@ public final class LootTableAttributes extends AssetAttributes {
         }
 
         /**
-         * Creates a new instance of the <code>LootTableAttributes.LootSchema</code>
-         * class.
+         * Creates a new instance of the <code>LootSchema</code> class.
          * 
          * @param json            <code>TracedDictionary</code>: The JSON to create this
-         *                        <code>LootTableAttributes.LootSchema</code> instance
-         *                        from.
+         *                        <code>LootSchema</code> instance from.
          * @param componentIdList <code>Set&lt;String&gt;</code>: The list of component
-         *                        IDs contained in this
-         *                        <code>LootTableAttributes.LootSchema</code> instance.
+         *                        IDs contained in this <code>LootSchema</code>
+         *                        instance.
          * @throws LoggedException Thrown if any exception is raised while creating this
-         *                         <code>LootTableAttributes.LootSchema</code> instance.
+         *                         <code>LootSchema</code> instance.
          */
         public LootSchema(TracedDictionary json, Set<String> componentIdList) throws LoggedException {
 

@@ -9,25 +9,38 @@
             "body": {
                 "width": "90%",
                 "height": "90%",
-                "x": "center",
-                "y": "center",
+                "x": "5%",
+                "y": "5%",
 
                 "background": {
                     "color": [192, 192, 192],
-                    "texture": "interface.background"
+                    "texture": "interface.background.example"
                 },
 
                 "border": {
                     "width": "2px",
                     "color": [128, 128, 128]
                 },
-                "borderRadius": "5px",
+                "borderRight": {
+                    "width": "10px",
+                    "color": [255, 0, 0]
+                },
 
-                "padding": "5px",
+                "borderRadiusLeft": "20px",
+                "borderRadiusTopRight": "10px",
+                "borderRadiusBottomRight": "5px",
+
+                "padding": "10px",
+                "paddingLeft": "25px",
+
                 "margin": "5px"
             },
             
             "button": {
+                "border": {
+                    "width": "1px",
+                    "color": [0, 0, 0]
+                },
                 "padding": "5px",
                 "margin": "5px"
             }
@@ -35,19 +48,23 @@
 
         "body": {
 
-            "style": "body",
-
             "type": "container",
+            "id": "body",
+            "classes": [],
+
             "components": [
+
+                "This is a button!!1!1 :D",
+
                 {
-                    "id": "exitButton",
                     "type": "button",
+                    "id": "exitButton",
 
                     "style": {
-                        "width": "60px",
-                        "height": "25px",
-                        "x": "0%",
-                        "y": "0%"
+                        "width": "100% - 20px",
+                        "height": "auto",
+                        "x": "10px",
+                        "y": "10px"
                     },
 
                     "component": "Text here :)",
@@ -56,6 +73,24 @@
                         "type": "closeMenu",
                         "menu": "example"
                     }
+                },
+
+                {
+                    "type": "list",
+                    "id": "seriousList",
+
+                    "components": [
+                        "This is what happens when a list gets serious.",
+                        {
+                            "type": "texture",
+
+                            "style": {
+                                "textureFit": "cover"
+                            },
+
+                            "texture": "interface.texture.example"
+                        }
+                    ]
                 }
             ]
         }
