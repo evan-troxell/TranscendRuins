@@ -438,9 +438,7 @@ public final class LayoutAttributes extends AssetAttributes {
 
             iterationType = parseSelectionType(json, "iterationType");
 
-            components =
-
-                    json.getAsRoll("components", entry -> createGeneration(entry.getValue()));
+            components = json.getAsRoll("components", entry -> createGeneration(entry.getValue()));
         }
     }
 

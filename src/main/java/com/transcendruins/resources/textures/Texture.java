@@ -104,12 +104,11 @@ public final class Texture {
      * Retrieves a texture from the available paths of this <code>Texture</code>
      * instance.
      * 
-     * @param random <code>double</code>: The random ID key to use, in the range of
-     *               <code>[0.0, 1.0]</code>.
+     * @param random <code>long</code>: The random ID key to use.
      * @param paths  <code>Map&lt;String, TracedPath&gt;</code>: The supplied paths.
      * @return <code>StoredTexture</code>: The retrieved texture.
      */
-    public ImageIcon getTexture(double random, Map<String, TracedPath> paths) {
+    public final ImageIcon getTexture(long random, Map<String, TracedPath> paths) {
 
         String path = entries.get(random);
 

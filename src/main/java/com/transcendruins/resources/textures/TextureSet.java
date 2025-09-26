@@ -105,7 +105,7 @@ public final class TextureSet {
         paths = new ImmutableMap<>(texturePaths.stream().collect(
                 Collectors.toMap(p -> p.toString(path), p -> p, (_, replacement) -> replacement, HashMap::new)));
 
-        TracedPath jsonPath = path.extend("textures.json");
+        TracedPath jsonPath = path.extend("texture.json");
         if (jsonPath.exists()) {
 
             HashMap<String, Texture> texturesMap;

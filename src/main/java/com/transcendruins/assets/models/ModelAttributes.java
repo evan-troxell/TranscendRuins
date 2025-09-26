@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;

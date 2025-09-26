@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.catalogue.global.events;
+package com.transcendruins.assets.catalogue.events;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -131,7 +131,7 @@ public final class GlobalEventSchema {
      * 
      * @param json <code>TracedDictionary</code>: The JSON information of this
      *             <code>GlobalEventSchema</code> instance.
-     * @throws LoggedException If the JSON information is invalid or does not
+     * @throws LoggedException Thrown if the JSON information is invalid or does not
      *                         conform to the expected schema.
      */
     public GlobalEventSchema(TracedDictionary json) throws LoggedException {

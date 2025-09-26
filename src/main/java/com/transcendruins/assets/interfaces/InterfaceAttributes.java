@@ -385,7 +385,7 @@ public final class InterfaceAttributes extends AssetAttributes {
          * <code>String</code>: The string value of this
          * <code>StringComponentSchema</code> instance.
          */
-        private final String string;
+        private final String key;
 
         /**
          * Retrieves the string value of this <code>StringComponentSchema</code>
@@ -394,9 +394,9 @@ public final class InterfaceAttributes extends AssetAttributes {
          * @return <code>String</code>: The <code>string</code> field of this
          *         <code>StringComponentSchema</code> instance.
          */
-        public final String getString() {
+        public final String getKey() {
 
-            return string;
+            return key;
         }
 
         /**
@@ -408,7 +408,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             super(string);
 
-            this.string = string;
+            this.key = string;
         }
     }
 

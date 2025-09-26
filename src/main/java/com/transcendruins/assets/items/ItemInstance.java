@@ -18,8 +18,8 @@ package com.transcendruins.assets.items;
 
 import java.util.HashMap;
 
+import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
-import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
 import com.transcendruins.assets.models.ModelAttributes;
@@ -224,6 +224,8 @@ public final class ItemInstance extends ModelAssetInstance {
         BoneActorSet parentBoneActors = parent.getBoneActors();
         BoneActorSet mergedBoneActors = new BoneActorSet(boneActors, parentBoneActors);
 
+        // TODO this part should be rebuilt, focus on model to figure out what
+        // parameters are necessary to draw children assets.
         return model.getPolygons(mergedBoneActors, parentBoneActors, getSocket(), position, rotation);
     }
 }

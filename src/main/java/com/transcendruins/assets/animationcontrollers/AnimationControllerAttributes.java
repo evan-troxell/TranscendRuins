@@ -18,6 +18,7 @@ package com.transcendruins.assets.animationcontrollers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.transcendruins.assets.AssetType.ANIMATION;
@@ -98,27 +99,48 @@ public final class AnimationControllerAttributes extends AssetAttributes {
         // The states should only be defined once.
         if (isBase) {
 
-            TracedEntry<TracedDictionary> statesEntry = json.getAsDict("states", false);
+            HashMap<String, AssetPresets> animations = new HashMap<>();
+
+            // Process the animations.
+            TracedEntry<TracedDictionary> animationsEntry = json.getAsDict("animations", true);
+            if (animationsEntry.containsValue()) {
+
+                TracedDictionary animationsJson = animationsEntry.getValue();
+                for (String animationString : animationsJson) {
+
+                    TracedEntry<AssetPresets> animationEntry = animationsJson.getAsPresets(animationString, false,
+                            ANIMATION);
+                    AssetPresets animation = animationEntry.getValue();
+                    addAssetDependency(animation);
+                    animations.put(animationString, animation);
+                }
+            }
+
             HashMap<String, AnimationStateSchema> statesMap = new HashMap<>();
 
+            // States are required.
+            TracedEntry<TracedDictionary> statesEntry = json.getAsDict("states", false);
             TracedDictionary statesJson = statesEntry.getValue();
 
             TracedEntry<String> defaultStateEntry = json.getAsString("defaultState", true, "default");
             defaultState = defaultStateEntry.getValue();
 
+            // Verify that the default state exists.
             statesJson.getAsDict(defaultState, false);
 
+            // Process the available states.
             for (String stateName : statesJson) {
 
                 TracedEntry<TracedDictionary> stateEntry = statesJson.getAsDict(stateName, false);
                 TracedDictionary stateJson = stateEntry.getValue();
 
-                AnimationStateSchema state = new AnimationStateSchema(stateJson);
+                AnimationStateSchema state = new AnimationStateSchema(stateJson, animations);
                 statesMap.put(stateName, state);
             }
 
             states = new ImmutableMap<>(statesMap);
 
+            // Validate that no states are missing.
             for (Map.Entry<String, AnimationStateSchema> stateEntry : states.entrySet()) {
 
                 AnimationStateSchema state = stateEntry.getValue();
@@ -142,16 +164,22 @@ public final class AnimationControllerAttributes extends AssetAttributes {
     public final class AnimationStateSchema {
 
         /**
-         * <code>TracedEntry&lt;TracedDictionary&gt;</code>: The dictionary entry of all
-         * transitions in this <code>AnimationStateSchema</code> instance.
-         */
-        private final TracedEntry<TracedDictionary> transitionsEntry;
-
-        /**
          * <code>ImmutableList&lt;AssetPresets&gt;</code>: The animations of this
          * <code>AnimationStateSchema</code> instance.
          */
         private final ImmutableList<AssetPresets> stateAnimations;
+
+        /**
+         * Retrieves the animations of this <code>AnimationStateSchema</code> instance.
+         * 
+         * @return <code>ImmutableList&lt;AssetPresets&gt;</code>: The
+         *         <code>stateAnimations</code> field of this
+         *         <code>AnimationStateSchema</code> instance.
+         */
+        public final ImmutableList<AssetPresets> getStateAnimations() {
+
+            return stateAnimations;
+        }
 
         /**
          * <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>: The
@@ -160,14 +188,30 @@ public final class AnimationControllerAttributes extends AssetAttributes {
         private final ImmutableMap<String, ImmutableList<TRScript>> stateTransitions;
 
         /**
+         * Retrieves the state transitions of this <code>AnimationStateSchema</code>
+         * instance.
+         * 
+         * @return <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>:
+         *         The <code>stateTransitions</code> field of this
+         *         <code>AnimationStateSchema</code> instance.
+         */
+        public final ImmutableMap<String, ImmutableList<TRScript>> getStateTransitions() {
+
+            return stateTransitions;
+        }
+
+        /**
          * Creates a new instance of the <code>AnimationStateSchema</code> class.
          * 
-         * @param json <code>TracedDictionary</code>: The JSON used to compile this
-         *             <code>AnimationStateSchema</code> instance.
+         * @param json       <code>TracedDictionary</code>: The JSON used to compile
+         *                   this <code>AnimationStateSchema</code> instance.
+         * @param animations <code>Map&lt;String, AssetPreset&gt;</code>: The predefined
+         *                   animations of the animation controller.
          * @throws LoggedException Thrown if an exception is raised while processing
          *                         this <code>AnimationStateSchema</code> instance.
          */
-        private AnimationStateSchema(TracedDictionary json) throws LoggedException {
+        private AnimationStateSchema(TracedDictionary json, Map<String, AssetPresets> animations)
+                throws LoggedException {
 
             TracedEntry<TracedArray> animationsEntry = json.getAsArray("animations", true);
 
@@ -177,6 +221,25 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
                 ArrayList<AssetPresets> stateAnimationsList = new ArrayList<>();
                 for (int i : animationsJson) {
+
+                    stateAnimationsList.add(animationsJson.get(i, List.of(animationsJson.stringCase(entry -> {
+
+                        String animationString = entry.getValue();
+                        if (animations.containsKey(animationString)) {
+
+                            return animations.get(animationString);
+                        }
+
+                        TracedEntry<AssetPresets> animationEntry = animationsJson.getAsPresets(i, false, ANIMATION);
+                        AssetPresets animation = animationEntry.getValue();
+                        addAssetDependency(animation);
+                        return animation;
+                    }), animationsJson.presetsCase(entry -> {
+
+                        AssetPresets animation = entry.getValue();
+                        addAssetDependency(animation);
+                        return animation;
+                    }, ANIMATION))));
 
                     TracedEntry<AssetPresets> animationEntry = animationsJson.getAsPresets(i, false, ANIMATION);
                     AssetPresets animation = animationEntry.getValue();
@@ -191,7 +254,10 @@ public final class AnimationControllerAttributes extends AssetAttributes {
                 stateAnimations = null;
             }
 
-            transitionsEntry = json.getAsDict("transitions", true);
+            // TODO Implement 'sounds'
+            // TODO implement 'particles'
+
+            TracedEntry<TracedDictionary> transitionsEntry = json.getAsDict("transitions", true);
 
             if (transitionsEntry.containsValue()) {
 
@@ -219,31 +285,6 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
                 stateTransitions = null;
             }
-        }
-
-        /**
-         * Retrieves the animations of this <code>AnimationStateSchema</code> instance.
-         * 
-         * @return <code>ImmutableList&lt;AssetPresets&gt;</code>: The
-         *         <code>stateAnimations</code> field of this
-         *         <code>AnimationStateSchema</code> instance.
-         */
-        public ImmutableList<AssetPresets> getStateAnimations() {
-
-            return stateAnimations;
-        }
-
-        /**
-         * Retrieves the state transitions of this <code>AnimationStateSchema</code>
-         * instance.
-         * 
-         * @return <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>:
-         *         The <code>stateTransitions</code> field of this
-         *         <code>AnimationStateSchema</code> instance.
-         */
-        public ImmutableMap<String, ImmutableList<TRScript>> getStateTransitions() {
-
-            return stateTransitions;
         }
     }
 }

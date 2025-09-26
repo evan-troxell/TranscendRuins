@@ -105,7 +105,7 @@ public final class SoundSet {
         paths = new ImmutableMap<>(soundPaths.stream().collect(
                 Collectors.toMap(p -> p.toString(path), p -> p, (_, replacement) -> replacement, HashMap::new)));
 
-        TracedPath jsonPath = path.extend("sounds.json");
+        TracedPath jsonPath = path.extend("sound.json");
         if (jsonPath.exists()) {
 
             HashMap<String, Sound> soundsMap;

@@ -21,6 +21,7 @@ import java.awt.geom.AffineTransform;
 
 import javax.swing.ImageIcon;
 
+import com.transcendruins.rendering.Render3DPanel;
 import com.transcendruins.ui.mappedcomponents.containers.TRLayeredPanel;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 
@@ -28,7 +29,7 @@ import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
  * <code>GraphicsPanel</code>: A class representing on which an image may be
  * displayed.
  */
-sealed public class GraphicsPanel extends TRLayeredPanel permits Render3D {
+sealed public class GraphicsPanel extends TRLayeredPanel permits Render3DPanel {
 
     /**
      * Creates a new instance of the <code>GraphicsPanel</code> class.

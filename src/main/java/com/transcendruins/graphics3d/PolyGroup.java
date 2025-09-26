@@ -22,15 +22,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import com.transcendruins.assets.extra.RenderInstance;
 import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.RenderTriangle;
 import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.ui.Render3D;
+import com.transcendruins.rendering.Render3DPanel;
+import com.transcendruins.rendering.RenderInstance;
 
 /**
  * <code>PolyGroup</code>: A class representing a collection of polygons,
@@ -42,13 +41,13 @@ public final class PolyGroup {
      * <code>int</code>: The maximum number of polygons allowed in a single polygon
      * group.
      */
-    public final static int GROUP_POLYGON_CAP = 100;
+    public static final int GROUP_POLYGON_CAP = 100;
 
     /**
      * <code>double</code>: The normalizer value used to curve outliers. This value
      * should be any number between 0.0 and 0.25.
      */
-    public final static double DEVIATION_NORMALIZER = 0.1;
+    public static final double DEVIATION_NORMALIZER = 0.1;
 
     /**
      * <code>Sorter&lt;Triangle&gt;</code>: The sorter used to sort all
@@ -88,7 +87,7 @@ public final class PolyGroup {
 
         Vector cameraPosition = camera.getPosition();
         Quaternion cameraRotation = camera.getRotation();
-        Matrix displayTransform = Render3D.DISPLAY_TRANSFORM.multiply(camera.getZoom());
+        Matrix displayTransform = Render3DPanel.DISPLAY_TRANSFORM.multiply(camera.getZoom());
 
         Vector positionAdjust = new Vector(frameWidth / 2, frameHeight / 2, 0)
                 .subtract(cameraPosition.rotate(cameraRotation).multiply(displayTransform));

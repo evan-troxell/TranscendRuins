@@ -18,8 +18,8 @@ package com.transcendruins.assets.entities;
 
 import java.util.HashMap;
 
+import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
-import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.assets.models.ModelAttributes;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.assets.primaryassets.PrimaryAssetAttributes;

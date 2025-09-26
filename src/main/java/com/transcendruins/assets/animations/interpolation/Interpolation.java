@@ -43,39 +43,47 @@ public abstract class Interpolation {
      * @return <code>double</code>: The <code>timestamp</code> field of this
      *         <code>Interpolation</code> instance.
      */
-    public double getTimestamp() {
+    public final double getTimestamp() {
 
         return timestamp;
     }
 
-    public static Interpolation createInterpolation(TracedCollection json, Object key, double timestamp)
+    /**
+     * Creates a new interpolation at a specific timestamp.
+     * 
+     * @param json      <code>TracedCollection</code>: The collection to parse from.
+     * @param key       <code>Object</code>: The key to retrieve.
+     * @param timestamp <code>double</code>: The timestamp to interpolate at.
+     * @return <code>Interpolation</code>: The resulting interpolation.
+     * @throws LoggedException Thrown if the collection could not be parsed.
+     */
+    public static final Interpolation createInterpolation(TracedCollection collection, Object key, double timestamp)
             throws LoggedException {
 
-        TracedEntry<String> typeEntry = json.get(key, List.of(
+        TracedEntry<String> typeEntry = collection.get(key, List.of(
 
-                json.dictCase(entry -> {
+                collection.dictCase(entry -> {
 
                     TracedDictionary interpolationJson = entry.getValue();
 
                     return interpolationJson.getAsString("type", false, null);
-                }),
-                json.stringCase(entry -> entry)));
+                }), collection.stringCase(entry -> entry)));
 
         return switch (typeEntry.getValue()) {
 
-            case "step" -> new StepInterpolation(timestamp);
+        case "step" -> new StepInterpolation(timestamp);
 
-            case "linear" -> new LinearInterpolation(timestamp);
+        case "linear" -> new LinearInterpolation(timestamp);
 
-            case "easeIn" -> new EaseInterpolation(json, key, timestamp, true);
+        case "easeIn" -> new EaseInterpolation(collection, key, timestamp, true);
 
-            case "easeOut" -> new EaseInterpolation(json, key, timestamp, false);
+        case "easeOut" -> new EaseInterpolation(collection, key, timestamp, false);
 
-            case "easeInOut" -> new EaseInOutInterpolation(json, key, timestamp, true);
+        case "easeInOut" -> new EaseInOutInterpolation(collection, key, timestamp, true);
 
-            case "midpointEase" -> new EaseInOutInterpolation(json, key, timestamp, false);
+        case "midpointEase" -> new EaseInOutInterpolation(collection, key, timestamp, false);
 
-            default -> throw new UnexpectedValueException(typeEntry);
+        default -> throw new UnexpectedValueException(typeEntry);
         };
     }
 
@@ -84,19 +92,33 @@ public abstract class Interpolation {
      * 
      * @param timestamp <code>double</code>: The timestamp of this
      *                  <code>Interpolation</code> instance in seconds.
-     * @throws LoggedException Thrown if any exception is raised while creating this
-     *                         <code>Interpolation</code> instance.
      */
-    public Interpolation(double timestamp) throws LoggedException {
+    public Interpolation(double timestamp) {
 
         this.timestamp = timestamp;
     }
 
+    /**
+     * Retrieves the value of this <code>Interpolation</code> at a given timestamp.
+     * 
+     * @param timestamp <code>double</code>: The timestamp to compute at.
+     * @return <code>double</code>: The resulting value between <code>0.0</code> and
+     *         <code>1.0</code>.
+     */
     protected abstract double getValue(double timestamp);
 
+    /**
+     * <code>StepInterpolation</code>: A class representing an interpolation method
+     * which only jumps to the final position when the animation is complete.
+     */
     public static final class StepInterpolation extends Interpolation {
 
-        public StepInterpolation(double timestamp) throws LoggedException {
+        /**
+         * Creates a new instance of the <code>StepInterpolation</code> class.
+         * 
+         * @param timestamp <code>double</code>: The timestamp to interpolate at.
+         */
+        public StepInterpolation(double timestamp) {
 
             super(timestamp);
         }
@@ -104,13 +126,22 @@ public abstract class Interpolation {
         @Override
         protected double getValue(double timestamp) {
 
-            return 0;
+            return 0.0;
         }
     }
 
+    /**
+     * <code>LinearInterpolation</code>: A class representing an interpolation
+     * method which scales linearly between the start and end timestamp.
+     */
     public static final class LinearInterpolation extends Interpolation {
 
-        public LinearInterpolation(double timestamp) throws LoggedException {
+        /**
+         * Creates a new instance of the <code>LinearInterpolation</code> class.
+         * 
+         * @param timestamp <code>double</code>: The timestamp to interpolate at.
+         */
+        public LinearInterpolation(double timestamp) {
 
             super(timestamp);
         }
@@ -122,10 +153,32 @@ public abstract class Interpolation {
         }
     }
 
+    /**
+     * <code>EaseInterpolation</code>: A class representing an interpolation method
+     * which either begins slow but accelerates quickly (ease-in) or begins fast and
+     * decelarates quickly (ease-out).
+     */
     public static final class EaseInterpolation extends Interpolation {
 
+        /**
+         * <code>double</code>: Approximately the greatest slope to change by at the
+         * beginning or ending timestamp. The slope will approach this value as the
+         * gradient grows towards positive or negative infinity without bounds, but will
+         * approach <code>1.0</code> as this value approaches <code>0.0</code>.
+         */
         private final double gradient;
 
+        /**
+         * Create a new instance of the <code>EaseInterpolation</code> class.
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @param timestamp  <code>double</code>: The timestamp to interpolate at.
+         * @param easeIn     <code>boolean</code>: Whether or not to ease in. A
+         *                   <code>false</code> value will multiply the gradient by
+         *                   <code>-1.0</code>.
+         * @throws LoggedException Thrown if the collection could not be parsed.
+         */
         public EaseInterpolation(TracedCollection collection, Object key, double timestamp, boolean easeIn)
                 throws LoggedException {
 
@@ -133,8 +186,7 @@ public abstract class Interpolation {
 
             gradient = collection.get(key, List.of(
 
-                    collection.stringCase(_ -> 2.0),
-                    collection.dictCase(entry -> {
+                    collection.stringCase(_ -> 2.0), collection.dictCase(entry -> {
 
                         TracedDictionary json = entry.getValue();
                         TracedEntry<Double> gradientEntry = json.getAsDouble("gradient", true, 2.0,
@@ -146,8 +198,8 @@ public abstract class Interpolation {
         @Override
         protected double getValue(double timestamp) {
 
-            // Use a linear approximation for very small timestamps.
-            if (gradient <= 10e-6) {
+            // Use a linear approximation for very small gradients.
+            if (Math.abs(gradient) <= 10e-6) {
 
                 return timestamp;
             }
@@ -157,10 +209,34 @@ public abstract class Interpolation {
         }
     }
 
+    /**
+     * <code>EaseInOutInterpolation</code>: A class representing an interpolation
+     * method which either begins and ends slow but accelerates quickly in the
+     * middle (ease-in-out) or begins and ends fast and decelarates quickly in the
+     * middle (ease-out-in).
+     */
     public static final class EaseInOutInterpolation extends Interpolation {
 
+        /**
+         * <code>double</code>: Approximately the greatest slope to change by at
+         * beginning and end or in the middle timestamp. The slope will approach this
+         * value as the gradient grows towards positive or negative infinity without
+         * bounds, but will approach <code>1.0</code> as this value approaches
+         * <code>0.0</code>.
+         */
         private final double gradient;
 
+        /**
+         * Create a new instance of the <code>EaseInOutInterpolation</code> class.
+         * 
+         * @param collection  <code>TracedCollection</code>: The collection to parse.
+         * @param key         <code>Object</code>: The key to retrieve.
+         * @param timestamp   <code>double</code>: The timestamp to interpolate at.
+         * @param forwardEase <code>boolean</code>: Whether or not to ease forward. A
+         *                    <code>false</code> value will multiply the gradient by
+         *                    <code>-1.0</code>.
+         * @throws LoggedException Thrown if the collection could not be parsed.
+         */
         public EaseInOutInterpolation(TracedCollection collection, Object key, double timestamp, boolean forwardEase)
                 throws LoggedException {
             super(timestamp);
@@ -184,7 +260,7 @@ public abstract class Interpolation {
         protected double getValue(double timestamp) {
 
             // Use a linear approximation for very small timestamps.
-            if (gradient <= 10e-6) {
+            if (Math.abs(gradient) <= 10e-6) {
                 return timestamp;
             }
 
@@ -201,6 +277,19 @@ public abstract class Interpolation {
         }
     }
 
+    /**
+     * Retrieves the interpolation value between two keyframes at a given timestamp.
+     * 
+     * @param lastInterp      <code>Interpolation</code>: The first keyframe (and
+     *                        the interpolation method) to use.
+     * @param nextInterp      <code>Interpolation</code>: The second keyframe to
+     *                        use.
+     * @param timestamp       <code>double</code>: The timestamp to interpolate at.
+     * @param animationLength <code>double</code>: The total length of the
+     *                        animation, used to downscale the timestamp.
+     * @return <code>double</code>: The interpolation value as a number between
+     *         <code>0.0</code> and <code>1.0</code>.
+     */
     protected static final double getInter(Interpolation lastInterp, Interpolation nextInterp, double timestamp,
             double animationLength) {
 
@@ -234,28 +323,62 @@ public abstract class Interpolation {
         return lastInterp.getValue(Math.clamp(timestamp / length, 0.0, 1.0));
     }
 
+    /**
+     * Linearly interpolates between a beginning and end value at an intermediate
+     * timestamp.
+     * 
+     * @param start <code>double</code>: The start value to use.
+     * @param end   <code>double</code>: The end value to use.
+     * @param inter <code>double</code>: The intermediate timestamp to use.
+     * @return <code>double</code>: The interpolated value.
+     */
     public static double lerp(double start, double end, double inter) {
 
         return (1 - inter) * start + inter * end;
     }
 
+    /**
+     * Linearly interpolates between a beginning and end vector at an intermediate
+     * timestamp.
+     * 
+     * @param start <code>Vector</code>: The start vector to use.
+     * @param end   <code>Vector</code>: The end vector to use.
+     * @param inter <code>double</code>: The intermediate timestamp to use.
+     * @return <code>Vector</code>: The interpolated vector.
+     */
     public static Vector lerp(Vector start, Vector end, double inter) {
 
         return start.multiply(1 - inter).add(end.multiply(inter));
     }
 
-    public static Vector slerp(Vector v1, Vector v2, double inter) {
+    /**
+     * Spherically linearly interpolates between a beginning and end vector at an
+     * intermediate timestamp.
+     * 
+     * @param start <code>Vector</code>: The start vector to use.
+     * @param end   <code>Vector</code>: The end vector to use.
+     * @param inter <code>double</code>: The intermediate timestamp to use.
+     * @return <code>Vector</code>: The interpolated vector.
+     */
+    public static Vector slerp(Vector start, Vector end, double inter) {
 
-        v1 = v1.multiply(1.0 / v1.magnitude());
-        v2 = v2.multiply(1.0 / v2.magnitude());
+        double v1Mag = start.magnitude();
+        double v2Mag = end.magnitude();
 
-        double cosO = v1.dot(v2);
+        if (v1Mag == 0.0 || v2Mag == 0.0) {
+
+            return Vector.IDENTITY_VECTOR;
+        }
+
+        start = start.multiply(1.0 / v1Mag);
+        end = end.multiply(1.0 / v2Mag);
+
+        double cosO = start.dot(end);
 
         double o = (cosO < -1) ? Math.PI : ((cosO > 1) ? -Math.PI : Math.acos(cosO));
         double sinO = Math.sin(o);
 
-        return (sinO == 0) ? v1
-                : v1.multiply(Math.sin(o * (1 - inter)) / sinO)
-                        .add(v2.multiply(Math.sin(o * inter) / sinO));
+        return (sinO == 0) ? start
+                : start.multiply(Math.sin(o * (1 - inter)) / sinO).add(end.multiply(Math.sin(o * inter) / sinO));
     }
 }

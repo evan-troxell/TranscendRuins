@@ -121,11 +121,8 @@ public final class AssetPresets {
         this.identifierEntry = new TracedEntry<>(null, identifier);
         this.identifier = identifierEntry.getValue();
 
-        ArrayList<String> eventsList = new ArrayList<>();
-        events = new ImmutableList<>(eventsList);
-
-        HashMap<String, Object> propertiesMap = new HashMap<>();
-        properties = new ImmutableMap<>(propertiesMap);
+        events = new ImmutableList<>();
+        properties = new ImmutableMap<>();
     }
 
     /**

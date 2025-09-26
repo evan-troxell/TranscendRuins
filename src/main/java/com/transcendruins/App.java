@@ -24,13 +24,13 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.elements.ElementContext;
 import com.transcendruins.assets.elements.ElementInstance;
-import com.transcendruins.assets.extra.RenderInstance;
 import com.transcendruins.graphics3d.Camera3D;
 import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
+import com.transcendruins.rendering.Render3DPanel;
+import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.ui.DisplayFrame;
-import com.transcendruins.ui.Render3D;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 
@@ -116,7 +116,7 @@ public final class App {
         Camera3D camera = new Camera3D();
 
         DisplayFrame frame = new DisplayFrame(camera);
-        Render3D renderer = (Render3D) frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
+        Render3DPanel renderer = (Render3DPanel) frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
 
         models = new ArrayList<>();
         models.add(example);

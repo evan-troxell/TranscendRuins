@@ -32,24 +32,6 @@ import com.transcendruins.utilities.immutable.ImmutableList;
 public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
     /**
-     * <code>ImmutableList&lt;String&gt;</code>: The asset category types of this
-     * <code>PrimaryAssetInstance</code> instance.
-     */
-    private ImmutableList<String> categories;
-
-    /**
-     * Retrieves the asset category types of this <code>PrimaryAssetInstance</code>
-     * instance.
-     * 
-     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>categories</code>
-     *         field of this <code>PrimaryAssetInstance</code> instance.
-     */
-    public final ImmutableList<String> getCategories() {
-
-        return categories;
-    }
-
-    /**
      * <code>InventoryInstance</code>: The inventory of this
      * <code>PrimaryAssetInstance</code> instance.
      */
@@ -86,14 +68,11 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
         PrimaryAssetAttributes attributes = (PrimaryAssetAttributes) attributeSet;
 
-        categories = calculateAttribute(attributes.getCategories(), categories, attributes, new ImmutableList<>());
-        setProperty("categories", categories);
-
         // Updates the inventory field.
         computeAttribute(attributes.getInventory(), inventory::applyAttributes, attributes, InventorySchema.DEFAULT);
 
         // Update the interaction.
-        interaction = calculateAttribute(attributes.getInteraction(), PrimaryAssetInstance::createInteraction,
+        interaction = calculateAttribute(attributes.getInteraction(), InteractionInstance::createInteraction,
                 interaction, attributes, InteractionInstance.NONE);
 
         setProperty("interactionCooldown", interaction.getCooldown());
@@ -128,18 +107,6 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
     public abstract int getTileLength();
 
-    public static final InteractionInstance createInteraction(InteractionSchema schema) {
-
-        return switch (schema) {
-
-        case InventoryInteractionSchema inventorySchema -> new InventoryInteractionInstance(inventorySchema);
-
-        case PassagewayInteractionSchema passagewaySchema -> new PassagewayInteractionInstance(passagewaySchema);
-
-        default -> InteractionInstance.NONE;
-        };
-    }
-
     public static abstract class InteractionInstance {
 
         public static final InteractionInstance NONE = new InteractionInstance(InteractionSchema.NONE) {
@@ -163,6 +130,21 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
             cooldown = schema.getCooldown();
             events = schema.getEvents();
+        }
+
+        public static final InteractionInstance createInteraction(InteractionSchema schema) {
+
+            // TODO: Implement interaction methods
+            return switch (schema) {
+
+            // case InventoryInteractionSchema inventorySchema -> new
+            // InventoryInteractionInstance(inventorySchema);
+
+            // case PassagewayInteractionSchema passagewaySchema -> new
+            // PassagewayInteractionInstance(passagewaySchema);
+
+            default -> InteractionInstance.NONE;
+            };
         }
     }
 }

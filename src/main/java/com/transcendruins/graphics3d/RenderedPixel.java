@@ -31,7 +31,7 @@ public final class RenderedPixel {
      * <code>Sortert&lt;Double&gt;</code>: The sorter used to sort depths in a
      * <code>RenderedPixel</code> instance (from lowest to highest).
      */
-    private final static Comparator<PixelDepth> DEPTH_SORTER = Comparator.comparing(pixel -> pixel.depth);
+    private static final Comparator<PixelDepth> DEPTH_SORTER = Comparator.comparing(pixel -> pixel.depth);
 
     /**
      * <code>int</code>: The X coordinate of this <code>RenderedPixel</code>

@@ -153,8 +153,8 @@ public final class PackDependency {
      * 
      * @param entry <code>TracedEntry&lt;TracedDictionary&gt;</code>: The entry from
      *              which to create this <code>PackDependency</code> instance.
-     * @throws LoggedException If an exception was raised while processing this
-     *                         <code>PackDependency</code> instance.
+     * @throws LoggedException Thrown if an exception was raised while processing
+     *                         this <code>PackDependency</code> instance.
      */
     public PackDependency(TracedEntry<TracedDictionary> entry)
             throws IdentifierFormatException, MissingPropertyException, PropertyTypeException, CollectionSizeException,

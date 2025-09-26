@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.catalogue.global.events;
+package com.transcendruins.assets.catalogue.events;
 
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -63,7 +63,8 @@ public final class LocalEvent {
      * 
      * @param json <code>TracedDictionary</code>: The JSON information of this
      *             <code>LocalEvent</code> instance.
-     * @throws LoggedException If there is an error processing the JSON information.
+     * @throws LoggedException Thrown if there is an error processing the JSON
+     *                         information.
      */
     public LocalEvent(TracedDictionary json) throws LoggedException {
 

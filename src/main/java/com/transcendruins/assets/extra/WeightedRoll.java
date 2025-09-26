@@ -27,6 +27,7 @@ import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.random.DeterministicRandom;
 
 /**
  * <code>WeightedRoll&lt;K&gt;</code>: A class representing a set of entries
@@ -171,7 +172,7 @@ public final class WeightedRoll<K> {
      * @return <code>boolean</code>: Whether or not the <code>entries</code> field
      *         of this <code>WeightedRoll</code> instance is empty.
      */
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
 
         return entries.isEmpty();
     }
@@ -180,20 +181,16 @@ public final class WeightedRoll<K> {
      * Retrieves an entry from this <code>WeightedRoll</code> instance based on the
      * provided random number and the entries weights. The random number should be
      * between 0.0 (inclusive) and 1.0 (exclusive).
+     * 
+     * @param random <code>long</code>: The random number to base the retrieved
+     *               entry off of.
+     * @return <code>K</code>: The retrieved entry.
      */
-    public K get(double random) {
+    public final K get(long random) {
 
-        if (random < 0) {
+        double range = DeterministicRandom.toDouble(random) * weightSum;
 
-            random = 0;
-        } else if (random >= 1) {
-
-            random = Math.nextDown(1.0);
-        }
-
-        random *= weightSum;
-
-        int index = Collections.binarySearch(weights, random);
+        int index = Collections.binarySearch(weights, range);
         if (index < 0) {
 
             index = -index - 1;

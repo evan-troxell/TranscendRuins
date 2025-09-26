@@ -14,11 +14,12 @@
  *
  */
 
-package com.transcendruins.assets.extra;
+package com.transcendruins.rendering;
 
 import java.awt.Color;
 import java.util.Set;
 
+import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
 import com.transcendruins.graphics3d.PolyGroup;

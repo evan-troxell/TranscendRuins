@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.ui;
+package com.transcendruins.rendering;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.ImageIcon;
 
-import com.transcendruins.assets.extra.RenderInstance;
 import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
 import com.transcendruins.graphics3d.Camera3D;
 import com.transcendruins.graphics3d.PolyGroup;
@@ -42,13 +41,14 @@ import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.RenderTriangle;
 import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.ui.GraphicsPanel;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 
 /**
- * <code>Render3D</code>: A class representing the game display object of the
- * program.
+ * <code>Render3DPanel</code>: A class representing the game display object of
+ * the program.
  */
-public abstract non-sealed class Render3D extends GraphicsPanel
+public abstract non-sealed class Render3DPanel extends GraphicsPanel
         implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
     /**
@@ -61,35 +61,35 @@ public abstract non-sealed class Render3D extends GraphicsPanel
             1, 0, 0, 0, -1, 0, 0, 0, -1 });
 
     /**
-     * <code>boolean</code>: Whether or not this <code>Render3D</code> instance is
-     * currently active.
+     * <code>boolean</code>: Whether or not this <code>Render3DPanel</code> instance
+     * is currently active.
      */
     private boolean active = false;
 
     /**
      * <code>long</code>: The next time (in milliseconds) when the FPS counter will
-     * be assigned to the <code>fps</code> field of this <code>Render3D</code>
+     * be assigned to the <code>fps</code> field of this <code>Render3DPanel</code>
      * instance.
      */
     private long nextTime = 0;
 
     /**
      * <code>int</code>: The number of elapsed frames since the <code>fps</code>
-     * field of this <code>Render3D</code> instance was last assigned.
+     * field of this <code>Render3DPanel</code> instance was last assigned.
      */
     private int framesCounter = 0;
 
     /**
      * <code>int</code>: The current frames-per-second counter of this
-     * <code>Render3D</code> instance.
+     * <code>Render3DPanel</code> instance.
      */
     private int fps = 0;
 
     /**
-     * Retrieves the FPS counter of this <code>Render3D</code> instance.
+     * Retrieves the FPS counter of this <code>Render3DPanel</code> instance.
      * 
      * @return <code>int</code>: The <code>fps</code> field of this
-     *         <code>Render3D</code> instance.
+     *         <code>Render3DPanel</code> instance.
      */
     public final int getFPS() {
 
@@ -98,8 +98,8 @@ public abstract non-sealed class Render3D extends GraphicsPanel
 
     /**
      * <code>Object</code>: The synchronized lock used to ensure all access to ths
-     * <code>renderInstance</code> field of this <code>Render3D</code> instance is
-     * synchronized for thread safety.
+     * <code>renderInstance</code> field of this <code>Render3DPanel</code> instance
+     * is synchronized for thread safety.
      */
     private final Object renderLock = new Object();
 
@@ -108,19 +108,19 @@ public abstract non-sealed class Render3D extends GraphicsPanel
     private ImageIcon renderImage;
 
     /**
-     * Creates a new instance of the <code>Render3D</code> class.
+     * Creates a new instance of the <code>Render3DPanel</code> class.
      * 
-     * @param name <code>String</code>: The name of this <code>Render3D</code>
+     * @param name <code>String</code>: The name of this <code>Render3DPanel</code>
      *             instance.
      */
-    public Render3D(String name) {
+    public Render3DPanel(String name) {
 
         super(name, ComponentSettings.BACKGROUND_PANEL_SETTINGS);
         initializeInputListeners();
     }
 
     /**
-     * Initializes the input listeners of this <code>Render3D</code> instance.
+     * Initializes the input listeners of this <code>Render3DPanel</code> instance.
      */
     private void initializeInputListeners() {
 
@@ -131,12 +131,12 @@ public abstract non-sealed class Render3D extends GraphicsPanel
     }
 
     /**
-     * Paints this <code>Render3D</code> instance. The body of this method is
+     * Paints this <code>Render3DPanel</code> instance. The body of this method is
      * synchronized, meaning it can be safely called without the possibility of the
      * <code>renderInstance</code> being altered during rendering.
      * 
      * @param g <code>Graphics</code>: The graphics object used to paint this
-     *          <code>Render3D</code> instance.
+     *          <code>Render3DPanel</code> instance.
      */
     @Override
     public void paintComponent(Graphics g) {
@@ -252,7 +252,7 @@ public abstract non-sealed class Render3D extends GraphicsPanel
     }
 
     /**
-     * Begins displaying this <code>Render3D</code> instance.
+     * Begins displaying this <code>Render3DPanel</code> instance.
      * 
      * @param models <code>Collection&lt;RenderInstance&gt;</code>: The models to be
      *               rendered.
@@ -335,7 +335,7 @@ public abstract non-sealed class Render3D extends GraphicsPanel
     }
 
     /**
-     * Stops displaying this <code>Render3D</code> instance.
+     * Stops displaying this <code>Render3DPanel</code> instance.
      */
     public final void stop() {
 
@@ -343,16 +343,17 @@ public abstract non-sealed class Render3D extends GraphicsPanel
     }
 
     /**
-     * Outputs the FPS counter of this <code>Render3D</code> instance.
+     * Outputs the FPS counter of this <code>Render3DPanel</code> instance.
      * 
      * @param outputFPS <code>int</code>: The outputted FPS of this
-     *                  <code>Render3D</code> instance.
+     *                  <code>Render3DPanel</code> instance.
      */
     public abstract void outputFPS(int outputFPS);
 
     /**
-     * <code>Render3D.RenderTask</code>: A class representing a thread which can be
-     * sent polygon lists to render, used to assist in rendering a main image.
+     * <code>Render3DPanel.RenderTask</code>: A class representing a thread which
+     * can be sent polygon lists to render, used to assist in rendering a main
+     * image.
      */
     private final class RenderTask implements Callable<Void> {
 
@@ -367,7 +368,7 @@ public abstract non-sealed class Render3D extends GraphicsPanel
         private final RenderInstance render;
 
         /**
-         * Creates a new instance of the <code>Render3D.RenderTask</code> class.
+         * Creates a new instance of the <code>Render3DPanel.RenderTask</code> class.
          * 
          * @param polygons <code>Collection&lt;RenderTriangle&gt;</code>: The polygons
          *                 to render.

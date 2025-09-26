@@ -26,10 +26,10 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animationcontrollers.AnimationControllerAttributes.AnimationStateSchema;
 import com.transcendruins.assets.animations.AnimationContext;
 import com.transcendruins.assets.animations.AnimationInstance;
+import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -59,7 +59,7 @@ public final class AnimationControllerInstance extends AssetInstance {
     private String state;
 
     /**
-     * <code>double</code>: The time of creation of this
+     * <code>double</code>: The time of creation of the current state of this
      * <code>AnimationControllerInstance</code> instance in seconds.
      */
     private double timeOfCreation;
@@ -74,14 +74,14 @@ public final class AnimationControllerInstance extends AssetInstance {
      * <code>ArrayList&lt;AnimationInstance&gt;</code>: The list animations
      * currently playing in this <code>AnimationControllerInstance</code> instance.
      */
-    private ArrayList<AnimationInstance> animations;
+    private final ArrayList<AnimationInstance> animations = new ArrayList<>();
 
     /**
-     * <code>ImmutableMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>: The
-     * map of transitions of the current state of this
+     * <code>HashMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>: The map of
+     * transitions of the current state of this
      * <code>AnimationControllerInstance</code> instance.
      */
-    private ImmutableMap<String, ImmutableList<TRScript>> transitions;
+    private final HashMap<String, ImmutableList<TRScript>> transitions = new HashMap<>();
 
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
@@ -99,7 +99,7 @@ public final class AnimationControllerInstance extends AssetInstance {
     }
 
     @Override
-    public void applyAttributes(Attributes attributeSet) {
+    public final void applyAttributes(Attributes attributeSet) {
 
         AnimationControllerAttributes attributes = (AnimationControllerAttributes) attributeSet;
 
@@ -111,7 +111,7 @@ public final class AnimationControllerInstance extends AssetInstance {
     }
 
     @Override
-    protected void onUpdate(double time) {
+    protected final void onUpdate(double time) {
 
         if (state == null) {
 
@@ -161,7 +161,7 @@ public final class AnimationControllerInstance extends AssetInstance {
         timeOfCreation = time;
         timestamp = time;
 
-        animations = new ArrayList<>();
+        animations.clear();
 
         AnimationControllerAttributes.AnimationStateSchema schema = states.get(state);
         for (AssetPresets animationPresets : schema.getStateAnimations()) {
@@ -170,7 +170,9 @@ public final class AnimationControllerInstance extends AssetInstance {
             animations.add((AnimationInstance) AssetType.ANIMATION.createAsset(animationContext));
         }
 
-        transitions = schema.getStateTransitions();
+        transitions.clear();
+        transitions.putAll(schema.getStateTransitions());
+
         return state;
     }
 
@@ -205,7 +207,7 @@ public final class AnimationControllerInstance extends AssetInstance {
      * 
      * @return <code>BoneActorSet</code>: The constructed map of bone actors.
      */
-    public BoneActorSet evaluatePose() {
+    public final BoneActorSet evaluatePose() {
 
         ArrayList<BoneActorSet> boneActors = new ArrayList<>();
 

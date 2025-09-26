@@ -21,7 +21,6 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.swing.ImageIcon;
 
@@ -67,7 +66,7 @@ public final class LocationInstance extends AssetInstance {
      * @return <code>String</code>: The <code>description</code> field of this
      *         <code>LocationInstance</code> instance.
      */
-    public String getDescription() {
+    public final String getDescription() {
 
         return description;
     }
@@ -90,7 +89,7 @@ public final class LocationInstance extends AssetInstance {
      * @return <code>ImageIcon</code>: The <code>icon</code> field of this
      *         <code>LocationInstance</code> instance.
      */
-    public ImageIcon getIcon() {
+    public final ImageIcon getIcon() {
 
         return icon;
     }
@@ -127,7 +126,7 @@ public final class LocationInstance extends AssetInstance {
      *         <code>areas</code> field of this <code>LocationInstance</code>
      *         instance.
      */
-    public ImmutableList<String> getAreas() {
+    public final ImmutableList<String> getAreas() {
 
         return new ImmutableList<>(areas.keySet());
     }
@@ -140,7 +139,7 @@ public final class LocationInstance extends AssetInstance {
      *         <code>areas</code> field of this <code>LocationInstance</code>
      *         instance.
      */
-    public AreaGrid getArea(String area) {
+    public final AreaGrid getArea(String area) {
 
         return areas.get(area);
     }
@@ -165,7 +164,7 @@ public final class LocationInstance extends AssetInstance {
 
     private String currentArea;
 
-    public boolean setCurrentArea(String currentArea) {
+    public final boolean setCurrentArea(String currentArea) {
 
         if (!areas.containsKey(currentArea)) {
 
@@ -176,7 +175,7 @@ public final class LocationInstance extends AssetInstance {
         return true;
     }
 
-    public String getCurrentArea() {
+    public final String getCurrentArea() {
 
         return currentArea;
     }
@@ -216,12 +215,12 @@ public final class LocationInstance extends AssetInstance {
         setProperty("active", active);
     }
 
-    public boolean isActive() {
+    public final boolean isActive() {
 
         return active;
     }
 
-    public void activate() {
+    public final void activate() {
 
         if (active || event == null) {
 
@@ -232,7 +231,7 @@ public final class LocationInstance extends AssetInstance {
         locationCreatedTimestamp = ZonedDateTime.now();
     }
 
-    public void deactivate() {
+    public final void deactivate() {
 
         if (!active || event == null) {
 
@@ -255,7 +254,7 @@ public final class LocationInstance extends AssetInstance {
      * @return <code>boolean</code>: The <code>occupied</code> field of this
      *         <code>LocationInstance</code> instance.
      */
-    public boolean getOccupied() {
+    public final boolean getOccupied() {
 
         return occupied;
     }
@@ -263,7 +262,7 @@ public final class LocationInstance extends AssetInstance {
     /**
      * Enters the player into this <code>LocationInstance</code> instance.
      */
-    public void enter() {
+    public final void enter() {
 
         if (occupied) {
 
@@ -287,7 +286,7 @@ public final class LocationInstance extends AssetInstance {
     /**
      * Exits the player from this <code>LocationInstance</code> instance.
      */
-    public void exit() {
+    public final void exit() {
 
         if (!occupied) {
 
@@ -308,7 +307,7 @@ public final class LocationInstance extends AssetInstance {
      * @return <code>boolean</code>: If this <code>LocationInstance</code> has a
      *         reset mechanism.
      */
-    public boolean hasReset() {
+    public final boolean hasReset() {
 
         return reset != null && reset.getDuration() != -1;
     }
@@ -318,7 +317,7 @@ public final class LocationInstance extends AssetInstance {
      * 
      * @return <code>double</code>: The duration in minutes.
      */
-    public double getMinutesUntilReset() {
+    public final double getMinutesUntilReset() {
 
         ZonedDateTime now = ZonedDateTime.now();
 
@@ -335,7 +334,7 @@ public final class LocationInstance extends AssetInstance {
      * @return <code>boolean</code>: Whether or not this
      *         <code>LocationInstance</code> instance is within the reset cooldown.
      */
-    public boolean resetCountdownActive() {
+    public final boolean resetCountdownActive() {
 
         if (!hasReset()) {
 
@@ -353,7 +352,7 @@ public final class LocationInstance extends AssetInstance {
      * 
      * @return <code>String</code>: The minutes formatted as H:MM:SS or MM:SS.
      */
-    public String getResetCounter() {
+    public final String getResetCounter() {
 
         // If there is no reset countdown or the player is in the location, do not print
         // the counter.
@@ -373,7 +372,7 @@ public final class LocationInstance extends AssetInstance {
      * @return <code>boolean</code>: If this <code>LocationInstance</code> has an
      *         end mechanism.
      */
-    public boolean hasEnd() {
+    public final boolean hasEnd() {
 
         return event != null && event.getDuration() != -1;
     }
@@ -383,7 +382,7 @@ public final class LocationInstance extends AssetInstance {
      * 
      * @return <code>double</code>: The duration in minutes.
      */
-    public double getMinutesUntilEnd() {
+    public final double getMinutesUntilEnd() {
 
         ZonedDateTime now = ZonedDateTime.now();
         ZonedDateTime start = event.getStartTimestamp();
@@ -405,7 +404,7 @@ public final class LocationInstance extends AssetInstance {
      * @return <code>boolean</code>: Whether or not this
      *         <code>LocationInstance</code> instance is within the end cooldown.
      */
-    public boolean endCountdownActive() {
+    public final boolean endCountdownActive() {
 
         if (!hasEnd()) {
 
@@ -422,7 +421,7 @@ public final class LocationInstance extends AssetInstance {
      * 
      * @return <code>String</code>: The minutes formatted as H:MM:SS or MM:SS.
      */
-    public String getEndCounter() {
+    public final String getEndCounter() {
 
         if (!hasEnd() || !event.getDisplayCountdownTimer()) {
 
@@ -432,13 +431,6 @@ public final class LocationInstance extends AssetInstance {
         double remaining = getMinutesUntilEnd();
         return formatMinutes(remaining);
     }
-
-    /**
-     * <code>Random</code>: The random number generator used to generate locations.
-     * This is seeded with the asset key to ensure each asset will generate areas in
-     * a deterministic manner.
-     */
-    private final Random locationGenerator;
 
     /**
      * Creates a new instance of the <code>LocationInstance</code> class.
@@ -453,8 +445,6 @@ public final class LocationInstance extends AssetInstance {
         super(assetContext, key);
 
         LocationContext context = (LocationContext) assetContext;
-
-        locationGenerator = createAssetRandomizer();
 
         setActive(false);
     }
@@ -472,7 +462,7 @@ public final class LocationInstance extends AssetInstance {
 
         iconPath = calculateAttribute(attributes.getIcon(), val -> {
 
-            icon = getTexture(val);
+            icon = getInstanceTexture(val);
 
             return val;
         }, iconPath);
@@ -498,14 +488,15 @@ public final class LocationInstance extends AssetInstance {
      * automatically resets each area in this <code>LocationInstance</code> instance
      * in a deterministic pattern.
      */
-    public void generate() {
+    public final void generate() {
 
         areas.clear();
 
         for (Map.Entry<String, WeightedRoll<AssetPresets>> areaEntry : areaTemplates.entrySet()) {
 
             String areaName = areaEntry.getKey();
-            AssetPresets areaPresets = areaEntry.getValue().get(locationGenerator.nextDouble(1));
+            WeightedRoll<AssetPresets> presetsRoll = areaEntry.getValue();
+            AssetPresets areaPresets = presetsRoll.get(nextRandom());
 
             LayoutContext areaContext = new LayoutContext(areaPresets, getWorld(), this);
             LayoutInstance areaLayout = (LayoutInstance) LAYOUT.createAsset(areaContext);
@@ -529,7 +520,7 @@ public final class LocationInstance extends AssetInstance {
      *                    area.
      * @return <code>String</code>: The name of the new area.
      */
-    public String addArea(AssetPresets areaPresets) {
+    public final String addArea(AssetPresets areaPresets) {
 
         String areaId = areaPresets.getIdentifier().toString();
 
@@ -556,7 +547,7 @@ public final class LocationInstance extends AssetInstance {
      *                    area.
      * @return <code>String</code>: The name of the new area.
      */
-    public String addArea(String areaName, AssetPresets areaPresets) {
+    public final String addArea(String areaName, AssetPresets areaPresets) {
 
         if (areas.containsKey(areaName)) {
 
@@ -574,7 +565,7 @@ public final class LocationInstance extends AssetInstance {
     }
 
     @Override
-    protected void onUpdate(double time) {
+    protected final void onUpdate(double time) {
 
     }
 

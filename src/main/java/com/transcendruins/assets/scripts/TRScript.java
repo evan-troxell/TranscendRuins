@@ -69,7 +69,13 @@ public final class TRScript {
      */
     public TRScript(Object value) {
 
-        this.value = value;
+        this.value = switch (value) {
+
+        case Integer intVal -> intVal.doubleValue();
+        case Long longVal -> longVal.doubleValue();
+        case Float floatVal -> floatVal.doubleValue();
+        default -> value;
+        };
     }
 
     /**
@@ -79,7 +85,7 @@ public final class TRScript {
      *              <code>TRScript</code> using.
      * @return <code>Object</code>: The resulting value.
      */
-    public Object evaluate(PropertyHolder asset) {
+    public final Object evaluate(PropertyHolder asset) {
 
         if (value instanceof TRScriptExpression expression) {
 
@@ -96,7 +102,7 @@ public final class TRScript {
      *              <code>TRScript</code> using.
      * @return <code>boolean</code>: The resulting boolean.
      */
-    public boolean evaluateBoolean(PropertyHolder asset) {
+    public final boolean evaluateBoolean(PropertyHolder asset) {
 
         return switch (evaluate(asset)) {
 
@@ -117,7 +123,7 @@ public final class TRScript {
      *              <code>TRScript</code> using.
      * @return <code>double</code>: The resulting double.
      */
-    public double evaluateDouble(PropertyHolder asset) {
+    public final double evaluateDouble(PropertyHolder asset) {
 
         return switch (evaluate(asset)) {
 
@@ -160,7 +166,7 @@ public final class TRScript {
      *              <code>TRScript</code> using.
      * @return <code>String</code>: The resulting string.
      */
-    public String evaluateString(PropertyHolder asset) {
+    public final String evaluateString(PropertyHolder asset) {
 
         return switch (evaluate(asset)) {
 
@@ -181,7 +187,7 @@ public final class TRScript {
      *              <code>TRScript</code> using.
      * @return <code>PropertyHolder</code>: The resulting asset.
      */
-    public PropertyHolder evaluateAsset(PropertyHolder asset) {
+    public final PropertyHolder evaluateAsset(PropertyHolder asset) {
 
         if (evaluate(asset) instanceof PropertyHolder propertyHolder) {
 
@@ -203,7 +209,7 @@ public final class TRScript {
      *               retrieval function to use.
      * @return <code>List&lt;K&gt;</code>: The resulting list.
      */
-    public static <K> List<K> evaluate(List<TRScript> values, PropertyHolder asset,
+    public static final <K> List<K> evaluate(List<TRScript> values, PropertyHolder asset,
             BiFunction<TRScript, PropertyHolder, K> getter) {
 
         return values.stream().map(value -> getter.apply(value, asset)).toList();

@@ -46,18 +46,18 @@ public abstract class AssetContext {
     }
 
     /**
-     * <code>double</code>: The randomized ID of this <code>AssetContext</code>
-     * instance, in the range of <code>[0.0, 1.0)</code>.
+     * <code>long</code>: The randomized ID of this <code>AssetContext</code>
+     * instance.
      */
-    private final double randomId;
+    private final long randomId;
 
     /**
      * Retreives the randomized ID of this <code>AssetContext</code> instance.
      * 
-     * @return <code>double</code>: The <code>randomId</code> field of this
+     * @return <code>long</code>: The <code>randomId</code> field of this
      *         <code>AssetContext</code> instance.
      */
-    public final double getRandomId() {
+    public final long getRandomId() {
 
         return randomId;
     }

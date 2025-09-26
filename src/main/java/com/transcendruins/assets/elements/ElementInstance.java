@@ -18,8 +18,8 @@ package com.transcendruins.assets.elements;
 
 import java.util.HashMap;
 
+import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
-import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.assets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
@@ -47,7 +47,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
      * @param tileX <code>int</code>: The X coordinate to apply to this
      *              <code>ElementInstance</code> instance.
      */
-    public void setTileX(int tileX) {
+    public final void setTileX(int tileX) {
 
         this.tileX = tileX;
     }
@@ -58,7 +58,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
      * @return <code>int</code>: The <code>tileX</code> field of this
      *         <code>ElementInstance</code> instance.
      */
-    public int getTileX() {
+    public final int getTileX() {
 
         return tileX;
     }
@@ -75,7 +75,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
      * @param tileZ <code>int</code>: The Z coordinate to apply to this
      *              <code>ElementInstance</code> instance.
      */
-    public void setTileZ(int tileZ) {
+    public final void setTileZ(int tileZ) {
 
         this.tileZ = tileZ;
     }
@@ -86,7 +86,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
      * @return <code>int</code>: The <code>tileZ</code> field of this
      *         <code>ElementInstance</code> instance.
      */
-    public int getTileZ() {
+    public final int getTileZ() {
 
         return tileZ;
     }
@@ -97,7 +97,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
      */
     private Vector tileOffset;
 
-    public void setTileOffset(Vector tileOffset) {
+    public final void setTileOffset(Vector tileOffset) {
 
         this.tileOffset = tileOffset;
     }
@@ -108,7 +108,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
      * @return <code>Vector</code>: The <code>tileOffset</code> field of this
      *         <code>ElementInstance</code> instance.
      */
-    public Vector getTileOffset() {
+    public final Vector getTileOffset() {
 
         return tileOffset;
     }
@@ -119,7 +119,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
      */
     private double orientation;
 
-    public void setOrientation(double orientation) {
+    public final void setOrientation(double orientation) {
 
         this.orientation = orientation;
     }
@@ -130,14 +130,14 @@ public final class ElementInstance extends PrimaryAssetInstance {
      * @return <code>double</code>: The <code>orientation</code> field of this
      *         <code>ElementInstance</code> instance.
      */
-    public double getOrientation() {
+    public final double getOrientation() {
 
         return orientation;
     }
 
     private AreaTile[] tiles;
 
-    public void remove(AreaTile[] tiles) {
+    public final void remove(AreaTile[] tiles) {
 
         for (AreaTile tile : tiles) {
 
@@ -145,7 +145,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
         }
     }
 
-    public void apply(AreaTile[] tiles) {
+    public final void apply(AreaTile[] tiles) {
 
         if (this.tiles != null) {
 
@@ -178,30 +178,30 @@ public final class ElementInstance extends PrimaryAssetInstance {
     }
 
     @Override
-    public void applyPrimaryAssetAttributes(PrimaryAssetAttributes attributeSet) {
+    public final void applyPrimaryAssetAttributes(PrimaryAssetAttributes attributeSet) {
 
         ElementAttributes attributes = (ElementAttributes) attributeSet;
     }
 
     @Override
-    protected void onPrimaryAssetUpdate(double time) {
+    protected final void onPrimaryAssetUpdate(double time) {
     }
 
     @Override
-    public Vector getPosition() {
+    public final Vector getPosition() {
 
         return new Vector(tileX + 0.5, 0, tileZ + 0.5).multiply(World.UNIT_TILE).add(tileOffset);
     }
 
     @Override
-    public Quaternion getRotation() {
+    public final Quaternion getRotation() {
 
         return Quaternion.fromHeading(orientation);
     }
 
     @Override
-    protected HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, ModelInstance model, Vector position,
-            Quaternion rotation) {
+    protected final HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, ModelInstance model,
+            Vector position, Quaternion rotation) {
 
         return model.getPolygons(boneActors, position, rotation);
     }

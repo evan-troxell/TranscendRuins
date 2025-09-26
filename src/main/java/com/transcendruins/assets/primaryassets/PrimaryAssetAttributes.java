@@ -22,7 +22,6 @@ import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.primaryassets.inventory.InventorySchema;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -36,24 +35,6 @@ import com.transcendruins.utilities.json.TracedEntry;
  * rendered using the standard <code>RenderInstance</code> method.
  */
 public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
-
-    /**
-     * <code>ImmutableList&lt;String&gt;</code>: The asset category types of this
-     * <code>PrimaryAssetAttributes</code> instance.
-     */
-    private final ImmutableList<String> categories;
-
-    /**
-     * Retrieves the asset category types of this
-     * <code>PrimaryAssetAttributes</code> instance.
-     * 
-     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>categories</code>
-     *         field of this <code>PrimaryAssetAttributes</code> instance.
-     */
-    public ImmutableList<String> getCategories() {
-
-        return categories;
-    }
 
     /**
      * <code>InventorySchema</code>: The inventory schema of this
@@ -98,28 +79,6 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
 
         super(schema, json, isBase);
 
-        TracedEntry<TracedArray> categoriesEntry = json.getAsArray("categories", true);
-        if (categoriesEntry.containsValue()) {
-
-            ArrayList<String> categoriesList = new ArrayList<>();
-
-            TracedArray categoriesJson = categoriesEntry.getValue();
-            if (categoriesJson.isEmpty()) {
-
-                throw new CollectionSizeException(categoriesEntry, categoriesJson);
-            }
-
-            for (int i : categoriesJson) {
-
-                categoriesList.add(categoriesJson.getAsString(i, false, null).getValue());
-            }
-
-            categories = new ImmutableList<>(categoriesList);
-        } else {
-
-            categories = null;
-        }
-
         TracedEntry<TracedDictionary> inventoryEntry = json.getAsDict("inventory", true);
         if (inventoryEntry.containsValue()) {
 
@@ -133,28 +92,11 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
         if (interactionEntry.containsValue()) {
 
             TracedDictionary interactionJson = interactionEntry.getValue();
-            interaction = createInteraction(interactionJson);
+            interaction = InteractionSchema.createInteraction(interactionJson);
         } else {
 
             interaction = null;
         }
-    }
-
-    public static final InteractionSchema createInteraction(TracedDictionary json) throws LoggedException {
-
-        TracedEntry<String> typeEntry = json.getAsString("type", false, null);
-        String type = typeEntry.getValue();
-
-        return switch (type) {
-
-        case "none" -> InteractionSchema.NONE;
-
-        case "inventory" -> new InventoryInteractionSchema(json);
-
-        case "passageway" -> new PassagewayInteractionSchema(json);
-
-        default -> throw new UnexpectedValueException(typeEntry);
-        };
     }
 
     public static abstract class InteractionSchema {
@@ -208,6 +150,24 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
             }
 
             events = new ImmutableList<>(eventsList);
+        }
+
+        public static final InteractionSchema createInteraction(TracedDictionary json) throws LoggedException {
+
+            TracedEntry<String> typeEntry = json.getAsString("type", false, null);
+            String type = typeEntry.getValue();
+
+            // TODO: Implement interaction methods
+            return switch (type) {
+
+            // case "inventory" -> new InventoryInteractionSchema(json);
+
+            // case "passageway" -> new PassagewayInteractionSchema(json);
+
+            case "none" -> InteractionSchema.NONE;
+
+            default -> throw new UnexpectedValueException(typeEntry);
+            };
         }
     }
 }

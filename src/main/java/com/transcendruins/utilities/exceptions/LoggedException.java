@@ -26,7 +26,7 @@ import com.transcendruins.utilities.files.TracedPath;
 /**
  * <code>LoggedException</code>: A general exception which logs a message and a
  * filepath to a predetermined directory when thrown. This is a general
- * exception, and should be inherited upon to improve clarity.
+ * exception and should be inherited upon to improve clarity.
  */
 public class LoggedException extends Exception {
 
@@ -35,7 +35,7 @@ public class LoggedException extends Exception {
      */
     public static final ExternalPath LOGS_DIRECTORY = TracedPath.LIBRARY_DIRECTORY.extend("logs");
 
-    private final static ExternalPath LOG_PATH;
+    private static final ExternalPath LOG_PATH;
 
     static {
 

@@ -60,6 +60,7 @@ import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableSet;
+import com.transcendruins.utilities.random.DeterministicRandom;
 
 /**
  * <code>InterfaceInstance</code>: A class representing a generated interface
@@ -116,7 +117,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         // Apply the new styles to the old.
         styles = calculateAttribute(attributes.getStyles(), set -> styles.extend(set), styles);
 
-        body = calculateAttribute(attributes.getBody(), schema -> createComponent(schema, componentParent), body);
+        body = calculateAttribute(attributes.getBody(), schema -> {
+
+            DeterministicRandom random = new DeterministicRandom(getRandomId());
+            return createComponent(schema, componentParent, random);
+        }, body);
     }
 
     @Override
@@ -131,20 +136,23 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
      *               <code>ComponentInstance</code> instance from.
      * @param parent <code>ComponentInstance</code>: The parent component to the new
      *               <code>ComponentInstance</code> instance.
+     * @param random <code>DeterministicRandom</code>: The random generator used to
+     *               calculate random component ids.
      * @return <code>ComponentInstance</code>: The resulting loot instance.
      * @throws LoggedException Thrown if any exception is raised while creating the
      *                         new loot instance.
      */
-    public ComponentInstance createComponent(ComponentSchema schema, ComponentInstance parent) {
+    public ComponentInstance createComponent(ComponentSchema schema, ComponentInstance parent,
+            DeterministicRandom random) {
 
         // TODO: Add rest of UI component types
         return switch (schema) {
 
-        case TextComponentSchema labelSchema -> new TextComponentInstance(labelSchema, parent);
+        case TextComponentSchema labelSchema -> new TextComponentInstance(labelSchema, parent, random);
 
-        case TextureComponentSchema labelSchema -> new TextureComponentInstance(labelSchema, parent);
+        case TextureComponentSchema labelSchema -> new TextureComponentInstance(labelSchema, parent, random);
 
-        case ButtonComponentSchema buttonSchema -> new ButtonComponentInstance(buttonSchema, parent);
+        case ButtonComponentSchema buttonSchema -> new ButtonComponentInstance(buttonSchema, parent, random);
 
         // case InputComponentSchema inputSchema -> new
         // InputComponentInstance(inputSchema, parent);
@@ -161,7 +169,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         // case ContainerComponentSchema panelSchema -> new
         // ContainerComponentInstance(panelSchema, parent);
 
-        case InterfaceComponentSchema interfaceSchema -> new InterfaceComponentInstance(interfaceSchema, parent);
+        case InterfaceComponentSchema interfaceSchema -> new InterfaceComponentInstance(interfaceSchema, parent,
+                random);
 
         default -> null;
         };
@@ -182,9 +191,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private final ArrayList<ComponentInstance> children = new ArrayList<>();
 
-        protected final void addChild(ComponentSchema schema) {
+        protected final void addChild(ComponentSchema schema, DeterministicRandom random) {
 
-            ComponentInstance child = createComponent(schema, this);
+            ComponentInstance child = createComponent(schema, this, random);
             children.add(child);
         }
 
@@ -264,6 +273,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private int x, y, width, height, borderLeft, borderRight, borderTop, borderBottom, marginLeft, marginRight,
                 marginTop, marginBottom, rxTL, ryTL, rxTR, ryTR, rxBL, ryBL, rxBR, ryBR, paddingLeft, paddingRight,
                 paddingTop, paddingBottom, fontSize, lineHeight;
+
+        private String backgroundTexture = null;
+        private ImageIcon backgroundIcon = null;
 
         private Boolean eventPropagation;
 
@@ -356,7 +368,15 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private Overflow overflowX = null;
         private Overflow overflowY = null;
 
-        public ComponentInstance(ComponentSchema schema, ComponentInstance parent, boolean defaultEventPropagation) {
+        private final long randomComponentId;
+
+        protected final long getRandomComponentId() {
+
+            return randomComponentId;
+        }
+
+        public ComponentInstance(ComponentSchema schema, ComponentInstance parent, boolean defaultEventPropagation,
+                DeterministicRandom random) {
 
             this.parent = parent;
 
@@ -367,10 +387,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             value = schema.getValue();
 
             this.defaultEventPropagation = defaultEventPropagation;
+            randomComponentId = random.next();
 
             for (ComponentSchema child : schema.getChildren()) {
 
-                addChild(child);
+                addChild(child, random);
             }
         }
 
@@ -596,9 +617,21 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             // Process the background color and image.
             Color backgroundColor = s.backgroundColor();
-            String backgroundTexture = s.backgroundTexture();
+            String newBackgroundTexture = s.backgroundTexture();
+
+            // If the background texture has changed, recompute it.
+            if (newBackgroundTexture != null
+                    && (backgroundTexture == null || !backgroundTexture.equals(newBackgroundTexture))) {
+
+                backgroundIcon = getWorld().getTexture(newBackgroundTexture, getRandomComponentId());
+            } else if (newBackgroundTexture == null) {
+
+                backgroundIcon = null;
+            }
+            backgroundTexture = newBackgroundTexture;
+
             TextureSize backgroundSize = s.backgroundSize();
-            drawBackground(g2d, backgroundColor, backgroundTexture, backgroundSize, contentBounds);
+            drawBackground(g2d, backgroundColor, backgroundIcon, backgroundSize, contentBounds);
 
             // Start the border.
             Graphics2D g2 = (Graphics2D) g2d.create();
@@ -734,7 +767,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return path;
         }
 
-        protected final void drawBackground(Graphics2D g2d, Color color, String texture, TextureSize size,
+        protected final void drawBackground(Graphics2D g2d, Color color, ImageIcon icon, TextureSize size,
                 Shape bounds) {
 
             // Clip out the content bounds just for the background.
@@ -748,9 +781,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             }
 
             // Process the background texture, if it has one.
-            if (texture != null) {
+            if (icon != null) {
 
-                drawTexture(g2d, texture, 0, 0, size);
+                drawTexture(g2d, icon, 0, 0, size);
                 g2d.dispose();
             }
         }
@@ -760,9 +793,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             g2d.drawImage(image, x, y, null);
         }
 
-        protected final void drawTexture(Graphics2D g2d, String texture, int x, int y, TextureSize size) {
+        protected final void drawTexture(Graphics2D g2d, ImageIcon icon, int x, int y, TextureSize size) {
 
-            ImageIcon icon = getTexture(texture);
             int textureWidth = icon.getIconWidth();
             int textureHeight = icon.getIconHeight();
 
@@ -798,9 +830,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             }
         }
 
-        protected final Dimension calculateTextureSize(String texture, int x, int y, TextureSize size) {
+        protected final Dimension calculateTextureSize(ImageIcon icon, int x, int y, TextureSize size) {
 
-            ImageIcon icon = getTexture(texture);
             int textureWidth = icon.getIconWidth();
             int textureHeight = icon.getIconHeight();
 
@@ -990,17 +1021,21 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
     public final class StringComponentInstance extends ComponentInstance {
 
-        private final String string;
+        private final String key;
 
-        public StringComponentInstance(StringComponentSchema schema, ComponentInstance parent) {
+        private String string;
 
-            super(schema, parent, true);
-            string = schema.getString();
+        public StringComponentInstance(StringComponentSchema schema, ComponentInstance parent,
+                DeterministicRandom random) {
+
+            super(schema, parent, true, random);
+            key = schema.getKey();
         }
 
         @Override
         public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
 
+            string = getWorld().getText(key);
             Dimension textSize = calculateTextSize(string, 0, 0);
 
             return new Dimension(textSize.width, textSize.height);
@@ -1020,9 +1055,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
     public final class TextComponentInstance extends ComponentInstance {
 
-        public TextComponentInstance(TextComponentSchema schema, ComponentInstance parent) {
+        public TextComponentInstance(TextComponentSchema schema, ComponentInstance parent, DeterministicRandom random) {
 
-            super(schema, parent, true);
+            super(schema, parent, true, random);
         }
 
         @Override
@@ -1053,9 +1088,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private final String texture;
 
-        public TextureComponentInstance(TextureComponentSchema schema, ComponentInstance parent) {
+        private ImageIcon icon;
 
-            super(schema, parent, true);
+        public TextureComponentInstance(TextureComponentSchema schema, ComponentInstance parent,
+                DeterministicRandom random) {
+
+            super(schema, parent, true, random);
 
             texture = schema.getTexture();
         }
@@ -1063,7 +1101,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
 
-            Dimension textureSize = calculateTextureSize(texture, 0, 0, style.textureFit());
+            icon = getWorld().getTexture(texture, getRandomComponentId());
+            Dimension textureSize = calculateTextureSize(icon, 0, 0, style.textureFit());
 
             return new Dimension(textureSize.width, textureSize.height);
         }
@@ -1071,7 +1110,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            drawTexture(g2d, texture, 0, 0, style.textureFit());
+            drawTexture(g2d, icon, 0, 0, style.textureFit());
         }
 
         @Override
@@ -1082,9 +1121,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
     public final class ButtonComponentInstance extends ComponentInstance {
 
-        public ButtonComponentInstance(ButtonComponentSchema schema, ComponentInstance parent) {
+        public ButtonComponentInstance(ButtonComponentSchema schema, ComponentInstance parent,
+                DeterministicRandom random) {
 
-            super(schema, parent, false);
+            super(schema, parent, false, random);
         }
 
         @Override
@@ -1128,9 +1168,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private ImageClip bodyRender;
 
-        public InterfaceComponentInstance(InterfaceComponentSchema schema, ComponentInstance parent) {
+        public InterfaceComponentInstance(InterfaceComponentSchema schema, ComponentInstance parent,
+                DeterministicRandom random) {
 
-            super(schema, parent, true);
+            super(schema, parent, true, random);
 
             AssetPresets presets = schema.getPresets();
             InterfaceContext context = new InterfaceContext(presets, getWorld(), InterfaceInstance.this, this);

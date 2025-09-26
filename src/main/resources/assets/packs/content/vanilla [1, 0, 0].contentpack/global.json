@@ -1,120 +1,21 @@
 {
     "locations": {
-        "home": {
-            "location": "TranscendRuins:home",
-            
-            "coordinates": {
-                "x": 0,
-                "y": 0
-            }
-        },
+        "home": "TranscendRuins:home",
 
-        "settlement": {
-            "location": "TranscendRuins:settlement",
+        "settlement": "TranscendRuins:settlement",
 
-            "event": {
-                "retainLocationData": false
-            },
+        "carnival": "TranscendRuins:carnival",
 
-            "coordinates": {
-                "x": 100,
-                "y": 100
-            }
-        },
-
-        "carnival": {
-            "location": "TranscendRuins:carnival",
-
-            "event": {
-                "duration": 720,
-                "retainLocationData": true
-            },
-
-            "coordinates": {
-                "x": 100,
-                "y": 100
-            }
-        },
-
-        "pineSmall": {
-            "location": "TranscendRuins:pineSmall",
-            
-            "reset": {
-                "duration": 0
-            },
-
-            "coordinates": {
-                "x": 300,
-                "y": 400
-            }
-        },
-        "pineMedium": {
-            "location": "TranscendRuins:pineMedium",
-            
-            "reset": {
-                "duration": 0
-            },
-
-            "coordinates": {
-                "x": 350,
-                "y": 500
-            }
-        },
-        "pineLarge": {
-            "location": "TranscendRuins:pineLarge",
-   
-            "reset": {
-                "duration": 0
-            },
-
-            "coordinates": {
-                "x": 300,
-                "y": 600
-            }
-        },
+        "pineSmall": "TranscendRuins:pineSmall",
+        "pineMedium": "TranscendRuins:pineMedium",
+        "pineLarge": "TranscendRuins:pineLarge",
 
         "bunkerAlfa": "TranscendRuins:bunkerAlfa",
 
-        "convoy": {
-            "location": "TranscendRuins:convoy",
+        "convoy": "TranscendRuins:convoy",
+        "survivorHome": "TranscendRuins:survivorHome",
 
-            "event": {
-                "duration": 120
-            },
-
-            "coordinates": {
-                "x": 700,
-                "y": 800
-            }
-        },
-        "survivorHome": {
-            "location": "TranscendRuins:survivorHome",
-
-            "event": {
-                "duration": 1440,
-                "endOnExit": true
-            },
-
-            "coordinates": {
-                "x": 600,
-                "y": 700
-            }
-        },
-
-        "eventLocation": {
-            "location": "TranscendRuins:eventLocation",
-
-            "duration": 30,
-
-            "event": {
-                "duration": 720
-            },
-
-            "coordinates": {
-                "x": 700,
-                "y": 800
-            }
-        }
+        "eventLocation": "TranscendRuins:eventLocation"
     },
     "events": {
         "convoy": {

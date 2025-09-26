@@ -21,13 +21,13 @@ import java.util.HashMap;
 
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animations.AnimationAttributes.KeyFrame;
+import com.transcendruins.assets.animations.boneactors.BoneActor;
+import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.animations.interpolation.PositionFrame;
 import com.transcendruins.assets.animations.interpolation.RotationFrame;
 import com.transcendruins.assets.animations.interpolation.ScaleFrame;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.assets.extra.BoneActor;
-import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Vector;
@@ -70,28 +70,28 @@ public final class AnimationInstance extends AssetInstance {
      * @return <code>double</code>: The <code>length</code> field of this
      *         <code>AnimationInstance</code> instance.
      */
-    public double getLength() {
+    public final double getLength() {
 
         return length;
     }
 
     private boolean holdOnFinish;
 
-    public boolean getHoldOnFinish() {
+    public final boolean getHoldOnFinish() {
 
         return holdOnFinish;
     }
 
     private boolean loopOnFinish;
 
-    public boolean getLoopOnFinish() {
+    public final boolean getLoopOnFinish() {
 
         return loopOnFinish;
     }
 
     private boolean cycleOnFinish;
 
-    public boolean getCycleOnFinish() {
+    public final boolean getCycleOnFinish() {
 
         return cycleOnFinish;
     }
@@ -235,6 +235,8 @@ public final class AnimationInstance extends AssetInstance {
             lowerIndex = cycleOnFinish ? timestampsSorted.size() - 1 : null;
         }
 
+        // TODO: Revise to allow different bones to interpolate between different
+        // keyframes.
         ImmutableMap<String, KeyFrame> higherKeyframes = higherIndex == null ? null : keyframes.get(higherIndex);
 
         ImmutableMap<String, KeyFrame> lowerKeyframes = lowerIndex == null ? null : keyframes.get(lowerIndex);

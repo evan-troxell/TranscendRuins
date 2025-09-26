@@ -32,6 +32,7 @@ import javax.swing.JLayeredPane;
 
 import com.transcendruins.graphics3d.Camera3D;
 import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.rendering.Render3DPanel;
 import com.transcendruins.save.GameSettings;
 import com.transcendruins.ui.mappedcomponents.TRComponent;
 import com.transcendruins.ui.mappedcomponents.components.TRButton;
@@ -211,7 +212,7 @@ public final class DisplayFrame extends TRFrame {
                 ComponentSettings.HIDDEN_COMPONENT_SETTINGS, false);
         statsPanel.setBounds(0, 0, 150, getHeight());
 
-        Render3D renderDisplayScreen = new Render3D(RENDER_DISPLAY_SCREEN) {
+        Render3DPanel renderDisplayScreen = new Render3DPanel(RENDER_DISPLAY_SCREEN) {
 
             private final int[] mousePosition = new int[2];
 

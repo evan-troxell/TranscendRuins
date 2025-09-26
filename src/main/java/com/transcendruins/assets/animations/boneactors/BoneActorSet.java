@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.extra;
+package com.transcendruins.assets.animations.boneactors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,8 +50,7 @@ public final class BoneActorSet {
     /**
      * Creates a new instance of the <code>BoneActorSet</code> class.
      * 
-     * @param sets <code>BoneActorSet...</code>: The bone actor sets to
-     *             merge.
+     * @param sets <code>BoneActorSet...</code>: The bone actor sets to merge.
      */
     public BoneActorSet(BoneActorSet... sets) {
 
@@ -91,18 +90,17 @@ public final class BoneActorSet {
      * vertices.
      * 
      * @param vertices   <code>ArrayList&lt;Vector&gt;</code>: The vertices to apply
-     *                   this
-     *                   <code>BoneActorSet</code> instance to.
+     *                   this <code>BoneActorSet</code> instance to.
      * @param bone       <code>String</code>: The bone actor to apply.
      * @param pivotPoint <code>Vector</code>: The origin about which to perform all
      *                   relevant transformations.
      * @return <code>ArrayList&lt;Vector&gt;</code>: The transformed vertices.
      */
-    public ArrayList<Vector> apply(ArrayList<Vector> vertices, String bone, Vector pivotPoint) {
+    public final ArrayList<Vector> apply(ArrayList<Vector> vertices, String bone, Vector pivotPoint) {
 
         // If the bone actor does not exist, a new list should still be created - create
         // a default bone actor used only to copy over vertices.
-        BoneActor boneActor = boneActors.getOrDefault(bone, new BoneActor());
+        BoneActor boneActor = boneActors.getOrDefault(bone, BoneActor.DEFAULT);
 
         ArrayList<Vector> modifiedVertices = new ArrayList<>(vertices.size());
         for (Vector vertex : vertices) {
@@ -118,21 +116,20 @@ public final class BoneActorSet {
      * vertices.
      * 
      * @param vertices   <code>HashMap&lt;Integer, HashMap&lt;Vector, Double&gt;&gt;</code>:
-     *                   The vertices to apply this
-     *                   <code>BoneActorSet</code> instance to.
+     *                   The vertices to apply this <code>BoneActorSet</code>
+     *                   instance to.
      * @param bone       <code>String</code>: The bone actor to apply.
      * @param pivotPoint <code>Vector</code>: The origin about which to perform all
      *                   relevant transformations.
      * @return <code>ImmutableMap&lt;Integer, ImmutableMap&lt;Vector, Double&gt;&gt;</code>:
      *         The transformed vertices.
      */
-    public HashMap<Integer, HashMap<Vector, Double>> apply(
-            Map<Integer, ? extends Map<Vector, Double>> vertices,
+    public final HashMap<Integer, HashMap<Vector, Double>> apply(Map<Integer, ? extends Map<Vector, Double>> vertices,
             String bone, Vector pivotPoint) {
 
         // If the bone actor does not exist, a new set should still be created - create
         // a default bone actor used only to copy over vertices.
-        BoneActor boneActor = boneActors.getOrDefault(bone, new BoneActor());
+        BoneActor boneActor = boneActors.getOrDefault(bone, BoneActor.DEFAULT);
         HashMap<Integer, HashMap<Vector, Double>> modifiedVertices = new HashMap<>();
 
         for (Map.Entry<Integer, ? extends Map<Vector, Double>> boneWeightsEntry : vertices.entrySet()) {

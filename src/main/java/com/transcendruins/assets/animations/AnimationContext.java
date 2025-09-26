@@ -36,7 +36,6 @@ public final class AnimationContext extends AssetContext {
      * @param world   <code>World</code>: The world copy of this
      *                <code>AnimationContext</code> instance.
      * @param parent  <code>AssetInstance</code>: The parent to assign to this
-     *                <code>AnimationContext</code> instance.
      */
     public AnimationContext(AssetPresets presets, World world, AssetInstance parent) {
 

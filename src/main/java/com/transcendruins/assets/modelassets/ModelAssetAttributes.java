@@ -16,6 +16,8 @@
 
 package com.transcendruins.assets.modelassets;
 
+import java.util.ArrayList;
+
 import static com.transcendruins.assets.AssetType.ANIMATION_CONTROLLER;
 import static com.transcendruins.assets.AssetType.MODEL;
 import static com.transcendruins.assets.AssetType.RENDER_MATERIAL;
@@ -23,6 +25,9 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
+import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -105,18 +110,36 @@ public abstract class ModelAssetAttributes extends AssetAttributes {
     }
 
     /**
-     * Compiles this <code>PrimaryAssetAttributes</code> instance into a completed
+     * <code>ImmutableList&lt;String&gt;</code>: The asset category types of this
+     * <code>ModelAssetAttributes</code> instance.
+     */
+    private final ImmutableList<String> categories;
+
+    /**
+     * Retrieves the asset category types of this <code>ModelAssetAttributes</code>
+     * instance.
+     * 
+     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>categories</code>
+     *         field of this <code>ModelAssetAttributes</code> instance.
+     */
+    public ImmutableList<String> getCategories() {
+
+        return categories;
+    }
+
+    /**
+     * Compiles this <code>ModelAssetAttributes</code> instance into a completed
      * instance.
      * 
      * @param schema <code>AssetSchema</code>: The schema which created this
-     *               <code>PrimaryAssetAttributes</code> instance.
+     *               <code>ModelAssetAttributes</code> instance.
      * @param json   <code>TracedDictionary</code>: The schema JSON used to compile
-     *               this <code>PrimaryAssetAttributes</code> instance.
+     *               this <code>ModelAssetAttributes</code> instance.
      * @param isBase <code>boolean</code>: Whether or not this
-     *               <code>PrimaryAssetAttributes</code> instance is the base
+     *               <code>ModelAssetAttributes</code> instance is the base
      *               attribute set of an <code>AssetSchema</code> instance.
      * @throws LoggedException Thrown if an exception is raised while creating this
-     *                         <code>PrimaryAssetAttributes</code> instance.
+     *                         <code>ModelAssetAttributes</code> instance.
      */
     public ModelAssetAttributes(AssetSchema schema, TracedDictionary json, boolean isBase) throws LoggedException {
 
@@ -145,6 +168,28 @@ public abstract class ModelAssetAttributes extends AssetAttributes {
         if (animationControllerEntry.containsValue()) {
 
             addAssetDependency(animationController);
+        }
+
+        TracedEntry<TracedArray> categoriesEntry = json.getAsArray("categories", true);
+        if (categoriesEntry.containsValue()) {
+
+            ArrayList<String> categoriesList = new ArrayList<>();
+
+            TracedArray categoriesJson = categoriesEntry.getValue();
+            if (categoriesJson.isEmpty()) {
+
+                throw new CollectionSizeException(categoriesEntry, categoriesJson);
+            }
+
+            for (int i : categoriesJson) {
+
+                categoriesList.add(categoriesJson.getAsString(i, false, null).getValue());
+            }
+
+            categories = new ImmutableList<>(categoriesList);
+        } else {
+
+            categories = null;
         }
     }
 }

@@ -26,6 +26,7 @@ import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexcep
 import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.random.DeterministicRandom;
 
 /**
  * <code>Range</code>: A class representing a range of values which may be
@@ -163,32 +164,27 @@ public final class Range {
     /**
      * Retrieves a double value from this <code>Range</code> instance.
      * 
-     * @param random <code>double</code>: The random value to use.
-     * @return <code>double</code>: The retrieved <code>double</code> value.
+     * @param random <code>long</code>: The random value to use.
+     * @return <code>long</code>: The retrieved <code>double</code> value.
      */
-    public double getDoubleValue(double random) {
+    public double getDoubleValue(long random) {
 
         if (min == max) {
 
             return min;
         }
 
-        return min + (max - min) * random;
+        return min + (max - min) * DeterministicRandom.toDouble(random);
     }
 
     /**
-     * Retrieves an int value from this <code>Range</code> instance.
+     * Retrieves an integer value from this <code>Range</code> instance.
      * 
-     * @param random <code>double</code>: The random value to use.
+     * @param random <code>long</code>: The random value to use.
      * @return <code>int</code>: The retrieved <code>int</code> value.
      */
-    public int getIntegerValue(double random) {
+    public int getIntegerValue(long random) {
 
-        if (min == max) {
-
-            return (int) min;
-        }
-
-        return (int) (min + (max - min) * random);
+        return (int) getDoubleValue(random);
     }
 }

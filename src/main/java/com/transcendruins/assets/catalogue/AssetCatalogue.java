@@ -23,7 +23,7 @@ import java.util.List;
 import com.transcendruins.assets.AssetType;
 import static com.transcendruins.assets.AssetType.LOCATION;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.catalogue.global.events.GlobalEventSchema;
+import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.FileException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
@@ -56,7 +56,7 @@ public final class AssetCatalogue {
      *         <code>locations</code> field of this <code>AssetCatalogue</code>
      *         instance.
      */
-    public ImmutableMap<String, AssetPresets> getLocations() {
+    public final ImmutableMap<String, AssetPresets> getLocations() {
 
         return locations;
     }
@@ -75,7 +75,7 @@ public final class AssetCatalogue {
      *         The <code>events</code> field of this <code>AssetCatalogue</code>
      *         instance.
      */
-    public ImmutableMap<String, ImmutableList<GlobalEventSchema>> getEvents() {
+    public final ImmutableMap<String, ImmutableList<GlobalEventSchema>> getEvents() {
 
         return events;
     }
@@ -130,7 +130,7 @@ public final class AssetCatalogue {
      *         The <code>recipes</code> field of this <code>AssetCatalogue</code>
      *         instance.
      */
-    public ImmutableMap<String, ImmutableMap<String, AssetPresets>> getRecipes() {
+    public final ImmutableMap<String, ImmutableMap<String, AssetPresets>> getRecipes() {
 
         return recipes;
     }
@@ -210,7 +210,7 @@ public final class AssetCatalogue {
         ImmutableMap<String, ImmutableMap<String, AssetPresets>> recipesMap = new ImmutableMap<>();
 
         // Process the crafting data.
-        TracedPath craftingPath = path.extend("recipes.json");
+        TracedPath craftingPath = path.extend("recipe.json");
         if (craftingPath.exists()) {
 
             try {

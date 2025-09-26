@@ -21,11 +21,11 @@ public final class AreaTile {
     public AreaTile() {
     }
 
-    public boolean canApply(AreaTile tile) {
+    public final boolean canApply(AreaTile tile) {
 
         return true;
     }
 
-    public void apply(AreaTile tile) {
+    public final void apply(AreaTile tile) {
     }
 }

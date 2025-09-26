@@ -36,19 +36,19 @@ public final class InventorySlotInstance extends Instance {
 
     private boolean markedForRemoval;
 
-    public void setMarkedForRemoval(boolean markedForRemoval) {
+    public final void setMarkedForRemoval(boolean markedForRemoval) {
 
         this.markedForRemoval = markedForRemoval;
     }
 
-    public boolean getMarkedForRemoval() {
+    public final boolean getMarkedForRemoval() {
 
         return markedForRemoval;
     }
 
     private ItemInstance item;
 
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
 
         return item == null;
     }
@@ -58,7 +58,7 @@ public final class InventorySlotInstance extends Instance {
         this.item = item;
     }
 
-    public ItemInstance putItem(ItemInstance item) {
+    public final ItemInstance putItem(ItemInstance item) {
 
         // If the slot is marked for removal and an item is being put in the slot, don't
         // allow the transfer.
@@ -97,31 +97,31 @@ public final class InventorySlotInstance extends Instance {
         return item;
     }
 
-    public boolean containsItem() {
+    public final boolean containsItem() {
 
         return item != null;
     }
 
-    public boolean containsItem(ItemInstance item) {
+    public final boolean containsItem(ItemInstance item) {
 
         return this.item.isLikeAsset(item);
     }
 
-    public ItemInstance getItem() {
+    public final ItemInstance getItem() {
 
         return item;
     }
 
     private ImmutableList<String> acceptedTypes;
 
-    public boolean isAcceptedType(ItemInstance item) {
+    public final boolean isAcceptedType(ItemInstance item) {
 
         return acceptedTypes.contains("any") || !Collections.disjoint(acceptedTypes, item.getCategories());
     }
 
     private String modelSocket;
 
-    public String getModelSocket() {
+    public final String getModelSocket() {
 
         return modelSocket;
     }
@@ -139,7 +139,7 @@ public final class InventorySlotInstance extends Instance {
     }
 
     @Override
-    public void applyAttributes(Attributes attributeSet) {
+    public final void applyAttributes(Attributes attributeSet) {
 
         InventorySlotSchema attributes = (InventorySlotSchema) attributeSet;
 

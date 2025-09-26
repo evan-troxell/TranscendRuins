@@ -28,10 +28,9 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animationcontrollers.AnimationControllerContext;
 import com.transcendruins.assets.animationcontrollers.AnimationControllerInstance;
+import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.assets.extra.BoneActorSet;
-import com.transcendruins.assets.extra.RenderInstance;
 import com.transcendruins.assets.models.ModelAttributes;
 import com.transcendruins.assets.models.ModelContext;
 import com.transcendruins.assets.models.ModelInstance;
@@ -41,7 +40,9 @@ import com.transcendruins.graphics3d.PolyGroup;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.resources.textures.Texture;
+import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 
 /**
@@ -50,6 +51,18 @@ import com.transcendruins.utilities.immutable.ImmutableMap;
  * rendered using the standard <code>RenderInstance</code> method.
  */
 public abstract class ModelAssetInstance extends AssetInstance implements RenderInstance {
+
+    /**
+     * <code>String</code>: The pathway to the texture of this
+     * <code>ModelAssetInstance</code> instance.
+     */
+    private String texturePath;
+
+    /**
+     * <code>BufferedImage</code>: The texture of this
+     * <code>ModelAssetInstance</code> instance.
+     */
+    private BufferedImage texture;
 
     /**
      * <code>ModelInstance</code>: The model of this <code>ModelAssetInstance</code>
@@ -82,16 +95,22 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
     private AnimationControllerInstance animationController;
 
     /**
-     * <code>String</code>: The pathway to the texture of this
+     * <code>ImmutableList&lt;String&gt;</code>: The asset category types of this
      * <code>ModelAssetInstance</code> instance.
      */
-    private String texturePath;
+    private ImmutableList<String> categories;
 
     /**
-     * <code>BufferedImage</code>: The texture of this
-     * <code>ModelAssetInstance</code> instance.
+     * Retrieves the asset category types of this <code>ModelAssetInstance</code>
+     * instance.
+     * 
+     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>categories</code>
+     *         field of this <code>ModelAssetInstance</code> instance.
      */
-    private BufferedImage texture;
+    public final ImmutableList<String> getCategories() {
+
+        return categories;
+    }
 
     @Override
     public final Color getRGB(double x, double y) {
@@ -286,7 +305,7 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         // Updates the texture field.
         texturePath = calculateAttribute(attributes.getTexture(), val -> {
 
-            texture = getTextureAsBufferedImage(texturePath, BufferedImage.TYPE_INT_ARGB);
+            texture = getInstanceTextureAsBufferedImage(texturePath, BufferedImage.TYPE_INT_ARGB);
 
             return val;
         }, texturePath);
@@ -313,6 +332,9 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
                     this);
             return (AnimationControllerInstance) AssetType.ANIMATION_CONTROLLER.createAsset(animationControllerContext);
         }, animationController, attributes, null);
+
+        categories = calculateAttribute(attributes.getCategories(), categories, attributes, new ImmutableList<>());
+        setProperty("categories", categories);
 
         applyModelAssetAttributes(attributes);
     }

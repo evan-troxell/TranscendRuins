@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.catalogue.global.events;
+package com.transcendruins.assets.catalogue.events;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public final class GlobalEventTask {
      * @return <code>String</code>: The <code>name</code> field of this
      *         <code>GlobalEventTask</code> instance.
      */
-    public String getName() {
+    public final String getName() {
 
         return name;
     }
@@ -59,7 +59,7 @@ public final class GlobalEventTask {
      * @return <code>String</code>: The <code>description</code> field of this
      *         <code>GlobalEventTask</code> instance.
      */
-    public String getDescription() {
+    public final String getDescription() {
 
         return description;
     }
@@ -77,7 +77,7 @@ public final class GlobalEventTask {
      * @return <code>boolean</code>: The <code>hasLocation</code> field of this
      *         <code>GlobalEventTask</code> instance.
      */
-    public boolean hasLocation() {
+    public final boolean hasLocation() {
 
         return hasLocation;
     }
@@ -93,7 +93,7 @@ public final class GlobalEventTask {
      * @return <code>ImmutableList&lt;String&gt;</code>: The <code>location</code>
      *         field of this <code>GlobalEventTask</code> instance.
      */
-    public ImmutableList<String> getLocation() {
+    public final ImmutableList<String> getLocation() {
 
         return location;
     }
@@ -109,7 +109,7 @@ public final class GlobalEventTask {
      * @return <code>boolean</code>: The <code>hasCounter</code> field of this
      *         <code>GlobalEventTask</code> instance.
      */
-    public boolean hasCounter() {
+    public final boolean hasCounter() {
 
         return hasCounter;
     }
@@ -134,7 +134,7 @@ public final class GlobalEventTask {
      *              asset to evaluate the counter for.
      * @return <code>String</code>: The counter value formatted as a string.
      */
-    public String getCounter(PropertyHolder asset) {
+    public final String getCounter(PropertyHolder asset) {
 
         double value = counterValue.evaluateDouble(asset);
         String valueString = (value % 1 == 0.0) ? String.valueOf((int) value) : String.valueOf(value);
@@ -160,7 +160,7 @@ public final class GlobalEventTask {
      * @return <code>boolean</code>: Whether or not the conditions pass for the
      *         given asset.
      */
-    public boolean passes(PropertyHolder asset) {
+    public final boolean passes(PropertyHolder asset) {
 
         for (TRScript condition : conditions) {
 
@@ -178,7 +178,8 @@ public final class GlobalEventTask {
      *
      * @param json <code>TracedDictionary</code>: The JSON information of this
      *             <code>GlobalEventTask</code> instance.
-     * @throws LoggedException If there is an error processing the JSON information.
+     * @throws LoggedException Thrown if there is an error processing the JSON
+     *                         information.
      */
     public GlobalEventTask(TracedDictionary json) throws LoggedException {
 

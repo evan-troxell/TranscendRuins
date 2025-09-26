@@ -25,9 +25,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.transcendruins.assets.Attributes;
+import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.assets.extra.BoneActorSet;
 import com.transcendruins.assets.models.ModelAttributes.IndexedPolygon;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Triangle;
@@ -218,8 +218,8 @@ public final class ModelInstance extends AssetInstance {
      * @param boneActors       <code>BoneActorSet</code>: The bone actors to animate
      *                         this <code>ModelInstance</code> with.
      * @param parentBoneActors <code>BoneActorSet</code>: The bone actors of the
-     *                         parent animation. These will <b>NOT</b> //TODO
-     *                         clarify what this was supposed to do
+     *                         parent animation. These will <b>NOT</b>TODO clarify
+     *                         what this was supposed to do
      * @param bone             <code>Bone</code>: The bone at which to position this
      *                         <code>ModelInstance</code> instance.
      * @param position         <code>Vector</code>: The position to center the
@@ -238,6 +238,11 @@ public final class ModelInstance extends AssetInstance {
      * @return <code>HashMap&lt;Triangle, Triangle&gt;</code>: The generated
      *         polygons.
      */
+    // TODO: operating strictly off of parents and relying on the child to have all
+    // of the animations won't work; for example, if the asset structure is horse ->
+    // person -> glove on hand, then the glove might render properly when placed on
+    // the person but will require all of the horse bones to render properly when
+    // riding.
     public HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, List<BoneActorSet> parentsBoneActors,
             List<ModelAttributes.Bone> parents, Vector position, Quaternion rotation) {
 
@@ -297,6 +302,8 @@ public final class ModelInstance extends AssetInstance {
      */
     private HashMap<Triangle, Triangle> getPolygons(List<Vector> vertices, Vector position, Quaternion rotation) {
 
+        // TODO: Verify that skipping vertices will not cause the finalized polygon
+        // indices to mess up
         ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
 
         HashSet<Integer> hideVertices = new HashSet<>();

@@ -21,7 +21,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.swing.ImageIcon;
 
@@ -31,6 +30,7 @@ import com.transcendruins.assets.Instance;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.utilities.metadata.Identifier;
+import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.world.World;
 
 /**
@@ -70,36 +70,38 @@ public abstract class AssetInstance extends Instance {
     }
 
     /**
-     * <code>double</code>: The randomized ID of this <code>AssetInstance</code>
-     * instance, in the range of <code>[0.0, 1.0)</code>.
+     * <code>long</code>: The randomized ID of this <code>AssetInstance</code>
+     * instance.
      */
-    private final double randomId;
+    private final long randomId;
 
     /**
      * Retreives the randomized ID of this <code>AssetInstance</code> instance.
      * 
-     * @return <code>double</code>: The <code>randomId</code> field of this
+     * @return <code>long</code>: The <code>randomId</code> field of this
      *         <code>AssetInstance</code> instance.
      */
-    public final double getRandomId() {
+    public final long getRandomId() {
 
         return randomId;
     }
 
     /**
-     * Creates a randomizer based on the <code>randomId</code> field of this
+     * <code>DeterministicRandom</code>: The random number generator (RNG) of this
+     * <code>AssetInstance</code> instance.
+     */
+    private final DeterministicRandom random;
+
+    /**
+     * Retreives the next random value from the RNG of this
      * <code>AssetInstance</code> instance.
      * 
-     * @return <code>Random</code>: A randomizer based on the <code>randomId</code>
-     *         field of this <code>AssetInstance</code> instance.
+     * @return <code>long</code>: The next value of the <code>random</code> field of
+     *         this <code>AssetInstance</code> instance.
      */
-    public final Random createAssetRandomizer() {
+    public final long nextRandom() {
 
-        final double TWO_64_DEG = Math.pow(2, 64);
-
-        // Map the [0, 1) range of randomId to the range of [Long.MIN_VALUE,
-        // Long.MAX_VALUE].
-        return new Random((long) (randomId * TWO_64_DEG + Long.MIN_VALUE));
+        return random.next();
     }
 
     /**
@@ -184,6 +186,7 @@ public abstract class AssetInstance extends Instance {
         setParent(assetContext.getParent());
 
         randomId = assetContext.getRandomId();
+        random = new DeterministicRandom(randomId);
 
         type = assetPresets.getType();
         setProperty("type", type.toString());
@@ -327,7 +330,7 @@ public abstract class AssetInstance extends Instance {
      * @return <code>ImageIcon</code>: The retrieved texture icon. Note that this
      *         value is NOT shared between any other asset instances.
      */
-    public final ImageIcon getTexture(String texture) {
+    public final ImageIcon getInstanceTexture(String texture) {
 
         return getWorld().getTexture(texture, randomId);
     }
@@ -345,9 +348,9 @@ public abstract class AssetInstance extends Instance {
      * @return <code>BufferedImage</code>: The retrieved texture icon. Note that
      *         this value is NOT shared between any other asset instances.
      */
-    public final BufferedImage getTextureAsBufferedImage(String texture, int imageType) {
+    public final BufferedImage getInstanceTextureAsBufferedImage(String texture, int imageType) {
 
-        ImageIcon icon = getTexture(texture);
+        ImageIcon icon = getInstanceTexture(texture);
 
         BufferedImage bufferedImage = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), imageType);
 

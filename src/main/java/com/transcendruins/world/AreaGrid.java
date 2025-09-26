@@ -38,7 +38,7 @@ public final class AreaGrid {
      * @return <code>int</code>: The <code>width</code> field of this
      *         <code>AreaGrid</code> instance.
      */
-    public int getWidth() {
+    public final int getWidth() {
 
         return width;
     }
@@ -55,7 +55,7 @@ public final class AreaGrid {
      * @return <code>int</code>: The <code>length</code> field of this
      *         <code>AreaGrid</code> instance.
      */
-    public int getLength() {
+    public final int getLength() {
 
         return length;
     }
@@ -78,7 +78,7 @@ public final class AreaGrid {
      *          instance, exclusive.
      * @return <code>boolean</code>: If the coordinate is valid.
      */
-    public boolean inBounds(int x, int z) {
+    public final boolean inBounds(int x, int z) {
 
         return 0 <= x && x < width && 0 <= z && z < length;
     }
@@ -94,7 +94,7 @@ public final class AreaGrid {
      * @return <code>AreaTile</code>: The retrieved <code>AreaTile</code> instance,
      *         or <code>null</code> if the tile could not be retrieved.
      */
-    public AreaTile getTile(int x, int z) {
+    public final AreaTile getTile(int x, int z) {
 
         if (!inBounds(x, z)) {
 
@@ -106,7 +106,7 @@ public final class AreaGrid {
         return tiles[i];
     }
 
-    public AreaTile[] getArea(int x, int z, int width, int length) {
+    public final AreaTile[] getArea(int x, int z, int width, int length) {
 
         if (width <= 0 || length <= 0 || this.width <= x || this.length <= z) {
 
@@ -196,7 +196,7 @@ public final class AreaGrid {
      * @return <code>boolean</code>: If the new area can be placed at the input
      *         coordinate.
      */
-    public boolean canApply(int startX, int startZ, AreaGrid area) {
+    public final boolean canApply(int startX, int startZ, AreaGrid area) {
 
         if (area.getWidth() <= 0 || area.getLength() <= 0) {
 
@@ -248,7 +248,7 @@ public final class AreaGrid {
      * @param area   <code>AreaGrid</code>: The area to apply to this
      *               <code>AreaGrid</code> instance.
      */
-    public void apply(int startX, int startZ, AreaGrid area) {
+    public final void apply(int startX, int startZ, AreaGrid area) {
 
         if (!canApply(startX, startZ, area)) {
 

@@ -1485,7 +1485,7 @@ public abstract class TracedCollection {
     public final TracedEntry<TRScript> getAsScript(Object key, boolean nullCaseAllowed) throws LoggedException {
 
         TracedEntry<?> entry = get(key, nullCaseAllowed, null);
-        return getEntry(key).cast(new TRScript(this, key));
+        return entry.cast(new TRScript(this, key));
     }
 
     /**

@@ -65,13 +65,13 @@ public final class ResourceSet {
 
     public ResourceSet(TracedPath path) {
 
-        TracedPath languagePath = path.extend("languages");
+        TracedPath languagePath = path.extend("language");
         languages = new LanguageSet(languagePath);
 
-        TracedPath soundPath = path.extend("sounds");
+        TracedPath soundPath = path.extend("sound");
         sounds = new SoundSet(soundPath);
 
-        TracedPath texturePath = path.extend("textures");
+        TracedPath texturePath = path.extend("texture");
         textures = new TextureSet(texturePath);
 
         TracedPath stylesPath = path.extend("style.json");

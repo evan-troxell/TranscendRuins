@@ -20,8 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
@@ -41,6 +39,7 @@ import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.metadata.Identifier;
+import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.utilities.sound.StoredSound;
 
 /**
@@ -87,43 +86,43 @@ public final class World extends PropertyHolder {
      * 
      * @return <code>World</code>: The <code>world</code> field
      */
-    public static World getWorld() {
+    public static final World getWorld() {
 
         return world;
     }
 
     /**
-     * <code>UUID</code>: The unique identifier of this <code>World</code> instance.
+     * <code>long</code>: The seed of this <code>World</code> instance.
      */
-    private final UUID uuid;
+    private final long seed;
 
     /**
-     * Retrieves the UUID of this <code>World</code> instance.
+     * Retrieves the seed of this <code>World</code> instance.
      * 
-     * @return <code>UUID</code>: The <code>uuid</code> field of this
+     * @return <code>long</code>: The <code>seed</code> field of this
      *         <code>World</code> instance.
      */
-    public UUID getUuid() {
+    public final long getSeed() {
 
-        return uuid;
+        return seed;
     }
 
     /**
-     * <code>Random</code>: The random number generator (RNG) of this
+     * <code>DeterministicRandom</code>: The random number generator (RNG) of this
      * <code>World</code> instance.
      */
-    private final Random random = new Random();
+    private final DeterministicRandom random;
 
     /**
-     * Retreives the next random double from the RNG of this <code>World</code>
+     * Retreives the next random value from the RNG of this <code>World</code>
      * instance.
      * 
-     * @return <code>double</code>: The next double value of the <code>random</code>
-     *         field of this <code>World</code> instance.
+     * @return <code>long</code>: The next value of the <code>random</code> field of
+     *         this <code>World</code> instance.
      */
-    public double nextRandom() {
+    public final long nextRandom() {
 
-        return random.nextDouble();
+        return random.next();
     }
 
     /**
@@ -133,7 +132,7 @@ public final class World extends PropertyHolder {
      * @param values <code>List&lt;K&gt;</code>: The values to shuffle.
      * @return <code>List&lt;K&gt;</code>: The shuffled list.
      */
-    public <K> List<K> shuffle(List<K> values) {
+    public final <K> List<K> shuffle(List<K> values) {
 
         Collections.shuffle(values, random);
 
@@ -152,7 +151,7 @@ public final class World extends PropertyHolder {
      * @return <code>long</code>: The <code>timeOfCreation</code> field subtracted
      *         from the current time in milliseconds.
      */
-    public long getRuntimeMillis() {
+    public final long getRuntimeMillis() {
 
         return initialized ? System.currentTimeMillis() - timeOfCreation : 0;
     }
@@ -164,7 +163,7 @@ public final class World extends PropertyHolder {
      * @return <code>long</code>: The current runtime milliseconds divided by
      *         1000.0.
      */
-    public double getRuntimeSeconds() {
+    public final double getRuntimeSeconds() {
 
         return getRuntimeMillis() / 1000.0;
     }
@@ -187,9 +186,37 @@ public final class World extends PropertyHolder {
      * @return <code>AssetSchema</code>: The asset schema retrieved from the
      *         <code>mergedAssets</code> field of this <code>World</code> instance.
      */
-    public AssetSchema getSchema(AssetType type, Identifier identifier) {
+    public final AssetSchema getSchema(AssetType type, Identifier identifier) {
 
         return assets.get(type).get(identifier);
+    }
+
+    /**
+     * <code>String</code>: The current language of this <code>World</code>
+     * instance.
+     */
+    private String language;
+
+    /**
+     * Sets the current language of this <code>World</code> instance.
+     * 
+     * @param language <code>String</code>: The <code>language</code> field of this
+     *                 <code>World</code> instance.
+     */
+    public final void setLanguage(String language) {
+
+        this.language = language;
+    }
+
+    /**
+     * Retrieves the current language of this <code>World</code> instance.
+     * 
+     * @return <code>String</code>: The <code>language</code> field of this
+     *         <code>World</code> instance.
+     */
+    public final String getLanguage() {
+
+        return language;
     }
 
     /**
@@ -206,9 +233,26 @@ public final class World extends PropertyHolder {
      * @param text     <code>String</code>: The text to check for.
      * @return <code>boolean</code>: Whether or not the text was found.
      */
-    public boolean containsText(String language, String text) {
+    public final boolean containsText(String language, String text) {
 
         return languages.getOrDefault(language, new ImmutableMap<>()).containsKey(text);
+    }
+
+    /**
+     * Retreives a specific text from this <code>World</code> instance in the
+     * current language.
+     * 
+     * @param text <code>String</code>: The text to check for.
+     * @return <code>String</code>: The resulting text.
+     */
+    public final String getText(String text) {
+
+        if (!containsText(language, text)) {
+
+            return text;
+        }
+
+        return languages.get(language).get(text);
     }
 
     /**
@@ -218,7 +262,7 @@ public final class World extends PropertyHolder {
      * @param text     <code>String</code>: The text to check for.
      * @return <code>String</code>: The resulting text.
      */
-    public String getText(String language, String text) {
+    public final String getText(String language, String text) {
 
         if (!containsText(language, text)) {
 
@@ -247,7 +291,7 @@ public final class World extends PropertyHolder {
      * @param sound <code>String</code>: The sound to check for.
      * @return <code>boolean</code>: Whether or not the sound was found.
      */
-    public boolean containsSound(String sound) {
+    public final boolean containsSound(String sound) {
 
         return sounds.containsKey(sound);
     }
@@ -256,11 +300,10 @@ public final class World extends PropertyHolder {
      * Retreives a specific sound from this <code>World</code> instance.
      * 
      * @param sound  <code>String</code>: The sound to check for.
-     * @param random <code>double</code>: The random ID key to use, in the range of
-     *               <code>[0.0, 1.0]</code>.
+     * @param random <code>long</code>: The random ID key to use.
      * @return <code>StoredSound</code>: The resulting sound.
      */
-    public StoredSound getSound(String sound, double random) {
+    public final StoredSound getSound(String sound, long random) {
 
         if (!containsSound(sound)) {
 
@@ -290,7 +333,7 @@ public final class World extends PropertyHolder {
      * @param texture <code>String</code>: The texture to check for.
      * @return <code>boolean</code>: Whether or not the texture was found.
      */
-    public boolean containsTexture(String texture) {
+    public final boolean containsTexture(String texture) {
 
         return textures.containsKey(texture);
     }
@@ -299,11 +342,10 @@ public final class World extends PropertyHolder {
      * Retreives a specific texture from this <code>World</code> instance.
      * 
      * @param texture <code>String</code>: The texture to check for.
-     * @param random  <code>double</code>: The random ID key to use, in the range of
-     *                <code>[0.0, 1.0]</code>.
+     * @param random  <code>long</code>: The random ID key to use.
      * @return <code>Image</code>: The resulting texture.
      */
-    public ImageIcon getTexture(String texture, double random) {
+    public final ImageIcon getTexture(String texture, long random) {
 
         if (!containsTexture(texture)) {
 
@@ -316,23 +358,40 @@ public final class World extends PropertyHolder {
 
     private StyleSet style;
 
-    public StyleSet getStyle() {
+    public final StyleSet getStyle() {
 
         return style;
     }
 
     private boolean initialized = false;
 
-    public void start() {
+    public final void start() {
 
         timeOfCreation = System.currentTimeMillis();
         initialized = true;
     }
 
-    public void end() {
+    public final void end() {
 
         timeOfCreation = -1;
         initialized = false;
+    }
+
+    /**
+     * Creates a new instance of the <code>World</code> class and assigns it to the
+     * <code>world</code> field.
+     * 
+     * @param packs     <code>List&lt;Pack&gt;</code>: The packs used to create the
+     *                  new <code>World</code> instance.
+     * @param resources <code>List&lt;Resource&gt;</code>: The resources used to
+     *                  create the new <code>World</code> instance.
+     * @param seed      <code>long</code>: The seed used to create the new
+     *                  <code>World</code> instance.
+     * @return <code>World</code>: The generated world.
+     */
+    public static final World createWorld(List<ContentPack> packs, List<ResourcePack> resources, long seed) {
+
+        return world = new World(packs, resources, seed);
     }
 
     /**
@@ -342,10 +401,12 @@ public final class World extends PropertyHolder {
      *                  <code>World</code> instance.
      * @param resources <code>List&lt;Resource&gt;</code>: The resources used to
      *                  create this <code>World</code> instance.
+     * @param seed      <code>long</code>: The seed to create the world using.
      */
-    private World(List<ContentPack> packs, List<ResourcePack> resources) {
+    private World(List<ContentPack> packs, List<ResourcePack> resources, long seed) {
 
-        uuid = UUID.randomUUID();
+        this.seed = seed;
+        random = new DeterministicRandom(seed);
 
         this.packs = new ImmutableList<>(packs);
 
@@ -365,7 +426,7 @@ public final class World extends PropertyHolder {
         applyResources(resources);
     }
 
-    public void applyResources(List<ResourcePack> resources) {
+    public final void applyResources(List<ResourcePack> resources) {
 
         List<ResourceSet> stack = packs.stream().map(pack -> pack.getResources()).toList();
         stack.addAll(packs.stream().map(pack -> pack.getResources()).toList());
@@ -381,19 +442,10 @@ public final class World extends PropertyHolder {
         style = ResourceSet.createStyle(stack);
     }
 
-    /**
-     * Creates a new instance of the <code>World</code> class and assigns it to the
-     * <code>world</code> field
-     * 
-     * @param packs     <code>List&lt;Pack&gt;</code>: The packs used to create the
-     *                  new <code>World</code> instance.
-     * @param resources <code>List&lt;Resource&gt;</code>: The resources used to
-     *                  create the new <code>World</code> instance.
-     * @return <code>World</code>: The generated world.
-     */
-    public static World createWorld(List<ContentPack> packs, List<ResourcePack> resources) {
-
-        world = new World(packs, resources);
-        return world;
-    }
+    // TODO: Add runtime engine here
+    // All updates should be handled within the runtime; when graphics need to be
+    // displayed (UI, renderInstance, etc.) share copy of data to render engine and
+    // continue cycling
+    // Wait for UI/render requests from render engine to avoid overloading w/ too
+    // many contexts
 }
