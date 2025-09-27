@@ -54,7 +54,7 @@ public final class ResourcePack extends Pack {
     /**
      * Retrieves the set of all resources of a generic ID.
      * 
-     * @param id <code>Identifier</code>: The generic ID to check for.
+     * @param id <code>Identifier</code>: The generic id to check for.
      * @return <code>HashSet&lt;Identifier&gt;</code>: The resource identifiers
      *         which match the <code>id</code> parameter.
      */

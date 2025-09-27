@@ -61,7 +61,10 @@ public final class App {
 
         ArrayList<ResourcePack> resources = new ArrayList<>();
 
-        World.createWorld(packs, resources);
+        long seed = 12397123057172l;
+        System.out.println("SEED: " + seed);
+
+        World.createWorld(packs, resources, seed);
         World world = World.getWorld();
         world.start();
 
@@ -100,7 +103,7 @@ public final class App {
         Identifier boxId = Identifier.createTestIdentifier("TranscendRuins:box", null);
 
         AssetPresets examplePresets = new AssetPresets(boxId, AssetType.ELEMENT);
-        ElementContext exampleContext = new ElementContext(examplePresets, world, null, 0, 0, 0);
+        ElementContext exampleContext = new ElementContext(examplePresets, world, null);
 
         ElementInstance example = (ElementInstance) AssetType.ELEMENT.createAsset(exampleContext);
         example.update(world.getRuntimeSeconds());

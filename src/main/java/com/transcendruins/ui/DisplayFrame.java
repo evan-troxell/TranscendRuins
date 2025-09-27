@@ -197,7 +197,7 @@ public final class DisplayFrame extends TRFrame {
      * 
      * @return <code>GraphicsPanel</code>: The generated panel.
      */
-    private GraphicsPanel createRenderDisplayScreen(Camera3D camera) {
+    private Render3DPanel createRenderDisplayScreen(Camera3D camera) {
 
         ArrayList<TRComponent> statsPanelComponents = new ArrayList<>();
 

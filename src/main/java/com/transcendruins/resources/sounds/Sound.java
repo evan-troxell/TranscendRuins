@@ -99,7 +99,7 @@ public final class Sound {
      * Retrieves a sound from the available paths of this <code>Sound</code>
      * instance.
      * 
-     * @param random <code>long</code>: The random ID key to use.
+     * @param random <code>long</code>: The random id key to use.
      * @param paths  <code>Map&lt;String, TracedPath&gt;</code>: The supplied paths.
      * @return <code>StoredSound</code>: The retrieved sound.
      */

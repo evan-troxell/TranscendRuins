@@ -20,11 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.transcendruins.assets.AssetType;
 import static com.transcendruins.assets.AssetType.ELEMENT;
 import static com.transcendruins.assets.AssetType.ENTITY;
 import static com.transcendruins.assets.AssetType.LAYOUT;
-
-import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.SelectionType;
 import static com.transcendruins.assets.SelectionType.parseSelectionType;
 import com.transcendruins.assets.assets.AssetPresets;
@@ -153,6 +152,7 @@ public final class LayoutAttributes extends AssetAttributes {
         TracedEntry<String> typeEntry = json.getAsString("type", false, null);
         String type = typeEntry.getValue();
 
+        // TODO: finish implementing layout types
         return switch (type) {
 
         case "element" -> new AssetGenerationSchema(json, ELEMENT);
@@ -165,7 +165,7 @@ public final class LayoutAttributes extends AssetAttributes {
 
         case "grid" -> new GridGenerationSchema(json);
 
-        case "blueprint" -> new BlueprintGenerationSchema(json);
+        // case "blueprint" -> new BlueprintGenerationSchema(json);
 
         default -> throw new UnexpectedValueException(typeEntry);
         };
@@ -177,13 +177,13 @@ public final class LayoutAttributes extends AssetAttributes {
     public abstract class GenerationSchema {
 
         /**
-         * <code>String</code>: The component ID of this <code>GenerationSchema</code>
+         * <code>String</code>: The component id of this <code>GenerationSchema</code>
          * instance.
          */
         private final String componentId;
 
         /**
-         * Retrieves the component ID of this <code>GenerationSchema</code> instance.
+         * Retrieves the component id of this <code>GenerationSchema</code> instance.
          * 
          * @return <code>String</code>: The <code>componentId</code> field of this
          *         <code>GenerationSchema</code> instance.
@@ -274,13 +274,6 @@ public final class LayoutAttributes extends AssetAttributes {
 
     public final class AssetGenerationSchema extends GenerationSchema {
 
-        private final AssetType type;
-
-        public AssetType getType() {
-
-            return type;
-        }
-
         private final AssetPresets asset;
 
         public AssetPresets getAsset() {
@@ -298,8 +291,6 @@ public final class LayoutAttributes extends AssetAttributes {
         public AssetGenerationSchema(TracedDictionary json, AssetType type) throws LoggedException {
 
             super(json);
-
-            this.type = type;
 
             String key = type.toString().toLowerCase();
 
@@ -343,24 +334,24 @@ public final class LayoutAttributes extends AssetAttributes {
 
             super(json);
 
-            // Attempt to build the asset presets from the definitions.
-            AssetPresets existing = json.get("layout", List.of(
+            layout = json.get("layout", List.of(
 
-                    json.stringCase(entry -> definitions.get(LAYOUT).get(entry.getValue())),
-                    json.defaultCase(_ -> null)));
+                    // Attempt to retrieve the layout from the definitions.
+                    json.stringCase(entry -> {
 
-            // If the asset presets are not found in the definitions, create them from the
-            // JSON definitions.
+                        String layoutString = entry.getValue();
+                        if (definitions.get(LAYOUT).containsKey(layoutString)) {
 
-            if (existing == null) {
+                            return definitions.get(LAYOUT).get(layoutString);
+                        }
 
-                TracedEntry<AssetPresets> layoutEntry = json.getAsPresets("layout", false, LAYOUT);
-                layout = layoutEntry.getValue();
-                addAssetDependency(layout);
-            } else {
+                        // Construct the presets.
+                        TracedEntry<AssetPresets> presetsEntry = json.getAsPresets("layout", false, LAYOUT);
+                        return presetsEntry.getValue();
+                    }),
 
-                layout = existing;
-            }
+                    // Construct the presets.
+                    json.presetsCase(TracedEntry::getValue, LAYOUT)));
         }
     }
 
@@ -401,9 +392,9 @@ public final class LayoutAttributes extends AssetAttributes {
 
     public final class GridGenerationSchema extends GenerationSchema {
 
-        private final GenerationShapeSchema gridSize;
+        private final WeightedRoll<GenerationShapeSchema> gridSize;
 
-        public GenerationShapeSchema getGridSize() {
+        public WeightedRoll<GenerationShapeSchema> getGridSize() {
 
             return gridSize;
         }
@@ -434,29 +425,14 @@ public final class LayoutAttributes extends AssetAttributes {
 
             super(json);
 
+            gridSize = GenerationShapeSchema.createShape(json, "gridSize");
+
             cellDimensions = new LayoutDimension(json, "cellDimensions", false);
 
             iterationType = parseSelectionType(json, "iterationType");
 
-            components = json.getAsRoll("components", entry -> createGeneration(entry.getValue()));
+            components = json.getAsRoll("components", false, null, entry -> createGeneration(entry.getValue()));
         }
-    }
-
-    /**
-     * Parses a value from a collection into a generation placement schema.
-     * 
-     * @param json <code>TracedCollection</code>: The collection to parse.
-     * @param key  <code>Object</code>: The key from the collection to parse.
-     * @return <code>WeightedRoll&lt;GenerationPlacementSchema&gt;</code>: The
-     *         resulting set of available generation placements.
-     * @throws LoggedException Thrown if an error is raised while processing the
-     *                         collection.
-     */
-    public WeightedRoll<GenerationPlacementSchema> createPlacement(TracedCollection json, Object key)
-            throws LoggedException {
-
-        return json.getAsRoll(key, true, GenerationPlacementSchema.DEFAULT,
-                entry -> new GenerationPlacementSchema(entry.getValue()));
     }
 
     public static final class GenerationPlacementSchema {
@@ -465,7 +441,8 @@ public final class LayoutAttributes extends AssetAttributes {
 
         private GenerationPlacementSchema() {
 
-            shape = GenerationShapeSchema.DEFAULT;
+            shape = new WeightedRoll<>(GenerationShapeSchema.DEFAULT);
+            center = new WeightedRoll<>(GenerationPlacementCenterSchema.DEFAULT);
         }
 
         private final WeightedRoll<GenerationShapeSchema> shape;
@@ -475,12 +452,13 @@ public final class LayoutAttributes extends AssetAttributes {
             return shape;
         }
 
-        private final GenerationPlacementDistributionSchema distribution;
+        // TODO implement generation placement distribution
+        // private final GenerationPlacementDistributionSchema distribution;
 
-        public GenerationPlacementDistributionSchema getDistribution() {
+        // public GenerationPlacementDistributionSchema getDistribution() {
 
-            return distribution;
-        }
+        // return distribution;
+        // }
 
         private final WeightedRoll<GenerationPlacementCenterSchema> center;
 
@@ -493,7 +471,7 @@ public final class LayoutAttributes extends AssetAttributes {
 
             shape = GenerationShapeSchema.createShape(json, "shape");
 
-            distribution = createDistribution(json, "distribution");
+            // distribution = createDistribution(json, "distribution");
 
             center = createCenter(json, "center");
         }
@@ -505,18 +483,21 @@ public final class LayoutAttributes extends AssetAttributes {
                     entry -> createCenter(entry.getValue()));
         }
 
-        private final GenerationPlacementCenterSchema createCenter(TracedDictionary dict) throws LoggedException {
+        private GenerationPlacementCenterSchema createCenter(TracedDictionary dict) throws LoggedException {
 
             TracedEntry<String> typeEntry = dict.getAsString("type", false, null);
             String type = typeEntry.getValue();
 
+            // TODO implement center types
             return switch (type) {
 
-            case "element", "entity", "layout" -> new AssetCenterSchema(dict, type);
+            // case "element", "entity", "layout" -> new AssetCenterSchem(dict, type);
 
-            case "id", "tag" -> new SelecterCenterSchema(dict, type);
+            // case "id", "tag" -> new SelecterCenterSchema(dict, type);
 
-            case "coordinate", "relative" -> new PositionCenterSchema(dict, type);
+            // case "coordinate", "relative" -> new PositionCenterSchema(dict, type);
+
+            case "placeholder" -> null;
 
             default -> throw new UnexpectedValueException(typeEntry);
 
@@ -536,5 +517,21 @@ public final class LayoutAttributes extends AssetAttributes {
             }
         }
 
+        /**
+         * Parses a value from a collection into a generation placement schema.
+         * 
+         * @param json <code>TracedCollection</code>: The collection to parse.
+         * @param key  <code>Object</code>: The key from the collection to parse.
+         * @return <code>WeightedRoll&lt;GenerationPlacementSchema&gt;</code>: The
+         *         resulting set of available generation placements.
+         * @throws LoggedException Thrown if an error is raised while processing the
+         *                         collection.
+         */
+        public static WeightedRoll<GenerationPlacementSchema> createPlacement(TracedCollection json, Object key)
+                throws LoggedException {
+
+            return json.getAsRoll(key, true, GenerationPlacementSchema.DEFAULT,
+                    entry -> new GenerationPlacementSchema(entry.getValue()));
+        }
     }
 }

@@ -24,6 +24,7 @@ import com.transcendruins.assets.AssetType;
 import static com.transcendruins.assets.AssetType.LOCATION;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
+import com.transcendruins.assets.recipes.RecipeSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.FileException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
@@ -118,19 +119,19 @@ public final class AssetCatalogue {
     }
 
     /**
-     * <code>ImmutableMap&lt;String, ImmutableMap&lt;String, AssetPresets&gt;&gt;</code>:
-     * The recipe catalogue of this <code>AssetCatalogue</code> instance.
+     * <code>ImmutableMap&lt;String, RecipeSet&gt;</code>: The recipe catalogue of
+     * this <code>AssetCatalogue</code> instance.
      */
-    private final ImmutableMap<String, ImmutableMap<String, AssetPresets>> recipes;
+    private final ImmutableMap<String, RecipeSet> recipes;
 
     /**
      * Retrieves the recipe catalogue of this <code>AssetCatalogue</code> instance.
      * 
-     * @return <code>ImmutableMap&lt;String, ImmutableMap&lt;String, AssetPresets&gt;&gt;</code>:
-     *         The <code>recipes</code> field of this <code>AssetCatalogue</code>
+     * @return <code>ImmutableMap&lt;String, RecipeSet&gt;</code>: The
+     *         <code>recipes</code> field of this <code>AssetCatalogue</code>
      *         instance.
      */
-    public final ImmutableMap<String, ImmutableMap<String, AssetPresets>> getRecipes() {
+    public final ImmutableMap<String, RecipeSet> getRecipes() {
 
         return recipes;
     }
@@ -207,7 +208,7 @@ public final class AssetCatalogue {
         overlays = overlaysMap;
         menus = menusMap;
 
-        ImmutableMap<String, ImmutableMap<String, AssetPresets>> recipesMap = new ImmutableMap<>();
+        ImmutableMap<String, RecipeSet> recipesMap = new ImmutableMap<>();
 
         // Process the crafting data.
         TracedPath craftingPath = path.extend("recipe.json");
@@ -274,30 +275,28 @@ public final class AssetCatalogue {
                     // properly.
                     try {
 
-                        ArrayList<GlobalEventSchema> eventList = new ArrayList<>();
+                        List<GlobalEventSchema> eventList = eventsJson.get(eventKey,
+                                List.of(eventsJson.arrayCase(entry -> {
 
-                        eventsJson.compute(eventKey, List.of(eventsJson.arrayCase(entry -> {
+                                    ArrayList<GlobalEventSchema> newEventList = new ArrayList<>();
+                                    TracedArray eventArray = entry.getValue();
+                                    for (int i : eventArray) {
 
-                            TracedArray eventArray = entry.getValue();
-                            for (int i : eventArray) {
+                                        TracedEntry<TracedDictionary> eventEntry = eventArray.getAsDict(i, false);
+                                        TracedDictionary eventJson = eventEntry.getValue();
 
-                                TracedEntry<TracedDictionary> eventEntry = eventArray.getAsDict(i, false);
-                                TracedDictionary eventJson = eventEntry.getValue();
+                                        GlobalEventSchema event = new GlobalEventSchema(eventJson);
+                                        newEventList.add(event);
+                                    }
 
-                                GlobalEventSchema event = new GlobalEventSchema(eventJson);
-                                eventList.add(event);
-                            }
+                                    return newEventList;
+                                }),
 
-                            return null;
-                        }),
+                                        eventsJson.dictCase(entry -> {
 
-                                eventsJson.dictCase(entry -> {
-
-                                    TracedDictionary eventJson = entry.getValue();
-                                    eventList.add(new GlobalEventSchema(eventJson));
-
-                                    return null;
-                                })));
+                                            TracedDictionary eventJson = entry.getValue();
+                                            return List.of(new GlobalEventSchema(eventJson));
+                                        })));
 
                         eventsMap.put(eventKey, new ImmutableList<>(eventList));
 
@@ -331,9 +330,9 @@ public final class AssetCatalogue {
         return new ImmutableMap<>(menusMap);
     }
 
-    private ImmutableMap<String, ImmutableMap<String, AssetPresets>> createRecipes(TracedDictionary json) {
+    private ImmutableMap<String, RecipeSet> createRecipes(TracedDictionary json) {
 
-        HashMap<String, ImmutableMap<String, AssetPresets>> recipesMap = new HashMap<>();
+        HashMap<String, RecipeSet> recipesMap = new HashMap<>();
 
         // Validate each crafting category type.
         for (String category : json) {
@@ -343,24 +342,8 @@ public final class AssetCatalogue {
                 TracedEntry<TracedDictionary> categoryEntry = json.getAsDict(category, false);
                 TracedDictionary categoryJson = categoryEntry.getValue();
 
-                HashMap<String, AssetPresets> categoryMap = new HashMap<>();
-
-                for (String recipe : categoryJson) {
-
-                    try {
-
-                        // Validate each recipe.
-                        TracedEntry<AssetPresets> presetsEntry = categoryJson.getAsPresets(recipe, false,
-                                AssetType.RECIPE);
-                        AssetPresets presets = presetsEntry.getValue();
-
-                        categoryMap.put(recipe, presets);
-                    } catch (LoggedException _) {
-                    }
-                }
-
-                // Update the dependencies.
-                recipesMap.put(category, new ImmutableMap<>(categoryMap));
+                RecipeSet recipeSet = new RecipeSet(categoryJson);
+                recipesMap.put(category, recipeSet);
             } catch (LoggedException _) {
             }
         }

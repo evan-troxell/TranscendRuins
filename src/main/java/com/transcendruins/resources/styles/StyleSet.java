@@ -36,6 +36,19 @@ import com.transcendruins.utilities.json.TracedEntry;
 public final class StyleSet {
 
     /**
+     * <code>StyleSet</code>: An empty style set.
+     */
+    public static final StyleSet EMPTY = new StyleSet();
+
+    /**
+     * Creates a new, empty instance of the <code>StyleSet</code> class.
+     */
+    private StyleSet() {
+
+        styles = new ImmutableList<>();
+    }
+
+    /**
      * <code>ImmutableList&lt;StyleCase&gt;</code>: The list of all styles in this
      * <code>StyleSet</code> instance.
      */
@@ -48,17 +61,9 @@ public final class StyleSet {
      * @return <code>boolean</code>: Whether or not the <code>styles</code> field of
      *         this <code>StyleSet</code> instance is empty.
      */
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
 
         return styles.isEmpty();
-    }
-
-    /**
-     * Creates a new, empty instance of the <code>StyleSet</code> class.
-     */
-    public StyleSet() {
-
-        styles = new ImmutableList<>();
     }
 
     /**
@@ -91,6 +96,7 @@ public final class StyleSet {
      *                   this <code>StyleSet</code> instance should be created.
      * @param key        <code>Object</code>: The key to retrieve from the
      *                   <code>collection</code> parameter.
+     * @throws LoggedException Thrown if the collection could not be parsed
      */
     public StyleSet(TracedCollection collection, Object key) throws LoggedException {
 
@@ -103,6 +109,7 @@ public final class StyleSet {
      * 
      * @param json <code>TracedDictionary</code>: The JSON information to parse.
      * @return <code>ImmutableList&lt;StyleCase&gt;</code>: The resulting style set.
+     * @throws LoggedException Thrown if the collection could not be parsed.
      */
     private ImmutableList<StyleCase> parseStyles(TracedDictionary json) throws LoggedException {
 
@@ -115,15 +122,37 @@ public final class StyleSet {
         return new ImmutableList<>(stylesList);
     }
 
+    /**
+     * <code>StyleCase</code>: A class representing a CSS selector and attached
+     * style.
+     */
     private final class StyleCase {
 
+        /**
+         * <code>ImmutableList&lt;ImmutableList&lt;ComponentCombinator&gt;&gt;</code>:
+         * The assorted combinator cases, listed first by options and second by the
+         * specific cases required.
+         */
         private final ImmutableList<ImmutableList<ComponentCombinator>> cases;
 
+        /**
+         * <code>Style</code>: The style to apply if the cases are matched.
+         */
         private final Style style;
 
-        public StyleCase(TracedDictionary collection, String key) throws LoggedException {
+        /**
+         * Creates a new instance of the <code>StyleCase</code> class.
+         * 
+         * @param parent <code>TracedDictionary</code>: The parent collection to use.
+         * @param key    <code>String</code>: The key to parse.
+         * @throws LoggedException Thrown if the combinator key was invalid or the style
+         *                         collection could not be parsed.
+         */
+        public StyleCase(TracedDictionary parent, String key) throws LoggedException {
 
-            style = Style.createStyle(collection, key);
+            TracedEntry<TracedDictionary> entry = parent.getAsDict(key, false);
+            TracedDictionary json = entry.getValue();
+            style = Style.createStyle(json, key);
 
             ArrayList<ImmutableList<ComponentCombinator>> casesList = new ArrayList<>();
 
@@ -142,6 +171,7 @@ public final class StyleSet {
                 ArrayList<Integer> indices = new ArrayList<>();
                 indices.add(-1);
 
+                // Isolate all combinator indices.
                 for (int i = 0; i < option.length(); i++) {
 
                     char c = option.charAt(i);
@@ -153,27 +183,37 @@ public final class StyleSet {
 
                 ArrayList<ComponentCombinator> combinators = new ArrayList<>();
 
-                combinators.add(new ComponentCombinator(collection, option.substring(indices.getLast() + 1),
+                // Isolate the final combinator.
+                combinators.add(new ComponentCombinator(parent, option.substring(indices.getLast() + 1),
                         (p, s, o) -> s.matches(p) && select(p, o)));
 
                 for (int i = indices.size() - 1; i > 0; i--) {
 
+                    // Retrieve the combinator at the end.
                     String val = option.substring(indices.get(i - 1) + 1, indices.get(i) + 1);
-                    char combinator = val.charAt(0);
-                    val = val.substring(1);
+
+                    // Strip the combinator from the end.
+                    char combinator = val.charAt(val.length() - 1);
+                    val = val.substring(0, val.length() - 1);
+
+                    // If the string was a lone combinator, throw an error.
                     if (val.isEmpty()) {
 
-                        throw new KeyNameException(collection, option);
+                        throw new KeyNameException(parent, option);
                     }
 
-                    combinators.add(new ComponentCombinator(collection, val, switch (combinator) {
+                    combinators.add(new ComponentCombinator(parent, val, switch (combinator) {
 
+                    // Immediate preceding sibling.
                     case '+' -> (p, s, o) -> {
+
                         p = p.getPrecedingSibling();
                         return s.matches(p) && select(p, o);
                     };
 
+                    // Preceding sibling.
                     case '~' -> (p, s, o) -> {
+
                         do {
 
                             p = p.getPrecedingSibling();
@@ -185,12 +225,14 @@ public final class StyleSet {
                         return true;
                     };
 
+                    // Direct descendant (child) combinator.
                     case '>' -> (p, s, o) -> {
 
                         p = p.getParent();
                         return s.matches(p) && select(p, o);
                     };
 
+                    // Descendant combinator.
                     default -> (p, s, o) -> {
 
                         do {
@@ -211,12 +253,27 @@ public final class StyleSet {
             cases = new ImmutableList<>(casesList);
         }
 
+        /**
+         * Determines whether or not a character is a combinator.
+         * 
+         * @param c <code>char</code>: The character to check.
+         * @return <code>boolean</code>: If the character was a valid combinator.
+         */
         private boolean isCombinator(char c) {
 
             return c == ' ' || c == '>' || c == '+' || c == '~';
         }
 
-        public boolean matches(ComponentProperties properties) {
+        /**
+         * Determines whether or not a component matches this <code>StyleCase</code>
+         * instance.
+         * 
+         * @param properties <code>ComponentProperties</code>: The component properties
+         *                   to check.
+         * @return <code>boolean</code>: If the component met all of the conditions in
+         *         at least one case of this <code>StyleSet</code> instance.
+         */
+        public final boolean matches(ComponentProperties properties) {
 
             // Check all possible case options for a match.
             for (List<ComponentCombinator> combinators : cases) {
@@ -231,54 +288,125 @@ public final class StyleSet {
         }
     }
 
-    private boolean select(ComponentProperties properties, List<ComponentCombinator> operators) {
+    /**
+     * Checks if a component matches the last combinator in a list and propagates
+     * downwards if possible.
+     * 
+     * @param properties  <code>ComponentProperties</code>: The component properties
+     *                    to check.
+     * @param combinators <code>List&lt;ComponentCombinator&gt;</code>: The
+     *                    combinators to apply.
+     * @return <code>boolean</code>: Whether or not the combinator list matches the
+     *         component.
+     */
+    private static boolean select(ComponentProperties properties, List<ComponentCombinator> combinators) {
 
-        if (operators.isEmpty()) {
+        if (combinators.isEmpty()) {
 
             return true;
         }
 
-        ComponentCombinator combinator = operators.getFirst();
+        ComponentCombinator combinator = combinators.getFirst();
         ComponentSelector selector = combinator.selector;
         CombinatorOperator operator = combinator.operator;
 
-        operators = operators.subList(1, operators.size());
+        combinators = combinators.subList(1, combinators.size());
 
-        return operator.operate(properties, selector, operators);
+        return operator.operate(properties, selector, combinators);
     }
 
+    /**
+     * <code>CombinatorOperator</code>: A functional interface representing a
+     * combinator operating on a component, a selector, and a list of sequential
+     * combinators.
+     */
     @FunctionalInterface
     private interface CombinatorOperator {
 
+        /**
+         * Determines whether or not a component matches this
+         * <code>CombinatorOperator</code> instance.
+         * 
+         * @param properties  <code>ComponentProperties</code>: The component properties
+         *                    to check.
+         * @param selector    <code>ComponentSelector</code>: The selector to match the
+         *                    properties against.
+         * @param combinators <code>List&lt;ComponentCombinator&gt;</code>: The
+         *                    sequential operators to match.
+         * @return <code>boolean</code>: If the component met all of the conditions in
+         *         this <code>CombinatorOperator</code> instance and the subsequent
+         *         cases.
+         */
         public boolean operate(ComponentProperties properties, ComponentSelector selector,
-                List<ComponentCombinator> operators);
+                List<ComponentCombinator> combinators);
     }
 
+    /**
+     * <code>ComponentCombinator</code>: A class representing a combinator which
+     * contains both the selection criteria and the combinator operator type.
+     */
     private final class ComponentCombinator {
 
+        /**
+         * <code>ComponentSelector</code>: The selector method to apply.
+         */
         private final ComponentSelector selector;
 
+        /**
+         * <code>CombinatorOperator</code>: The combinator operator to apply.
+         */
         private final CombinatorOperator operator;
 
-        public ComponentCombinator(TracedDictionary collection, String key, CombinatorOperator operator)
+        /**
+         * Creates a new instance of the <code>ComponentCombinator</code> class.
+         * 
+         * @param parent <code>TracedDictionary</code>: The parent collection to use.
+         * @param key    <code>String</code>: The key to parse.
+         * @throws LoggedException Thrown if the combinator key was invalid.
+         */
+        public ComponentCombinator(TracedDictionary parent, String key, CombinatorOperator operator)
                 throws LoggedException {
 
-            selector = new ComponentSelector(collection, key);
+            selector = new ComponentSelector(parent, key);
             this.operator = operator;
         }
     }
 
+    /**
+     * <code>ComponentSelector</code>: The selector used to match component
+     * properties.
+     */
     private final class ComponentSelector {
 
+        /**
+         * <code>String</code>: The component type to match.
+         */
         private final String type;
 
+        /**
+         * <code>String</code>: The component id to match.
+         */
         private final String id;
 
+        /**
+         * <code>ImmutableSet&lt;String&gt;</code>: The component classes to match.
+         */
         private final ImmutableSet<String> classes;
 
+        /**
+         * <code>ImmutableSet&lt;String&gt;</code>: The component states (pseudoclasses)
+         * to match.
+         */
         private final ImmutableSet<String> states;
 
-        public ComponentSelector(TracedDictionary collection, String key) throws LoggedException {
+        /**
+         * Creates a new instance of the <code>ComponentSelector</code> class.
+         * 
+         * @param parent <code>TracedDictionary</code>: The parent collection to use.
+         * @param key    <code>String</code>: The key to parse.
+         * @throws LoggedException Thrown if the combinator key was invalid.
+         */
+        public ComponentSelector(TracedDictionary parent, String key) throws LoggedException {
 
             ArrayList<Integer> indices = new ArrayList<>();
             for (int i = 0; i < key.length(); i++) {
@@ -293,20 +421,20 @@ public final class StyleSet {
             indices.add(key.length());
 
             int first = indices.getFirst();
-            type = first == 0 || key.charAt(0) == '*' ? null : key.substring(0, first);
+            type = (first == 0 || key.charAt(0) == '*') ? null : key.substring(0, first);
 
             String idString = null;
             HashSet<String> classesList = new HashSet<>();
             HashSet<String> statesList = new HashSet<>();
 
-            for (int i = 0; i < indices.size() - 1; i++) {
+            for (int i = 0; i < indices.size() - 2; i++) {
 
                 String val = key.substring(indices.get(i), indices.get(i + 1));
                 char selector = val.charAt(0);
                 val = val.substring(1);
                 if (val.isEmpty()) {
 
-                    throw new KeyNameException(collection, key);
+                    throw new KeyNameException(parent, key);
                 }
 
                 switch (selector) {
@@ -317,7 +445,7 @@ public final class StyleSet {
 
                     if (idString != null) {
 
-                        throw new KeyNameException(collection, key);
+                        throw new KeyNameException(parent, key);
                     }
 
                     idString = val;
@@ -332,12 +460,28 @@ public final class StyleSet {
             states = new ImmutableSet<>(statesList);
         }
 
+        /**
+         * Determines whether or not a character is a separator.
+         * 
+         * @param c <code>char</code>: The character to check.
+         * @return <code>boolean</code>: If the character was a valid separator.
+         */
         private boolean isSeparator(char c) {
 
             return c == '.' || c == '#' || c == ':';
         }
 
-        public boolean matches(ComponentProperties properties) {
+        /**
+         * Determines whether or not a component matches this
+         * <code>ComponentSelector</code> instance.
+         * 
+         * @param properties <code>ComponentProperties</code>: The component properties
+         *                   to check.
+         * @return <code>boolean</code>: If the component met all of the conditions in
+         *         this <code>ComponentSelector</code> instance and the subsequent
+         *         cases.
+         */
+        public final boolean matches(ComponentProperties properties) {
 
             if (type != null && !type.equals(properties.getType())) {
 
@@ -375,14 +519,21 @@ public final class StyleSet {
      * @param styleSets <code>List&lt;StyleSet&gt;</code>: The styles to process.
      * @return <code>StyleSet</code>: The resulting style.
      */
-    public static StyleSet createStyleSet(List<StyleSet> styleSets) {
+    public static final StyleSet createStyleSet(List<StyleSet> styleSets) {
 
-        List<StyleCase> compiledStyles = styleSets.stream().flatMap(styles -> styles.styles.stream()).toList();
+        List<StyleCase> compiledStyles = styleSets.stream().filter(set -> !set.isEmpty())
+                .flatMap(styles -> styles.styles.stream()).toList();
 
         return new StyleSet(compiledStyles);
     }
 
-    public StyleSet extend(StyleSet set) {
+    /**
+     * Extends this <code>StyleSet</code> instance by another.
+     * 
+     * @param set <code>StyleSet</code>: The style set to add at the end.
+     * @return <code>StyleSet</code>: The resulting style set.
+     */
+    public final StyleSet extend(StyleSet set) {
 
         ArrayList<StyleCase> stylesList = new ArrayList<>(styles.size() + set.styles.size());
         stylesList.addAll(styles);
@@ -400,7 +551,7 @@ public final class StyleSet {
      *                   to match.
      * @return <code>List&lt;Style&gt;</code>: The generated styles.
      */
-    public List<Style> getStyle(ComponentProperties properties) {
+    public final List<Style> getStyle(ComponentProperties properties) {
 
         return styles.stream().filter(styleCase -> styleCase.matches(properties)).map(styleCase -> styleCase.style)
                 .toList();

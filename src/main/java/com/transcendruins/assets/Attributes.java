@@ -35,7 +35,7 @@ public abstract class Attributes {
      * @return <code>boolean</code>: The <code>isBase</code> field of this
      *         <code>Attributes</code> instance.
      */
-    public boolean isBase() {
+    public final boolean isBase() {
 
         return isBase;
     }

@@ -513,7 +513,7 @@ public final class LocationInstance extends AssetInstance {
 
     /**
      * Adds a new area to this <code>LocationInstance</code> instance using the
-     * provided asset presets. This area will be named using the area ID and will be
+     * provided asset presets. This area will be named using the area id and will be
      * assigned a number based on the existing areas in this location.
      * 
      * @param areaPresets <code>AssetPresets</code>: The presets to use for the new

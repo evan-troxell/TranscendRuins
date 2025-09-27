@@ -33,11 +33,35 @@ public final class RenderMaterialInstance extends AssetInstance {
     private boolean backfaceCulling;
 
     /**
+     * Retrieves the <code>backfaceCulling</code> field of this
+     * <code>RenderMaterialAttributes</code> instance.
+     * 
+     * @return <code>boolean</code>: Whether or not backface culling should be
+     *         implemented.
+     */
+    public final boolean backfaceCulling() {
+
+        return backfaceCulling;
+    }
+
+    /**
      * <code>boolean</code>: Whether or not the fresnel effect (opaqueness increase
      * as the viewing plane becomes perpendicular to the polygon being viewed)
      * should be applied to this <code>RenderMaterialInstance</code> instance.
      */
     private boolean fresnelEffect;
+
+    /**
+     * Retrieves the <code>fresnelEffect</code> field of this
+     * <code>RenderMaterialAttributes</code> instance.
+     * 
+     * @return <code>boolean</code>: Whether or not the Fresnel effect should be
+     *         implemented.
+     */
+    public final boolean fresnelEffect() {
+
+        return fresnelEffect;
+    }
 
     /**
      * <code>boolean</code>: Whether or not the face dimming effect (light becomes
@@ -47,10 +71,33 @@ public final class RenderMaterialInstance extends AssetInstance {
     private boolean faceDimming;
 
     /**
+     * Retrieves the <code>faceDimming</code> field of this
+     * <code>RenderMaterialAttributes</code> instance.
+     * 
+     * @return <code>boolean</code>: Whether or not face dimming should be
+     *         implemented.
+     */
+    public final boolean faceDimming() {
+
+        return faceDimming;
+    }
+
+    /**
      * <code>double</code>: The factor which should be applied to the face dimming
      * effect.
      */
     private double faceDimmingFactor;
+
+    /**
+     * Retrieves the <code>faceDimmingFactor</code> field of this
+     * <code>RenderMaterialAttributes</code> instance.
+     * 
+     * @return <code>double</code>: The retrieved face dimming factor.
+     */
+    public final double faceDimmingFactor() {
+
+        return faceDimmingFactor;
+    }
 
     /**
      * <code>boolean</code>: Whether or not anti aliasing (pixel alpha adjustments
@@ -60,10 +107,34 @@ public final class RenderMaterialInstance extends AssetInstance {
     private boolean antiAliasing;
 
     /**
+     * Retrieves the <code>antiAliasing</code> field of this
+     * <code>RenderMaterialAttributes</code> instance.
+     * 
+     * @return <code>boolean</code>: Whether or not anti aliasing should be
+     *         implemented.
+     */
+    public final boolean antiAliasing() {
+
+        return antiAliasing;
+    }
+
+    /**
      * <code>boolean</code>: Whether or alpha cancelling (total opaqueness) should
      * be applied to this <code>RenderMaterialInstance</code> instance.
      */
     private boolean opaque;
+
+    /**
+     * Retrieves the <code>opaque</code> field of this
+     * <code>RenderMaterialAttributes</code> instance.
+     * 
+     * @return <code>boolean</code>: Whether or not alpha cancelling should be
+     *         implemented.
+     */
+    public final boolean opaque() {
+
+        return opaque;
+    }
 
     /**
      * Creates a new instance of the <code>RenderMaterialInstance</code> class.
@@ -111,76 +182,5 @@ public final class RenderMaterialInstance extends AssetInstance {
 
     @Override
     protected void onUpdate(double time) {
-    }
-
-    /**
-     * Retrieves the <code>backfaceCulling</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not backface culling should be
-     *         implemented.
-     */
-    public boolean backfaceCulling() {
-
-        return backfaceCulling;
-    }
-
-    /**
-     * Retrieves the <code>fresnelEffect</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not the Fresnel effect should be
-     *         implemented.
-     */
-    public boolean fresnelEffect() {
-
-        return fresnelEffect;
-    }
-
-    /**
-     * Retrieves the <code>faceDimming</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not face dimming should be
-     *         implemented.
-     */
-    public boolean faceDimming() {
-
-        return faceDimming;
-    }
-
-    /**
-     * Retrieves the <code>faceDimmingFactor</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>double</code>: The retrieved face dimming factor.
-     */
-    public double faceDimmingFactor() {
-
-        return faceDimmingFactor;
-    }
-
-    /**
-     * Retrieves the <code>antiAliasing</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not anti aliasing should be
-     *         implemented.
-     */
-    public boolean antiAliasing() {
-
-        return antiAliasing;
-    }
-
-    /**
-     * Retrieves the <code>opaque</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not alpha cancelling should be
-     *         implemented.
-     */
-    public boolean opaque() {
-
-        return opaque;
     }
 }

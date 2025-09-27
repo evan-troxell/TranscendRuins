@@ -16,20 +16,32 @@
 
 package com.transcendruins.world;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.ImageIcon;
 
 import com.transcendruins.PropertyHolder;
 import com.transcendruins.assets.AssetType;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetSchema;
+import com.transcendruins.assets.catalogue.AssetCatalogue;
+import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
+import com.transcendruins.assets.interfaces.InterfaceContext;
+import com.transcendruins.assets.interfaces.InterfaceInstance;
+import com.transcendruins.assets.recipes.RecipeContext;
+import com.transcendruins.assets.recipes.RecipeInstance;
+import com.transcendruins.assets.recipes.RecipeSet;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.resources.ResourceSet;
+import com.transcendruins.resources.languages.Language;
+import com.transcendruins.resources.languages.LanguageSet;
 import com.transcendruins.resources.sounds.Sound;
 import com.transcendruins.resources.sounds.SoundSet;
 import com.transcendruins.resources.styles.StyleSet;
@@ -126,20 +138,6 @@ public final class World extends PropertyHolder {
     }
 
     /**
-     * Shuffles the contents of a collection.
-     * 
-     * @param <K>    The collection type to shuffle.
-     * @param values <code>List&lt;K&gt;</code>: The values to shuffle.
-     * @return <code>List&lt;K&gt;</code>: The shuffled list.
-     */
-    public final <K> List<K> shuffle(List<K> values) {
-
-        Collections.shuffle(values, random);
-
-        return values;
-    }
-
-    /**
      * <code>long</code>: The time of creation of this <code>World</code> instance.
      */
     private long timeOfCreation;
@@ -168,8 +166,6 @@ public final class World extends PropertyHolder {
         return getRuntimeMillis() / 1000.0;
     }
 
-    private final ImmutableList<ContentPack> packs;
-
     /**
      * <code>ImmutableMap&lt;AssetType, ImmutableMap&lt;Identifier, AssetSchema&gt;&gt;</code>:
      * The merged asset schemas of this <code>World</code> instance.
@@ -189,6 +185,62 @@ public final class World extends PropertyHolder {
     public final AssetSchema getSchema(AssetType type, Identifier identifier) {
 
         return assets.get(type).get(identifier);
+    }
+
+    private ImmutableMap<String, AssetPresets> locations;
+
+    private ImmutableMap<String, ImmutableList<GlobalEventSchema>> events;
+
+    private ImmutableMap<String, AssetPresets> overlays;
+
+    public final HashMap<String, InterfaceInstance> getOverlays() {
+
+        HashMap<String, InterfaceInstance> overlaysMap = new HashMap<>();
+        for (String overlay : overlays.keySet()) {
+
+            overlaysMap.put(overlay, createInterface(overlays.get(overlay)));
+        }
+
+        return overlaysMap;
+    }
+
+    private ImmutableMap<String, AssetPresets> menus;
+
+    public final InterfaceInstance getMenu(String menu) {
+
+        return createInterface(menus.get(menu));
+    }
+
+    private InterfaceInstance createInterface(AssetPresets presets) {
+
+        InterfaceContext context = new InterfaceContext(presets, this, null, null);
+        return (InterfaceInstance) AssetType.INTERFACE.createAsset(context);
+    }
+
+    private ImmutableMap<String, ImmutableMap<String, AssetPresets>> recipes;
+
+    public final HashMap<String, RecipeInstance> getRecipes(String category) {
+
+        if (!recipes.containsKey(category)) {
+
+            return new HashMap<>();
+        }
+
+        HashMap<String, RecipeInstance> recipeMap = new HashMap<>();
+
+        ImmutableMap<String, AssetPresets> categoryMap = recipes.get(category);
+        for (String recipe : categoryMap.keySet()) {
+
+            recipeMap.put(recipe, createRecipe(categoryMap.get(recipe)));
+        }
+
+        return recipeMap;
+    }
+
+    private RecipeInstance createRecipe(AssetPresets presets) {
+
+        RecipeContext context = new RecipeContext(presets, world, null);
+        return (RecipeInstance) AssetType.RECIPE.createAsset(context);
     }
 
     /**
@@ -300,7 +352,7 @@ public final class World extends PropertyHolder {
      * Retreives a specific sound from this <code>World</code> instance.
      * 
      * @param sound  <code>String</code>: The sound to check for.
-     * @param random <code>long</code>: The random ID key to use.
+     * @param random <code>long</code>: The random id key to use.
      * @return <code>StoredSound</code>: The resulting sound.
      */
     public final StoredSound getSound(String sound, long random) {
@@ -342,7 +394,7 @@ public final class World extends PropertyHolder {
      * Retreives a specific texture from this <code>World</code> instance.
      * 
      * @param texture <code>String</code>: The texture to check for.
-     * @param random  <code>long</code>: The random ID key to use.
+     * @param random  <code>long</code>: The random id key to use.
      * @return <code>Image</code>: The resulting texture.
      */
     public final ImageIcon getTexture(String texture, long random) {
@@ -408,12 +460,12 @@ public final class World extends PropertyHolder {
         this.seed = seed;
         random = new DeterministicRandom(seed);
 
-        this.packs = new ImmutableList<>(packs);
+        Stream<ContentPack> packStream = packs.stream();
 
         HashMap<AssetType, ImmutableMap<Identifier, AssetSchema>> assetsMap = AssetType.createAssetMap(type -> {
 
-            return new ImmutableMap<>(packs.stream().map(pack -> pack.getAssets().get(type)) // Retrieve the map of
-                                                                                             // assets.
+            return new ImmutableMap<>(packStream.map(pack -> pack.getAssets().get(type)) // Retrieve the map of
+                                                                                         // assets.
                     .flatMap(map -> map.entrySet().stream()) // Flatten the asset maps.
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (_, replacement) -> replacement
             // If the same asset is contained in multiple packs, use the highest one on the
@@ -423,23 +475,76 @@ public final class World extends PropertyHolder {
 
         assets = new ImmutableMap<>(assetsMap);
 
-        applyResources(resources);
+        // Apply the catalogues.
+        Stream<AssetCatalogue> catalogueStream = packStream.map(ContentPack::getCatalogue);
+        applyCatalogue(catalogueStream);
+
+        // Join the content pack resources to the resource pack resources and apply.
+        Stream<ResourceSet> resourceStream = Stream.concat(packStream.map(ContentPack::getResources),
+                resources.stream().map(ResourcePack::getResources));
+        applyResources(resourceStream);
     }
 
-    public final void applyResources(List<ResourcePack> resources) {
+    public final void applyCatalogue(Stream<AssetCatalogue> catalogueStream) {
 
-        List<ResourceSet> stack = packs.stream().map(pack -> pack.getResources()).toList();
-        stack.addAll(packs.stream().map(pack -> pack.getResources()).toList());
+        locations = compile(catalogueStream, AssetCatalogue::getLocations);
+        events = compile(catalogueStream, AssetCatalogue::getEvents);
 
-        languages = ResourceSet.compileLanguages(stack);
+        overlays = compile(catalogueStream, AssetCatalogue::getOverlays);
+        menus = compile(catalogueStream, AssetCatalogue::getMenus);
 
-        sounds = ResourceSet.compileSounds(stack);
-        soundPaths = ResourceSet.compilePaths(stack, pack -> pack.getSounds().getPaths());
+        Stream<Map<String, RecipeSet>> recipeStream = catalogueStream.map(AssetCatalogue::getRecipes);
+        recipes = compileGroup(recipeStream, RecipeSet::getRecipes);
+    }
 
-        textures = ResourceSet.compileTextures(stack);
-        texturePaths = ResourceSet.compilePaths(stack, pack -> pack.getTextures().getPaths());
+    public final void applyResources(Stream<ResourceSet> resourceStream) {
 
-        style = ResourceSet.createStyle(stack);
+        Stream<Map<String, Language>> languageStream = resourceStream.map(ResourceSet::getLanguages)
+                .map(LanguageSet::getLanguages);
+        languages = new ImmutableMap<>(compileGroup(languageStream, Language::getMappings));
+
+        Stream<SoundSet> soundStream = resourceStream.map(ResourceSet::getSounds);
+        sounds = compile(soundStream, SoundSet::getSounds);
+        soundPaths = compile(soundStream, SoundSet::getPaths);
+
+        Stream<TextureSet> textureStream = resourceStream.map(ResourceSet::getTextures);
+        textures = compile(textureStream, TextureSet::getTextures);
+        texturePaths = compile(textureStream, TextureSet::getPaths);
+
+        style = createStyle(resourceStream);
+    }
+
+    public static final <V, K> ImmutableMap<String, ImmutableMap<String, K>> compileGroup(
+            Stream<Map<String, V>> resources, Function<V, Map<String, K>> mapper) {
+
+        HashMap<String, ArrayList<V>> stack = new HashMap<>();
+        resources.forEach(set -> {
+
+            for (Map.Entry<String, V> mapEntry : set.entrySet()) {
+
+                ArrayList<V> group = stack.computeIfAbsent(mapEntry.getKey(), _ -> new ArrayList<>());
+                group.add(mapEntry.getValue());
+            }
+        });
+
+        HashMap<String, ImmutableMap<String, K>> compiled = new HashMap<>();
+        for (Map.Entry<String, ArrayList<V>> languageStack : stack.entrySet()) {
+
+            compiled.put(languageStack.getKey(), compile(languageStack.getValue().stream(), mapper));
+        }
+
+        return new ImmutableMap<>(compiled);
+    }
+
+    private static <V, K> ImmutableMap<String, K> compile(Stream<V> resources, Function<V, Map<String, K>> mapper) {
+
+        return new ImmutableMap<>(resources.map(mapper).flatMap(map -> map.entrySet().stream()).collect(Collectors
+                .toMap(Map.Entry::getKey, Map.Entry::getValue, (_, replacement) -> replacement, HashMap::new)));
+    }
+
+    private static StyleSet createStyle(Stream<ResourceSet> resources) {
+
+        return StyleSet.createStyleSet(resources.map(ResourceSet::getStyle).toList());
     }
 
     // TODO: Add runtime engine here

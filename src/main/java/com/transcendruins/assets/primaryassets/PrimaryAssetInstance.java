@@ -50,6 +50,10 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
     private InteractionInstance interaction;
 
+    public abstract int getTileWidth();
+
+    public abstract int getTileLength();
+
     /**
      * Creates a new instance of the <code>PrimaryAssetInstance</code> class.
      * 
@@ -102,10 +106,6 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
      * @param time <code>double</code>: The time since the world was created.
      */
     protected abstract void onPrimaryAssetUpdate(double time);
-
-    public abstract int getTileWidth();
-
-    public abstract int getTileLength();
 
     public static abstract class InteractionInstance {
 

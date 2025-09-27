@@ -32,14 +32,14 @@ public final class InventorySlotSchema extends Attributes {
 
     private final ImmutableList<String> acceptedTypes;
 
-    public ImmutableList<String> getAcceptedTypes() {
+    public final ImmutableList<String> getAcceptedTypes() {
 
         return acceptedTypes;
     }
 
     public final String modelSocket;
 
-    public String getModelSocket() {
+    public final String getModelSocket() {
 
         return modelSocket;
     }

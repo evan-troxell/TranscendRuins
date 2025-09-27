@@ -16,30 +16,30 @@
 
 package com.transcendruins.assets.layouts.shape;
 
-import java.util.Random;
+import com.transcendruins.assets.layouts.LayoutInstance;
 
 public abstract class GenerationShapeInstance {
 
     public abstract boolean isValidPlacement(int x, int y, int centerX, int centerY);
 
-    public static final GenerationShapeInstance createShape(GenerationShapeSchema schema, Random random) {
+    public static final GenerationShapeInstance createShape(GenerationShapeSchema schema, LayoutInstance layout) {
 
         return switch (schema) {
 
         case GenerationShapeSchema.PointSchema _ -> new PointInstance();
 
-        case GenerationShapeSchema.SquareSchema square -> new SquareInstance(square, random);
+        case GenerationShapeSchema.SquareSchema square -> new SquareInstance(square, layout);
 
-        case GenerationShapeSchema.RectangleSchema rectangle -> new RectangleInstance(rectangle, random);
+        case GenerationShapeSchema.RectangleSchema rectangle -> new RectangleInstance(rectangle, layout);
 
-        case GenerationShapeSchema.CircleSchema circle -> new CircleInstance(circle, random);
+        case GenerationShapeSchema.CircleSchema circle -> new CircleInstance(circle, layout);
 
-        case GenerationShapeSchema.RingSchema ring -> new RingInstance(ring, random);
+        case GenerationShapeSchema.RingSchema ring -> new RingInstance(ring, layout);
 
         default -> new GenerationShapeInstance() {
 
             @Override
-            public boolean isValidPlacement(int x, int y, int centerX, int centerY) {
+            public final boolean isValidPlacement(int x, int y, int centerX, int centerY) {
 
                 return true;
             }
@@ -50,7 +50,7 @@ public abstract class GenerationShapeInstance {
     public static final class PointInstance extends GenerationShapeInstance {
 
         @Override
-        public boolean isValidPlacement(int x, int y, int centerX, int centerY) {
+        public final boolean isValidPlacement(int x, int y, int centerX, int centerY) {
 
             return x == centerX && y == centerY;
         }
@@ -60,13 +60,13 @@ public abstract class GenerationShapeInstance {
 
         private final int width;
 
-        protected SquareInstance(GenerationShapeSchema.SquareSchema schema, Random random) {
+        protected SquareInstance(GenerationShapeSchema.SquareSchema schema, LayoutInstance layout) {
 
-            width = schema.getWidth().getIntegerValue(random.nextDouble());
+            width = schema.getWidth().getIntegerValue(layout.nextRandom());
         }
 
         @Override
-        public boolean isValidPlacement(int x, int y, int centerX, int centerY) {
+        public final boolean isValidPlacement(int x, int y, int centerX, int centerY) {
 
             int dx = x - centerX;
             int dy = y - centerY;
@@ -83,14 +83,14 @@ public abstract class GenerationShapeInstance {
 
         private final int length;
 
-        protected RectangleInstance(GenerationShapeSchema.RectangleSchema schema, Random random) {
+        protected RectangleInstance(GenerationShapeSchema.RectangleSchema schema, LayoutInstance layout) {
 
-            width = schema.getWidth().getIntegerValue(random.nextDouble());
-            length = schema.getLength().getIntegerValue(random.nextDouble());
+            width = schema.getWidth().getIntegerValue(layout.nextRandom());
+            length = schema.getLength().getIntegerValue(layout.nextRandom());
         }
 
         @Override
-        public boolean isValidPlacement(int x, int y, int centerX, int centerY) {
+        public final boolean isValidPlacement(int x, int y, int centerX, int centerY) {
 
             int dx = x - centerX;
             int dy = y - centerY;
@@ -106,13 +106,13 @@ public abstract class GenerationShapeInstance {
 
         private final int radius;
 
-        protected CircleInstance(GenerationShapeSchema.CircleSchema schema, Random random) {
+        protected CircleInstance(GenerationShapeSchema.CircleSchema schema, LayoutInstance layout) {
 
-            radius = schema.getRadius().getIntegerValue(random.nextDouble());
+            radius = schema.getRadius().getIntegerValue(layout.nextRandom());
         }
 
         @Override
-        public boolean isValidPlacement(int x, int y, int centerX, int centerY) {
+        public final boolean isValidPlacement(int x, int y, int centerX, int centerY) {
 
             int dx = x - centerX;
             int dy = y - centerY;
@@ -129,14 +129,14 @@ public abstract class GenerationShapeInstance {
 
         private final int outer;
 
-        protected RingInstance(GenerationShapeSchema.RingSchema schema, Random random) {
+        protected RingInstance(GenerationShapeSchema.RingSchema schema, LayoutInstance layout) {
 
-            inner = schema.getInner().getIntegerValue(random.nextDouble());
-            outer = schema.getInner().getIntegerValue(random.nextDouble());
+            inner = schema.getInner().getIntegerValue(layout.nextRandom());
+            outer = schema.getInner().getIntegerValue(layout.nextRandom());
         }
 
         @Override
-        public boolean isValidPlacement(int x, int y, int centerX, int centerY) {
+        public final boolean isValidPlacement(int x, int y, int centerX, int centerY) {
 
             int dx = x - centerX;
             int dy = y - centerY;

@@ -301,13 +301,13 @@ public final class LootTableAttributes extends AssetAttributes {
     public abstract class LootSchema {
 
         /**
-         * <code>String</code>: The component ID of this <code>LootSchema</code>
+         * <code>String</code>: The component id of this <code>LootSchema</code>
          * instance.
          */
         private final String componentId;
 
         /**
-         * Retrieves the component ID of this <code>LootSchema</code> instance.
+         * Retrieves the component id of this <code>LootSchema</code> instance.
          * 
          * @return <code>String</code>: The <code>componentId</code> field of this
          *         <code>LootSchema</code> instance.

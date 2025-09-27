@@ -29,7 +29,7 @@ public final class InventorySlotInstance extends Instance {
 
     private final String name;
 
-    public String getName() {
+    public final String getName() {
 
         return name;
     }

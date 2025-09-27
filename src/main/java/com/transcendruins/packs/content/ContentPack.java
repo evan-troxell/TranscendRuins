@@ -62,7 +62,7 @@ public final class ContentPack extends Pack {
     /**
      * Retrieves the set of all packs of a generic ID.
      * 
-     * @param id <code>Identifier</code>: The generic ID to check for.
+     * @param id <code>Identifier</code>: The generic id to check for.
      * @return <code>HashSet&lt;Identifier&gt;</code>: The pack identifiers which
      *         match the <code>id</code> parameter.
      */
@@ -278,6 +278,9 @@ public final class ContentPack extends Pack {
 
         resources = schema.getResources();
 
+        // TODO Process location and global event dependencies
+        // TODO Process overlay and menu dependencies
+        // TODO Process recipe dependencies
         catalogue = schema.getCatalogue();
     }
 
@@ -306,6 +309,7 @@ public final class ContentPack extends Pack {
      * @throws ReferenceWithoutDefinitionException Thrown if the asset referenced
      *                                             another missing asset.
      */
+    // TODO: Current hierarchical, modify to allow circular dependencies
     private void validateAsset(Identifier identifier, AssetType type,
             HashMap<AssetType, HashMap<Identifier, AssetSchema>> unvalidated,
             HashMap<AssetType, HashMap<Identifier, AssetSchema>> validated,

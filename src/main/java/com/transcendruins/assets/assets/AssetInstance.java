@@ -19,6 +19,7 @@ package com.transcendruins.assets.assets;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -70,13 +71,13 @@ public abstract class AssetInstance extends Instance {
     }
 
     /**
-     * <code>long</code>: The randomized ID of this <code>AssetInstance</code>
+     * <code>long</code>: The randomized id of this <code>AssetInstance</code>
      * instance.
      */
     private final long randomId;
 
     /**
-     * Retreives the randomized ID of this <code>AssetInstance</code> instance.
+     * Retreives the randomized id of this <code>AssetInstance</code> instance.
      * 
      * @return <code>long</code>: The <code>randomId</code> field of this
      *         <code>AssetInstance</code> instance.
@@ -102,6 +103,20 @@ public abstract class AssetInstance extends Instance {
     public final long nextRandom() {
 
         return random.next();
+    }
+
+    /**
+     * Shuffles a list using the RNG of this <code>AssetInstance</code> instance.
+     * 
+     * @param list <code>List&lt;?&gt;</code>: The list to shuffle.
+     */
+    public final void shuffle(List<?> list) {
+
+        for (int i = list.size() - 1; i > 0; i--) {
+
+            int j = (int) (DeterministicRandom.toDouble(nextRandom()) * (i + 1));
+            Collections.swap(list, i, j);
+        }
     }
 
     /**
@@ -323,7 +338,7 @@ public abstract class AssetInstance extends Instance {
     protected abstract void onUpdate(double time);
 
     /**
-     * Retrieves a texture based on the random ID and type of this
+     * Retrieves a texture based on the random id and type of this
      * <code>AssetInstance</code> instance.
      * 
      * @param texture <code>String</code>: The texture to retrieve.
@@ -336,7 +351,7 @@ public abstract class AssetInstance extends Instance {
     }
 
     /**
-     * Retrieves a texture based on the random ID and type of this
+     * Retrieves a texture based on the random id and type of this
      * <code>AssetInstance</code> instance and maps it into a new
      * <code>BufferedImage</code> instance.
      * 

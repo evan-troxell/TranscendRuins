@@ -24,7 +24,6 @@ import com.transcendruins.assets.models.ModelAttributes;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.assets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
-import com.transcendruins.graphics3d.Position3D;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
@@ -34,6 +33,31 @@ import com.transcendruins.graphics3d.geometry.Vector;
  * instance.
  */
 public final class EntityInstance extends PrimaryAssetInstance {
+
+    // TODO: Implement entitys position/size
+    @Override
+    public final Vector getPosition() {
+
+        return Vector.IDENTITY_VECTOR;
+    }
+
+    @Override
+    public final Quaternion getRotation() {
+
+        return Quaternion.IDENTITY_QUATERNION;
+    }
+
+    @Override
+    public int getTileWidth() {
+
+        return 0;
+    }
+
+    @Override
+    public int getTileLength() {
+
+        return 0;
+    }
 
     private ModelAttributes.Bone socket;
 
@@ -52,8 +76,6 @@ public final class EntityInstance extends PrimaryAssetInstance {
         return socket;
     }
 
-    private final Position3D position;
-
     /**
      * Creates a new instance of the <code>EntityInstance</code> class.
      * 
@@ -67,9 +89,6 @@ public final class EntityInstance extends PrimaryAssetInstance {
         super(assetContext, key);
 
         EntityContext context = (EntityContext) assetContext;
-
-        this.position = new Position3D(context.getPosition(), context.getHeading(), context.getPitch(), true);
-        context.getPosition();
     }
 
     @Override
@@ -83,22 +102,11 @@ public final class EntityInstance extends PrimaryAssetInstance {
     }
 
     @Override
-    public Vector getPosition() {
-
-        return position.getPosition();
-    }
-
-    @Override
-    public Quaternion getRotation() {
-
-        return position.getRotation();
-    }
-
-    @Override
     protected HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, ModelInstance model, Vector position,
             Quaternion rotation) {
 
-        return hasParent() ? model.getPolygons(boneActors, parent.getBoneActors(), getSocket(), position, rotation)
-                : model.getPolygons(boneActors, position, rotation);
+        // TODO: implement parent behavior (hasParent() ? model.getPolygons(boneActors,
+        // parent.getBoneActors(), getSocket(), position, rotation))
+        return model.getPolygons(boneActors, position, rotation);
     }
 }

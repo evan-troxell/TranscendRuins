@@ -125,7 +125,7 @@ public final class LootTableInstance extends AssetInstance {
     public abstract class LootInstance {
 
         /**
-         * <code>String</code>: The component ID of this <code>LootInstance</code>
+         * <code>String</code>: The component id of this <code>LootInstance</code>
          * instance.
          */
         private final String componentId;
@@ -160,7 +160,7 @@ public final class LootTableInstance extends AssetInstance {
                 }
             }
 
-            // Pass if the component ID is not disabled and there are not any tags shared
+            // Pass if the component id is not disabled and there are not any tags shared
             // between the component and the disabled tags list.
             return !disableByComponentId.contains(componentId)
                     && Collections.disjoint(disableByComponentTag, componentTags);

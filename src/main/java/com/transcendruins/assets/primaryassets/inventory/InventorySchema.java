@@ -37,21 +37,21 @@ public final class InventorySchema extends Attributes {
 
     private final Integer gridSlots;
 
-    public Integer getGridSlots() {
+    public final Integer getGridSlots() {
 
         return gridSlots;
     }
 
     private final InventorySlotSchema grid;
 
-    public InventorySlotSchema getGrid() {
+    public final InventorySlotSchema getGrid() {
 
         return grid;
     }
 
     private final ImmutableMap<String, InventorySlotSchema> named;
 
-    public ImmutableMap<String, InventorySlotSchema> getNamed() {
+    public final ImmutableMap<String, InventorySlotSchema> getNamed() {
 
         return named;
     }

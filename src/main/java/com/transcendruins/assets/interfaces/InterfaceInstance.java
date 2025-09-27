@@ -111,7 +111,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         // If the attribute set is the base, empty the styles list.
         if (attributes.isBase()) {
 
-            styles = new StyleSet();
+            styles = StyleSet.EMPTY;
         }
 
         // Apply the new styles to the old.

@@ -26,8 +26,6 @@ import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.world.AreaTile;
-import com.transcendruins.world.World;
 
 /**
  * <code>ElementInstance</code>: A class representing a generated element
@@ -35,128 +33,29 @@ import com.transcendruins.world.World;
  */
 public final class ElementInstance extends PrimaryAssetInstance {
 
-    /**
-     * <code>int</code>: The X coordinate of the tile of this
-     * <code>ElementInstance</code> instance.
-     */
-    private int tileX;
+    // TODO: Implement element position/size
+    @Override
+    public final Vector getPosition() {
 
-    /**
-     * Sets the X coordinate of this <code>ElementInstance</code> instance.
-     * 
-     * @param tileX <code>int</code>: The X coordinate to apply to this
-     *              <code>ElementInstance</code> instance.
-     */
-    public final void setTileX(int tileX) {
-
-        this.tileX = tileX;
+        return Vector.IDENTITY_VECTOR;
     }
 
-    /**
-     * Retrieves the X coordinate of this <code>ElementInstance</code> instance.
-     * 
-     * @return <code>int</code>: The <code>tileX</code> field of this
-     *         <code>ElementInstance</code> instance.
-     */
-    public final int getTileX() {
+    @Override
+    public final Quaternion getRotation() {
 
-        return tileX;
+        return Quaternion.IDENTITY_QUATERNION;
     }
 
-    /**
-     * <code>int</code>: The Z coordinate of the tile of this
-     * <code>ElementInstance</code> instance.
-     */
-    private int tileZ;
+    @Override
+    public int getTileWidth() {
 
-    /**
-     * Sets the Z coordinate of this <code>ElementInstance</code> instance.
-     * 
-     * @param tileZ <code>int</code>: The Z coordinate to apply to this
-     *              <code>ElementInstance</code> instance.
-     */
-    public final void setTileZ(int tileZ) {
-
-        this.tileZ = tileZ;
+        return 0;
     }
 
-    /**
-     * Retrieves the Z coordinate of this <code>ElementInstance</code> instance.
-     * 
-     * @return <code>int</code>: The <code>tileZ</code> field of this
-     *         <code>ElementInstance</code> instance.
-     */
-    public final int getTileZ() {
+    @Override
+    public int getTileLength() {
 
-        return tileZ;
-    }
-
-    /**
-     * <code>Vector</code>: The tile offset of this <code>ElementInstance</code>
-     * instance.
-     */
-    private Vector tileOffset;
-
-    public final void setTileOffset(Vector tileOffset) {
-
-        this.tileOffset = tileOffset;
-    }
-
-    /**
-     * Retrieves the tile offset of this <code>ElementInstance</code> instance.
-     * 
-     * @return <code>Vector</code>: The <code>tileOffset</code> field of this
-     *         <code>ElementInstance</code> instance.
-     */
-    public final Vector getTileOffset() {
-
-        return tileOffset;
-    }
-
-    /**
-     * <code>double</code>: The orientation of this <code>ElementInstance</code>
-     * instance in degrees.
-     */
-    private double orientation;
-
-    public final void setOrientation(double orientation) {
-
-        this.orientation = orientation;
-    }
-
-    /**
-     * Retrieves the orientation of this <code>ElementInstance</code> instance.
-     * 
-     * @return <code>double</code>: The <code>orientation</code> field of this
-     *         <code>ElementInstance</code> instance.
-     */
-    public final double getOrientation() {
-
-        return orientation;
-    }
-
-    private AreaTile[] tiles;
-
-    public final void remove(AreaTile[] tiles) {
-
-        for (AreaTile tile : tiles) {
-
-            tile.removeElement(this);
-        }
-    }
-
-    public final void apply(AreaTile[] tiles) {
-
-        if (this.tiles != null) {
-
-            remove(this.tiles);
-        }
-
-        this.tiles = tiles;
-        for (AreaTile tile : tiles) {
-
-            tile.addElement(this);
-        }
+        return 0;
     }
 
     /**
@@ -172,9 +71,6 @@ public final class ElementInstance extends PrimaryAssetInstance {
         super(assetContext, key);
 
         ElementContext context = (ElementContext) assetContext;
-
-        setTileOffset(context.getTileOffset());
-        setOrientation(context.getOrientation());
     }
 
     @Override
@@ -185,18 +81,6 @@ public final class ElementInstance extends PrimaryAssetInstance {
 
     @Override
     protected final void onPrimaryAssetUpdate(double time) {
-    }
-
-    @Override
-    public final Vector getPosition() {
-
-        return new Vector(tileX + 0.5, 0, tileZ + 0.5).multiply(World.UNIT_TILE).add(tileOffset);
-    }
-
-    @Override
-    public final Quaternion getRotation() {
-
-        return Quaternion.fromHeading(orientation);
     }
 
     @Override

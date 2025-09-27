@@ -41,14 +41,14 @@ import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.RenderTriangle;
 import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.ui.GraphicsPanel;
+import com.transcendruins.ui.mappedcomponents.containers.TRLayeredPanel;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
 
 /**
  * <code>Render3DPanel</code>: A class representing the game display object of
  * the program.
  */
-public abstract non-sealed class Render3DPanel extends GraphicsPanel
+public abstract class Render3DPanel extends TRLayeredPanel
         implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
     /**
@@ -145,10 +145,10 @@ public abstract non-sealed class Render3DPanel extends GraphicsPanel
 
         if (active && renderImage != null) {
 
-            Graphics2D g2D = (Graphics2D) g;
+            Graphics2D g2d = (Graphics2D) g;
             synchronized (renderLock) {
 
-                drawImage(0, 0, renderImage, 0, g2D);
+                g2d.drawImage(renderImage.getImage(), 0, 0, this);
             }
         }
     }

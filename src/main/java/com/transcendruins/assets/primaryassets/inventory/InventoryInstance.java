@@ -28,9 +28,9 @@ import java.util.Set;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.Instance;
 import com.transcendruins.assets.items.ItemInstance;
+import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.immutable.ImmutableSet;
-import com.transcendruins.world.World;
 
 /**
  * <code>InventoryInstance</code>: A class representing an instatiated
@@ -55,7 +55,7 @@ public final class InventoryInstance extends Instance {
      * @return <code>ItemInstance</code>: The retrieved item, or <code>null</code>
      *         if the item or slot could not be found.
      */
-    public ItemInstance getItem(int index) {
+    public final ItemInstance getItem(int index) {
 
         return (grid.length > index) ? grid[index].getItem() : null;
     }
@@ -69,7 +69,7 @@ public final class InventoryInstance extends Instance {
      * @return <code>boolean</code>: Whether or not the <code>grid</code> field of
      *             this <code>InventoryInstance</code> instance could be resized.
      */
-    public boolean resize(int size) {
+    public final boolean resize(int size) {
 
         gridSlots = size;
 
@@ -98,7 +98,7 @@ public final class InventoryInstance extends Instance {
      * @return <code>boolean</code>: Whether or not the inventory grid is empty past
      *         the set index.
      */
-    public boolean isEmpty(int start) {
+    public final boolean isEmpty(int start) {
 
         for (int i = start; i < grid.length; i++) {
 
@@ -111,7 +111,7 @@ public final class InventoryInstance extends Instance {
         return true;
     }
 
-    public ArrayList<InventorySlotInstance> getEmptyGridSlots() {
+    public final ArrayList<InventorySlotInstance> getEmptyGridSlots() {
 
         ArrayList<InventorySlotInstance> empty = new ArrayList<>();
 
@@ -133,7 +133,7 @@ public final class InventoryInstance extends Instance {
      * @param gridSlots <code>int</code>: The grid size to copy.
      * @return <code>InventorySlot[]</code>: The resized grid.
      */
-    public InventorySlotInstance[] copyContents(int gridSlots) {
+    public final InventorySlotInstance[] copyContents(int gridSlots) {
 
         InventorySlotInstance[] newGrid = new InventorySlotInstance[gridSlots];
 
@@ -162,7 +162,7 @@ public final class InventoryInstance extends Instance {
      * @return <code>ItemInstance</code>: The retrieved item, or <code>null</code>
      *         if the item or slot could not be found.
      */
-    public ItemInstance getItem(String slot) {
+    public final ItemInstance getItem(String slot) {
 
         return (named.containsKey(slot)) ? named.get(slot).getItem() : null;
     }
@@ -176,7 +176,7 @@ public final class InventoryInstance extends Instance {
      * @return <code>boolean</code>: Whether or not the <code>slots</code> field of
      *         this <code>InventoryInstance</code> instance could be resized.
      */
-    public boolean resize(Set<String> slots) {
+    public final boolean resize(Set<String> slots) {
 
         namedSet = new ImmutableSet<>(slots);
         Set<String> oldSlots = named.keySet();
@@ -226,7 +226,7 @@ public final class InventoryInstance extends Instance {
      * @param checks <code>Set&lt;String&gt;</code>: The inventory slots to check
      * @return <code>boolean</code>: Whether or not the inventory slots are empty.
      */
-    public boolean isEmpty(Set<String> checks) {
+    public final boolean isEmpty(Set<String> checks) {
 
         for (String slot : checks) {
 
@@ -247,7 +247,7 @@ public final class InventoryInstance extends Instance {
      * @return <code>HashMap&lt;String, InventorySlot&gt;</code>: The resized slot
      *         set.
      */
-    public HashMap<String, InventorySlotInstance> copyContents(Set<String> slotNames) {
+    public final HashMap<String, InventorySlotInstance> copyContents(Set<String> slotNames) {
 
         HashMap<String, InventorySlotInstance> newSlots = new HashMap<>();
 
@@ -259,7 +259,7 @@ public final class InventoryInstance extends Instance {
         return newSlots;
     }
 
-    public HashSet<InventorySlotInstance> getEmptyNamedSlots() {
+    public final HashSet<InventorySlotInstance> getEmptyNamedSlots() {
 
         HashSet<InventorySlotInstance> empty = new HashSet<>();
 
@@ -280,7 +280,7 @@ public final class InventoryInstance extends Instance {
      * @return <code>HashMap&lt;String, ItemInstance&gt;</code>: The map of
      *         inventory slots to their items.
      */
-    public HashMap<String, ItemInstance> getItems() {
+    public final HashMap<String, ItemInstance> getItems() {
 
         HashMap<String, ItemInstance> items = new HashMap<>();
 
@@ -304,17 +304,18 @@ public final class InventoryInstance extends Instance {
      *                  this <code>InventoryInstance</code> instance with.
      * @param randomize <code>boolean</code>: Whether or not the order of insertion
      *                  should be randomized.
-     * @param world     <code>World</code>: The world copy to assist filling using.
+     * @param asset     <code>PrimaryAssetInstance</code>: The asset used to
+     *                  randomize cell layout.
      * @return <code>List&lt;ItemInstance&gt;</code>: The leftover items which could
      *         not be added.
      */
-    public List<ItemInstance> fill(List<ItemInstance> items, boolean randomize, World world) {
+    public final List<ItemInstance> fill(List<ItemInstance> items, boolean randomize, PrimaryAssetInstance asset) {
 
-        // Retrieve the list of all available slots and randomize if necessary
+        // Retrieve the list of all available slots and randomize if necessary.
         ArrayList<InventorySlotInstance> availableSlots = new ArrayList<>(List.of(grid));
         if (randomize) {
 
-            world.shuffle(availableSlots);
+            asset.shuffle(availableSlots);
         }
 
         ListIterator<ItemInstance> itemIt = items.listIterator();
@@ -371,7 +372,7 @@ public final class InventoryInstance extends Instance {
         return items;
     }
 
-    public void setMarkedForRemoval(int gridSlot, boolean marked) {
+    public final void setMarkedForRemoval(int gridSlot, boolean marked) {
 
         if (gridSlot >= grid.length) {
 
@@ -382,7 +383,7 @@ public final class InventoryInstance extends Instance {
         slot.setMarkedForRemoval(marked);
     }
 
-    public void setMarkedForRemoval(String namedSlot, boolean marked) {
+    public final void setMarkedForRemoval(String namedSlot, boolean marked) {
 
         if (named.containsKey(namedSlot)) {
 
@@ -391,7 +392,7 @@ public final class InventoryInstance extends Instance {
         }
     }
 
-    public void updateMarkedForRemoval() {
+    public final void updateMarkedForRemoval() {
 
         resize(gridSlots);
 
@@ -399,7 +400,7 @@ public final class InventoryInstance extends Instance {
     }
 
     @Override
-    public void applyAttributes(Attributes attributeSet) {
+    public final void applyAttributes(Attributes attributeSet) {
 
         InventorySchema attributes = (InventorySchema) attributeSet;
 

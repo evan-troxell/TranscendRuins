@@ -221,11 +221,14 @@ public final class ItemInstance extends ModelAssetInstance {
     protected final HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, ModelInstance model,
             Vector position, Quaternion rotation) {
 
-        BoneActorSet parentBoneActors = parent.getBoneActors();
-        BoneActorSet mergedBoneActors = new BoneActorSet(boneActors, parentBoneActors);
+        // BoneActorSet parentBoneActors = parent.getBoneActors();
+        // BoneActorSet mergedBoneActors = new BoneActorSet(boneActors,
+        // parentBoneActors);
 
         // TODO this part should be rebuilt, focus on model to figure out what
         // parameters are necessary to draw children assets.
-        return model.getPolygons(mergedBoneActors, parentBoneActors, getSocket(), position, rotation);
+        // model.getPolygons(mergedBoneActors, parentBoneActors, getSocket(), position,
+        // rotation)
+        return model.getPolygons(boneActors, position, rotation);
     }
 }

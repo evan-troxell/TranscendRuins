@@ -16,21 +16,19 @@
 
 package com.transcendruins.assets.layouts;
 
+import com.transcendruins.assets.AssetType;
 import static com.transcendruins.assets.AssetType.ELEMENT;
 import static com.transcendruins.assets.AssetType.ENTITY;
 import static com.transcendruins.assets.AssetType.LAYOUT;
-
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.elements.ElementContext;
-import com.transcendruins.assets.elements.ElementInstance;
 import com.transcendruins.assets.entities.EntityContext;
-import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.assets.extra.Range;
+import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.layouts.LayoutAttributes.AssetGenerationSchema;
-import com.transcendruins.assets.layouts.LayoutAttributes.LayoutGenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.DistributionGenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.GenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.GridGenerationSchema;
@@ -47,12 +45,12 @@ public final class LayoutInstance extends AssetInstance {
 
     private GenerationInstance generation;
 
-    public int getWidth() {
+    public final int getWidth() {
 
         return generation.getWidth();
     }
 
-    public int getLength() {
+    public final int getLength() {
 
         return generation.getLength();
     }
@@ -73,7 +71,7 @@ public final class LayoutInstance extends AssetInstance {
     }
 
     @Override
-    public void applyAttributes(Attributes attributeSet) {
+    public final void applyAttributes(Attributes attributeSet) {
 
         LayoutAttributes attributes = (LayoutAttributes) attributeSet;
 
@@ -82,17 +80,18 @@ public final class LayoutInstance extends AssetInstance {
 
     public GenerationInstance createGeneration(GenerationSchema schema) {
 
+        // TODO implement rest of generation types
         return switch (schema) {
 
         case AssetGenerationSchema s -> new AssetGenerationInstance(s);
 
-        case LayoutGenerationSchema s -> new LayoutGenerationInstance(s);
+        // case LayoutGenerationSchema s -> new LayoutGenerationInstance(s);
 
         case DistributionGenerationSchema s -> new DistributionGenerationInstance(s);
 
         case GridGenerationSchema s -> new GridGenerationInstance(s);
 
-        case BlueprintGenerationSchema s -> new BlueprintGenerationInstance(s);
+        // case BlueprintGenerationSchema s -> new BlueprintGenerationInstance(s);
 
         default -> null;
         };
@@ -102,21 +101,21 @@ public final class LayoutInstance extends AssetInstance {
 
         private final String componentId;
 
-        public String getComponentId() {
+        public final String getComponentId() {
 
             return componentId;
         }
 
         private final ImmutableList<String> componentTags;
 
-        public ImmutableList<String> getComponentTags() {
+        public final ImmutableList<String> getComponentTags() {
 
             return componentTags;
         }
 
         private final Range count;
 
-        public Range getCount() {
+        public final Range getCount() {
 
             return count;
         }
@@ -145,32 +144,37 @@ public final class LayoutInstance extends AssetInstance {
 
         private final AssetInstance asset;
 
+        public final AssetInstance getAsset() {
+
+            return asset;
+        }
+
         public AssetGenerationInstance(AssetGenerationSchema schema) {
 
             super(schema);
-            type = schema.getType();
+
+            AssetPresets presets = schema.getAsset();
+            AssetType type = presets.getType();
 
             World world = getWorld();
 
-            AssetPresets presets = schema.getPresets();
-            AssetContext context;
             asset = switch (type) {
 
             case ELEMENT -> {
 
-                context = new ElementContext(presets, world, null);
+                AssetContext context = new ElementContext(presets, world, null);
                 yield ELEMENT.createAsset(context);
             }
 
             case ENTITY -> {
 
-                context = new EntityContext(presets, world, null);
+                AssetContext context = new EntityContext(presets, world, null);
                 yield ENTITY.createAsset(context);
             }
 
             case LAYOUT -> {
 
-                context = new LayoutContext(presets, world, null);
+                AssetContext context = new LayoutContext(presets, world, null);
                 yield LAYOUT.createAsset(context);
             }
 
@@ -179,79 +183,51 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public int getWidth() {
+        public final int getWidth() {
 
-            return switch (type) {
+            return switch (asset) {
 
-            case ELEMENT, ENTITY -> {
+            case PrimaryAssetInstance primary -> primary.getTileWidth();
 
-                PrimaryAssetInstance primary = (PrimaryAssetInstance) asset;
-                yield primary.getTileWidth();
-            }
+            case LayoutInstance layout -> layout.getWidth();
 
-            case LAYOUT -> {
-
-                LayoutInstance layout = (LayoutInstance) asset;
-                yield layout.getWidth();
-            }
-
-            case null, default -> 0;
+            default -> 0;
             };
         }
 
         @Override
-        public int getLength() {
+        public final int getLength() {
 
-            return switch (type) {
+            return switch (asset) {
 
-            case ELEMENT, ENTITY -> {
+            case PrimaryAssetInstance primary -> primary.getTileLength();
 
-                PrimaryAssetInstance primary = (PrimaryAssetInstance) asset;
-                yield primary.getTileLength();
-            }
+            case LayoutInstance layout -> layout.getLength();
 
-            case LAYOUT -> {
-
-                LayoutInstance layout = (LayoutInstance) asset;
-                yield layout.getLength();
-            }
-
-            case null, default -> 0;
+            default -> 0;
             };
         }
 
         @Override
-        public AreaGrid generate() {
+        public final AreaGrid generate() {
 
-            return switch (type) {
+            return switch (asset) {
 
-            case ELEMENT -> {
+            case PrimaryAssetInstance primary -> {
 
                 AreaGrid area = createArea();
-
-                ElementInstance element = (ElementInstance) asset;
-                area.apply(element);
-
+                // area.apply(primary);
                 yield area;
             }
 
-            case ENTITY -> {
+            case LayoutInstance layout -> {
 
                 AreaGrid area = createArea();
-
-                EntityInstance entity = (EntityInstance) asset;
-                area.apply(entity);
-
+                // area.apply(layout);
                 yield area;
             }
 
-            case LAYOUT -> {
-
-                LayoutInstance layout = (LayoutInstance) asset;
-                yield layout.generate();
-            }
-
-            case null, default -> null;
+            default -> null;
             };
         }
     }
@@ -264,18 +240,21 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public int getWidth() {
+        public final int getWidth() {
 
+            return 0;
         }
 
         @Override
-        public int getLength() {
+        public final int getLength() {
 
+            return 0;
         }
 
         @Override
-        public AreaGrid generate() {
+        public final AreaGrid generate() {
 
+            return createArea();
         }
     }
 
@@ -289,66 +268,37 @@ public final class LayoutInstance extends AssetInstance {
             int cellWidth = cellSize.getWidth();
             int cellLength = cellSize.getLength();
 
-            ImmutableList<GenerationSchema> componentSchemas = schema.getComponents();
+            WeightedRoll<GenerationSchema> componentSchemas = schema.getComponents();
             schema.getGridSize();
             schema.getIterationType();
             schema.getPlacement();
         }
 
         @Override
-        public int getWidth() {
+        public final int getWidth() {
 
+            return 0;
         }
 
         @Override
-        public int getLength() {
+        public final int getLength() {
 
+            return 0;
         }
 
         @Override
-        public AreaGrid generate() {
+        public final AreaGrid generate() {
 
+            return createArea();
         }
     }
 
-    public final class BlueprintGenerationInstance extends GenerationInstance {
-
-        private final int width;
-
-        @Override
-        public int getWidth() {
-
-            return width;
-        }
-
-        private final int length;
-
-        @Override
-        public int getLength() {
-
-            return length;
-        }
-
-        public BlueprintGenerationInstance(BlueprintGenerationSchema schema) {
-
-            super(schema);
-
-            width = schema.getWidth();
-            length = schema.getLength();
-        }
-
-        @Override
-        public AreaGrid generate() {
-
-        }
-    }
-
-    public AreaGrid generate() {
+    public final AreaGrid generate() {
 
         return generation.generate();
     }
 
     @Override
-    protected void onUpdate(double time) {
+    protected final void onUpdate(double time) {
     }
 }
