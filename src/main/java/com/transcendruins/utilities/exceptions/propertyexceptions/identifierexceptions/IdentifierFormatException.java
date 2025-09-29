@@ -34,6 +34,6 @@ public final class IdentifierFormatException extends PropertyException {
      */
     public IdentifierFormatException(TracedEntry<String> entry) {
 
-        super(entry + " is in an invalid identifier format.", entry, "Identifier Format Exception");
+        super(entry.getValue() + " is in an invalid identifier format.", entry, "Identifier Format Exception");
     }
 }

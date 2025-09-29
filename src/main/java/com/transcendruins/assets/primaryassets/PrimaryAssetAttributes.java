@@ -157,17 +157,28 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
             TracedEntry<String> typeEntry = json.getAsString("type", false, null);
             String type = typeEntry.getValue();
 
-            // TODO: Implement interaction methods
             return switch (type) {
 
-            // case "inventory" -> new InventoryInteractionSchema(json);
+            case "inventory" -> new InventoryInteractionSchema(json);
 
-            // case "passageway" -> new PassagewayInteractionSchema(json);
+            case "passageway" -> new PassagewayInteractionSchema(json);
 
             case "none" -> InteractionSchema.NONE;
 
             default -> throw new UnexpectedValueException(typeEntry);
             };
+        }
+    }
+
+    public static final class InventoryInteractionSchema extends InteractionSchema {
+
+        public InventoryInteractionSchema(TracedDictionary json) {
+        }
+    }
+
+    public static final class PassagewayInteractionSchema extends InteractionSchema {
+
+        public PassagewayInteractionSchema(TracedDictionary json) {
         }
     }
 }

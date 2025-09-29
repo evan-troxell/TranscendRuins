@@ -56,8 +56,8 @@ public final class InterfaceAttributes extends AssetAttributes {
     public static final String SELECT = "select"; // Drops down to reveal a list of elements that can be selected.
 
     // Container component types.
-    public static final String LIST = "list";
     public static final String CONTAINER = "container";
+    public static final String LIST = "list";
     public static final String INTERFACE = "interface";
 
     public static final String INVENTORY = "inventory";
@@ -189,9 +189,9 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         // case SELECT -> new SelectComponentSchema(json);
 
-        // case LIST -> new ListComponentSchema(json);
+        case CONTAINER -> new ContainerComponentSchema(json);
 
-        // case CONTAINER -> new ContainerComponentSchema(json);
+        case LIST -> new ListComponentSchema(json);
 
         case INTERFACE -> new InterfaceComponentSchema(json);
 
@@ -334,7 +334,7 @@ public final class InterfaceAttributes extends AssetAttributes {
             type = STRING;
             id = null;
             classes = new ImmutableSet<>();
-            style = Style.EMPTY;
+            style = Style.STRING_STYLE;
             value = new TRScript(string);
         }
 
@@ -506,9 +506,9 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             super(json, BUTTON);
 
-            if (json.containsKey("content")) {
+            if (json.containsKey("component")) {
 
-                ComponentSchema component = createComponent(json, "content");
+                ComponentSchema component = createComponent(json, "component");
                 addChild(component);
             }
 
@@ -610,7 +610,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             // case OPEN_MENU -> new OpenMenuComponentActionSchema(json);
 
-            // case CLOSE_MENU -> new CloseMenuComponentActionSchema(json);
+            case CLOSE_MENU -> null;// new CloseMenuComponentActionSchema(json);
 
             // case SHOW_COMPONENT
 
@@ -666,6 +666,44 @@ public final class InterfaceAttributes extends AssetAttributes {
             TracedEntry<AssetPresets> presetsEntry = json.getAsPresets("interface", false, AssetType.INTERFACE);
             presets = presetsEntry.getValue();
             addAssetDependency(presets);
+        }
+    }
+
+    public final class ContainerComponentSchema extends ComponentSchema {
+
+        public ContainerComponentSchema(TracedDictionary json) throws LoggedException {
+
+            super(json, CONTAINER);
+
+            if (json.containsKey("components")) {
+
+                TracedEntry<TracedArray> componentsEntry = json.getAsArray("components", false);
+                TracedArray componentsJson = componentsEntry.getValue();
+
+                for (int i : componentsJson) {
+
+                    addChild(createComponent(componentsJson, i));
+                }
+            }
+        }
+    }
+
+    public final class ListComponentSchema extends ComponentSchema {
+
+        public ListComponentSchema(TracedDictionary json) throws LoggedException {
+
+            super(json, LIST);
+
+            if (json.containsKey("components")) {
+
+                TracedEntry<TracedArray> componentsEntry = json.getAsArray("components", false);
+                TracedArray componentsJson = componentsEntry.getValue();
+
+                for (int i : componentsJson) {
+
+                    addChild(createComponent(componentsJson, i));
+                }
+            }
         }
     }
 }

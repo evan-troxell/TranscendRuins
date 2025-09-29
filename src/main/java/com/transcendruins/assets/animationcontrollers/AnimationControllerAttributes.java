@@ -240,12 +240,6 @@ public final class AnimationControllerAttributes extends AssetAttributes {
                         addAssetDependency(animation);
                         return animation;
                     }, ANIMATION))));
-
-                    TracedEntry<AssetPresets> animationEntry = animationsJson.getAsPresets(i, false, ANIMATION);
-                    AssetPresets animation = animationEntry.getValue();
-
-                    stateAnimationsList.add(animation);
-                    addAssetDependency(animation);
                 }
 
                 stateAnimations = new ImmutableList<>(stateAnimationsList);

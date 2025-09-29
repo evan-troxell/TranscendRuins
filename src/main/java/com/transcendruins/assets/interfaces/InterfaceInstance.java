@@ -29,6 +29,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -42,7 +43,9 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ButtonComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentActionSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.ContainerComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InterfaceComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.ListComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.StringComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.TextComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.TextureComponentSchema;
@@ -53,6 +56,7 @@ import com.transcendruins.resources.styles.Style.BorderStyle;
 import com.transcendruins.resources.styles.Style.Overflow;
 import com.transcendruins.resources.styles.Style.OverflowWrap;
 import com.transcendruins.resources.styles.Style.SizeDimensions;
+import com.transcendruins.resources.styles.Style.TextAlign;
 import com.transcendruins.resources.styles.Style.TextOverflow;
 import com.transcendruins.resources.styles.Style.TextureSize;
 import com.transcendruins.resources.styles.Style.WhiteSpace;
@@ -148,6 +152,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         // TODO: Add rest of UI component types
         return switch (schema) {
 
+        case StringComponentSchema stringSchema -> new StringComponentInstance(stringSchema, parent, random);
+
         case TextComponentSchema labelSchema -> new TextComponentInstance(labelSchema, parent, random);
 
         case TextureComponentSchema labelSchema -> new TextureComponentInstance(labelSchema, parent, random);
@@ -163,11 +169,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         // case SelectComponentSchema selectSchema -> new
         // SelectComponentInstance(selectSchema, parent);
 
-        // case ListComponentSchema listSchema -> new ListComponentInstance(listSchema,
-        // parent);
+        case ContainerComponentSchema containerSchema -> new ContainerComponentInstance(containerSchema, parent,
+                random);
 
-        // case ContainerComponentSchema panelSchema -> new
-        // ContainerComponentInstance(panelSchema, parent);
+        case ListComponentSchema listSchema -> new ListComponentInstance(listSchema, parent, random);
 
         case InterfaceComponentSchema interfaceSchema -> new InterfaceComponentInstance(interfaceSchema, parent,
                 random);
@@ -362,11 +367,26 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private Font font = null;
         private FontMetrics fm = null;
 
+        private TextAlign textAlign = null;
         private WhiteSpace whiteSpace = null;
         private OverflowWrap overflowWrap = null;
         private TextOverflow textOverflow = null;
         private Overflow overflowX = null;
         private Overflow overflowY = null;
+
+        private int gapWidth;
+
+        public final int getGapWidth() {
+
+            return gapWidth;
+        }
+
+        private int gapHeight;
+
+        public final int getGapHeight() {
+
+            return gapHeight;
+        }
 
         private final long randomComponentId;
 
@@ -421,15 +441,28 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             // Calculate the width.
             int minWidth = style.minWidth().getSize(parentWidth, 0);
-            width = style.width().getSize(parentHeight, minWidth);
+            width = style.width().getSize(parentWidth, minWidth);
 
             // Calculate the horizontal margins.
             marginLeft = style.marginLeft().getSize(parentWidth, 0);
             marginRight = style.marginRight().getSize(parentWidth, 0);
 
             // Calculate the horizontal borders.
-            borderLeft = style.borderLeftWidth().getSize(marginLeft, 0);
-            borderRight = style.borderRightWidth().getSize(marginRight, 0);
+            if (style.borderLeftStyle() == BorderStyle.NONE) {
+
+                borderLeft = 0;
+            } else {
+
+                borderLeft = style.borderLeftWidth().getSize(marginLeft, 0);
+            }
+
+            if (style.borderRightStyle() == BorderStyle.NONE) {
+
+                borderRight = 0;
+            } else {
+
+                borderRight = style.borderRightWidth().getSize(marginRight, 0);
+            }
 
             // Calculate the horizontal padding.
             paddingLeft = style.paddingLeft().getSize(parentWidth, 0);
@@ -444,15 +477,28 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             marginBottom = style.marginBottom().getSize(parentHeight, 0);
 
             // Calculate the vertical borders.
-            borderTop = style.borderTopWidth().getSize(marginTop, 0);
-            borderBottom = style.borderBottomWidth().getSize(marginBottom, 0);
+            if (style.borderTopStyle() == BorderStyle.NONE) {
+
+                borderTop = 0;
+            } else {
+
+                borderTop = style.borderTopWidth().getSize(marginTop, 0);
+            }
+
+            if (style.borderBottomStyle() == BorderStyle.NONE) {
+
+                borderBottom = 0;
+            } else {
+
+                borderBottom = style.borderBottomWidth().getSize(marginBottom, 0);
+            }
 
             // Calculate the vertical padding.
             paddingTop = style.paddingTop().getSize(parentHeight, 0);
             paddingBottom = style.paddingBottom().getSize(parentHeight, 0);
 
-            int boxWidth = width + paddingLeft + paddingRight + (borderLeft + borderRight) / 2;
-            int boxHeight = height + paddingTop + paddingBottom + (borderTop + borderBottom) / 2;
+            int boxWidth = width + paddingLeft + paddingRight;
+            int boxHeight = height + paddingTop + paddingBottom;
 
             SizeDimensions rTL = style.rTL();
             rxTL = rTL.width().getSize(boxWidth, 0);
@@ -514,6 +560,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             // the font.
             lineHeight = style.lineHeight().getSize(fontSize, fontSize);
 
+            textAlign = style.textAlign();
+
             // Create the font.
             font = new Font(style.fontFamily(), style.fontStyle() | style.fontWeight(), fontSize);
             BufferedImage fontImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
@@ -526,14 +574,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             overflowX = style.overflowX();
             overflowY = style.overflowY();
 
+            gapWidth = style.gap().getSize(width, 0);
+            gapHeight = style.gap().getSize(height, 0);
+
             eventPropagation = style.eventPropagation();
-        }
-
-        private BufferedImage render;
-
-        public final BufferedImage getRender() {
-
-            return render;
         }
 
         public static final record ImageClip(int x, int y, BufferedImage image) {
@@ -553,9 +597,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         @Override
         public final BufferedImage render(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
-
-            // Nullify the render so it cannot be reused by accident.
-            render = null;
 
             // Generate the current style.
             Style s = getStyle(parentStyle);
@@ -579,9 +620,15 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             if (contentSize.width > width && s.width() == Style.Size.AUTO) {
 
                 width = contentSize.width;
+            } else if (contentSize.width < width && s.width() == Style.Size.FIT_CONTENT) {
+
+                width = contentSize.width;
             }
 
             if (contentSize.height > height && s.height() == Style.Size.AUTO) {
+
+                height = contentSize.height;
+            } else if (contentSize.height < height && s.height() == Style.Size.FIT_CONTENT) {
 
                 height = contentSize.height;
             }
@@ -604,16 +651,87 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             // Create the component border and background.
             BufferedImage component = new BufferedImage(getTotalWidth(), getTotalHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2d = component.createGraphics();
+            g2d.setColor(Color.BLACK);
 
             // Adjust the origin to the top left corner of the component.
-            // If the left or top border widths are odd numbers, this will consume the
-            // larger integer half.
-            g2d.translate(marginLeft + Math.ceil(borderLeft / 2.0), marginTop + Math.ceil(borderTop / 2.0));
+            g2d.translate(marginLeft, marginTop);
+
+            Graphics2D g2 = (Graphics2D) g2d.create();
+
+            // Find the exact center of the component.
+            int internalWidth = width + paddingLeft + paddingRight;
+            int internalHeight = height + paddingTop + paddingBottom;
+
+            int centerX = internalWidth / 2 + borderLeft;
+            int centerY = internalHeight / 2 + borderTop;
+
+            // Start the border.
+            BorderStyle borderRightStyle = s.borderRightStyle();
+            Color borderRightColor = s.borderRightColor();
+
+            // Draw the right side.
+            if (borderRightStyle != BorderStyle.NONE && borderRight > 0) {
+
+                g2.setColor(borderRightColor);
+                g2.setStroke(new BasicStroke(borderRight * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+                Shape right = createSide(centerX, centerY, internalWidth, internalHeight, rxTR, ryTR, rxBR, ryBR);
+                g2.draw(right);
+            }
+
+            g2.rotate(Math.PI / 2, centerX, centerY);
+
+            BorderStyle borderBottomStyle = s.borderBottomStyle();
+            Color borderBottomColor = s.borderBottomColor();
+
+            // Draw the bottom side.
+            if (borderBottomStyle != BorderStyle.NONE && borderBottom > 0) {
+
+                g2.setColor(borderBottomColor);
+                g2.setStroke(new BasicStroke(borderBottom * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+                Shape bottom = createSide(centerX, centerY, internalHeight, internalWidth, ryBR, rxBR, ryBL, rxBL);
+                g2.draw(bottom);
+            }
+
+            g2.rotate(Math.PI / 2, centerX, centerY);
+
+            BorderStyle borderLeftStyle = s.borderLeftStyle();
+            Color borderLeftColor = s.borderLeftColor();
+
+            // Draw the left side.
+            if (borderLeftStyle != BorderStyle.NONE && borderLeft > 0) {
+
+                g2.setColor(borderLeftColor);
+                g2.setStroke(new BasicStroke(borderLeft * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+                Shape left = createSide(centerX, centerY, internalWidth, internalHeight, rxBL, ryBL, rxTL, ryTL);
+                g2.draw(left);
+            }
+
+            g2.rotate(Math.PI / 2, centerX, centerY);
+
+            BorderStyle borderTopStyle = s.borderTopStyle();
+            Color borderTopColor = s.borderTopColor();
+
+            // Draw the top side.
+            if (borderTopStyle != BorderStyle.NONE && borderTop > 0) {
+
+                g2.setColor(borderTopColor);
+                g2.setStroke(new BasicStroke(borderTop * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+                Shape top = createSide(centerX, centerY, internalHeight, internalWidth, ryTL, rxTL, ryTR, rxTR);
+                g2.draw(top);
+            }
+
+            // End the border.
+            g2.dispose();
+
+            g2d.translate(borderLeft, borderTop);
+
+            // Draw the content after the border and the remaining half of the padding.
+            int contentX = paddingLeft;
+            int contentY = paddingTop;
 
             // Creates the content bounds.
-            Shape contentBounds = createBounds(width + paddingLeft + paddingRight + (borderLeft + borderRight) / 2,
-                    height + paddingTop + paddingBottom + (borderTop + borderBottom) / 2, rxTR, ryTR, rxTL, ryTL, rxBL,
-                    ryBL, rxBR, ryBR);
+            Shape contentBounds = createBounds(width + paddingLeft + paddingRight, height + paddingTop + paddingBottom,
+                    rxTR, ryTR, rxTL, ryTL, rxBL, ryBL, rxBR, ryBR);
 
             // Process the background color and image.
             Color backgroundColor = s.backgroundColor();
@@ -631,80 +749,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             backgroundTexture = newBackgroundTexture;
 
             TextureSize backgroundSize = s.backgroundSize();
-            drawBackground(g2d, backgroundColor, backgroundIcon, backgroundSize, contentBounds);
 
-            // Start the border.
-            Graphics2D g2 = (Graphics2D) g2d.create();
-
-            // Find the exact center of the component.
-            int centerX = (width + borderLeft) / 2 + paddingLeft;
-            int centerY = (height + borderTop) / 2 + paddingTop;
-            int internalWidth = width + paddingLeft + paddingRight + (borderLeft + borderRight) / 2;
-            int internalHeight = height + paddingTop + paddingBottom + (borderTop + borderBottom) / 2;
-
-            BorderStyle borderRightStyle = s.borderRightStyle();
-            Color borderRightColor = s.borderRightColor();
-
-            // Draw the right side.
-            if (borderRightStyle != BorderStyle.NONE && borderRight > 0) {
-
-                g2.setColor(borderRightColor);
-                g2.setStroke(new BasicStroke(borderRight));
-                Shape right = createSide(centerX, centerY, internalWidth, internalHeight, rxTR, ryTR, rxBR, ryBR);
-                g2.draw(right);
-            }
-
-            g2.rotate(Math.PI / 2, centerX, centerY);
-
-            BorderStyle borderBottomStyle = s.borderBottomStyle();
-            Color borderBottomColor = s.borderBottomColor();
-
-            // Draw the bottom side.
-            if (borderBottomStyle != BorderStyle.NONE && borderBottom > 0) {
-
-                g2.setColor(borderBottomColor);
-                g2.setStroke(new BasicStroke(borderBottom));
-                Shape bottom = createSide(centerX, centerY, internalHeight, internalWidth, ryBR, rxBR, ryBL, rxBL);
-                g2.draw(bottom);
-            }
-
-            g2.rotate(Math.PI / 2, centerX, centerY);
-
-            BorderStyle borderLeftStyle = s.borderLeftStyle();
-            Color borderLeftColor = s.borderLeftColor();
-
-            // Draw the left side.
-            if (borderLeftStyle != BorderStyle.NONE && borderLeft > 0) {
-
-                g2.setColor(borderLeftColor);
-                g2.setStroke(new BasicStroke(borderLeft));
-                Shape left = createSide(centerX, centerY, internalWidth, internalHeight, rxBL, ryBL, rxTL, ryTL);
-                g2.draw(left);
-            }
-
-            g2.rotate(Math.PI / 2, centerX, centerY);
-
-            BorderStyle borderTopStyle = s.borderTopStyle();
-            Color borderTopColor = s.borderTopColor();
-
-            // Draw the top side.
-            if (borderTopStyle != BorderStyle.NONE && borderTop > 0) {
-
-                g2.setColor(borderTopColor);
-                g2.setStroke(new BasicStroke(borderTop));
-                Shape top = createSide(centerX, centerY, internalHeight, internalWidth, ryTL, rxTL, ryTR, rxTR);
-                g2.draw(top);
-            }
-
-            // End the border.
-            g2.dispose();
-
-            // Draw the content after the border and the remaining half of the padding.
-            int contentX = borderLeft / 2 + paddingLeft;
-            int contentY = borderTop / 2 + paddingTop;
-
-            // Ensure the shape is self-contained
+            // Ensure the shape is self-contained, draw the content and background.
             g2d.clip(contentBounds);
+            drawBackground(g2d, backgroundColor, backgroundIcon, backgroundSize, contentBounds);
             g2d.drawImage(content, contentX - scrollX, contentY - scrollY, null);
 
             g2d.dispose();
@@ -744,7 +792,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private Shape createSide(int centerX, int centerY, int width, int height, int wT, int hT, int wB, int hB) {
 
             int startX = centerX + width / 2;
-            int startY = centerY;
+            int startY = centerY + (hT - hB) / 2;
 
             Path2D.Double path = new Path2D.Double();
 
@@ -770,10 +818,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         protected final void drawBackground(Graphics2D g2d, Color color, ImageIcon icon, TextureSize size,
                 Shape bounds) {
 
-            // Clip out the content bounds just for the background.
-            g2d = (Graphics2D) g2d.create();
-            g2d.clip(bounds);
-
             if (color != Style.TRANSPARENT) {
 
                 g2d.setColor(color);
@@ -783,8 +827,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             // Process the background texture, if it has one.
             if (icon != null) {
 
-                drawTexture(g2d, icon, 0, 0, size);
-                g2d.dispose();
+                drawTexture(g2d, icon, 0, 0, width + paddingLeft + paddingRight, height + paddingTop + paddingBottom,
+                        size);
             }
         }
 
@@ -793,7 +837,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             g2d.drawImage(image, x, y, null);
         }
 
-        protected final void drawTexture(Graphics2D g2d, ImageIcon icon, int x, int y, TextureSize size) {
+        protected final void drawTexture(Graphics2D g2d, ImageIcon icon, int x, int y, int width, int height,
+                TextureSize size) {
 
             int textureWidth = icon.getIconWidth();
             int textureHeight = icon.getIconHeight();
@@ -814,19 +859,57 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             g2d.setColor(color);
             g2d.setFont(font);
 
-            if (whiteSpace == WhiteSpace.NOWRAP) {
-
-                text = textOverflow(fm, text, width - x);
-                g2d.drawString(text, x, y);
-                return;
-            }
-
-            ArrayList<String> lines = wrapText(text, fm, width - x);
-
+            List<String> lines = whiteSpace != WhiteSpace.NOWRAP ? wrapText(text, fm, width - x) : List.of(text);
+            lines = lines.stream().map(line -> textOverflow(fm, line, width - x)).toList();
             for (int i = 0; i < lines.size(); i++) {
 
-                text = textOverflow(fm, lines.get(i), width - x);
-                g2d.drawString(text, x, y + i * lineHeight);
+                text = lines.get(i);
+                int lineWidth = fm.stringWidth(text);
+
+                // Handle the left align case.
+                if (textAlign == TextAlign.LEFT || lineWidth > width) {
+
+                    g2d.drawString(text, x, y + fontSize + lineHeight * i);
+                    continue;
+                }
+
+                // Handle the right align case.
+                if (textAlign == TextAlign.RIGHT) {
+
+                    g2d.drawString(text, x + width - lineWidth, y + fontSize + lineHeight * i);
+                    continue;
+                }
+
+                // Handle the center align case.
+                if (textAlign == TextAlign.CENTER) {
+
+                    g2d.drawString(text, x + (width - lineWidth) / 2, y + fontSize + lineHeight * i);
+                    continue;
+                }
+
+                // Handle the justify align case.
+                if (i == lines.size() - 1) {
+
+                    g2d.drawString(text, x, y + fontSize + lineHeight * i);
+                    continue;
+                }
+
+                String[] tokens = text.split(" ");
+                if (tokens.length <= 1) {
+
+                    g2d.drawString(text, x, y + fontSize + lineHeight * i);
+                    continue;
+                }
+
+                double splitLength = Arrays.stream(tokens).mapToInt(fm::stringWidth).sum();
+                double spaceWidth = (width - x - splitLength) / (tokens.length - 1);
+
+                int offset = 0;
+                for (String token : tokens) {
+
+                    g2d.drawString(token, x + offset, y + fontSize + lineHeight * i);
+                    offset += spaceWidth + fm.stringWidth(token);
+                }
             }
         }
 
@@ -847,6 +930,16 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         protected final Dimension calculateTextSize(String text, int x, int y) {
+
+            if (textAlign != TextAlign.LEFT) {
+
+                if (whiteSpace == WhiteSpace.NOWRAP) {
+
+                    return new Dimension(width - x, lineHeight);
+                }
+
+                return new Dimension(width - x, lineHeight * wrapText(text, fm, width - x).size());
+            }
 
             if (whiteSpace == WhiteSpace.NOWRAP) {
 
@@ -871,61 +964,52 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             ArrayList<String> lines = new ArrayList<>();
             String line = "";
 
-            // Handle the case when the overflow wrap breaks between words and hyphens.
-            if (overflowWrap == OverflowWrap.BREAK_WORD) {
+            int lineStart = 0;
+            int prevBreak = -1;
+            boolean whitespaceBreak = false;
+            for (int i = 0; i < text.length(); i++) {
 
-                int lineStart = 0;
+                line = text.substring(lineStart, i + 1);
 
-                for (int i = 0; i < text.length(); i++) {
+                char c = text.charAt(i);
+                if (c == '\n') {
 
-                    line = text.substring(lineStart, i + 1);
+                    String prevLine = text.substring(lineStart, i);
+                    lines.add(prevLine);
 
-                    int lineLength = fm.stringWidth(line);
-
-                    // If the line is too long and can be broken, split into 2 new lines.
-                    if (lineLength > maxWidth) {
-
-                        // Cap the old line off with the space/hyphen.
-                        String prevLine = text.substring(lineStart, i);
-                        lines.add(prevLine);
-
-                        // Start the new line.
-                        lineStart = i;
-                        line = text.substring(lineStart, i + 1);
-                    }
+                    // Start the new line.
+                    lineStart = i + 1;
+                    line = "";
                 }
-            } else {
 
-                int lineStart = 0;
-                int prevBreak = -1;
-                for (int i = 0; i < text.length(); i++) {
+                if (c == ' ' || c == '-') {
 
-                    line = text.substring(lineStart, i + 1);
+                    prevBreak = i;
+                    whitespaceBreak = c == ' ';
+                }
 
-                    char c = text.charAt(i);
-                    if (c == ' ' || c == '-') {
+                int lineLength = fm.stringWidth(line);
 
-                        prevBreak = i;
-                    }
+                // If the line is too long and can be broken, split into 2 new lines.
+                if (lineLength > maxWidth) {
 
-                    // The only time a line can break is when a breaking character has been found.
-                    if (prevBreak == -1) {
-
-                        continue;
-                    }
-
-                    int lineLength = fm.stringWidth(line);
-
-                    // If the line is too long and can be broken, split into 2 new lines.
-                    if (lineLength > maxWidth) {
+                    if (prevBreak != -1) {
 
                         // Cap the old line off with the space/hyphen.
-                        String prevLine = text.substring(lineStart, prevBreak + 1);
+                        String prevLine = text.substring(lineStart, prevBreak + (whitespaceBreak ? 0 : 1));
                         lines.add(prevLine);
 
                         // Start the new line.
                         lineStart = prevBreak + 1;
                         prevBreak = -1;
+                        line = text.substring(lineStart, i + 1);
+                    } else if (overflowWrap == OverflowWrap.BREAK_WORD) {
+
+                        String prevLine = text.substring(lineStart, i);
+                        lines.add(prevLine);
+
+                        // Start the new line.
+                        lineStart = i;
                         line = text.substring(lineStart, i + 1);
                     }
                 }
@@ -944,12 +1028,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             if (textOverflow != TextOverflow.CLIP && fm.stringWidth(line) > maxWidth) {
 
+                String overflow = textOverflow.overflow();
+
                 while (line.length() > 1) {
 
                     line = line.substring(0, line.length() - 1);
-                    if (fm.stringWidth(line) <= maxWidth) {
+                    if (fm.stringWidth(line + overflow) <= maxWidth) {
 
-                        line += textOverflow.overflow();
+                        line += overflow;
                         break;
                     }
                 }
@@ -1036,9 +1122,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
 
             string = getWorld().getText(key);
-            Dimension textSize = calculateTextSize(string, 0, 0);
-
-            return new Dimension(textSize.width, textSize.height);
+            return calculateTextSize(string, 0, 0);
         }
 
         @Override
@@ -1110,7 +1194,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            drawTexture(g2d, icon, 0, 0, style.textureFit());
+            drawTexture(g2d, icon, 0, 0, getWidth(), getHeight(), style.textureFit());
         }
 
         @Override
@@ -1211,6 +1295,124 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public final void onComponentClick(int mouseX, int mouseY, TRScript value) {
 
+        }
+    }
+
+    public final class ContainerComponentInstance extends ComponentInstance {
+
+        public ContainerComponentInstance(ContainerComponentSchema schema, ComponentInstance parent,
+                DeterministicRandom random) {
+
+            super(schema, parent, true, random);
+        }
+
+        @Override
+        public Dimension calculateContentSize(Style style, List<ImageClip> children) {
+
+            int maxWidth = 0;
+            int maxHeight = 0;
+
+            for (ImageClip child : children) {
+
+                BufferedImage childRender = child.image();
+                maxWidth = Math.max(maxWidth, child.x() + childRender.getWidth());
+                maxHeight = Math.max(maxHeight, child.y() + childRender.getHeight());
+            }
+
+            return new Dimension(maxWidth, maxHeight);
+        }
+
+        @Override
+        public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            for (ImageClip child : children) {
+
+                BufferedImage childRender = child.image();
+                g2d.drawImage(childRender, child.x(), child.y(), null);
+            }
+        }
+
+        @Override
+        public void onComponentClick(int mouseX, int mouesY, TRScript value) {
+        }
+    }
+
+    public final class ListComponentInstance extends ComponentInstance {
+
+        public ListComponentInstance(ListComponentSchema schema, ComponentInstance parent, DeterministicRandom random) {
+
+            super(schema, parent, true, random);
+        }
+
+        @Override
+        public Dimension calculateContentSize(Style style, List<ImageClip> children) {
+
+            int maxWidth = 0;
+            int maxHeight = 0;
+
+            if (style.listDirection() == Style.Direction.VERTICAL) {
+
+                for (ImageClip child : children) {
+
+                    BufferedImage childRender = child.image();
+                    maxWidth = Math.max(maxWidth, child.x() + childRender.getWidth());
+                    maxHeight += child.y() + childRender.getHeight();
+                }
+
+                int gapHeight = getGapHeight();
+                maxHeight += gapHeight * (children.size() - 1);
+            } else {
+
+                for (ImageClip child : children) {
+
+                    BufferedImage childRender = child.image();
+                    maxHeight = Math.max(maxHeight, child.y() + childRender.getHeight());
+                    maxWidth += child.x() + childRender.getWidth();
+                }
+
+                int gapWidth = getGapWidth();
+                maxWidth += gapWidth * (children.size() - 1);
+            }
+
+            return new Dimension(maxWidth, maxHeight);
+        }
+
+        @Override
+        public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            if (style.listDirection() == Style.Direction.VERTICAL) {
+
+                int gapHeight = getGapHeight();
+
+                int currY = 0;
+                for (ImageClip child : children) {
+
+                    BufferedImage childRender = child.image();
+                    currY += child.y();
+
+                    g2d.drawImage(childRender, child.x(), currY, null);
+
+                    currY += gapHeight;
+                }
+            } else {
+
+                int gapWidth = getGapWidth();
+
+                int currX = 0;
+                for (ImageClip child : children) {
+
+                    BufferedImage childRender = child.image();
+                    currX += child.x();
+
+                    g2d.drawImage(childRender, currX, child.y(), null);
+
+                    currX += gapWidth;
+                }
+            }
+        }
+
+        @Override
+        public void onComponentClick(int mouseX, int mouesY, TRScript value) {
         }
     }
 

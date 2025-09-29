@@ -21,10 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.transcendruins.assets.AssetType;
-import static com.transcendruins.assets.AssetType.LOCATION;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
-import com.transcendruins.assets.recipes.RecipeSet;
+import com.transcendruins.assets.catalogue.locations.GlobalLocation;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.FileException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
@@ -44,20 +43,20 @@ import com.transcendruins.utilities.json.TracedEntry;
 public final class AssetCatalogue {
 
     /**
-     * <code>ImmutableMap&lt;String, AssetPresets&gt;</code>: The global location
+     * <code>ImmutableMap&lt;String, GlobalLocation&gt;</code>: The global location
      * catalogue of this <code>AssetCatalogue</code> instance.
      */
-    private final ImmutableMap<String, AssetPresets> locations;
+    private final ImmutableMap<String, GlobalLocation> locations;
 
     /**
      * Retrieves the global location catalogue of this <code>AssetCatalogue</code>
      * instance.
      * 
-     * @return <code>ImmutableMap&lt;String, AssetPresets&gt;</code>: The
+     * @return <code>ImmutableMap&lt;String, GlobalLocation&gt;</code>: The
      *         <code>locations</code> field of this <code>AssetCatalogue</code>
      *         instance.
      */
-    public final ImmutableMap<String, AssetPresets> getLocations() {
+    public final ImmutableMap<String, GlobalLocation> getLocations() {
 
         return locations;
     }
@@ -144,7 +143,8 @@ public final class AssetCatalogue {
      */
     public AssetCatalogue(TracedPath path) {
 
-        ImmutableMap<String, AssetPresets> locationsMap = new ImmutableMap<>();
+        ImmutableMap<String, GlobalLocation> locationsMap = new ImmutableMap<>();
+
         ImmutableMap<String, ImmutableList<GlobalEventSchema>> eventsMap = new ImmutableMap<>();
 
         // Process the global map data.
@@ -227,9 +227,9 @@ public final class AssetCatalogue {
         recipes = recipesMap;
     }
 
-    private ImmutableMap<String, AssetPresets> createLocations(TracedCollection collection, Object key) {
+    private ImmutableMap<String, GlobalLocation> createLocations(TracedCollection collection, Object key) {
 
-        HashMap<String, AssetPresets> locationsMap = new HashMap<>();
+        HashMap<String, GlobalLocation> locationsMap = new HashMap<>();
 
         try {
 
@@ -243,10 +243,10 @@ public final class AssetCatalogue {
                     // work properly.
                     try {
 
-                        TracedEntry<AssetPresets> locationEntry = locationsJson.getAsPresets(locationKey, false,
-                                LOCATION);
-                        AssetPresets location = locationEntry.getValue();
+                        TracedEntry<TracedDictionary> locationEntry = locationsJson.getAsDict(locationKey, false);
+                        TracedDictionary locationJson = locationEntry.getValue();
 
+                        GlobalLocation location = new GlobalLocation(locationJson);
                         locationsMap.put(locationKey, location);
                     } catch (LoggedException _) {
                     }

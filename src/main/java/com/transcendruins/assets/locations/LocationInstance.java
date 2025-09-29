@@ -157,7 +157,7 @@ public final class LocationInstance extends AssetInstance {
      * @return <code>String</code>: The <code>primary</code> field of this
      *         <code>LocationInstance</code> instance.
      */
-    public String getPrimary() {
+    public final String getPrimary() {
 
         return primary;
     }
@@ -181,31 +181,78 @@ public final class LocationInstance extends AssetInstance {
     }
 
     /**
-     * <code>LocationReset</code>: The reset settings of this
+     * <code>ZonedDateTime</code>: The timestamp at which this
+     * <code>LocationInstance</code> was created.
+     */
+    private final ZonedDateTime locationCreatedTimestamp;
+
+    /**
+     * <code>LocationReset</code>: The reset behavior of this
      * <code>LocationInstance</code> instance.
      */
     private LocationReset reset;
 
+    private ZonedDateTime locationResetTimestamp;
+
     /**
-     * <code>ZonedDateTime</code>: The timestamp of when the player last exited this
+     * <code>ZonedDateTime</code>: The timestamp of when the last player exited this
      * <code>LocationInstance</code> instance.
      */
-    private ZonedDateTime prevExitTimestamp = ZonedDateTime.now();
+    private ZonedDateTime prevEntranceTimestamp;
+
+    private final HashMap<Long, String> players = new HashMap<>();
+
+    public final boolean isEmpty() {
+
+        return players.isEmpty();
+    }
 
     /**
-     * <code>double</code>: The total duration of time since the last reset, in
-     * minutes. This does not include the most recent period of time since the
-     * player left the location.
+     * <code>double</code>: The total duration of time spent inside the location
+     * since the last reset, in minutes.
      */
-    private double resetDurationCount = 0.0;
+    private double resetOffsetCounter = 0.0;
 
-    /**
-     * <code>LocationEvent</code>: The event settings of this
-     * <code>LocationInstance</code> instance.
-     */
-    private LocationEvent event;
+    public final void enter(long player, String area) {
 
-    private ZonedDateTime locationCreatedTimestamp;
+        if (area == null) {
+
+            area = primary;
+        }
+
+        if (isEmpty()) {
+
+            prevEntranceTimestamp = ZonedDateTime.now();
+
+            // If there are currently no players and the location should be reset,
+            // regenerate.
+            if (getMinutesUntilReset(prevEntranceTimestamp) <= 0) {
+
+                generate();
+            }
+        }
+        players.put(player, area);
+    }
+
+    public final void exit(long player) {
+
+        // If there is not a player in the location, the entrance timestamp will be
+        // null.
+        if (prevEntranceTimestamp == null) {
+
+            return;
+        }
+
+        players.remove(player);
+        if (players.isEmpty()) {
+
+            ZonedDateTime now = ZonedDateTime.now();
+            double duration = minutesBetween(prevEntranceTimestamp, now);
+            resetOffsetCounter += duration;
+
+            prevEntranceTimestamp = null;
+        }
+    }
 
     private boolean active;
 
@@ -222,18 +269,18 @@ public final class LocationInstance extends AssetInstance {
 
     public final void activate() {
 
-        if (active || event == null) {
+        if (!active) {
 
             return;
         }
-        setActive(true);
 
-        locationCreatedTimestamp = ZonedDateTime.now();
+        setActive(true);
+        locationResetTimestamp = ZonedDateTime.now();
     }
 
     public final void deactivate() {
 
-        if (!active || event == null) {
+        if (!active) {
 
             return;
         }
@@ -242,107 +289,15 @@ public final class LocationInstance extends AssetInstance {
     }
 
     /**
-     * <code>boolean</code>: Whether or not the player is currently occupying this
-     * <code>LocationInstance</code> instance.
-     */
-    private boolean occupied;
-
-    /**
-     * Retrieves whether or not the player is currently occupying this
-     * <code>LocationInstance</code> instance.
-     * 
-     * @return <code>boolean</code>: The <code>occupied</code> field of this
-     *         <code>LocationInstance</code> instance.
-     */
-    public final boolean getOccupied() {
-
-        return occupied;
-    }
-
-    /**
-     * Enters the player into this <code>LocationInstance</code> instance.
-     */
-    public final void enter() {
-
-        if (occupied) {
-
-            return;
-        }
-
-        // If this location is not already active or the reset countdown has conluded,
-        // reset this location.
-        if (!resetCountdownActive() || !active) {
-
-            generate();
-        }
-
-        // Adjust the reset duration counter.
-        ZonedDateTime now = ZonedDateTime.now();
-        resetDurationCount += minutesBetween(prevExitTimestamp, now);
-
-        occupied = true;
-    }
-
-    /**
-     * Exits the player from this <code>LocationInstance</code> instance.
-     */
-    public final void exit() {
-
-        if (!occupied) {
-
-            return;
-        }
-
-        // Adjust the previous timestamp so the countdown only starts counting down from
-        // when the player exited the location.
-        prevExitTimestamp = ZonedDateTime.now();
-
-        occupied = false;
-    }
-
-    /**
-     * Determines whether or not this <code>LocationInstance</code> instance has a
-     * reset mechanism.
-     * 
-     * @return <code>boolean</code>: If this <code>LocationInstance</code> has a
-     *         reset mechanism.
-     */
-    public final boolean hasReset() {
-
-        return reset != null && reset.getDuration() != -1;
-    }
-
-    /**
      * Determines the length in minutes until the reset countdown will end.
      * 
+     * @param now <code>ZonedDateTime</code>: The current timestamp.
      * @return <code>double</code>: The duration in minutes.
      */
-    public final double getMinutesUntilReset() {
+    public final double getMinutesUntilReset(ZonedDateTime now) {
 
-        ZonedDateTime now = ZonedDateTime.now();
-
-        double minutes = resetDurationCount + minutesBetween(prevExitTimestamp, now);
-
-        return reset.getDuration() - minutes;
-    }
-
-    /**
-     * Determines whether or not this <code>LocationInstance</code> instance is
-     * within the reset cooldown. A value of <code>true</code> means the location
-     * does not need to be reset.
-     * 
-     * @return <code>boolean</code>: Whether or not this
-     *         <code>LocationInstance</code> instance is within the reset cooldown.
-     */
-    public final boolean resetCountdownActive() {
-
-        if (!hasReset()) {
-
-            return true;
-        }
-
-        return getMinutesUntilReset() > 0;
-
+        double minutes = minutesBetween(locationResetTimestamp, now);
+        return reset.getDuration() - minutes + resetOffsetCounter;
     }
 
     /**
@@ -350,42 +305,41 @@ public final class LocationInstance extends AssetInstance {
      * the location does not have a reset countdown, if the countdown has finished,
      * or if the player is in the location.
      * 
-     * @return <code>String</code>: The minutes formatted as H:MM:SS or MM:SS.
+     * @param now <code>ZonedDateTime</code>: The current timestamp.
+     * @return <code>String</code>: The minutes formatted as H:MM:SS or MM:SS, or
+     *         <code>null</code> if the counter should not be displayed.
      */
-    public final String getResetCounter() {
+    public final String getResetCounter(ZonedDateTime now) {
 
-        // If there is no reset countdown or the player is in the location, do not print
-        // the counter.
-        if (!hasReset() || !reset.getDisplayCountdownTimer() || occupied) {
+        if (!reset.getDisplayCountdownTimer()) {
 
             return null;
         }
 
-        double remaining = getMinutesUntilReset();
+        double remaining = getMinutesUntilReset(now);
+        if (remaining < 0) {
+
+            return null;
+        }
+
         return formatMinutes(remaining);
-    }
-
-    /**
-     * Determines whether or not this <code>LocationInstance</code> instance has an
-     * event-triggered end mechanism.
-     * 
-     * @return <code>boolean</code>: If this <code>LocationInstance</code> has an
-     *         end mechanism.
-     */
-    public final boolean hasEnd() {
-
-        return event != null && event.getDuration() != -1;
     }
 
     /**
      * Determines the length in minutes until the location will end.
      * 
+     * @param start           <code>ZonedDateTime</code>: The time of origin of this
+     *                        <code>LocationInstance</code> instance. If this
+     *                        location does not have a set origin time, its moment
+     *                        of creation will be the time the location was created.
+     * @param triggerDuration <code>double</code>: The total duration of time
+     *                        between the creation of this
+     *                        <code>LocationInstance</code> instance and its end.
      * @return <code>double</code>: The duration in minutes.
      */
-    public final double getMinutesUntilEnd() {
+    public final double getMinutesUntilEnd(ZonedDateTime start, double triggerDuration) {
 
         ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime start = event.getStartTimestamp();
         if (start == null) {
 
             start = locationCreatedTimestamp;
@@ -393,42 +347,25 @@ public final class LocationInstance extends AssetInstance {
 
         double minutes = minutesBetween(start, now);
 
-        return event.getDuration() - minutes;
-    }
-
-    /**
-     * Determines whether or not this <code>LocationInstance</code> instance is
-     * within the end countdown. A value of <code>true</code> means the location
-     * does not need to be ended.
-     * 
-     * @return <code>boolean</code>: Whether or not this
-     *         <code>LocationInstance</code> instance is within the end cooldown.
-     */
-    public final boolean endCountdownActive() {
-
-        if (!hasEnd()) {
-
-            return true;
-        }
-
-        return getMinutesUntilEnd() > 0;
-
+        return triggerDuration - minutes;
     }
 
     /**
      * Outputs the end counter as a <code>String</code>, or <code>null</code> if the
      * location does not have a end countdown or if the countdown has finished.
      * 
+     * @param start           <code>ZonedDateTime</code>: The time of origin of this
+     *                        <code>LocationInstance</code> instance. If this
+     *                        location does not have a set origin time, its moment
+     *                        of creation will be the time the location was created.
+     * @param triggerDuration <code>double</code>: The total duration of time
+     *                        between the creation of this
+     *                        <code>LocationInstance</code> instance and its end.
      * @return <code>String</code>: The minutes formatted as H:MM:SS or MM:SS.
      */
-    public final String getEndCounter() {
+    public final String getEndCounter(ZonedDateTime start, double triggerDuration) {
 
-        if (!hasEnd() || !event.getDisplayCountdownTimer()) {
-
-            return null;
-        }
-
-        double remaining = getMinutesUntilEnd();
+        double remaining = getMinutesUntilEnd(start, triggerDuration);
         return formatMinutes(remaining);
     }
 
@@ -445,6 +382,8 @@ public final class LocationInstance extends AssetInstance {
         super(assetContext, key);
 
         LocationContext context = (LocationContext) assetContext;
+
+        locationCreatedTimestamp = ZonedDateTime.now();
 
         setActive(false);
     }
@@ -478,9 +417,9 @@ public final class LocationInstance extends AssetInstance {
             primaryTemplate = newPrimaryTemplate;
         }
 
-        reset = calculateAttribute(attributes.getReset(), reset);
-
-        event = calculateAttribute(attributes.getEvent(), event);
+        reset = attributes.getReset();
+        setProperty("resetDuration", reset.getDuration());
+        setProperty("displayCountdownTimer", reset.getDisplayCountdownTimer());
     }
 
     /**

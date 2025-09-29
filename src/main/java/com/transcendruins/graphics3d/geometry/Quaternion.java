@@ -176,9 +176,9 @@ public final class Quaternion {
 
     /**
      * Creates a new <code>Quaternion</code> instance using the Euler quaternion
-     * rotational formula <code>e^(θ • [uXi + uYj + uZk])</code>.
-     * Note that the components <code>uXi + uYj + uZk</code> are calculated using
-     * the provided horizontal and vertical unit sphere coordinates.
+     * rotational formula <code>e^(θ • [uXi + uYj + uZk])</code>. Note that the
+     * components <code>uXi + uYj + uZk</code> are calculated using the provided
+     * horizontal and vertical unit sphere coordinates.
      * 
      * @param theta       <code>double</code>: The rotation component of this
      *                    <code>Quaternion</code> instance.
@@ -205,11 +205,8 @@ public final class Quaternion {
         double A = getR(), B = getI(), C = getJ(), D = getK();
         double a = quaternion.getR(), b = quaternion.getI(), c = quaternion.getJ(), d = quaternion.getK();
 
-        return new Quaternion(
-                A * a - B * b - C * c - D * d,
-                A * b + B * a + C * d - D * c,
-                A * c - B * d + C * a + D * b,
-                A * d + B * c - C * b + D * a);
+        return new Quaternion(A * a - B * b - C * c - D * d, A * b + B * a + C * d - D * c,
+                A * c - B * d + C * a + D * b, A * d + B * c - C * b + D * a);
     }
 
     /**
@@ -244,19 +241,11 @@ public final class Quaternion {
      */
     public Matrix toMatrix() {
 
-        return new Matrix(3, 3, new double[] {
-                1 - 2 * (j * j + k * k),
-                2 * (i * j - r * k),
-                2 * (i * k + r * j),
+        return new Matrix(3, 3, new double[] { 1 - 2 * (j * j + k * k), 2 * (i * j - r * k), 2 * (i * k + r * j),
 
-                2 * (i * j + r * k),
-                1 - 2 * (i * i + k * k),
-                2 * (j * k - r * i),
+                2 * (i * j + r * k), 1 - 2 * (i * i + k * k), 2 * (j * k - r * i),
 
-                2 * (i * k - r * j),
-                2 * (j * k + r * i),
-                1 - 2 * (i * i + j * j)
-        });
+                2 * (i * k - r * j), 2 * (j * k + r * i), 1 - 2 * (i * i + j * j) });
     }
 
     /**
@@ -298,8 +287,7 @@ public final class Quaternion {
      * <code>Quaternion</code> instance.
      * 
      * @return <code>String</code>: This <code>Quaternion</code> instance in the
-     *         following string representation:
-     *         <br>
+     *         following string representation: <br>
      *         "<code>a + bi + cj + dk</code>"
      */
     @Override

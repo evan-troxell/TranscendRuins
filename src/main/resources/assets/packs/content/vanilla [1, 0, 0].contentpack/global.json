@@ -1,21 +1,30 @@
 {
     "locations": {
-        "home": "TranscendRuins:home",
+        "home": {
+            "location": "TranscendRuins:home"
+        },
 
-        "settlement": "TranscendRuins:settlement",
+        "pineSmall": {
+            "location": "TranscendRuins:pineSmall"
+        },
+        "pineMedium": {
+            "location": "TranscendRuins:pineMedium"
+        },
+        "pineLarge": {
+            "location": "TranscendRuins:pineLarge"
+        },
 
-        "carnival": "TranscendRuins:carnival",
+        "bunkerAlfa": {
+            "location": "TranscendRuins:bunkerAlfa"
+        },
 
-        "pineSmall": "TranscendRuins:pineSmall",
-        "pineMedium": "TranscendRuins:pineMedium",
-        "pineLarge": "TranscendRuins:pineLarge",
+        "convoy": {
+            "location": "TranscendRuins:convoy"
+        },
+        "survivorHome": {
+            "location": "TranscendRuins:survivorHome"
+        }
 
-        "bunkerAlfa": "TranscendRuins:bunkerAlfa",
-
-        "convoy": "TranscendRuins:convoy",
-        "survivorHome": "TranscendRuins:survivorHome",
-
-        "eventLocation": "TranscendRuins:eventLocation"
     },
     "events": {
         "convoy": {

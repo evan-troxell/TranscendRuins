@@ -28,13 +28,13 @@ public class GlobalEventInstance {
      * <code>String</code>: The name of this <code>GlobalEventInstance</code>
      * instance.
      */
-    private final String name;
+    // private final String name;
 
     /**
      * <code>String</code>: The description of this <code>GlobalEventInstance</code>
      * instance.
      */
-    private final String description;
+    // private final String description;
 
     /**
      * Creates a new instance of the <code>GlobalEventInstance</code> class.
@@ -44,7 +44,7 @@ public class GlobalEventInstance {
      */
     public GlobalEventInstance(GlobalEventSchema schema, World world) {
 
-        name = schema.getName();
-        description = schema.getDescription();
+        // name = schema.getName();
+        // description = schema.getDescription();
     }
 }

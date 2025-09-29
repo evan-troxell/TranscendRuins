@@ -357,10 +357,7 @@ public final class Vector extends Matrix {
 
         Matrix skewSymmetric = new Matrix(3, 3, new double[] {
 
-                0, -vector.getZ(), vector.getY(),
-                vector.getZ(), 0, -vector.getX(),
-                -vector.getY(), vector.getX(), 0
-        });
+                0, -vector.getZ(), vector.getY(), vector.getZ(), 0, -vector.getX(), -vector.getY(), vector.getX(), 0 });
 
         return multiply(skewSymmetric);
     }
@@ -430,8 +427,7 @@ public final class Vector extends Matrix {
      * Returns the string representation of this <code>Vector</code> instance.
      * 
      * @return <code>String</code>: This <code>Vector</code> instance in the
-     *         following string representation:
-     *         <br>
+     *         following string representation: <br>
      *         "<code>&lt;a, b, c...&gt;</code>"
      */
     @Override

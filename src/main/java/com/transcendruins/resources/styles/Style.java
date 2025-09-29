@@ -43,9 +43,9 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Size borderRightWidth, Color borderRightColor, SizeDimensions rTL, SizeDimensions rTR, SizeDimensions rBL,
         SizeDimensions rBR, Size marginTop, Size marginBottom, Size marginLeft, Size marginRight, Size paddingTop,
         Size paddingBottom, Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize,
-        String fontFamily, Size lineHeight, Color color, TextureSize textureFit, WhiteSpace whiteSpace,
-        OverflowWrap overflowWrap, TextOverflow textOverflow, Overflow overflowX, Overflow overflowY, Size gap,
-        Direction listDirection, Boolean eventPropagation) {
+        String fontFamily, Size lineHeight, TextAlign textAlign, Color color, TextureSize textureFit,
+        WhiteSpace whiteSpace, OverflowWrap overflowWrap, TextOverflow textOverflow, Overflow overflowX,
+        Overflow overflowY, Size gap, Direction listDirection, Boolean eventPropagation) {
 
     /**
      * <code>Style</code>: A style without any defined attributes which will inherit
@@ -53,7 +53,17 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
      */
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null);
+
+    /**
+     * <code>Style</code>: A style which represents default string literal UI
+     * components.
+     */
+    public static final Style STRING_STYLE = new Style(null, null, Size.FIT_CONTENT, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null);
 
     /**
      * <code>Color</code>: A fully transparent color.
@@ -68,7 +78,13 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
      * @throws LoggedException Thrown if an error was raised while processing the
      *                         JSON.
      */
-    public static Style createStyle(TracedCollection collection, Object key) throws LoggedException {
+    public static final Style createStyle(TracedCollection collection, Object key) throws LoggedException {
+
+        TracedEntry<TracedDictionary> entry = collection.getAsDict(key, true);
+        if (!entry.containsValue()) {
+
+            return EMPTY;
+        }
 
         Size x = null;
         Size y = null;
@@ -119,7 +135,9 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         String fontFamily = null;
 
         Size lineHeight = null;
+        TextAlign textAlign = null;
         Color color = null;
+
         TextureSize textureFit = null;
 
         WhiteSpace whiteSpace = null;
@@ -133,284 +151,287 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         Boolean eventPropagation = null;
 
-        TracedEntry<TracedDictionary> entry = collection.getAsDict(key, true);
-        if (entry.containsValue()) {
+        System.out.println();
+        System.out.println();
 
-            TracedDictionary json = entry.getValue();
+        TracedDictionary json = entry.getValue();
 
-            // Iterate through each property in the JSON.
-            for (String property : json) {
+        // Iterate through each property in the JSON.
+        for (String property : json) {
 
-                switch (property) {
+            System.out.println("TEST: " + property);
 
-                // Process the coordinates.
-                case "x" -> x = Size.createSize(json, property);
-                case "y" -> y = Size.createSize(json, property);
+            switch (property) {
 
-                // Process the size.
-                case "width" -> width = Size.createSize(json, property);
-                case "height" -> height = Size.createSize(json, property);
-                case "minWidth" -> minWidth = Size.createSize(json, property);
-                case "minHeight" -> minHeight = Size.createSize(json, property);
+            // Process the coordinates.
+            case "x" -> x = Size.createSize(json, property);
+            case "y" -> y = Size.createSize(json, property);
 
-                // Process the background.
-                case "background" -> {
+            // Process the size.
+            case "width" -> width = Size.createSize(json, property);
+            case "height" -> height = Size.createSize(json, property);
+            case "minWidth" -> minWidth = Size.createSize(json, property);
+            case "minHeight" -> minHeight = Size.createSize(json, property);
 
-                    TracedEntry<TracedDictionary> backgroundEntry = json.getAsDict(property, false);
-                    TracedDictionary backgroundJson = backgroundEntry.getValue();
+            // Process the background.
+            case "background" -> {
 
-                    for (String backgroundProperty : backgroundJson) {
+                TracedEntry<TracedDictionary> backgroundEntry = json.getAsDict(property, false);
+                TracedDictionary backgroundJson = backgroundEntry.getValue();
 
-                        switch (backgroundProperty) {
+                for (String backgroundProperty : backgroundJson) {
 
-                        case "color" -> backgroundColor = createColor(backgroundJson, backgroundProperty);
-                        case "texture" -> backgroundTexture = createString(backgroundJson, backgroundProperty);
-                        case "size" -> backgroundSize = TextureSize.createSize(backgroundJson, backgroundProperty);
-                        }
+                    switch (backgroundProperty) {
+
+                    case "color" -> backgroundColor = createColor(backgroundJson, backgroundProperty);
+                    case "texture" -> backgroundTexture = createString(backgroundJson, backgroundProperty);
+                    case "size" -> backgroundSize = TextureSize.createSize(backgroundJson, backgroundProperty);
                     }
                 }
-                case "backgroundColor" -> backgroundColor = createColor(json, property);
-                case "backgroundTexture" -> backgroundTexture = createString(json, property);
-                case "backgroundSize" -> backgroundSize = TextureSize.createSize(json, property);
+            }
+            case "backgroundColor" -> backgroundColor = createColor(json, property);
+            case "backgroundTexture" -> backgroundTexture = createString(json, property);
+            case "backgroundSize" -> backgroundSize = TextureSize.createSize(json, property);
 
-                // Process all four borders.
-                case "border" -> {
+            // Process all four borders.
+            case "border" -> {
 
-                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
-                    TracedDictionary borderJson = borderEntry.getValue();
+                TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                TracedDictionary borderJson = borderEntry.getValue();
 
-                    for (String borderProperty : borderJson) {
+                for (String borderProperty : borderJson) {
 
-                        switch (borderProperty) {
+                    switch (borderProperty) {
 
-                        case "style" -> borderLeftStyle = borderRightStyle = borderTopStyle = borderBottomStyle = BorderStyle
-                                .createBorderStyle(borderJson, borderProperty);
-                        case "width" -> borderLeftWidth = borderRightWidth = borderTopWidth = borderBottomWidth = Size
-                                .createSize(borderJson, borderProperty);
-                        case "color" -> borderLeftColor = borderRightColor = borderTopColor = borderBottomColor = createColor(
-                                borderJson, borderProperty);
-                        }
+                    case "style" -> borderLeftStyle = borderRightStyle = borderTopStyle = borderBottomStyle = BorderStyle
+                            .createBorderStyle(borderJson, borderProperty);
+                    case "width" -> borderLeftWidth = borderRightWidth = borderTopWidth = borderBottomWidth = Size
+                            .createSize(borderJson, borderProperty);
+                    case "color" -> borderLeftColor = borderRightColor = borderTopColor = borderBottomColor = createColor(
+                            borderJson, borderProperty);
                     }
                 }
-                case "borderStyle" -> borderLeftStyle = borderRightStyle = borderTopStyle = borderBottomStyle = BorderStyle
-                        .createBorderStyle(json, property);
-                case "borderWidth" -> borderLeftWidth = borderRightWidth = borderTopWidth = borderBottomWidth = Size
-                        .createSize(json, property);
-                case "borderColor" -> borderLeftColor = borderRightColor = borderTopColor = borderBottomColor = createColor(
-                        json, property);
+            }
+            case "borderStyle" -> borderLeftStyle = borderRightStyle = borderTopStyle = borderBottomStyle = BorderStyle
+                    .createBorderStyle(json, property);
+            case "borderWidth" -> borderLeftWidth = borderRightWidth = borderTopWidth = borderBottomWidth = Size
+                    .createSize(json, property);
+            case "borderColor" -> borderLeftColor = borderRightColor = borderTopColor = borderBottomColor = createColor(
+                    json, property);
 
-                // Process the top and bottom borders.
-                case "borderVertical" -> {
+            // Process the top and bottom borders.
+            case "borderVertical" -> {
 
-                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
-                    TracedDictionary borderJson = borderEntry.getValue();
+                TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                TracedDictionary borderJson = borderEntry.getValue();
 
-                    for (String borderProperty : borderJson) {
+                for (String borderProperty : borderJson) {
 
-                        switch (borderProperty) {
+                    switch (borderProperty) {
 
-                        case "style" -> borderTopStyle = borderBottomStyle = BorderStyle.createBorderStyle(borderJson,
-                                borderProperty);
-                        case "width" -> borderTopWidth = borderBottomWidth = Size.createSize(borderJson,
-                                borderProperty);
-                        case "color" -> borderTopColor = borderBottomColor = createColor(borderJson, borderProperty);
-                        }
+                    case "style" -> borderTopStyle = borderBottomStyle = BorderStyle.createBorderStyle(borderJson,
+                            borderProperty);
+                    case "width" -> borderTopWidth = borderBottomWidth = Size.createSize(borderJson, borderProperty);
+                    case "color" -> borderTopColor = borderBottomColor = createColor(borderJson, borderProperty);
                     }
                 }
-                case "borderVerticalStyle" -> borderTopStyle = borderBottomStyle = BorderStyle.createBorderStyle(json,
-                        property);
-                case "borderVerticalWidth" -> borderTopWidth = borderBottomWidth = Size.createSize(json, property);
-                case "borderVerticalColor" -> borderTopColor = borderBottomColor = createColor(json, property);
+            }
+            case "borderVerticalStyle" -> borderTopStyle = borderBottomStyle = BorderStyle.createBorderStyle(json,
+                    property);
+            case "borderVerticalWidth" -> borderTopWidth = borderBottomWidth = Size.createSize(json, property);
+            case "borderVerticalColor" -> borderTopColor = borderBottomColor = createColor(json, property);
 
-                // Process the top border.
-                case "borderTop" -> {
+            // Process the top border.
+            case "borderTop" -> {
 
-                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
-                    TracedDictionary borderJson = borderEntry.getValue();
+                TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                TracedDictionary borderJson = borderEntry.getValue();
 
-                    for (String borderProperty : borderJson) {
+                for (String borderProperty : borderJson) {
 
-                        switch (borderProperty) {
+                    switch (borderProperty) {
 
-                        case "style" -> borderTopStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
-                        case "width" -> borderTopWidth = Size.createSize(borderJson, borderProperty);
-                        case "color" -> borderTopColor = createColor(borderJson, borderProperty);
-                        }
+                    case "style" -> borderTopStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
+                    case "width" -> borderTopWidth = Size.createSize(borderJson, borderProperty);
+                    case "color" -> borderTopColor = createColor(borderJson, borderProperty);
                     }
                 }
-                case "borderTopStyle" -> borderTopStyle = BorderStyle.createBorderStyle(json, property);
-                case "borderTopWidth" -> borderTopWidth = Size.createSize(json, property);
-                case "borderTopColor" -> borderTopColor = createColor(json, property);
+            }
+            case "borderTopStyle" -> borderTopStyle = BorderStyle.createBorderStyle(json, property);
+            case "borderTopWidth" -> borderTopWidth = Size.createSize(json, property);
+            case "borderTopColor" -> borderTopColor = createColor(json, property);
 
-                // Process the bottom border.
-                case "borderBottom" -> {
+            // Process the bottom border.
+            case "borderBottom" -> {
 
-                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
-                    TracedDictionary borderJson = borderEntry.getValue();
+                TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                TracedDictionary borderJson = borderEntry.getValue();
 
-                    for (String borderProperty : borderJson) {
+                for (String borderProperty : borderJson) {
 
-                        switch (borderProperty) {
+                    switch (borderProperty) {
 
-                        case "style" -> borderBottomStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
-                        case "width" -> borderBottomWidth = Size.createSize(borderJson, borderProperty);
-                        case "color" -> borderBottomColor = createColor(borderJson, borderProperty);
-                        }
+                    case "style" -> borderBottomStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
+                    case "width" -> borderBottomWidth = Size.createSize(borderJson, borderProperty);
+                    case "color" -> borderBottomColor = createColor(borderJson, borderProperty);
                     }
                 }
-                case "borderBottomStyle" -> borderBottomStyle = BorderStyle.createBorderStyle(json, property);
-                case "borderBottomWidth" -> borderBottomWidth = Size.createSize(json, property);
-                case "borderBottomColor" -> borderBottomColor = createColor(json, property);
+            }
+            case "borderBottomStyle" -> borderBottomStyle = BorderStyle.createBorderStyle(json, property);
+            case "borderBottomWidth" -> borderBottomWidth = Size.createSize(json, property);
+            case "borderBottomColor" -> borderBottomColor = createColor(json, property);
 
-                // Process the left and right border.
-                case "borderHorizontal" -> {
+            // Process the left and right border.
+            case "borderHorizontal" -> {
 
-                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
-                    TracedDictionary borderJson = borderEntry.getValue();
+                TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                TracedDictionary borderJson = borderEntry.getValue();
 
-                    for (String borderProperty : borderJson) {
+                for (String borderProperty : borderJson) {
 
-                        switch (borderProperty) {
+                    switch (borderProperty) {
 
-                        case "style" -> borderLeftStyle = borderRightStyle = BorderStyle.createBorderStyle(borderJson,
-                                borderProperty);
-                        case "width" -> borderLeftWidth = borderRightWidth = Size.createSize(borderJson,
-                                borderProperty);
-                        case "color" -> borderLeftColor = borderRightColor = createColor(borderJson, borderProperty);
-                        }
+                    case "style" -> borderLeftStyle = borderRightStyle = BorderStyle.createBorderStyle(borderJson,
+                            borderProperty);
+                    case "width" -> borderLeftWidth = borderRightWidth = Size.createSize(borderJson, borderProperty);
+                    case "color" -> borderLeftColor = borderRightColor = createColor(borderJson, borderProperty);
                     }
                 }
-                case "borderHorizontalStyle" -> borderLeftStyle = borderRightStyle = BorderStyle.createBorderStyle(json,
-                        property);
-                case "borderHorizontalWidth" -> borderLeftWidth = borderRightWidth = Size.createSize(json, property);
-                case "borderHorizontalColor" -> borderLeftColor = borderRightColor = createColor(json, property);
+            }
+            case "borderHorizontalStyle" -> borderLeftStyle = borderRightStyle = BorderStyle.createBorderStyle(json,
+                    property);
+            case "borderHorizontalWidth" -> borderLeftWidth = borderRightWidth = Size.createSize(json, property);
+            case "borderHorizontalColor" -> borderLeftColor = borderRightColor = createColor(json, property);
 
-                // Process the left border.
-                case "borderLeft" -> {
+            // Process the left border.
+            case "borderLeft" -> {
 
-                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
-                    TracedDictionary borderJson = borderEntry.getValue();
+                TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                TracedDictionary borderJson = borderEntry.getValue();
 
-                    for (String borderProperty : borderJson) {
+                for (String borderProperty : borderJson) {
 
-                        switch (borderProperty) {
+                    switch (borderProperty) {
 
-                        case "style" -> borderLeftStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
-                        case "width" -> borderLeftWidth = Size.createSize(borderJson, borderProperty);
-                        case "color" -> borderLeftColor = createColor(borderJson, borderProperty);
-                        }
+                    case "style" -> borderLeftStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
+                    case "width" -> borderLeftWidth = Size.createSize(borderJson, borderProperty);
+                    case "color" -> borderLeftColor = createColor(borderJson, borderProperty);
                     }
                 }
-                case "borderLeftStyle" -> borderLeftStyle = BorderStyle.createBorderStyle(json, property);
-                case "borderLeftWidth" -> borderLeftWidth = Size.createSize(json, property);
-                case "borderLeftColor" -> borderLeftColor = createColor(json, property);
+            }
+            case "borderLeftStyle" -> borderLeftStyle = BorderStyle.createBorderStyle(json, property);
+            case "borderLeftWidth" -> borderLeftWidth = Size.createSize(json, property);
+            case "borderLeftColor" -> borderLeftColor = createColor(json, property);
 
-                // Process the right border.
-                case "borderRight" -> {
+            // Process the right border.
+            case "borderRight" -> {
 
-                    TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
-                    TracedDictionary borderJson = borderEntry.getValue();
+                TracedEntry<TracedDictionary> borderEntry = json.getAsDict(property, false);
+                TracedDictionary borderJson = borderEntry.getValue();
 
-                    for (String borderProperty : borderJson) {
+                for (String borderProperty : borderJson) {
 
-                        switch (borderProperty) {
+                    switch (borderProperty) {
 
-                        case "style" -> borderRightStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
-                        case "width" -> borderRightWidth = Size.createSize(borderJson, borderProperty);
-                        case "color" -> borderRightColor = createColor(borderJson, borderProperty);
-                        }
+                    case "style" -> borderRightStyle = BorderStyle.createBorderStyle(borderJson, borderProperty);
+                    case "width" -> borderRightWidth = Size.createSize(borderJson, borderProperty);
+                    case "color" -> borderRightColor = createColor(borderJson, borderProperty);
                     }
                 }
-                case "borderRightStyle" -> borderRightStyle = BorderStyle.createBorderStyle(json, property);
-                case "borderRightWidth" -> borderRightWidth = Size.createSize(json, property);
-                case "borderRightColor" -> borderRightColor = createColor(json, property);
+            }
+            case "borderRightStyle" -> borderRightStyle = BorderStyle.createBorderStyle(json, property);
+            case "borderRightWidth" -> borderRightWidth = Size.createSize(json, property);
+            case "borderRightColor" -> borderRightColor = createColor(json, property);
 
-                // Process the border radius.
-                case "borderRadius" -> rTL = rTR = rBL = rBR = SizeDimensions.createSizeDimensions(json, property);
-                case "borderRadiusTop" -> rTL = rTR = SizeDimensions.createSizeDimensions(json, property);
-                case "borderRadiusBottom" -> rBL = rBR = SizeDimensions.createSizeDimensions(json, property);
-                case "borderRadiusLeft" -> rTL = rBL = SizeDimensions.createSizeDimensions(json, property);
-                case "borderRadiusRight" -> rTR = rBR = SizeDimensions.createSizeDimensions(json, property);
-                case "borderRadiusTopLeft" -> rTL = SizeDimensions.createSizeDimensions(json, property);
-                case "borderRadiusTopRight" -> rTR = SizeDimensions.createSizeDimensions(json, property);
-                case "borderRadiusBottomLeft" -> rBL = SizeDimensions.createSizeDimensions(json, property);
-                case "borderRadiusBottomRight" -> rBR = SizeDimensions.createSizeDimensions(json, property);
+            // Process the border radius.
+            case "borderRadius" -> rTL = rTR = rBL = rBR = SizeDimensions.createSizeDimensions(json, property);
+            case "borderRadiusTop" -> rTL = rTR = SizeDimensions.createSizeDimensions(json, property);
+            case "borderRadiusBottom" -> rBL = rBR = SizeDimensions.createSizeDimensions(json, property);
+            case "borderRadiusLeft" -> rTL = rBL = SizeDimensions.createSizeDimensions(json, property);
+            case "borderRadiusRight" -> rTR = rBR = SizeDimensions.createSizeDimensions(json, property);
+            case "borderRadiusTopLeft" -> rTL = SizeDimensions.createSizeDimensions(json, property);
+            case "borderRadiusTopRight" -> rTR = SizeDimensions.createSizeDimensions(json, property);
+            case "borderRadiusBottomLeft" -> rBL = SizeDimensions.createSizeDimensions(json, property);
+            case "borderRadiusBottomRight" -> rBR = SizeDimensions.createSizeDimensions(json, property);
 
-                // Process the margin.
-                case "margin" -> marginTop = marginBottom = marginLeft = marginRight = Size.createSize(json, property);
-                case "marginVertical" -> marginTop = marginBottom = Size.createSize(json, property);
-                case "marginHorizontal" -> marginLeft = marginRight = Size.createSize(json, property);
-                case "marginTop" -> marginTop = Size.createSize(json, property);
-                case "marginBottom" -> marginBottom = Size.createSize(json, property);
-                case "marginLeft" -> marginLeft = Size.createSize(json, property);
-                case "marginRight" -> marginRight = Size.createSize(json, property);
+            // Process the margin.
+            case "margin" -> marginTop = marginBottom = marginLeft = marginRight = Size.createSize(json, property);
+            case "marginVertical" -> marginTop = marginBottom = Size.createSize(json, property);
+            case "marginHorizontal" -> marginLeft = marginRight = Size.createSize(json, property);
+            case "marginTop" -> marginTop = Size.createSize(json, property);
+            case "marginBottom" -> marginBottom = Size.createSize(json, property);
+            case "marginLeft" -> marginLeft = Size.createSize(json, property);
+            case "marginRight" -> marginRight = Size.createSize(json, property);
 
-                // Process the padding.
-                case "padding" -> paddingTop = paddingBottom = paddingLeft = paddingRight = Size.createSize(json,
-                        property);
-                case "paddingVertical" -> paddingTop = paddingBottom = Size.createSize(json, property);
-                case "paddingHorizontal" -> paddingLeft = paddingRight = Size.createSize(json, property);
-                case "paddingTop" -> paddingTop = Size.createSize(json, property);
-                case "paddingBottom" -> paddingBottom = Size.createSize(json, property);
-                case "paddingLeft" -> paddingLeft = Size.createSize(json, property);
-                case "paddingRight" -> paddingRight = Size.createSize(json, property);
+            // Process the padding.
+            case "padding" -> paddingTop = paddingBottom = paddingLeft = paddingRight = Size.createSize(json, property);
+            case "paddingVertical" -> paddingTop = paddingBottom = Size.createSize(json, property);
+            case "paddingHorizontal" -> paddingLeft = paddingRight = Size.createSize(json, property);
+            case "paddingTop" -> paddingTop = Size.createSize(json, property);
+            case "paddingBottom" -> paddingBottom = Size.createSize(json, property);
+            case "paddingLeft" -> paddingLeft = Size.createSize(json, property);
+            case "paddingRight" -> paddingRight = Size.createSize(json, property);
 
-                // Process the font properties.
-                case "font" -> {
+            // Process the font properties.
+            case "font" -> {
 
-                    TracedEntry<TracedDictionary> fontEntry = json.getAsDict(property, false);
-                    TracedDictionary fontJson = fontEntry.getValue();
+                TracedEntry<TracedDictionary> fontEntry = json.getAsDict(property, false);
+                TracedDictionary fontJson = fontEntry.getValue();
 
-                    for (String fontProperty : fontJson) {
+                for (String fontProperty : fontJson) {
 
-                        switch (fontProperty) {
+                    switch (fontProperty) {
 
-                        case "style" -> fontStyle = createFontStyle(fontJson, fontProperty);
-                        case "weight" -> fontWeight = createFontWeight(fontJson, fontProperty);
-                        case "size" -> fontSize = Size.createSize(fontJson, fontProperty);
-                        case "family" -> fontFamily = createFontFamily(fontJson, fontProperty);
-                        }
+                    case "style" -> fontStyle = createFontStyle(fontJson, fontProperty);
+                    case "weight" -> fontWeight = createFontWeight(fontJson, fontProperty);
+                    case "size" -> fontSize = Size.createSize(fontJson, fontProperty);
+                    case "family" -> fontFamily = createFontFamily(fontJson, fontProperty);
                     }
                 }
-                case "fontStyle" -> fontStyle = createFontStyle(json, property);
-                case "fontWeight" -> fontWeight = createFontWeight(json, property);
-                case "fontSize" -> fontSize = Size.createSize(json, property);
-                case "fontFamily" -> fontFamily = createFontFamily(json, property);
+            }
+            case "fontStyle" -> fontStyle = createFontStyle(json, property);
+            case "fontWeight" -> fontWeight = createFontWeight(json, property);
+            case "fontSize" -> fontSize = Size.createSize(json, property);
+            case "fontFamily" -> fontFamily = createFontFamily(json, property);
 
-                // Process text properties.
-                case "lineHeight" -> lineHeight = createLineHeight(json, property);
-                case "color" -> createColor(json, property);
+            // Process text properties.
+            case "lineHeight" -> lineHeight = createLineHeight(json, property);
+            case "color" -> color = createColor(json, property);
+            case "textAlign" -> textAlign = TextAlign.createTextAlign(json, property);
 
-                case "textureFit" -> textureFit = TextureSize.createSize(json, property);
+            case "textureFit" -> textureFit = TextureSize.createSize(json, property);
 
-                // Process the text wrapping and overflow.
-                case "whiteSpace" -> whiteSpace = WhiteSpace.createWhiteSpace(json, property);
-                case "overflowWrap" -> overflowWrap = OverflowWrap.createOverflowWrap(json, property);
-                case "textOverflow" -> textOverflow = TextOverflow.createTextOverflow(json, property);
+            // Process the text wrapping and overflow.
+            case "whiteSpace" -> whiteSpace = WhiteSpace.createWhiteSpace(json, property);
+            case "overflowWrap" -> overflowWrap = OverflowWrap.createOverflowWrap(json, property);
+            case "textOverflow" -> textOverflow = TextOverflow.createTextOverflow(json, property);
 
-                // Process the overflow.
-                case "overflow" -> overflowX = overflowY = Overflow.createOverflow(json, property);
-                case "overflowX" -> overflowX = Overflow.createOverflow(json, property);
-                case "overflowY" -> overflowY = Overflow.createOverflow(json, property);
+            // Process the overflow.
+            case "overflow" -> overflowX = overflowY = Overflow.createOverflow(json, property);
+            case "overflowX" -> overflowX = Overflow.createOverflow(json, property);
+            case "overflowY" -> overflowY = Overflow.createOverflow(json, property);
 
-                // Process the list element gap.
-                case "gap" -> gap = Size.createSize(json, property);
+            // Process the list element gap.
+            case "gap" -> gap = Size.createSize(json, property);
 
-                // Process the list direction.
-                case "listDirection" -> listDirection = Direction.createDirection(json, property);
+            // Process the list direction.
+            case "listDirection" -> listDirection = Direction.createDirection(json, property);
 
-                // Process the event propagation behavior.
-                case "eventPropagation" -> createBoolean(json, property);
-                }
+            // Process the event propagation behavior.
+            case "eventPropagation" -> createBoolean(json, property);
             }
         }
 
-        return new Style(x, y, width, height, minWidth, minHeight, backgroundColor, backgroundTexture, backgroundSize,
-                borderTopStyle, borderTopWidth, borderTopColor, borderBottomStyle, borderBottomWidth, borderBottomColor,
-                borderLeftStyle, borderLeftWidth, borderLeftColor, borderRightStyle, borderRightWidth, borderRightColor,
-                rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft, marginRight, paddingTop, paddingBottom,
-                paddingLeft, paddingRight, fontStyle, fontWeight, fontSize, fontFamily, lineHeight, color, textureFit,
-                whiteSpace, overflowWrap, textOverflow, overflowX, overflowY, gap, listDirection, eventPropagation);
+        Style s = new Style(x, y, width, height, minWidth, minHeight, backgroundColor, backgroundTexture,
+                backgroundSize, borderTopStyle, borderTopWidth, borderTopColor, borderBottomStyle, borderBottomWidth,
+                borderBottomColor, borderLeftStyle, borderLeftWidth, borderLeftColor, borderRightStyle,
+                borderRightWidth, borderRightColor, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft,
+                marginRight, paddingTop, paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize,
+                fontFamily, lineHeight, textAlign, color, textureFit, whiteSpace, overflowWrap, textOverflow, overflowX,
+                overflowY, gap, listDirection, eventPropagation);
+
+        System.out.println(s);
+        return s;
     }
 
     /**
@@ -435,7 +456,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::width, Size.FULL), parseVal(styles, Style::height, Size.AUTO),
                 parseVal(styles, Style::minWidth, Size.NONE), parseVal(styles, Style::minHeight, Size.NONE),
                 parseVal(styles, Style::backgroundColor, TRANSPARENT), parseVal(styles, Style::backgroundTexture, null),
-                parseVal(styles, Style::backgroundSize, TextureSize.AUTO),
+                parseVal(styles, Style::backgroundSize, TextureSize.COVER),
                 parseVal(styles, Style::borderTopStyle, BorderStyle.NONE),
                 parseVal(styles, Style::borderTopWidth, Size.PX_1),
                 parseVal(styles, Style::borderTopColor, Color.BLACK),
@@ -461,14 +482,14 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 inheritVal(styles, Style::fontSize, parent, Size.FULL),
                 inheritVal(styles, Style::fontFamily, parent, null),
                 inheritVal(styles, Style::lineHeight, parent, new Size(value -> value * 1.2)),
+                inheritVal(styles, Style::textAlign, parent, TextAlign.LEFT),
                 inheritVal(styles, Style::color, parent, Color.BLACK),
 
                 parseVal(styles, Style::textureFit, TextureSize.FILL),
 
-                // All overflow and wrapping properties should be independent.
-                parseVal(styles, Style::whiteSpace, WhiteSpace.NORMAL),
-                parseVal(styles, Style::overflowWrap, OverflowWrap.NORMAL),
-                parseVal(styles, Style::textOverflow, TextOverflow.CLIP),
+                inheritVal(styles, Style::whiteSpace, parent, WhiteSpace.NORMAL),
+                inheritVal(styles, Style::overflowWrap, parent, OverflowWrap.NORMAL),
+                inheritVal(styles, Style::textOverflow, parent, TextOverflow.CLIP),
                 parseVal(styles, Style::overflowX, Overflow.CLIP), parseVal(styles, Style::overflowY, Overflow.CLIP),
 
                 // All listing properties should be independent.
@@ -603,9 +624,15 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         /**
          * <code>Size</code>: A size representing an automatically-sized dimension,
-         * which can expand to fit content.
+         * which can expand to fit the content.
          */
         public static final Size AUTO = new Size(parent -> parent);
+
+        /**
+         * <code>Size</code>: A size representing an automatically-sized dimension,
+         * which will contract to fit the content.
+         */
+        public static final Size FIT_CONTENT = new Size(parent -> parent);
 
         /**
          * <code>Function&lt;Integer, Double&gt;</code>: The operator used to calculate
@@ -658,6 +685,12 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 return AUTO;
             }
 
+            // If the full string is 'fitContent', return FIT_CONTENT.
+            if (full.equals("fitContent")) {
+
+                return FIT_CONTENT;
+            }
+
             full = full.replaceAll(" ", "");
             if (full.charAt(0) != '+' && full.charAt(0) != '-') {
 
@@ -686,9 +719,9 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 int start = indices.get(i);
                 int end = indices.get(i + 1);
 
-                String part = full.substring(start, end);
+                String part = full.substring(start + 1, end);
                 Function<Double, Double> operator = createOperator(entry, part);
-                if (part.charAt(0) == '+') {
+                if (full.charAt(start) == '+') {
 
                     add.add(operator);
                 } else {
@@ -1346,9 +1379,9 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
         /**
          * <code>TextOverflow</code>: A constant representing ending a line of text with
-         * ellipses.
+         * ellipsis.
          */
-        public static final TextOverflow ELLIPSES = new TextOverflow("…");
+        public static final TextOverflow ELLIPSIS = new TextOverflow("…");
 
         /**
          * Parses a collection into a text overflow.
@@ -1366,7 +1399,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
             return switch (textOverflow) {
             case "clip" -> CLIP;
-            case "ellipses" -> ELLIPSES;
+            case "ellipsis" -> ELLIPSIS;
             default -> new TextOverflow(textOverflow);
             };
         }
@@ -1416,6 +1449,51 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             default -> throw new UnexpectedValueException(overflowEntry);
             };
         }
+    }
+
+    /**
+     * <code>TextAlign</code>: An enum class representing the behavior for aligning
+     * text.
+     */
+    public static enum TextAlign {
+
+        /**
+         * <code>TextAlign</code>: An enum constant representing aligning text to the
+         * left side of the content box of a component.
+         */
+        LEFT,
+
+        /**
+         * <code>TextAlign</code>: An enum constant representing aligning text to the
+         * right side of the content box of a component.
+         */
+        RIGHT,
+
+        /**
+         * <code>TextAlign</code>: An enum constant representing aligning text to the
+         * center of the content box of a component.
+         */
+        CENTER,
+
+        /**
+         * <code>TextAlign</code>: An enum constant representing aligning text to both
+         * the left and right sides of the content box of a component.
+         */
+        JUSTIFY;
+
+        public static final TextAlign createTextAlign(TracedCollection collection, Object key) throws LoggedException {
+
+            TracedEntry<String> textAlignEntry = collection.getAsString(key, false, null);
+            String textAlign = textAlignEntry.getValue();
+            return switch (textAlign) {
+            case "left" -> LEFT;
+            case "right" -> RIGHT;
+            case "center" -> CENTER;
+            case "justify" -> JUSTIFY;
+            default -> throw new UnexpectedValueException(textAlignEntry);
+            };
+        }
+
     }
 
     /**

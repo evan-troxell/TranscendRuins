@@ -116,7 +116,7 @@ public final class PropertyExceptionPathway {
     @Override
     public String toString() {
 
-        List<String> strings = internalPath.stream().map(Object::toString).toList();
+        List<String> strings = new ArrayList<>(internalPath.stream().map(Object::toString).toList());
         String end = (!strings.isEmpty()) ? " -> " + strings.removeLast() : "";
 
         return String.join(", ", strings) + end;

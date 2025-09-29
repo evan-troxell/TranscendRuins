@@ -50,7 +50,7 @@ public final class LocationAttributes extends AssetAttributes {
      * @return <code>String</code>: The <code>name</code> field of this
      *         <code>LocationAttributes</code> instance.
      */
-    public String getName() {
+    public final String getName() {
 
         return name;
     }
@@ -67,7 +67,7 @@ public final class LocationAttributes extends AssetAttributes {
      * @return <code>String</code>: The <code>description</code> field of this
      *         <code>LocationAttributes</code> instance.
      */
-    public String getDescription() {
+    public final String getDescription() {
 
         return description;
     }
@@ -84,7 +84,7 @@ public final class LocationAttributes extends AssetAttributes {
      * @return <code>String</code>: The <code>icon</code> field of this
      *         <code>LocationAttributes</code> instance.
      */
-    public String getIcon() {
+    public final String getIcon() {
 
         return icon;
     }
@@ -105,7 +105,7 @@ public final class LocationAttributes extends AssetAttributes {
      *         The <code>areas</code> field of this <code>LocationAttributes</code>
      *         instance.
      */
-    public ImmutableMap<String, WeightedRoll<AssetPresets>> getAreas() {
+    public final ImmutableMap<String, WeightedRoll<AssetPresets>> getAreas() {
 
         return areas;
     }
@@ -123,7 +123,7 @@ public final class LocationAttributes extends AssetAttributes {
      * @return <code>String</code>: The <code>primary</code> field of this
      *         <code>LocationAttributes</code> instance.
      */
-    public String getPrimary() {
+    public final String getPrimary() {
 
         return primary;
     }
@@ -142,45 +142,16 @@ public final class LocationAttributes extends AssetAttributes {
      *         <code>coordinates</code> field of this
      *         <code>LocationAttributes</code> instance.
      */
-    public WeightedRoll<Point2D> getCoordinates() {
+    public final WeightedRoll<Point2D> getCoordinates() {
 
         return coordinates;
     }
 
-    /**
-     * <code>LocationReset</code>: The reset settings of this
-     * <code>LocationAttributes</code> instance.
-     */
     private final LocationReset reset;
 
-    /**
-     * Retrieves the reset settings of this <code>LocationAttributes</code>
-     * instance.
-     *
-     * @return <code>LocationReset</code>: The <code>reset</code> field of this
-     *         <code>LocationAttributes</code> instance.
-     */
-    public LocationReset getReset() {
+    public final LocationReset getReset() {
 
         return reset;
-    }
-
-    /**
-     * <code>LocationEvent</code>: The event settings of this
-     * <code>LocationAttributes</code> instance.
-     */
-    private final LocationEvent event;
-
-    /**
-     * Retrieves the event settings of this <code>LocationAttributes</code>
-     * instance.
-     *
-     * @return <code>LocationEvent</code>: The <code>event</code> field of this
-     *         <code>LocationAttributes</code> instance.
-     */
-    public LocationEvent getEvent() {
-
-        return event;
     }
 
     /**
@@ -246,6 +217,8 @@ public final class LocationAttributes extends AssetAttributes {
         TracedEntry<String> primaryEntry = json.getAsString("primary", !isBase, null);
         primary = primaryEntry.getValue();
 
+        // If the areas are defined in these attributes, then they should be required to
+        // contain the primary.
         if (areas != null && !areas.containsKey(primary)) {
 
             throw new ReferenceWithoutDefinitionException(primaryEntry, "Area");
@@ -257,7 +230,6 @@ public final class LocationAttributes extends AssetAttributes {
             return parsePoint(coordinateJson);
         });
 
-        // If a reset mechanism is defined, process it.
         TracedEntry<TracedDictionary> resetEntry = json.getAsDict("reset", true);
         if (resetEntry.containsValue()) {
 
@@ -265,19 +237,9 @@ public final class LocationAttributes extends AssetAttributes {
             reset = new LocationReset(resetJson);
         } else {
 
-            reset = null;
+            reset = LocationReset.DEFAULT;
         }
 
-        // If an event mechanism is defined, process it.
-        TracedEntry<TracedDictionary> eventEntry = json.getAsDict("event", true);
-        if (eventEntry.containsValue()) {
-
-            TracedDictionary eventJson = eventEntry.getValue();
-            event = new LocationEvent(eventJson);
-        } else {
-
-            event = null;
-        }
     }
 
     /**

@@ -329,5 +329,8 @@ public final class GlobalEventSchema {
 
         locationDependencies = new ImmutableSet<>(locationDependenciesList);
         eventDependencies = new ImmutableSet<>(eventDependenciesList);
+
+        // TODO: add start condition and max number of times event can be called
+
     }
 }

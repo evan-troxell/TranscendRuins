@@ -74,7 +74,7 @@ public final class TRScript {
         case Integer intVal -> intVal.doubleValue();
         case Long longVal -> longVal.doubleValue();
         case Float floatVal -> floatVal.doubleValue();
-        default -> value;
+        case null, default -> value;
         };
     }
 

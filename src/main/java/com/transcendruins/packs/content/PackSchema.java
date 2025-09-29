@@ -215,7 +215,7 @@ public final class PackSchema extends Pack {
 
                 // Attempt to create the schema.
                 return assetType.createSchema(path);
-            } catch (LoggedException _) {
+            } catch (LoggedException e) {
 
                 // If the schema could not be built, return an empty value.
                 return null;

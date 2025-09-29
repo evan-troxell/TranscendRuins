@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-package com.transcendruins.assets.recipes;
+package com.transcendruins.assets.catalogue;
 
 import java.util.HashMap;
 

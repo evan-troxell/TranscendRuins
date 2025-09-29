@@ -1,19 +1,3 @@
-/* Copyright 2025 Evan Troxell
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 package com.transcendruins.assets.locations;
 
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -25,6 +9,21 @@ import com.transcendruins.utilities.json.TracedEntry;
  * global location.
  */
 public final class LocationReset {
+
+    /**
+     * <code>LocationReset</code>: The default location reset presets.
+     */
+    public static final LocationReset DEFAULT = new LocationReset();
+
+    /**
+     * Creates a new instance of the <code>LocationReset</code> class.
+     */
+    public LocationReset() {
+
+        duration = -1.0;
+
+        displayCountdownTimer = false;
+    }
 
     /**
      * <code>double</code>: The duration of this <code>LocationReset</code>
@@ -73,10 +72,10 @@ public final class LocationReset {
      */
     public LocationReset(TracedDictionary json) throws LoggedException {
 
-        TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, -1.0, num -> num >= 0 || num == -1);
+        TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, 0.0, num -> num >= 0 || num == -1);
         duration = durationEntry.getValue();
 
         TracedEntry<Boolean> displayCountdownTimerEntry = json.getAsBoolean("displayCountdownTimer", true, true);
-        displayCountdownTimer = displayCountdownTimerEntry.getValue();
+        displayCountdownTimer = displayCountdownTimerEntry.getValue() && duration > -1.0;
     }
 }

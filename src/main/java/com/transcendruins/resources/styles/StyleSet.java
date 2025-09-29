@@ -150,9 +150,7 @@ public final class StyleSet {
          */
         public StyleCase(TracedDictionary parent, String key) throws LoggedException {
 
-            TracedEntry<TracedDictionary> entry = parent.getAsDict(key, false);
-            TracedDictionary json = entry.getValue();
-            style = Style.createStyle(json, key);
+            style = Style.createStyle(parent, key);
 
             ArrayList<ImmutableList<ComponentCombinator>> casesList = new ArrayList<>();
 

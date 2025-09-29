@@ -35,6 +35,6 @@ public final class DuplicateIdentifierException extends PropertyException {
      */
     public DuplicateIdentifierException(TracedEntry<Identifier> entry) {
 
-        super("\'" + entry + "\' is a duplicate identifier.", entry, "Duplicate Identifier Exception");
+        super("\'" + entry.getValue() + "\' is a duplicate identifier.", entry, "Duplicate Identifier Exception");
     }
 }

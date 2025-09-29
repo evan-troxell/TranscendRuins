@@ -16,21 +16,27 @@
 
 package com.transcendruins;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.elements.ElementContext;
 import com.transcendruins.assets.elements.ElementInstance;
+import com.transcendruins.assets.interfaces.InterfaceContext;
+import com.transcendruins.assets.interfaces.InterfaceInstance;
 import com.transcendruins.graphics3d.Camera3D;
 import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
-import com.transcendruins.rendering.Render3DPanel;
 import com.transcendruins.rendering.RenderInstance;
-import com.transcendruins.ui.DisplayFrame;
+import com.transcendruins.resources.styles.Style;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 
@@ -54,7 +60,8 @@ public final class App {
         Identifier vanillaId = Identifier.createTestIdentifier("TranscendRuins:vanilla", new int[] { 1, 0, 0 });
         ContentPack vanillaPack = ContentPack.getPack(vanillaId);
 
-        System.out.println(vanillaPack.getAssets());
+        System.out.println(vanillaPack.getAssets().entrySet().stream()
+                .map(entry -> entry.getKey() + " : " + entry.getValue().keySet().stream().toList()).toList());
 
         ArrayList<ContentPack> packs = new ArrayList<>();
         packs.add(vanillaPack);
@@ -118,20 +125,41 @@ public final class App {
 
         Camera3D camera = new Camera3D();
 
-        DisplayFrame frame = new DisplayFrame(camera);
-        Render3DPanel renderer = (Render3DPanel) frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
+        // DisplayFrame frame = new DisplayFrame(camera);
+        // Render3DPanel renderer = (Render3DPanel)
+        // frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
 
         models = new ArrayList<>();
         models.add(example);
 
-        synchronized (TIMER) {
-            while (true) {
+        // synchronized (TIMER) {
+        // while (true) {
 
-                renderer.render(models, camera);
+        // renderer.render(models, camera);
 
-                TIMER.wait(20);
-            }
-        }
+        // TIMER.wait(20);
+        // }
+        // }
+
+        Identifier interfaceId = Identifier.createTestIdentifier("TranscendRuins:playerInventory", null);
+        AssetPresets interfacePresets = new AssetPresets(interfaceId, AssetType.INTERFACE);
+        InterfaceContext interfaceContext = new InterfaceContext(interfacePresets, world, null, null);
+
+        InterfaceInstance interfaceExample = (InterfaceInstance) AssetType.INTERFACE.createAsset(interfaceContext);
+        interfaceExample.update(world.getRuntimeSeconds());
+
+        BufferedImage image = interfaceExample.render(500, 500, 16, Style.EMPTY);
+        System.out.println(image.getWidth() + " , " + image.getHeight());
+        JFrame frame = new JFrame();
+        frame.setBounds(50, 50, 800, 800);
+
+        JLabel label = new JLabel(new ImageIcon(image));
+        // frame.getContentPane().setBackground(Color.GRAY);
+        frame.add(label);
+        frame.setVisible(true);
+        frame.repaint();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     }
 
     /**

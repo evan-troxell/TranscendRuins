@@ -550,7 +550,7 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Object, T> defaultCase(EntryOperator<Object, T> onCall) {
 
-        return new TypeCase<>(onCall, (collection, key) -> collection.get(key, false, null));
+        return new TypeCase<>(onCall, (collection, key) -> collection.get(key, true, null));
     }
 
     /**
