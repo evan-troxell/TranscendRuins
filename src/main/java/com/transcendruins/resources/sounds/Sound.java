@@ -61,6 +61,10 @@ public final class Sound {
 
                         TracedEntry<String> pathEntry = soundJson.getAsString(i, false, null);
                         String path = pathEntry.getValue();
+                        if (path.startsWith("/")) {
+
+                            path = path.substring(1);
+                        }
 
                         jsonEntries.add(new WeightedRoll.Entry<>(path));
                     }
@@ -77,6 +81,10 @@ public final class Sound {
                     for (String pathString : soundJson) {
 
                         String path = pathString;
+                        if (path.startsWith("/")) {
+
+                            path = path.substring(1);
+                        }
                         TracedEntry<Double> weightEntry = soundJson.getAsDouble(pathString, false, null,
                                 num -> num > 0);
 
@@ -89,6 +97,10 @@ public final class Sound {
                 json.stringCase(entry -> {
 
                     String path = entry.getValue();
+                    if (path.startsWith("/")) {
+
+                        path = path.substring(1);
+                    }
 
                     return new WeightedRoll<>(path);
                 })));

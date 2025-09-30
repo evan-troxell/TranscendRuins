@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Path2D;
@@ -53,6 +54,7 @@ import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.ComponentProperties;
 import com.transcendruins.resources.styles.Style;
 import com.transcendruins.resources.styles.Style.BorderStyle;
+import com.transcendruins.resources.styles.Style.Display;
 import com.transcendruins.resources.styles.Style.Overflow;
 import com.transcendruins.resources.styles.Style.OverflowWrap;
 import com.transcendruins.resources.styles.Style.SizeDimensions;
@@ -275,9 +277,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return value;
         }
 
-        private int x, y, width, height, borderLeft, borderRight, borderTop, borderBottom, marginLeft, marginRight,
-                marginTop, marginBottom, rxTL, ryTL, rxTR, ryTR, rxBL, ryBL, rxBR, ryBR, paddingLeft, paddingRight,
-                paddingTop, paddingBottom, fontSize, lineHeight;
+        protected int x, y, minWidth, width, minHeight, height, borderLeft, borderRight, borderTop, borderBottom,
+                marginLeft, marginRight, marginTop, marginBottom, rxTL, ryTL, rxTR, ryTR, rxBL, ryBL, rxBR, ryBR,
+                paddingLeft, paddingRight, paddingTop, paddingBottom, fontSize, lineHeight, gapWidth, gapHeight;;
+
+        protected Display displayMode;
 
         private String backgroundTexture = null;
         private ImageIcon backgroundIcon = null;
@@ -285,16 +289,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private Boolean eventPropagation;
 
         private final boolean defaultEventPropagation;
-
-        public final int getWidth() {
-
-            return width;
-        }
-
-        public final int getHeight() {
-
-            return height;
-        }
 
         public final int getFontSize() {
 
@@ -311,6 +305,18 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         public final int getY() {
 
             return y + marginTop;
+        }
+
+        @Override
+        public final int getContentOffsetX() {
+
+            return borderLeft + paddingLeft;
+        }
+
+        @Override
+        public final int getContentOffsetY() {
+
+            return borderTop + paddingTop;
         }
 
         @Override
@@ -374,20 +380,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private Overflow overflowX = null;
         private Overflow overflowY = null;
 
-        private int gapWidth;
-
-        public final int getGapWidth() {
-
-            return gapWidth;
-        }
-
-        private int gapHeight;
-
-        public final int getGapHeight() {
-
-            return gapHeight;
-        }
-
         private final long randomComponentId;
 
         protected final long getRandomComponentId() {
@@ -440,7 +432,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             y = style.y().getSize(parentHeight, 0);
 
             // Calculate the width.
-            int minWidth = style.minWidth().getSize(parentWidth, 0);
+            minWidth = style.minWidth().getSize(parentWidth, 0);
             width = style.width().getSize(parentWidth, minWidth);
 
             // Calculate the horizontal margins.
@@ -469,7 +461,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             paddingRight = style.paddingRight().getSize(parentWidth, 0);
 
             // Calculate the height.
-            int minHeight = style.minHeight().getSize(parentHeight, 0);
+            minHeight = style.minHeight().getSize(parentHeight, 0);
             height = style.height().getSize(parentHeight, minHeight);
 
             // Calculate the vertical margins.
@@ -516,6 +508,158 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             rxBR = rBR.width().getSize(boxWidth, 0);
             ryBR = rBR.height().getSize(boxHeight, 0);
 
+            // The font size should be based on the parent font size and have a minimum of
+            // 8px.
+            fontSize = style.fontSize().getSize(parentFontSize, 8);
+
+            // The line height should be based on the font size and be at least as large as
+            // the font.
+            lineHeight = style.lineHeight().getSize(fontSize, fontSize);
+
+            textAlign = style.textAlign();
+
+            // Create the font.
+            font = new Font(style.fontFamily(), style.fontStyle() | style.fontWeight(), fontSize);
+            BufferedImage fontImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = fontImage.createGraphics();
+            fm = g2d.getFontMetrics(font);
+
+            whiteSpace = style.whiteSpace();
+            overflowWrap = style.overflowWrap();
+            textOverflow = style.textOverflow();
+            overflowX = style.overflowX();
+            overflowY = style.overflowY();
+
+            gapWidth = style.gap().width().getSize(width, 0);
+            gapHeight = style.gap().height().getSize(height, 0);
+
+            eventPropagation = style.eventPropagation();
+            displayMode = style.display();
+        }
+
+        public static final record ImageClip(int x, int y, BufferedImage image) {
+        }
+
+        public abstract Dimension calculateContentSize(Style style, List<Rectangle> children);
+
+        /**
+         * Generates the content of this <code>ComponentInstance</code> instance.
+         * 
+         * @param g2d      <code>Graphics2D</code>: The graphics to render using.
+         * @param style    <code>Style</code>: The style to draw using.
+         * @param children <code>List&lt;ImageClip&gt;</code>: The drawn children of
+         *                 this <code>ComponentInstance</code> instance.
+         */
+        public abstract void createContent(Graphics2D g2d, Style style, List<ImageClip> children);
+
+        private Style s;
+
+        private final ArrayList<Rectangle> childBounds = new ArrayList<>();
+
+        private Dimension contentSize;
+
+        @Override
+        public final Rectangle renderBounds(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
+
+            // Generate the current style.
+            s = getStyle(parentStyle);
+
+            // Calculate the initial size.
+            measure(s, parentWidth, parentHeight, parentFontSize);
+
+            childBounds.clear();
+            for (ComponentInstance child : children) {
+
+                Rectangle childBound = child.renderBounds(width, height, fontSize, s);
+                childBounds.add(childBound);
+            }
+
+            contentSize = calculateContentSize(s, childBounds);
+
+            return new Rectangle(x, y, getTotalWidth(), getTotalHeight());
+        }
+
+        @Override
+        public final Rectangle rescale(int targetWidth, int targetHeight) {
+
+            if (displayMode == Display.FLEX) {
+
+                if (x + getTotalWidth() > targetWidth) {
+
+                    double widthFactor = (double) (targetWidth - borderLeft - borderRight)
+                            / (x + marginLeft + paddingLeft + width + paddingRight + marginRight);
+                    if (widthFactor < 0) {
+
+                        widthFactor = 0;
+                    }
+
+                    x *= widthFactor;
+                    marginLeft *= widthFactor;
+                    paddingLeft *= widthFactor;
+                    paddingRight *= widthFactor;
+                    marginRight *= widthFactor;
+
+                    width *= widthFactor;
+                    if (width < minWidth) {
+
+                        width = minWidth;
+                    }
+                }
+
+                if (y + getTotalHeight() > targetHeight) {
+
+                    double heightFactor = (double) (targetHeight - borderTop - borderBottom)
+                            / (y + marginTop + paddingTop + height + paddingBottom + marginBottom);
+                    if (heightFactor < 0) {
+
+                        heightFactor = 0;
+                    }
+
+                    y *= heightFactor;
+                    marginTop *= heightFactor;
+                    paddingTop *= heightFactor;
+                    paddingBottom *= heightFactor;
+                    marginBottom *= heightFactor;
+
+                    height *= heightFactor;
+                    if (height < minHeight) {
+
+                        height = minHeight;
+                    }
+                }
+            }
+
+            contentSize = rescaleContent(width, height, s, children);
+
+            // If the content width/height is larger than the render width/height and it is
+            // automatically sized, expand it.
+            if (contentSize.width > width && (s.width() == Style.Size.AUTO || s.width() == Style.Size.FIT_CONTENT)) {
+
+                width = contentSize.width;
+            } else if (contentSize.width < width && s.width() == Style.Size.FIT_CONTENT) {
+
+                width = contentSize.width;
+            }
+
+            if (contentSize.height > height
+                    && (s.height() == Style.Size.AUTO || s.height() == Style.Size.FIT_CONTENT)) {
+
+                height = contentSize.height;
+            } else if (contentSize.height < height && s.height() == Style.Size.FIT_CONTENT) {
+
+                height = contentSize.height;
+            }
+
+            // The scroll X/Y cannot go beyond the content width/height.
+            maxScrollX = Math.max(contentSize.width - width, 0);
+            maxScrollY = Math.max(contentSize.height - height, 0);
+
+            scrollX = Math.clamp(scrollX, 0, maxScrollX);
+            scrollY = Math.clamp(scrollY, 0, maxScrollY);
+
+            int boxWidth = width + paddingLeft + paddingRight;
+            int boxHeight = height + paddingTop + paddingBottom;
+
             // If the top radii exceed the width, adjust them so they fit.
             if (rxTR + rxTL > boxWidth) {
 
@@ -552,106 +696,44 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 ryTR *= partial;
             }
 
-            // The font size should be based on the parent font size and have a minimum of
-            // 8px.
-            fontSize = style.fontSize().getSize(parentFontSize, 8);
-
-            // The line height should be based on the font size and be at least as large as
-            // the font.
-            lineHeight = style.lineHeight().getSize(fontSize, fontSize);
-
-            textAlign = style.textAlign();
-
-            // Create the font.
-            font = new Font(style.fontFamily(), style.fontStyle() | style.fontWeight(), fontSize);
-            BufferedImage fontImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = fontImage.createGraphics();
-            fm = g2d.getFontMetrics(font);
-
-            whiteSpace = style.whiteSpace();
-            overflowWrap = style.overflowWrap();
-            textOverflow = style.textOverflow();
-            overflowX = style.overflowX();
-            overflowY = style.overflowY();
-
-            gapWidth = style.gap().getSize(width, 0);
-            gapHeight = style.gap().getSize(height, 0);
-
-            eventPropagation = style.eventPropagation();
+            return new Rectangle(x, y, getTotalWidth(), getTotalHeight());
         }
 
-        public static final record ImageClip(int x, int y, BufferedImage image) {
-        }
-
-        public abstract Dimension calculateContentSize(Style style, List<ImageClip> children);
-
-        /**
-         * Generates the content of this <code>ComponentInstance</code> instance.
-         * 
-         * @param g2d      <code>Graphics2D</code>: The graphics to render using.
-         * @param style    <code>Style</code>: The style to draw using.
-         * @param children <code>List&lt;ImageClip&gt;</code>: The drawn children of
-         *                 this <code>ComponentInstance</code> instance.
-         */
-        public abstract void createContent(Graphics2D g2d, Style style, List<ImageClip> children);
+        public abstract Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children);
 
         @Override
-        public final BufferedImage render(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
-
-            // Generate the current style.
-            Style s = getStyle(parentStyle);
-
-            // Calculate the initial size.
-            measure(s, parentWidth, parentHeight, parentFontSize);
+        public final BufferedImage render() {
 
             // Draw the children.
             ArrayList<ImageClip> childrenRenders = new ArrayList<>();
             for (ComponentInstance child : children) {
 
-                BufferedImage childRender = child.render(width, height, fontSize, s);
+                BufferedImage childRender = child.render();
                 childrenRenders.add(new ImageClip(child.x, child.y, childRender));
             }
 
-            // Calculate the content size.
-            Dimension contentSize = calculateContentSize(s, childrenRenders);
+            BufferedImage content = null;
+            if (contentSize.width != 0 && contentSize.height != 0) {
 
-            // If the content width/height is larger than the render width/height and it is
-            // automatically sized, expand it.
-            if (contentSize.width > width && s.width() == Style.Size.AUTO) {
+                // Create all internal content and perform resizing.
+                content = new BufferedImage(contentSize.width, contentSize.height, BufferedImage.TYPE_INT_ARGB);
 
-                width = contentSize.width;
-            } else if (contentSize.width < width && s.width() == Style.Size.FIT_CONTENT) {
-
-                width = contentSize.width;
+                Graphics2D contentG2d = content.createGraphics();
+                createContent(contentG2d, s, childrenRenders);
+                contentG2d.dispose();
             }
-
-            if (contentSize.height > height && s.height() == Style.Size.AUTO) {
-
-                height = contentSize.height;
-            } else if (contentSize.height < height && s.height() == Style.Size.FIT_CONTENT) {
-
-                height = contentSize.height;
-            }
-
-            // The scroll X/Y cannot go beyond the content width/height.
-            maxScrollX = Math.max(contentSize.width - width, 0);
-            maxScrollY = Math.max(contentSize.height - height, 0);
-
-            scrollX = Math.clamp(scrollX, 0, maxScrollX);
-            scrollY = Math.clamp(scrollY, 0, maxScrollY);
-
-            BufferedImage content = new BufferedImage(contentSize.width, contentSize.height,
-                    BufferedImage.TYPE_INT_ARGB);
-
-            // Create all internal content and perform resizing.
-            Graphics2D contentG2d = content.createGraphics();
-            createContent(contentG2d, s, childrenRenders);
-            contentG2d.dispose();
 
             // Create the component border and background.
-            BufferedImage component = new BufferedImage(getTotalWidth(), getTotalHeight(), BufferedImage.TYPE_INT_ARGB);
+            int totalWidth = getTotalWidth();
+            int totalHeight = getTotalHeight();
+            if (totalWidth == 0 || totalHeight == 0) {
+
+                return null;
+            }
+
+            BufferedImage component = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2d = component.createGraphics();
-            g2d.setColor(Color.BLACK);
 
             // Adjust the origin to the top left corner of the component.
             g2d.translate(marginLeft, marginTop);
@@ -753,7 +835,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             // Ensure the shape is self-contained, draw the content and background.
             g2d.clip(contentBounds);
             drawBackground(g2d, backgroundColor, backgroundIcon, backgroundSize, contentBounds);
-            g2d.drawImage(content, contentX - scrollX, contentY - scrollY, null);
+
+            if (content != null) {
+
+                g2d.drawImage(content, contentX - scrollX, contentY - scrollY, null);
+            }
 
             g2d.dispose();
 
@@ -854,7 +940,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             g2d.drawImage(icon.getImage(), x, y, backgroundWidth, backgroundHeight, null);
         }
 
-        protected final void drawText(Graphics2D g2d, String text, int x, int y, Color color) {
+        protected final void drawText(Graphics2D g2d, String text, int x, int y, int width, Color color) {
 
             g2d.setColor(color);
             g2d.setFont(font);
@@ -929,7 +1015,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return new Dimension(backgroundWidth, backgroundHeight);
         }
 
-        protected final Dimension calculateTextSize(String text, int x, int y) {
+        protected final Dimension calculateTextSize(String text, int x, int y, int width) {
 
             if (textAlign != TextAlign.LEFT) {
 
@@ -1119,16 +1205,23 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
+        public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
             string = getWorld().getText(key);
-            return calculateTextSize(string, 0, 0);
+            return calculateTextSize(string, 0, 0, width);
+        }
+
+        @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            return calculateTextSize(string, 0, 0, targetWidth);
         }
 
         @Override
         public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            drawText(g2d, string, 0, 0, style.color());
+            drawText(g2d, string, 0, 0, width, style.color());
         }
 
         @Override
@@ -1145,12 +1238,21 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
+        public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
-            ImageClip textSize = children.getFirst();
-            BufferedImage image = textSize.image();
+            Rectangle textSize = children.getFirst();
 
-            return new Dimension(textSize.x() + image.getWidth(), textSize.y() + image.getHeight());
+            return new Dimension(textSize.x + textSize.width, textSize.y + textSize.height);
+        }
+
+        @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            ComponentInstance text = children.getFirst();
+            Rectangle textSize = text.rescale(targetWidth, targetHeight);
+
+            return new Dimension(textSize.x + textSize.width, textSize.y + textSize.height);
         }
 
         @Override
@@ -1183,7 +1285,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
+        public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
             icon = getWorld().getTexture(texture, getRandomComponentId());
             Dimension textureSize = calculateTextureSize(icon, 0, 0, style.textureFit());
@@ -1192,9 +1294,17 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            Dimension textureSize = calculateTextureSize(icon, 0, 0, style.textureFit());
+            return new Dimension(textureSize.width, textureSize.height);
+        }
+
+        @Override
         public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            drawTexture(g2d, icon, 0, 0, getWidth(), getHeight(), style.textureFit());
+            drawTexture(g2d, icon, 0, 0, width, height, style.textureFit());
         }
 
         @Override
@@ -1212,7 +1322,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public Dimension calculateContentSize(Style style, List<ImageClip> children) {
+        public Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
             // Buttons are not required to have a child.
             if (children.isEmpty()) {
@@ -1220,9 +1330,24 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 return new Dimension();
             }
 
-            ImageClip child = children.getFirst();
-            BufferedImage childRender = child.image();
-            return new Dimension(child.x() + childRender.getWidth(), child.y() + childRender.getHeight());
+            Rectangle childSize = children.getFirst();
+            return new Dimension(childSize.x + childSize.width, childSize.y + childSize.height);
+        }
+
+        @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            // Buttons are not required to have a child.
+            if (children.isEmpty()) {
+
+                return new Dimension();
+            }
+
+            ComponentInstance child = children.getFirst();
+
+            Rectangle childSize = child.rescale(targetWidth, targetHeight);
+            return new Dimension(childSize.x + childSize.width, childSize.y + childSize.height);
         }
 
         @Override
@@ -1250,8 +1375,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private final InterfaceInstance asset;
 
-        private ImageClip bodyRender;
-
         public InterfaceComponentInstance(InterfaceComponentSchema schema, ComponentInstance parent,
                 DeterministicRandom random) {
 
@@ -1270,26 +1393,26 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final Dimension calculateContentSize(Style style, List<ImageClip> children) {
+        public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
-            int width = getTotalWidth();
-            int height = getTotalHeight();
-            int fontSize = getFontSize();
-            BufferedImage image = asset.render(width, height, fontSize, style);
+            Rectangle assetBounds = asset.renderBounds(width, height, fontSize, style);
+            return new Dimension(assetBounds.x + assetBounds.width, assetBounds.y + assetBounds.height);
+        }
 
-            int x = body.x;
-            int y = body.y;
-            bodyRender = new ImageClip(x, y, image);
+        @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
 
-            return new Dimension(x + image.getWidth(), y + image.getHeight());
+            Rectangle assetSize = asset.rescale(targetWidth, targetHeight);
+            return new Dimension(assetSize.x + assetSize.width, assetSize.y + assetSize.height);
         }
 
         @Override
         public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            BufferedImage body = bodyRender.image();
+            BufferedImage body = asset.render();
 
-            drawImage(g2d, body, bodyRender.x(), bodyRender.y());
+            drawImage(g2d, body, 0, 0);
         }
 
         @Override
@@ -1307,16 +1430,33 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public Dimension calculateContentSize(Style style, List<ImageClip> children) {
+        public Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
             int maxWidth = 0;
             int maxHeight = 0;
 
-            for (ImageClip child : children) {
+            for (Rectangle childSize : children) {
 
-                BufferedImage childRender = child.image();
-                maxWidth = Math.max(maxWidth, child.x() + childRender.getWidth());
-                maxHeight = Math.max(maxHeight, child.y() + childRender.getHeight());
+                maxWidth = Math.max(maxWidth, childSize.x + childSize.width);
+                maxHeight = Math.max(maxHeight, childSize.y + childSize.height);
+            }
+
+            return new Dimension(maxWidth, maxHeight);
+        }
+
+        @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            int maxWidth = 0;
+            int maxHeight = 0;
+
+            for (ComponentInstance child : children) {
+
+                Rectangle childSize = child.rescale(targetWidth, targetHeight);
+
+                maxWidth = Math.max(maxWidth, childSize.x + childSize.width);
+                maxHeight = Math.max(maxHeight, childSize.y + childSize.height);
             }
 
             return new Dimension(maxWidth, maxHeight);
@@ -1345,32 +1485,121 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public Dimension calculateContentSize(Style style, List<ImageClip> children) {
+        public Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
             int maxWidth = 0;
             int maxHeight = 0;
 
             if (style.listDirection() == Style.Direction.VERTICAL) {
 
-                for (ImageClip child : children) {
+                for (Rectangle childSize : children) {
 
-                    BufferedImage childRender = child.image();
-                    maxWidth = Math.max(maxWidth, child.x() + childRender.getWidth());
-                    maxHeight += child.y() + childRender.getHeight();
+                    maxWidth = Math.max(maxWidth, childSize.x + childSize.width);
+                    maxHeight += childSize.y + childSize.height;
                 }
 
-                int gapHeight = getGapHeight();
                 maxHeight += gapHeight * (children.size() - 1);
             } else {
 
-                for (ImageClip child : children) {
+                for (Rectangle childSize : children) {
 
-                    BufferedImage childRender = child.image();
-                    maxHeight = Math.max(maxHeight, child.y() + childRender.getHeight());
-                    maxWidth += child.x() + childRender.getWidth();
+                    maxHeight = Math.max(maxHeight, childSize.y + childSize.height);
+                    maxWidth += childSize.x + childSize.width;
                 }
 
-                int gapWidth = getGapWidth();
+                maxWidth += gapWidth * (children.size() - 1);
+            }
+
+            return new Dimension(maxWidth, maxHeight);
+        }
+
+        @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            int maxWidth = 0;
+            int maxHeight = 0;
+
+            if (style.listDirection() == Style.Direction.VERTICAL) {
+
+                double partial = 1;
+                if (displayMode == Display.FLEX) {
+
+                    double sum = children.stream().mapToDouble(child -> child.y + child.getTotalHeight()).sum()
+                            + gapHeight * (children.size() - 1);
+                    partial = targetHeight / sum;
+                }
+
+                for (ComponentInstance child : children) {
+
+                    Rectangle childSize = child.rescale(targetWidth,
+                            (int) ((child.y + child.getTotalHeight()) * partial));
+                    maxWidth = Math.max(maxWidth, childSize.x + childSize.width);
+
+                    child.y += maxHeight;
+                    maxHeight += childSize.y + childSize.height;
+                }
+
+                if (displayMode == Display.FLEX) {
+
+                    if (children.size() > 1) {
+
+                        gapHeight = (targetHeight - maxHeight) / (children.size() - 1);
+
+                        if (gapHeight < 0) {
+
+                            gapHeight = 0;
+                        }
+                    } else {
+
+                        gapHeight = 0;
+                    }
+                }
+
+                for (int i = 1; i < children.size(); i++) {
+
+                    children.get(i).y += i * gapHeight;
+                }
+                maxHeight += gapHeight * (children.size() - 1);
+            } else {
+
+                double partial = 1;
+                if (displayMode == Display.FLEX) {
+
+                    double sum = children.stream().mapToDouble(child -> child.x + child.getTotalWidth()).sum()
+                            + gapWidth * (children.size() - 1);
+                    partial = targetWidth / sum;
+                }
+
+                for (ComponentInstance child : children) {
+
+                    Rectangle childSize = child.rescale((int) ((child.x + child.getTotalWidth()) * partial),
+                            targetHeight);
+
+                    maxHeight = Math.max(maxHeight, childSize.y + childSize.height);
+                    maxWidth += childSize.x + childSize.width;
+                }
+
+                if (displayMode == Display.FLEX) {
+
+                    if (children.size() > 1) {
+
+                        gapWidth = (targetWidth - maxWidth) / (children.size() - 1);
+
+                        if (gapWidth < 0) {
+
+                            gapWidth = 0;
+                        }
+                    } else {
+
+                        gapWidth = 0;
+                    }
+                }
+
+                for (int i = 1; i < children.size(); i++) {
+
+                    children.get(i).x += i * gapWidth;
+                }
                 maxWidth += gapWidth * (children.size() - 1);
             }
 
@@ -1380,34 +1609,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            if (style.listDirection() == Style.Direction.VERTICAL) {
+            for (ImageClip child : children) {
 
-                int gapHeight = getGapHeight();
-
-                int currY = 0;
-                for (ImageClip child : children) {
-
-                    BufferedImage childRender = child.image();
-                    currY += child.y();
-
-                    g2d.drawImage(childRender, child.x(), currY, null);
-
-                    currY += gapHeight;
-                }
-            } else {
-
-                int gapWidth = getGapWidth();
-
-                int currX = 0;
-                for (ImageClip child : children) {
-
-                    BufferedImage childRender = child.image();
-                    currX += child.x();
-
-                    g2d.drawImage(childRender, currX, child.y(), null);
-
-                    currX += gapWidth;
-                }
+                BufferedImage childRender = child.image();
+                g2d.drawImage(childRender, child.x(), child.y(), null);
             }
         }
 
@@ -1504,17 +1709,40 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
     }
 
     @Override
+    public final int getContentOffsetX() {
+
+        return 0;
+    }
+
+    @Override
+    public final int getContentOffsetY() {
+
+        return 0;
+    }
+
+    @Override
     public final Dimension getSize() {
 
         // Create the size such that it starts in the top left corner of the parent
         // element and ends at the boundaries of the body.
-        return new Dimension(body.getX() + body.getTotalWidth(), body.getY() + body.getTotalHeight());
+        return new Dimension(body.x + body.getTotalWidth(), body.y + body.getTotalHeight());
     }
 
     @Override
-    public final BufferedImage render(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
+    public Rectangle renderBounds(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
 
-        // This interface should be treated as essentially covering the entire parent.
-        return body.render(parentWidth, parentHeight, parentFontSize, parentStyle);
+        return body.renderBounds(parentWidth, parentHeight, parentFontSize, parentStyle);
+    }
+
+    @Override
+    public Rectangle rescale(int targetWidth, int targetHeight) {
+
+        return body.rescale(targetWidth, targetHeight);
+    }
+
+    @Override
+    public BufferedImage render() {
+
+        return body.render();
     }
 }

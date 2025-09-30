@@ -425,7 +425,7 @@ public final class StyleSet {
             HashSet<String> classesList = new HashSet<>();
             HashSet<String> statesList = new HashSet<>();
 
-            for (int i = 0; i < indices.size() - 2; i++) {
+            for (int i = 0; i < indices.size() - 1; i++) {
 
                 String val = key.substring(indices.get(i), indices.get(i + 1));
                 char selector = val.charAt(0);

@@ -45,7 +45,12 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Size paddingBottom, Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize,
         String fontFamily, Size lineHeight, TextAlign textAlign, Color color, TextureSize textureFit,
         WhiteSpace whiteSpace, OverflowWrap overflowWrap, TextOverflow textOverflow, Overflow overflowX,
-        Overflow overflowY, Size gap, Direction listDirection, Boolean eventPropagation) {
+        Overflow overflowY, SizeDimensions gap, Direction listDirection, Boolean eventPropagation, Display display) {
+
+    /**
+     * <code>Color</code>: A fully transparent color.
+     */
+    public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
     /**
      * <code>Style</code>: A style without any defined attributes which will inherit
@@ -54,21 +59,16 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null);
+            null, null);
 
     /**
      * <code>Style</code>: A style which represents default string literal UI
      * components.
      */
-    public static final Style STRING_STYLE = new Style(null, null, Size.FIT_CONTENT, null, null, null, null, null, null,
+    public static final Style STRING_STYLE = new Style(null, null, Size.FIT_CONTENT, Size.FIT_CONTENT, null, null,
+            TRANSPARENT, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null);
-
-    /**
-     * <code>Color</code>: A fully transparent color.
-     */
-    public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
+            null, null, null, null, null, null, null, null, Display.FLEX);
 
     /**
      * Creates a new instance of the <code>Style</code> class.
@@ -146,20 +146,16 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Overflow overflowX = null;
         Overflow overflowY = null;
 
-        Size gap = null;
+        SizeDimensions gap = null;
         Direction listDirection = null;
 
         Boolean eventPropagation = null;
-
-        System.out.println();
-        System.out.println();
+        Display display = null;
 
         TracedDictionary json = entry.getValue();
 
         // Iterate through each property in the JSON.
         for (String property : json) {
-
-            System.out.println("TEST: " + property);
 
             switch (property) {
 
@@ -412,13 +408,15 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             case "overflowY" -> overflowY = Overflow.createOverflow(json, property);
 
             // Process the list element gap.
-            case "gap" -> gap = Size.createSize(json, property);
+            case "gap" -> gap = SizeDimensions.createSizeDimensions(json, property);
 
             // Process the list direction.
             case "listDirection" -> listDirection = Direction.createDirection(json, property);
 
             // Process the event propagation behavior.
-            case "eventPropagation" -> createBoolean(json, property);
+            case "eventPropagation" -> eventPropagation = createBoolean(json, property);
+
+            case "display" -> display = Display.createDisplay(json, property);
             }
         }
 
@@ -428,9 +426,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 borderRightWidth, borderRightColor, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft,
                 marginRight, paddingTop, paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize,
                 fontFamily, lineHeight, textAlign, color, textureFit, whiteSpace, overflowWrap, textOverflow, overflowX,
-                overflowY, gap, listDirection, eventPropagation);
+                overflowY, gap, listDirection, eventPropagation, display);
 
-        System.out.println(s);
         return s;
     }
 
@@ -485,7 +482,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 inheritVal(styles, Style::textAlign, parent, TextAlign.LEFT),
                 inheritVal(styles, Style::color, parent, Color.BLACK),
 
-                parseVal(styles, Style::textureFit, TextureSize.FILL),
+                parseVal(styles, Style::textureFit, TextureSize.AUTO),
 
                 inheritVal(styles, Style::whiteSpace, parent, WhiteSpace.NORMAL),
                 inheritVal(styles, Style::overflowWrap, parent, OverflowWrap.NORMAL),
@@ -493,9 +490,11 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::overflowX, Overflow.CLIP), parseVal(styles, Style::overflowY, Overflow.CLIP),
 
                 // All listing properties should be independent.
-                parseVal(styles, Style::gap, Size.NONE), parseVal(styles, Style::listDirection, Direction.VERTICAL),
+                parseVal(styles, Style::gap, SizeDimensions.NONE),
+                parseVal(styles, Style::listDirection, Direction.VERTICAL),
 
-                parseVal(styles, Style::eventPropagation, null));
+                parseVal(styles, Style::eventPropagation, null),
+                inheritVal(styles, Style::display, parent, Display.BLOCK));
     }
 
     /**
@@ -1522,16 +1521,54 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
          */
         public static Direction createDirection(TracedCollection collection, Object key) throws LoggedException {
 
-            return collection.get(key, List.of(collection.stringCase(entry -> {
+            TracedEntry<String> directionEntry = collection.getAsString(key, false, null);
+            String direction = directionEntry.getValue();
 
-                String value = entry.getValue();
-                return switch (value) {
+            return switch (direction) {
 
-                case "horizontal" -> Direction.HORIZONTAL;
-                case "vertical" -> Direction.VERTICAL;
-                default -> throw new UnexpectedValueException(entry);
-                };
-            })));
-        }
+            case "horizontal" -> HORIZONTAL;
+            case "vertical" -> VERTICAL;
+            default -> throw new UnexpectedValueException(directionEntry);
+            };
+        };
+    }
+
+    /**
+     * <code>Display</code>: An enum class representing the display method of a
+     * component.
+     */
+    public static enum Display {
+
+        /**
+         * <code>Display</code>: An enum constant representing a non-resizing component.
+         */
+        BLOCK,
+
+        /**
+         * <code>Display</code>: An enum constant representing a resizing component.
+         */
+        FLEX;
+
+        /**
+         * Parses a collection into a block or flexible display
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @return <code>Direction</code>: The resulting display.
+         * @throws Display Thrown if the collection could not be parsed.
+         */
+        public static final Display createDisplay(TracedCollection collection, Object key) throws LoggedException {
+
+            TracedEntry<String> displayEntry = collection.getAsString(key, false, null);
+            String display = displayEntry.getValue();
+            System.out.println(display);
+
+            return switch (display) {
+
+            case "block" -> BLOCK;
+            case "flex" -> FLEX;
+            default -> throw new UnexpectedValueException(displayEntry);
+            };
+        };
     }
 }

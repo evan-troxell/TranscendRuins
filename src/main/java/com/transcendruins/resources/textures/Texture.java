@@ -68,6 +68,10 @@ public final class Texture {
 
                         TracedEntry<String> pathEntry = textureJson.getAsString(i, false, null);
                         String path = pathEntry.getValue();
+                        if (path.startsWith("/")) {
+
+                            path = path.substring(1);
+                        }
 
                         jsonEntries.add(new WeightedRoll.Entry<>(path));
                     }
@@ -84,6 +88,10 @@ public final class Texture {
                     for (String pathString : textureJson) {
 
                         String path = pathString;
+                        if (path.startsWith("/")) {
+
+                            path = path.substring(1);
+                        }
                         TracedEntry<Double> weightEntry = textureJson.getAsDouble(pathString, false, null,
                                 num -> num > 0);
 
@@ -96,6 +104,10 @@ public final class Texture {
                 json.stringCase(entry -> {
 
                     String path = entry.getValue();
+                    if (path.startsWith("/")) {
+
+                        path = path.substring(1);
+                    }
                     return new WeightedRoll<>(path);
                 })));
     }

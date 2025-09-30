@@ -536,7 +536,10 @@ public final class InterfaceAttributes extends AssetAttributes {
                         }
 
                         return new ImmutableList<>(actionsList);
-                    })));
+                    }),
+
+                    // Process no actions.
+                    json.nullCase(_ -> new ImmutableList<>())));
         }
     }
 

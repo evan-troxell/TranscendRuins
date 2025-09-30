@@ -1,0 +1,54 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:example"
+    },
+    "attributes": {
+
+        "style": {
+            "list": {
+                "width": 300,
+                "height": 300,
+                "borderWidth": 2,
+                "borderStyle": "solid",
+                "backgroundColor": [160, 160, 160],
+                "listDirection": "vertical",
+                "gap": 25,
+                "display": "block"
+            },
+            "list:hover": {
+                "backgroundColor": [128, 128, 128]
+            },
+
+            "button": {
+                "borderWidth": 2,
+                "borderStyle": "solid",
+                "backgroundColor": [192, 192, 192],
+                "width": "auto",
+                "height": 50
+            },
+            "button:hover": {
+                "backgroundColor": [160, 160, 160]
+            },
+            "button:active": {
+                "backgroundColor": [128, 128, 128]
+            },
+
+            "string": {
+                "color": [255, 255, 255]
+            },
+            "string:active": {
+                "color": [64, 64, 64]
+            }
+        },
+
+        "body": {
+            "type": "list",
+            "components": [
+                {
+                    "type": "button"
+                },
+                "This is another string :D"
+            ]
+        }
+    }
+}

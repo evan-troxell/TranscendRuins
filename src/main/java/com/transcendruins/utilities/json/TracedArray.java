@@ -21,8 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.json.simple.JSONArray;
-
 import com.transcendruins.utilities.files.TracedPath;
 
 /**
@@ -32,10 +30,10 @@ import com.transcendruins.utilities.files.TracedPath;
 public final class TracedArray extends TracedCollection implements Iterable<Integer> {
 
     /**
-     * The stored JSON array information which this </code>TracedArray</code> draws
-     * from.
+     * <code>List&lt;Object&gt;</code>: The stored JSON array information which this
+     * </code>TracedArray</code> draws from.
      */
-    private final JSONArray array;
+    private final List<Object> array;
 
     /**
      * Creates a new instance of the <code>TracedArray</code> class.
@@ -46,17 +44,18 @@ public final class TracedArray extends TracedCollection implements Iterable<Inte
     public TracedArray(TracedEntry<?> array) {
 
         super(array.getPathway());
-        this.array = (JSONArray) array.getValue();
+        this.array = (List<Object>) array.getValue();
     }
 
     /**
      * Creates a new instance of the <code>TracedArray</code> class, tracing another
      * key from a previously traced path.
      * 
-     * @param dictionary <code>JSONArray</code>: The array to assign to this value.
+     * @param dictionary <code>List&lt;Object&gt;</code>: The array to assign to
+     *                   this value.
      * @param path       <code>TracedPath</code>: The path to trace from.
      */
-    public TracedArray(JSONArray array, TracedPath path) {
+    public TracedArray(List<Object> array, TracedPath path) {
 
         super(path);
         this.array = array;

@@ -6,25 +6,16 @@
 
         "style": {
 
-            "body": {
-                "width": "90%",
-                "height": "90%",
-                "x": "5%",
-                "y": "5%",
+            "container": {
 
                 "background": {
-                    "color": [192, 192, 192],
-                    "texture": "interface.background.example"
+                    "color": [192, 192, 192]
                 },
 
                 "border": {
-                    "width": "2px",
+                    "width": 5,
                     "color": [128, 128, 128],
                     "style": "solid"
-                },
-                "borderRight": {
-                    "width": "10px",
-                    "color": [255, 0, 0]
                 },
 
                 "borderRadiusLeft": "25px",
@@ -34,7 +25,21 @@
                 "padding": "10px",
                 "paddingLeft": "25px",
 
-                "margin": "5px"
+                "margin": "5px",
+                "gap":25,
+                "display": "flex",
+                "listDirection": "vertical",
+                "color": [255, 255, 255]
+            },
+
+            "container:hover": {
+                "backgroundColor": [160, 160, 160],
+                "borderColor": [108, 108, 108]
+            },
+
+            "container:active": {
+                "backgroundColor": [80, 80, 80],
+                "borderColor": [48, 48, 48]
             },
             
             "button": {
@@ -72,17 +77,74 @@
                 "whiteSpace": "normal",
                 "textOverflow": "ellipsis",
 
-                "textAlign" : "center"
+                "textAlign" : "center",
+                "display": "flex"
             }
         },
 
         "body": {
+            "type": "container",
+            "components": [
+                "This is an example of a UI list component with 2 string literals and 2 buttons",
+                {
+                    "type": "button",
+                    "style": {
+                        "x": 50,
+                        "y": 100,
+                        "width": 175,
+                        "height": 175
+                    }
+                },
+                "\nThis is the other string :D",
+                {
+                    "type": "button",
+                    "style": {
+                        "x": 600,
+                        "y": 600,
+                        "width": 250,
+                        "height": 250
+                    },
+                    "component": "i think i've gone a 'lil overboard with this"
+                },
+                {
+                    "type": "text",
+                    "style": {
+                        "borderRadius": 100,
+                        "borderStyle": "solid",
+                        "width": 80,
+                        "height": 20,
+                        "x": 300,
+                        "y": 25,
+                        "textAlign": "center"
+                    },
+                    "text": "TEST"
+                },
+                {
+                    "type": "texture",
+                    "style": {
+                        "width": 80,
+                        "height": 80,
+                        "x": 300,
+                        "y": 150,
+                        "textAlign": "center",
+                        "textureFit": [80, 80]
+                    },
+                    "texture": "interface.texture.example"
+                },
+                {
+                    "type": "interface",
+                    "interface": "TranscendRuins:example"
+                }
+            ]
+        },
+
+        "body1": {
             "type": "button",
             "id": "exitButton",
 
             "style": {
-                "width": "150",
-                "height": "125",
+                "width": "450",
+                "height": "450",
                 "x": "10px",
                 "y": "10px",
                 "color": [0, 128, 255],

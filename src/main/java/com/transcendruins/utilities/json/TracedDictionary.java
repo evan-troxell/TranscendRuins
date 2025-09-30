@@ -18,9 +18,8 @@ package com.transcendruins.utilities.json;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.stream.Stream;
-
-import org.json.simple.JSONObject;
 
 import com.transcendruins.utilities.files.TracedPath;
 
@@ -31,10 +30,10 @@ import com.transcendruins.utilities.files.TracedPath;
 public final class TracedDictionary extends TracedCollection implements Iterable<String> {
 
     /**
-     * The stored JSON dictionary information which this
-     * </code>TracedDictionary</code> draws from.
+     * <code>Map&lt;String, Object&gt;</code>: The stored JSON dictionary
+     * information which this </code>TracedDictionary</code> draws from.
      */
-    private final JSONObject dictionary;
+    private final Map<String, Object> dictionary;
 
     /**
      * Creates a new instance of the <code>TracedDictionary</code> class.
@@ -45,18 +44,18 @@ public final class TracedDictionary extends TracedCollection implements Iterable
     public TracedDictionary(TracedEntry<?> dictionary) {
 
         super(dictionary.getPathway());
-        this.dictionary = (JSONObject) dictionary.getValue();
+        this.dictionary = (Map<String, Object>) dictionary.getValue();
     }
 
     /**
      * Creates a new instance of the <code>TracedDictionary</code> class, tracing
      * another key from a previously traced path.
      * 
-     * @param dictionary <code>JSONObject</code>: The dictionary to assign to this
-     *                   value.
+     * @param dictionary <code>Map&lt;String, Object&gt;</code>: The dictionary to
+     *                   assign to this value.
      * @param path       <code>TracedPath</code>: The path to trace from.
      */
-    public TracedDictionary(JSONObject dictionary, TracedPath path) {
+    public TracedDictionary(Map<String, Object> dictionary, TracedPath path) {
 
         super(path);
         this.dictionary = dictionary;
@@ -65,13 +64,23 @@ public final class TracedDictionary extends TracedCollection implements Iterable
     @Override
     public Object getValue(Object key) {
 
-        return dictionary.get(key);
+        if (key instanceof String stringKey) {
+
+            return dictionary.get(stringKey);
+        }
+
+        return null;
     }
 
     @Override
     public boolean containsKey(Object key) {
 
-        return dictionary.get(key) != null;
+        if (key instanceof String stringKey) {
+
+            return dictionary.containsKey(stringKey);
+        }
+
+        return false;
     }
 
     @Override

@@ -16,14 +16,20 @@
 
 package com.transcendruins;
 
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
@@ -31,6 +37,7 @@ import com.transcendruins.assets.elements.ElementContext;
 import com.transcendruins.assets.elements.ElementInstance;
 import com.transcendruins.assets.interfaces.InterfaceContext;
 import com.transcendruins.assets.interfaces.InterfaceInstance;
+import com.transcendruins.assets.interfaces.UIComponent;
 import com.transcendruins.graphics3d.Camera3D;
 import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;
@@ -148,17 +155,166 @@ public final class App {
         InterfaceInstance interfaceExample = (InterfaceInstance) AssetType.INTERFACE.createAsset(interfaceContext);
         interfaceExample.update(world.getRuntimeSeconds());
 
-        BufferedImage image = interfaceExample.render(500, 500, 16, Style.EMPTY);
-        System.out.println(image.getWidth() + " , " + image.getHeight());
+        Rectangle interfaceBounds = interfaceExample.renderBounds(400, 400, 16, Style.EMPTY);
+        interfaceBounds = interfaceExample.rescale(400, 400);
+        // interfaceExample.hover(50, 5, new ArrayList<>());
+
         JFrame frame = new JFrame();
         frame.setBounds(50, 50, 800, 800);
 
-        JLabel label = new JLabel(new ImageIcon(image));
-        // frame.getContentPane().setBackground(Color.GRAY);
-        frame.add(label);
+        JPanel panel = new JPanel() {
+
+            @Override
+            public void paint(Graphics graphics) {
+
+                int width = getWidth();
+                int height = getHeight();
+                interfaceExample.renderBounds(width, height, 16, Style.EMPTY);
+                interfaceExample.rescale(width, height);
+                BufferedImage image = interfaceExample.render();
+
+                graphics.drawImage(image, 0, 0, null);
+            }
+        };
+        frame.add(panel);
+        frame.addComponentListener(new ComponentListener() {
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+
+                panel.repaint();
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+            }
+
+            @Override
+            public void componentShown(ComponentEvent e) {
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+            }
+
+        });
+
+        ArrayList<UIComponent> hoveredComponents = new ArrayList<>();
+        ArrayList<UIComponent> pressedComponents = new ArrayList<>();
+
+        int[] mousePosition = { 0, 0 };
+
+        panel.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                mousePosition[0] = e.getX();
+                mousePosition[1] = e.getY();
+
+                pressedComponents.clear();
+                interfaceExample.press(mousePosition[0], mousePosition[1], pressedComponents);
+
+                panel.repaint();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+                mousePosition[0] = e.getX();
+                mousePosition[1] = e.getY();
+
+                for (UIComponent component : pressedComponents) {
+
+                    component.release(mousePosition[0], mousePosition[1]);
+                }
+                pressedComponents.clear();
+
+                panel.repaint();
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+                mousePosition[0] = e.getX();
+                mousePosition[1] = e.getY();
+
+                hoveredComponents.clear();
+                interfaceExample.hover(mousePosition[0], mousePosition[1], hoveredComponents);
+
+                panel.repaint();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+                mousePosition[0] = e.getX();
+                mousePosition[1] = e.getY();
+
+                for (UIComponent component : hoveredComponents) {
+
+                    component.exit(mousePosition[0], mousePosition[1]);
+                }
+                hoveredComponents.clear();
+
+                panel.repaint();
+            }
+
+        });
+
+        panel.addMouseMotionListener(new MouseMotionListener() {
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+
+                mousePosition[0] = e.getX();
+                mousePosition[1] = e.getY();
+
+                for (UIComponent component : hoveredComponents) {
+
+                    component.exit(mousePosition[0], mousePosition[1]);
+                }
+
+                hoveredComponents.clear();
+
+                for (UIComponent component : pressedComponents) {
+
+                    component.release(mousePosition[0], mousePosition[1]);
+                }
+                pressedComponents.clear();
+
+                interfaceExample.hover(mousePosition[0], mousePosition[1], hoveredComponents);
+                interfaceExample.press(mousePosition[0], mousePosition[1], pressedComponents);
+
+                panel.repaint();
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+
+                mousePosition[0] = e.getX();
+                mousePosition[1] = e.getY();
+
+                for (UIComponent component : hoveredComponents) {
+
+                    component.exit(mousePosition[0], mousePosition[1]);
+                }
+
+                pressedComponents.clear();
+                interfaceExample.hover(mousePosition[0], mousePosition[1], hoveredComponents);
+
+                panel.repaint();
+            }
+
+        });
+
         frame.setVisible(true);
-        frame.repaint();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        panel.repaint();
 
     }
 

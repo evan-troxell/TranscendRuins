@@ -21,11 +21,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
@@ -126,8 +124,8 @@ public abstract class TracedCollection {
 
         case String _ -> JSONType.STRING;
 
-        case JSONObject _ -> JSONType.DICT;
-        case JSONArray _ -> JSONType.ARRAY;
+        case @SuppressWarnings("rawtypes") Map _ -> JSONType.DICT;
+        case @SuppressWarnings("rawtypes") List _ -> JSONType.ARRAY;
 
         default -> JSONType.NULL;
         };

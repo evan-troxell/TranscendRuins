@@ -11,5 +11,6 @@
         "/element/barrel/barrel3.png": 2.5
     },
 
-    "location.bunkerAlfa": "/location/bunkerAlfa.png"
+    "location.bunkerAlfa": "location/bunkerAlfa.png",
+    "interface.texture.example": "displayIcon.png"
 }

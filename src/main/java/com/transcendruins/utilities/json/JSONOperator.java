@@ -17,13 +17,13 @@
 package com.transcendruins.utilities.json;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -38,6 +38,22 @@ import com.transcendruins.utilities.files.TracedPath;
  */
 public final class JSONOperator {
 
+    private static final JSONParser parser = new JSONParser();
+
+    private static final ContainerFactory orderedFactory = new ContainerFactory() {
+        @SuppressWarnings("rawtypes")
+        @Override
+        public final Map createObjectContainer() {
+            return new LinkedHashMap<>(); // preserves order
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public final List creatArrayContainer() {
+            return new LinkedList<>(); // order already preserved in lists
+        }
+    };
+
     /**
      * Parses a JSON string into a <code>JSONObject</code>.
      * 
@@ -47,7 +63,7 @@ public final class JSONOperator {
      */
     public static Object parseJSON(String jsonString) throws ParseException {
 
-        return new JSONParser().parse(jsonString);
+        return parser.parse(jsonString, orderedFactory);
     }
 
     /**
@@ -72,7 +88,7 @@ public final class JSONOperator {
         }
         try {
 
-            if (parseJSON(jsonString) instanceof JSONObject json) {
+            if (parseJSON(jsonString) instanceof Map json) {
 
                 return new TracedDictionary(json, path);
             }
@@ -106,7 +122,7 @@ public final class JSONOperator {
         }
         try {
 
-            if (parseJSON(jsonString) instanceof JSONArray json) {
+            if (parseJSON(jsonString) instanceof List json) {
 
                 return new TracedArray(json, path);
             }
@@ -119,62 +135,6 @@ public final class JSONOperator {
     }
 
     /**
-     * Converts a map instance to a <code>JSONObject</code> instance.
-     * 
-     * @param map <code>Map&lt;String, ?&gt;</code>: The map to process.
-     * @return <code>JSONObject</code>: The generated JSON Object.
-     */
-    public static JSONObject toJSONObject(Map<?, ?> json) {
-
-        HashMap<String, Object> recursionMap = new HashMap<>();
-
-        for (Map.Entry<?, ?> entry : json.entrySet()) {
-
-            recursionMap.put(entry.getKey().toString(),
-
-                    switch (entry.getValue()) {
-
-                    case Map<?, ?> map -> toJSONObject(map);
-
-                    case Collection<?> list -> toJSONArray(list);
-
-                    case Object[] array -> toJSONArray(Arrays.asList(array));
-
-                    default -> entry.getValue();
-                    });
-        }
-
-        return new JSONObject(recursionMap);
-    }
-
-    /**
-     * Converts a <code>Collection&lt;Object&gt;</code> instance to a
-     * <code>JSONArray</code> instance.
-     * 
-     * @param map <code>Collection&lt;Object&gt;</code>: The collection to process.
-     * @return <code>JSONArray</code>: The generated JSON Array.
-     */
-    public static JSONArray toJSONArray(Collection<?> json) {
-
-        JSONArray recursionList = new JSONArray();
-
-        for (Object value : json) {
-
-            recursionList.add(switch (value) {
-            case Map<?, ?> map -> toJSONObject(map);
-
-            case Collection<?> list -> toJSONArray(list);
-
-            case Object[] array -> toJSONArray(Arrays.asList(array));
-
-            default -> value;
-            });
-        }
-
-        return recursionList;
-    }
-
-    /**
      * Writes the JSON information from a <code>JSONObject</code> to the designated
      * file from an <code>ExternalPath</code> directory.
      * 
@@ -184,23 +144,6 @@ public final class JSONOperator {
      *                     any reason.
      */
     public static void writeTo(ExternalPath path, JSONObject json) throws IOException {
-
-        String outputString = json.toJSONString();
-        path.writeTo(outputString);
-    }
-
-    /**
-     * Writes the JSON information from a <code>Map</code> to the designated file
-     * from an <code>ExternalPath</code> directory.
-     * 
-     * @param path   <code>ExternalPath</code>: The path to write to.
-     * @param values <code>Map&lt;String, ?&gt;</code>: The contents to write.
-     * @throws IOException Thrown if the designated file cannot be written to for
-     *                     any reason.
-     */
-    public static void writeTo(ExternalPath path, Map<String, ?> values) throws IOException {
-
-        JSONObject json = toJSONObject(values);
 
         String outputString = json.toJSONString();
         path.writeTo(outputString);

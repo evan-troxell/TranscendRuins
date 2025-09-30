@@ -216,14 +216,16 @@ public final class GameSettings {
      */
     private static boolean save(HashMap<String, HashMap<String, Object>> settings) {
 
-        try {
+        // try {
 
-            JSONOperator.writeTo(SETTINGS_DIRECTORY, settings);
-            return true;
-        } catch (IOException e) {
+        // JSONOperator.writeTo(SETTINGS_DIRECTORY, settings);
+        // return true;
+        // } catch (IOException e) {
 
-            return false;
-        }
+        // return false;
+        // }
+
+        return false;
     }
 
     /**

@@ -18,6 +18,7 @@ package com.transcendruins.assets.interfaces;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -211,8 +212,10 @@ public interface UIComponent {
      */
     private boolean propagateAction(int mouseX, int mouseY, PropagationAction action, List<UIComponent> stack) {
 
-        List<UIComponent> children = getChildren();
+        mouseX -= getContentOffsetX();
+        mouseY -= getContentOffsetY();
 
+        List<UIComponent> children = getChildren();
         boolean propagate = true;
 
         // Start with the top children and work backwards.
@@ -281,6 +284,10 @@ public interface UIComponent {
      */
     public int getY();
 
+    public int getContentOffsetX();
+
+    public int getContentOffsetY();
+
     /**
      * Retrieves the size of this <code>UIComponent</code> instance. This
      * encompasses any border, padding, and content dimensions, though it should not
@@ -291,7 +298,7 @@ public interface UIComponent {
     public Dimension getSize();
 
     /**
-     * Draws this <code>UIComponent</code> instance.
+     * Computes the dimensions of this <code>UIComponent</code> instance.
      * 
      * @param parentWidth    <code>int</code>: The content width of the parent of
      *                       this <code>UIComponent</code> instance.
@@ -302,5 +309,12 @@ public interface UIComponent {
      * @param parentStyle    <code>Style</code>: The raw style of the parent of this
      *                       <code>UIComponent</code> instance.
      */
-    public BufferedImage render(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle);
+    public Rectangle renderBounds(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle);
+
+    public Rectangle rescale(int targetWidth, int targetHeight);
+
+    /**
+     * Draws this <code>UIComponent</code> instance.
+     */
+    public BufferedImage render();
 }
