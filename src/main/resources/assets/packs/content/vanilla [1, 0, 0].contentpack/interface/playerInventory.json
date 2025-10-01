@@ -31,17 +31,6 @@
                 "listDirection": "vertical",
                 "color": [255, 255, 255]
             },
-
-            "container:hover": {
-                "backgroundColor": [160, 160, 160],
-                "borderColor": [108, 108, 108]
-            },
-
-            "container:active": {
-                "backgroundColor": [80, 80, 80],
-                "borderColor": [48, 48, 48]
-            },
-            
             "button": {
                 "border": {
                     "style": "solid"
@@ -133,6 +122,12 @@
                 },
                 {
                     "type": "interface",
+                    "style": {
+                        "x":50,
+                        "y":350,
+                        "width": "fitContent",
+                        "height": "fitContent"
+                    },
                     "interface": "TranscendRuins:example"
                 }
             ]

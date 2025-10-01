@@ -42,7 +42,6 @@ import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ButtonComponentSchema;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentActionSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ContainerComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InterfaceComponentSchema;
@@ -286,9 +285,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private String backgroundTexture = null;
         private ImageIcon backgroundIcon = null;
 
-        private Boolean eventPropagation;
+        private Boolean propagateEvents;
 
-        private final boolean defaultEventPropagation;
+        private final boolean defaultpropagateEvents;
 
         public final int getFontSize() {
 
@@ -387,7 +386,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return randomComponentId;
         }
 
-        public ComponentInstance(ComponentSchema schema, ComponentInstance parent, boolean defaultEventPropagation,
+        public ComponentInstance(ComponentSchema schema, ComponentInstance parent, boolean defaultpropagateEvents,
                 DeterministicRandom random) {
 
             this.parent = parent;
@@ -398,7 +397,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             style = schema.getStyle();
             value = schema.getValue();
 
-            this.defaultEventPropagation = defaultEventPropagation;
+            this.defaultpropagateEvents = defaultpropagateEvents;
             randomComponentId = random.next();
 
             for (ComponentSchema child : schema.getChildren()) {
@@ -533,7 +532,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             gapWidth = style.gap().width().getSize(width, 0);
             gapHeight = style.gap().height().getSize(height, 0);
 
-            eventPropagation = style.eventPropagation();
+            propagateEvents = style.propagateEvents();
             displayMode = style.display();
         }
 
@@ -1131,34 +1130,34 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final void exit(int mouseX, int mouseY) {
+        public final void onExit(int mouseX, int mouseY) {
 
             removeState("hover");
         }
 
         @Override
-        public final void hover(int mouseX, int mouseY) {
+        public final void onHover(int mouseX, int mouseY) {
 
             addState("hover");
         }
 
         @Override
-        public final void release(int mouseX, int mouseY) {
+        public final void onRelease(int mouseX, int mouseY) {
 
             removeState("active");
         }
 
         @Override
-        public final boolean press(int mouseX, int mouseY) {
+        public final boolean onPress(int mouseX, int mouseY) {
 
             addState("active");
 
-            if (eventPropagation == null) {
+            if (propagateEvents == null) {
 
-                return defaultEventPropagation;
+                return defaultpropagateEvents;
             }
 
-            return eventPropagation;
+            return propagateEvents;
         }
 
         @Override
@@ -1166,18 +1165,18 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             onComponentClick(mouseX, mouseY, value);
 
-            if (eventPropagation == null) {
+            if (propagateEvents == null) {
 
-                return defaultEventPropagation;
+                return defaultpropagateEvents;
             }
 
-            return eventPropagation;
+            return propagateEvents;
         }
 
         public abstract void onComponentClick(int mouseX, int mouesY, TRScript value);
 
         @Override
-        public final void scroll(int mouseX, int mouseY, Point displacement) {
+        public final void onScroll(int mouseX, int mouseY, Point displacement) {
 
             // Calculate the adjustment to scroll.
             int newScrollX = overflowX == Overflow.CLIP ? scrollX : Math.clamp(scrollX + displacement.x, 0, maxScrollX);
@@ -1315,10 +1314,17 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
     public final class ButtonComponentInstance extends ComponentInstance {
 
+        private final ImmutableList<TRScript> conditions;
+
+        private final ImmutableList<ComponentAction> action;
+
         public ButtonComponentInstance(ButtonComponentSchema schema, ComponentInstance parent,
                 DeterministicRandom random) {
 
             super(schema, parent, false, random);
+
+            conditions = schema.getConditions();
+            action = schema.getAction();
         }
 
         @Override
@@ -1367,7 +1373,18 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public void onComponentClick(int mouseX, int mouesY, TRScript value) {
 
-            // TODO add button actions
+            for (TRScript condition : conditions) {
+
+                if (!condition.evaluateBoolean(InterfaceInstance.this)) {
+
+                    return;
+                }
+            }
+
+            for (ComponentAction call : action) {
+
+                call.call(InterfaceInstance.this);
+            }
         }
     }
 
@@ -1621,59 +1638,28 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
     }
 
-    public abstract class ComponentActionInstance {
-
-        private final ImmutableList<TRScript> conditions;
-
-        /**
-         * Determines whether or not this action passes for a given asset.
-         * 
-         * @param asset <code>AssetInstance</code>: The asset to evaluate the conditions
-         *              against.
-         * @return <code>boolean</code>: Whether or not the conditions pass for the
-         *         given asset.
-         */
-        public final boolean passes(AssetInstance asset) {
-
-            for (TRScript condition : conditions) {
-
-                if (!condition.evaluateBoolean(asset)) {
-
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public ComponentActionInstance(ComponentActionSchema schema) {
-
-            conditions = schema.getConditions();
-        }
+    @Override
+    public final void onExit(int mouseX, int mouseY) {
     }
 
     @Override
-    public final void exit(int mouseX, int mouseY) {
-    }
-
-    @Override
-    public final void hover(int mouseX, int mouseY) {
+    public final void onHover(int mouseX, int mouseY) {
 
         // Nothing should happen when the mouse hovers the interface wrapper.
     }
 
     @Override
-    public final void scroll(int mouseX, int mouseY, Point displacement) {
+    public final void onScroll(int mouseX, int mouseY, Point displacement) {
 
         // Nothing should happen when the mouse scrolls the interface wrapper.
     }
 
     @Override
-    public final void release(int mouseX, int mouseY) {
+    public final void onRelease(int mouseX, int mouseY) {
     }
 
     @Override
-    public final boolean press(int mouseX, int mouseY) {
+    public final boolean onPress(int mouseX, int mouseY) {
 
         return true;
     }

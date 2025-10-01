@@ -13,10 +13,11 @@
                 "backgroundColor": [160, 160, 160],
                 "listDirection": "vertical",
                 "gap": 25,
-                "display": "block"
+                "display": "block",
+                "propagateEvents": false
             },
             "list:hover": {
-                "backgroundColor": [128, 128, 128]
+                "backgroundColor": [144, 144, 144]
             },
 
             "button": {
@@ -35,6 +36,9 @@
 
             "string": {
                 "color": [255, 255, 255]
+            },
+            "string:hover": {
+                "color": [192, 192, 192]
             },
             "string:active": {
                 "color": [64, 64, 64]

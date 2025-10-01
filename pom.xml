@@ -3,6 +3,7 @@
     <groupId>com.transcendruins</groupId>
     <artifactId>TranscendRuins</artifactId>
     <version>1.0.0</version>
+
     <properties>
         <maven.compiler.release>23</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,15 +17,24 @@
         <jacoco.unit-tests.limit.branch-ratio>0%</jacoco.unit-tests.limit.branch-ratio>
         <jacoco.unit-tests.limit.class-complexity>20</jacoco.unit-tests.limit.class-complexity>
         <jacoco.unit-tests.limit.method-complexity>5</jacoco.unit-tests.limit.method-complexity>
+        <jme3_g>org.jmonkeyengine</jme3_g>
+        <jme3_v>3.8.1-stable</jme3_v>
     </properties>
-    <dependencies>
 
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
         <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
             <version>4.8.179</version>
         </dependency>
-
 
         <!-- https://mvnrepository.com/artifact/com.google.flatbuffers/flatbuffers-java -->
         <dependency>
@@ -48,6 +58,29 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
+        </dependency>
+
+        <!-- Core jMonkeyEngine libraries -->
+        <dependency>
+            <groupId>${jme3_g}</groupId>
+            <artifactId>jme3-core</artifactId>
+            <version>${jme3_v}</version>
+        </dependency>
+        <dependency>
+            <groupId>${jme3_g}</groupId>
+            <artifactId>jme3-desktop</artifactId>
+            <version>${jme3_v}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${jme3_g}</groupId>
+            <artifactId>jme3-lwjgl3</artifactId>
+            <version>${jme3_v}</version>
+        </dependency>
+        <dependency>
+            <groupId>${jme3_g}</groupId>
+            <artifactId>jme3-plugins</artifactId>
+            <version>${jme3_v}</version>
         </dependency>
     </dependencies>
     <build>
@@ -159,6 +192,27 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <!-- Ensure manifest points to your main class -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.transcendruins.App</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <reporting>
@@ -170,4 +224,28 @@
             </plugin>
         </plugins>
     </reporting>
+
+
+    <dependencyManagement>
+    
+
+        <dependencies>
+
+            <dependency>
+                <groupId>net.java.jinput</groupId>
+                <artifactId>jinput</artifactId>
+                <version>2.0.9</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.lwjgl</groupId>
+                <artifactId>lwjgl-bom</artifactId>
+                <version>3.3.6</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
 </project>

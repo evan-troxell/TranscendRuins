@@ -45,7 +45,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Size paddingBottom, Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize,
         String fontFamily, Size lineHeight, TextAlign textAlign, Color color, TextureSize textureFit,
         WhiteSpace whiteSpace, OverflowWrap overflowWrap, TextOverflow textOverflow, Overflow overflowX,
-        Overflow overflowY, SizeDimensions gap, Direction listDirection, Boolean eventPropagation, Display display) {
+        Overflow overflowY, SizeDimensions gap, Direction listDirection, Boolean propagateEvents, Display display) {
 
     /**
      * <code>Color</code>: A fully transparent color.
@@ -149,7 +149,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         SizeDimensions gap = null;
         Direction listDirection = null;
 
-        Boolean eventPropagation = null;
+        Boolean propagateEvents = null;
         Display display = null;
 
         TracedDictionary json = entry.getValue();
@@ -414,7 +414,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             case "listDirection" -> listDirection = Direction.createDirection(json, property);
 
             // Process the event propagation behavior.
-            case "eventPropagation" -> eventPropagation = createBoolean(json, property);
+            case "propagateEvents" -> propagateEvents = createBoolean(json, property);
 
             case "display" -> display = Display.createDisplay(json, property);
             }
@@ -426,7 +426,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 borderRightWidth, borderRightColor, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft,
                 marginRight, paddingTop, paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize,
                 fontFamily, lineHeight, textAlign, color, textureFit, whiteSpace, overflowWrap, textOverflow, overflowX,
-                overflowY, gap, listDirection, eventPropagation, display);
+                overflowY, gap, listDirection, propagateEvents, display);
 
         return s;
     }
@@ -493,7 +493,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::gap, SizeDimensions.NONE),
                 parseVal(styles, Style::listDirection, Direction.VERTICAL),
 
-                parseVal(styles, Style::eventPropagation, null),
+                parseVal(styles, Style::propagateEvents, null),
                 inheritVal(styles, Style::display, parent, Display.BLOCK));
     }
 
@@ -1561,7 +1561,6 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
             TracedEntry<String> displayEntry = collection.getAsString(key, false, null);
             String display = displayEntry.getValue();
-            System.out.println(display);
 
             return switch (display) {
 

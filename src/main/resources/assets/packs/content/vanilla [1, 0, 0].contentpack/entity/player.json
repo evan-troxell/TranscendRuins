@@ -5,9 +5,10 @@
         "identifier": "TranscendRuins:player"
     },
     "attributes": {
-        "model": "TranscendRuins:person",
-        "animationController": "TranscendRuins:person",
-        "renderMaterial": "TranscendRuins:opaqueCulling",
+        "texture": "entity.player",
+        "model": "TranscendRuins:box",
+        "animationController": "TranscendRuins:box",
+        "renderMaterial": "TranscendRuins:opaque",
         "inventory": {
             "grid": {
                 "slots": 15,

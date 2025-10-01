@@ -63,9 +63,6 @@ public final class InterfaceAttributes extends AssetAttributes {
     public static final String INVENTORY = "inventory";
     public static final String CRAFTING = "crafting";
 
-    public static final String OPEN_MENU = "openMenu";
-    public static final String CLOSE_MENU = "closeMenu";
-
     /**
      * <code>StyleSet</code>: The style set of this <code>InterfaceAttributes</code>
      * instance.
@@ -479,10 +476,29 @@ public final class InterfaceAttributes extends AssetAttributes {
     public final class ButtonComponentSchema extends ComponentSchema {
 
         /**
+         * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
+         * to apply the action of this <code>ButtonComponentSchema</code> instance.
+         */
+        private final ImmutableList<TRScript> conditions;
+
+        /**
+         * Retrieves the conditions required to be met to apply the action of this
+         * <code>ButtonComponentSchema</code> instance.
+         * 
+         * @return <code>ImmutableList&lt;TRScript&gt;</code>: The
+         *         <code>conditions</code> field of this
+         *         <code>ButtonComponentSchema</code> instance.
+         */
+        public final ImmutableList<TRScript> getConditions() {
+
+            return conditions;
+        }
+
+        /**
          * <code>ImmutableList&lt;ComponentActionSchema&gt;</code>: The action to run
          * when pressed.
          */
-        private final ImmutableList<ComponentActionSchema> action;
+        private final ImmutableList<ComponentAction> action;
 
         /**
          * Retrieves the action to run when pressed.
@@ -491,7 +507,7 @@ public final class InterfaceAttributes extends AssetAttributes {
          *         <code>action</code> field of this <code>ButtonComponentSchema</code>
          *         instance.
          */
-        public final ImmutableList<ComponentActionSchema> getAction() {
+        public final ImmutableList<ComponentAction> getAction() {
 
             return action;
         }
@@ -512,70 +528,6 @@ public final class InterfaceAttributes extends AssetAttributes {
                 addChild(component);
             }
 
-            action = json.get("action", List.of(
-
-                    // Process a dictionary into a single action.
-                    json.dictCase(entry -> {
-
-                        TracedDictionary actionJson = entry.getValue();
-                        return new ImmutableList<>(ComponentActionSchema.createAction(actionJson));
-                    }),
-
-                    // Process an array into a list of actions.
-                    json.arrayCase(entry -> {
-
-                        ArrayList<ComponentActionSchema> actionsList = new ArrayList<>();
-
-                        TracedArray actionsJson = entry.getValue();
-                        for (int i : actionsJson) {
-
-                            TracedEntry<TracedDictionary> actionEntry = actionsJson.getAsDict(i, false);
-                            TracedDictionary actionJson = actionEntry.getValue();
-
-                            actionsList.add(ComponentActionSchema.createAction(actionJson));
-                        }
-
-                        return new ImmutableList<>(actionsList);
-                    }),
-
-                    // Process no actions.
-                    json.nullCase(_ -> new ImmutableList<>())));
-        }
-    }
-
-    /**
-     * <code>ComponentActionSchema</code>: An abstract class representing the schema
-     * of a UI component action.
-     */
-    public abstract class ComponentActionSchema {
-
-        /**
-         * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
-         * to apply this <code>ComponentactionSchema</code> instance.
-         */
-        private final ImmutableList<TRScript> conditions;
-
-        /**
-         * Retrieves the conditions required to be met to apply this
-         * <code>ComponentActionSchema</code> instance.
-         * 
-         * @return <code>ImmutableList&lt;TRScript&gt;</code>: The
-         *         <code>conditions</code> field of this
-         *         <code>ComponentActionSchema</code> instance.
-         */
-        public final ImmutableList<TRScript> getConditions() {
-
-            return conditions;
-        }
-
-        /**
-         * Creates a new instance of the <code>ComponentActionSchema</code> class.
-         * 
-         * @param json <code>TracedDictionary</code>: The dictionary to parse.
-         * @throws LoggedException Thrown if the dictionary could not be parsed.
-         */
-        public ComponentActionSchema(TracedDictionary json) throws LoggedException {
-
             conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
 
                 ArrayList<TRScript> conditionsList = new ArrayList<>();
@@ -594,41 +546,35 @@ public final class InterfaceAttributes extends AssetAttributes {
                 TRScript condition = entry.getValue();
                 return new ImmutableList<>(condition);
             })));
-        }
 
-        /**
-         * Creates a component action schema from a dictionary.
-         * 
-         * @param json <code>TracedDictionary</code>: The dictionary to parse.
-         * @return <code>ComponentActionSchema</code>: The created action schema.
-         * @throws LoggedException Thrown if the dictionary could not be parsed.
-         */
-        public static final ComponentActionSchema createAction(TracedDictionary json) throws LoggedException {
+            action = json.get("action", List.of(
 
-            TracedEntry<String> typeEntry = json.getAsString("type", false, null);
-            String type = typeEntry.getValue();
+                    // Process a dictionary into a single action.
+                    json.dictCase(entry -> {
 
-            // TODO: Add rest of action types
-            return switch (type) {
+                        TracedDictionary actionJson = entry.getValue();
+                        return new ImmutableList<>(ComponentAction.createAction(actionJson));
+                    }),
 
-            // case OPEN_MENU -> new OpenMenuComponentActionSchema(json);
+                    // Process an array into a list of actions.
+                    json.arrayCase(entry -> {
 
-            case CLOSE_MENU -> null;// new CloseMenuComponentActionSchema(json);
+                        ArrayList<ComponentAction> actionsList = new ArrayList<>();
 
-            // case SHOW_COMPONENT
+                        TracedArray actionsJson = entry.getValue();
+                        for (int i : actionsJson) {
 
-            // case HIDE_COMPONENT
+                            TracedEntry<TracedDictionary> actionEntry = actionsJson.getAsDict(i, false);
+                            TracedDictionary actionJson = actionEntry.getValue();
 
-            // case COMPONENT_ACTION
+                            actionsList.add(ComponentAction.createAction(actionJson));
+                        }
 
-            // case SET_PROPERTY
+                        return new ImmutableList<>(actionsList);
+                    }),
 
-            // case SET_GLOBAL_PROPERTY
-
-            case "PLACEHOLDER" -> null;
-
-            case null, default -> throw new UnexpectedValueException(typeEntry);
-            };
+                    // Process no actions.
+                    json.nullCase(_ -> new ImmutableList<>())));
         }
     }
 

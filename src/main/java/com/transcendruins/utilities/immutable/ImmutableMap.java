@@ -16,7 +16,7 @@
 
 package com.transcendruins.utilities.immutable;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -24,14 +24,14 @@ import java.util.Map;
  */
 public final class ImmutableMap<K, V> implements Map<K, V>, Immutable {
 
-    private final HashMap<K, V> map;
+    private final LinkedHashMap<K, V> map;
 
     /**
      * Creates a new, empty instance of the <code>ImmutableMap</code> class.
      */
     public ImmutableMap() {
 
-        map = new HashMap<>();
+        map = new LinkedHashMap<>();
     }
 
     /**
@@ -43,7 +43,7 @@ public final class ImmutableMap<K, V> implements Map<K, V>, Immutable {
      */
     public ImmutableMap(Map<K, V> map) {
 
-        this.map = new HashMap<>(map);
+        this.map = new LinkedHashMap<>(map);
     }
 
     /**

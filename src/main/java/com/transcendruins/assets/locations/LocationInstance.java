@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 
@@ -32,6 +33,7 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.layouts.LayoutContext;
 import com.transcendruins.assets.layouts.LayoutInstance;
+import com.transcendruins.graphics3d.PolyGroup;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.world.AreaGrid;
@@ -213,9 +215,10 @@ public final class LocationInstance extends AssetInstance {
      */
     private double resetOffsetCounter = 0.0;
 
-    public final void enter(long player, String area) {
+    public final void enter(long playerId, String area) {
 
-        if (area == null) {
+        // If the area cannot be assigned, use the primary area.
+        if (area == null || !areas.containsKey(area)) {
 
             area = primary;
         }
@@ -231,10 +234,10 @@ public final class LocationInstance extends AssetInstance {
                 generate();
             }
         }
-        players.put(player, area);
+        players.put(playerId, area);
     }
 
-    public final void exit(long player) {
+    public final void exit(long playerId) {
 
         // If there is not a player in the location, the entrance timestamp will be
         // null.
@@ -243,7 +246,7 @@ public final class LocationInstance extends AssetInstance {
             return;
         }
 
-        players.remove(player);
+        players.remove(playerId);
         if (players.isEmpty()) {
 
             ZonedDateTime now = ZonedDateTime.now();
@@ -252,6 +255,16 @@ public final class LocationInstance extends AssetInstance {
 
             prevEntranceTimestamp = null;
         }
+    }
+
+    public final Set<PolyGroup> getPolygons(long playerId) {
+
+        if (!players.containsKey(playerId)) {
+
+            return Set.of();
+        }
+
+        return areas.get(players.get(playerId)).getPolygons();
     }
 
     private boolean active;

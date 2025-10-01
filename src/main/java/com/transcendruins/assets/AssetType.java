@@ -148,7 +148,7 @@ public enum AssetType {
      * constructor for a schema attribute set.
      */
     @FunctionalInterface
-    interface SchemaAttributeCreater {
+    private interface SchemaAttributeCreater {
 
         /**
          * Creates a new asset schema attribute set.
@@ -218,7 +218,7 @@ public enum AssetType {
      * constructor for an asset instance.
      */
     @FunctionalInterface
-    interface InstanceCreater {
+    private interface InstanceCreater {
 
         /**
          * Creates a new asset instance.
@@ -282,12 +282,12 @@ public enum AssetType {
      *         <code>AssetType</code> instance.
      */
     @Override
-    public String toString() {
+    public final String toString() {
 
         return name;
     }
 
-    public String toSentenceString() {
+    public final String toSentenceString() {
 
         return sentenceName;
     }

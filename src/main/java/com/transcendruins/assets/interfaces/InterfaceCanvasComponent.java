@@ -94,7 +94,7 @@ public final class InterfaceCanvasComponent extends JPanel {
 
                 for (UIComponent component : pressed) {
 
-                    component.release(mouseX, mouseY);
+                    component.onRelease(mouseX, mouseY);
                 }
 
                 pressed.clear();
@@ -117,7 +117,7 @@ public final class InterfaceCanvasComponent extends JPanel {
 
                 for (UIComponent component : hovered) {
 
-                    component.exit(mouseX, mouseY);
+                    component.onExit(mouseX, mouseY);
                 }
 
                 hovered.clear();
@@ -164,7 +164,7 @@ public final class InterfaceCanvasComponent extends JPanel {
         pressed.removeAll(newPressed);
         for (UIComponent component : pressed) {
 
-            component.release(mouseX, mouseY);
+            component.onRelease(mouseX, mouseY);
         }
 
         // Reset the pressed components.
@@ -201,7 +201,7 @@ public final class InterfaceCanvasComponent extends JPanel {
         hovered.removeAll(newHovered);
         for (UIComponent component : hovered) {
 
-            component.exit(mouseX, mouseY);
+            component.onExit(mouseX, mouseY);
         }
 
         // Reset the hovered components.
@@ -243,14 +243,14 @@ public final class InterfaceCanvasComponent extends JPanel {
 
         if (hasActiveMenu()) {
 
-            activeMenu.render(width, height, defaultFontSize, Style.EMPTY);
+            // activeMenu.render(width, height, defaultFontSize, Style.EMPTY);
             return;
         }
 
         for (String key : keys) {
 
             InterfaceInstance menu = menus.get(key);
-            menu.render(width, height, defaultFontSize, Style.EMPTY);
+            // menu.render(width, height, defaultFontSize, Style.EMPTY);
         }
     }
 }

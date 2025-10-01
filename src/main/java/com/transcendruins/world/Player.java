@@ -1,0 +1,332 @@
+package com.transcendruins.world;
+
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.transcendruins.assets.AssetType;
+import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.entities.EntityInstance;
+import com.transcendruins.assets.interfaces.InterfaceContext;
+import com.transcendruins.assets.interfaces.InterfaceInstance;
+import com.transcendruins.assets.interfaces.UIComponent;
+import com.transcendruins.resources.styles.Style;
+
+public final class Player {
+
+    private final long playerId;
+
+    public final long getPlayerId() {
+
+        return playerId;
+    }
+
+    private final EntityInstance entity;
+
+    private String location;
+
+    public final void setLocation(String location) {
+
+        this.location = location;
+    }
+
+    public final String getLocation() {
+
+        return location;
+    }
+
+    private boolean uiUpdated = true;
+
+    private boolean forceRender = false;
+
+    private BufferedImage render;
+
+    private final ArrayList<InterfaceInstance> uiPanels = new ArrayList<>();
+
+    public final void setPanels(List<AssetPresets> interfacePresets) {
+
+        uiPanels.clear();
+        hovered.clear();
+        pressed.clear();
+
+        for (AssetPresets presets : interfacePresets) {
+
+            InterfaceContext interfaceContext = new InterfaceContext(presets, entity.getWorld(), entity, null);
+            InterfaceInstance panel = (InterfaceInstance) AssetType.INTERFACE.createAsset(interfaceContext);
+
+            uiPanels.add(panel);
+        }
+
+        calculateSize();
+        calculateHovered();
+        if (mousePressed) {
+
+            calculatePressed();
+        }
+
+        uiUpdated = true;
+
+    }
+
+    public final void updateUiPanels(double time) {
+
+        for (InterfaceInstance panel : uiPanels) {
+
+            panel.update(time);
+            uiUpdated = true;
+        }
+
+        calculateSize();
+        calculateHovered();
+        if (mousePressed) {
+
+            calculatePressed();
+        }
+
+        uiUpdated = true;
+
+    }
+
+    private int screenWidth = 1;
+
+    private int screenHeight = 1;
+
+    public final void setScreenSize(int width, int height) {
+
+        if (screenWidth == width && screenHeight == height) {
+
+            return;
+        }
+
+        screenWidth = width;
+        screenHeight = height;
+
+        calculateSize();
+
+        calculateHovered();
+        if (mousePressed) {
+
+            calculatePressed();
+        }
+
+        uiUpdated = true;
+
+    }
+
+    private void calculateSize() {
+
+        for (InterfaceInstance panel : uiPanels) {
+
+            resizePanel(panel);
+        }
+    }
+
+    private void resizePanel(InterfaceInstance panel) {
+
+        panel.renderBounds(screenWidth, screenHeight, 16, Style.EMPTY);
+        panel.rescale(screenWidth, screenHeight);
+    }
+
+    private int mouseX = -1;
+
+    private int mouseY = -1;
+
+    private final ArrayList<UIComponent> hovered = new ArrayList<>();
+
+    public final void setMousePosition(int x, int y) {
+
+        if (mouseX == x && mouseY == y) {
+
+            return;
+        }
+
+        mouseX = x;
+        mouseY = y;
+
+        calculateHovered();
+        if (mousePressed) {
+
+            calculatePressed();
+        }
+
+        uiUpdated = true;
+
+    }
+
+    private void calculateHovered() {
+
+        ArrayList<UIComponent> newHovered = new ArrayList<>();
+        for (int i = uiPanels.size() - 1; i >= 0; i--) {
+
+            InterfaceInstance panel = uiPanels.get(i);
+            if (!panel.hover(mouseX, mouseY, newHovered)) {
+
+                break;
+            }
+        }
+
+        hovered.removeAll(newHovered);
+        exitAll();
+        hovered.addAll(newHovered);
+    }
+
+    private void exitAll() {
+
+        for (UIComponent exited : hovered) {
+
+            exited.onExit(mouseX, mouseY);
+        }
+
+        hovered.clear();
+    }
+
+    private boolean mousePressed;
+
+    private boolean mouseJustPressed;
+    private boolean mouseJustReleased;
+
+    private final ArrayList<UIComponent> pressed = new ArrayList<>();
+
+    public final void setMousePress(boolean pressed) {
+
+        if (mousePressed == pressed) {
+
+            return;
+        }
+
+        mousePressed = pressed;
+
+        if (pressed) {
+
+            mouseJustPressed = true;
+        } else {
+
+            mouseJustReleased = true;
+        }
+
+        // If the mouse is not being clicked, calculate hover and press states.
+        if (pressed) {
+
+            calculatePressed();
+        } else {
+
+            releaseAll();
+            calculateClicked();
+        }
+
+        uiUpdated = true;
+
+    }
+
+    private void calculatePressed() {
+
+        ArrayList<UIComponent> newPressed = new ArrayList<>();
+        for (int i = uiPanels.size() - 1; i >= 0; i--) {
+
+            InterfaceInstance panel = uiPanels.get(i);
+            if (!panel.press(mouseX, mouseY, newPressed)) {
+
+                break;
+            }
+        }
+
+        pressed.removeAll(newPressed);
+        releaseAll();
+        pressed.addAll(newPressed);
+    }
+
+    private void releaseAll() {
+
+        for (UIComponent exited : pressed) {
+
+            exited.onRelease(mouseX, mouseY);
+        }
+
+        pressed.clear();
+    }
+
+    private void calculateClicked() {
+
+        ArrayList<UIComponent> clicked = new ArrayList<>();
+        for (int i = uiPanels.size() - 1; i >= 0; i--) {
+
+            InterfaceInstance panel = uiPanels.get(i);
+            if (!panel.click(mouseX, mouseY, clicked)) {
+
+                break;
+            }
+        }
+    }
+
+    public final void mouseScroll(int dx, int dy) {
+
+        if (dx == 0 && dy == 0) {
+
+            return;
+        }
+
+        Point displacement = new Point(dx, dy);
+
+        ArrayList<UIComponent> scrolled = new ArrayList<>();
+        for (int i = uiPanels.size() - 1; i >= 0; i--) {
+
+            InterfaceInstance panel = uiPanels.get(i);
+
+            if (!panel.scroll(mouseX, mouseY, displacement, scrolled)) {
+
+                resizePanel(panel);
+                break;
+            }
+
+            resizePanel(panel);
+        }
+
+        calculateHovered();
+        calculatePressed();
+
+        uiUpdated = true;
+
+    }
+
+    public final BufferedImage renderUi() {
+
+        if (!uiUpdated && !forceRender) {
+
+            return render;
+        }
+
+        uiUpdated = false;
+        forceRender = false;
+
+        render = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = render.createGraphics();
+
+        for (InterfaceInstance panel : uiPanels) {
+
+            resizePanel(panel);
+            g2d.drawImage(panel.render(), 0, 0, null);
+        }
+
+        // If the event was a 'click', draw the pressed state first and then release for
+        // next frame.
+        if (mouseJustPressed && mouseJustReleased) {
+
+            calculateHovered();
+            calculatePressed();
+            forceRender = true;
+        }
+
+        mouseJustPressed = false;
+        mouseJustReleased = false;
+
+        return render;
+    }
+
+    public Player(long playerId, EntityInstance entity) {
+
+        this.playerId = playerId;
+        this.entity = entity;
+    }
+}

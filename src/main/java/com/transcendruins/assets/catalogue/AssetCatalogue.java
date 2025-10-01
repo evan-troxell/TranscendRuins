@@ -27,6 +27,7 @@ import com.transcendruins.assets.catalogue.locations.GlobalLocation;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.FileException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -41,6 +42,13 @@ import com.transcendruins.utilities.json.TracedEntry;
  * catalogue information of a <code>ContentPack</code> instance.
  */
 public final class AssetCatalogue {
+
+    private final String defaultLocation;
+
+    public final String getDefaultLocation() {
+
+        return defaultLocation;
+    }
 
     /**
      * <code>ImmutableMap&lt;String, GlobalLocation&gt;</code>: The global location
@@ -143,6 +151,8 @@ public final class AssetCatalogue {
      */
     public AssetCatalogue(TracedPath path) {
 
+        String defaultLocationString = null;
+
         ImmutableMap<String, GlobalLocation> locationsMap = new ImmutableMap<>();
 
         ImmutableMap<String, ImmutableList<GlobalEventSchema>> eventsMap = new ImmutableMap<>();
@@ -160,10 +170,23 @@ public final class AssetCatalogue {
 
                 // Attempt to process the events.
                 eventsMap = createEvents(json, "events");
+
+                try {
+
+                    TracedEntry<String> defaultLocationEntry = json.getAsString("defaultLocation", true, null);
+                    defaultLocationString = defaultLocationEntry.getValue();
+
+                    if (!locationsMap.containsKey(defaultLocationString)) {
+
+                        throw new ReferenceWithoutDefinitionException(defaultLocationEntry, "Location");
+                    }
+                } catch (LoggedException _) {
+                }
             } catch (FileException _) {
             }
         }
 
+        defaultLocation = defaultLocationString;
         locations = locationsMap;
         events = eventsMap;
 

@@ -18,8 +18,8 @@ package com.transcendruins.utilities.immutable;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -27,14 +27,14 @@ import java.util.Set;
  */
 public final class ImmutableSet<E> implements Set<E>, Immutable {
 
-    private final HashSet<E> set;
+    private final LinkedHashSet<E> set;
 
     /**
      * Creates a new, empty instance of the <code>ImmutableSet</code> class.
      */
     public ImmutableSet() {
 
-        set = new HashSet<>();
+        set = new LinkedHashSet<>();
     }
 
     /**
@@ -70,7 +70,7 @@ public final class ImmutableSet<E> implements Set<E>, Immutable {
      */
     public ImmutableSet(Collection<E> collection) {
 
-        set = new HashSet<>(collection);
+        set = new LinkedHashSet<>(collection);
     }
 
     /**

@@ -16,10 +16,12 @@
 
 package com.transcendruins.world;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,10 +34,11 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.catalogue.AssetCatalogue;
 import com.transcendruins.assets.catalogue.RecipeSet;
+import com.transcendruins.assets.catalogue.events.GlobalEventInstance;
 import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
 import com.transcendruins.assets.catalogue.locations.GlobalLocation;
-import com.transcendruins.assets.interfaces.InterfaceContext;
-import com.transcendruins.assets.interfaces.InterfaceInstance;
+import com.transcendruins.assets.entities.EntityInstance;
+import com.transcendruins.assets.locations.LocationInstance;
 import com.transcendruins.assets.recipes.RecipeContext;
 import com.transcendruins.assets.recipes.RecipeInstance;
 import com.transcendruins.packs.content.ContentPack;
@@ -138,35 +141,6 @@ public final class World extends PropertyHolder {
     }
 
     /**
-     * <code>long</code>: The time of creation of this <code>World</code> instance.
-     */
-    private long timeOfCreation;
-
-    /**
-     * Retrieve the current time in millis since the time of creation of this
-     * <code>World</code> instance.
-     * 
-     * @return <code>long</code>: The <code>timeOfCreation</code> field subtracted
-     *         from the current time in milliseconds.
-     */
-    public final long getRuntimeMillis() {
-
-        return initialized ? System.currentTimeMillis() - timeOfCreation : 0;
-    }
-
-    /**
-     * Retrieve the current time in seconds since the time of creation of this
-     * <code>World</code> instance.
-     * 
-     * @return <code>long</code>: The current runtime milliseconds divided by
-     *         1000.0.
-     */
-    public final double getRuntimeSeconds() {
-
-        return getRuntimeMillis() / 1000.0;
-    }
-
-    /**
      * <code>ImmutableMap&lt;AssetType, ImmutableMap&lt;Identifier, AssetSchema&gt;&gt;</code>:
      * The merged asset schemas of this <code>World</code> instance.
      */
@@ -187,35 +161,15 @@ public final class World extends PropertyHolder {
         return assets.get(type).get(identifier);
     }
 
+    private String defaultLocation;
+
     private ImmutableMap<String, GlobalLocation> locationSchemas;
 
     private ImmutableMap<String, ImmutableList<GlobalEventSchema>> eventSchemas;
 
     private ImmutableMap<String, AssetPresets> overlays;
 
-    public final HashMap<String, InterfaceInstance> getOverlays() {
-
-        HashMap<String, InterfaceInstance> overlaysMap = new HashMap<>();
-        for (String overlay : overlays.keySet()) {
-
-            overlaysMap.put(overlay, createInterface(overlays.get(overlay)));
-        }
-
-        return overlaysMap;
-    }
-
     private ImmutableMap<String, AssetPresets> menus;
-
-    public final InterfaceInstance getMenu(String menu) {
-
-        return createInterface(menus.get(menu));
-    }
-
-    private InterfaceInstance createInterface(AssetPresets presets) {
-
-        InterfaceContext context = new InterfaceContext(presets, this, null, null);
-        return (InterfaceInstance) AssetType.INTERFACE.createAsset(context);
-    }
 
     private ImmutableMap<String, ImmutableMap<String, AssetPresets>> recipes;
 
@@ -415,20 +369,6 @@ public final class World extends PropertyHolder {
         return style;
     }
 
-    private boolean initialized = false;
-
-    public final void start() {
-
-        timeOfCreation = System.currentTimeMillis();
-        initialized = true;
-    }
-
-    public final void end() {
-
-        timeOfCreation = -1;
-        initialized = false;
-    }
-
     /**
      * Creates a new instance of the <code>World</code> class and assigns it to the
      * <code>world</code> field.
@@ -474,25 +414,37 @@ public final class World extends PropertyHolder {
         assets = new ImmutableMap<>(assetsMap);
 
         // Apply the catalogues.
-        List<AssetCatalogue> catalogueStream = packs.stream().map(ContentPack::getCatalogue).toList();
-        applyCatalogue(catalogueStream);
+        List<AssetCatalogue> catalogues = packs.stream().map(ContentPack::getCatalogue).toList();
+        applyCatalogue(catalogues);
 
         // Join the content pack resources to the resource pack resources and apply.
-        List<ResourceSet> resourceStream = new ArrayList<>();
-        resourceStream.addAll(packs.stream().map(ContentPack::getResources).toList());
-        resourceStream.addAll(resources.stream().map(ResourcePack::getResources).toList());
-        applyResources(resourceStream);
+        List<ResourceSet> reesources = new ArrayList<>();
+        reesources.addAll(packs.stream().map(ContentPack::getResources).toList());
+        reesources.addAll(resources.stream().map(ResourcePack::getResources).toList());
+        applyResources(reesources);
     }
 
-    public final void applyCatalogue(List<AssetCatalogue> catalogueStream) {
+    public final void applyCatalogue(List<AssetCatalogue> catalogues) {
 
-        locationSchemas = compile(catalogueStream, AssetCatalogue::getLocations);
-        eventSchemas = compile(catalogueStream, AssetCatalogue::getEvents);
+        defaultLocation = null;
+        for (int i = catalogues.size() - 1; i >= 0; i--) {
 
-        overlays = compile(catalogueStream, AssetCatalogue::getOverlays);
-        menus = compile(catalogueStream, AssetCatalogue::getMenus);
+            defaultLocation = catalogues.get(i).getDefaultLocation();
+            if (defaultLocation != null) {
 
-        recipes = compileGroup(catalogueStream, AssetCatalogue::getRecipes, RecipeSet::getRecipes);
+                break;
+            }
+        }
+
+        locationSchemas = compile(catalogues, AssetCatalogue::getLocations);
+        eventSchemas = compile(catalogues, AssetCatalogue::getEvents);
+
+        // TODO: Add overlays/menus to the global map
+
+        overlays = compile(catalogues, AssetCatalogue::getOverlays);
+        menus = compile(catalogues, AssetCatalogue::getMenus);
+
+        recipes = compileGroup(catalogues, AssetCatalogue::getRecipes, RecipeSet::getRecipes);
     }
 
     public final void applyResources(List<ResourceSet> resources) {
@@ -543,10 +495,263 @@ public final class World extends PropertyHolder {
         return StyleSet.createStyleSet(resources.map(ResourceSet::getStyle).toList());
     }
 
-    // TODO: Add runtime engine here
-    // All updates should be handled within the runtime; when graphics need to be
-    // displayed (UI, renderInstance, etc.) share copy of data to render engine and
-    // continue cycling
-    // Wait for UI/render requests from render engine to avoid overloading w/ too
-    // many contexts
+    private long simulationRate = 80;
+
+    /**
+     * <code>long</code>: The time of creation of this <code>World</code> instance.
+     */
+    private long timeOfCreation;
+
+    /**
+     * Retrieve the current time in millis since the time of creation of this
+     * <code>World</code> instance.
+     * 
+     * @return <code>long</code>: The <code>timeOfCreation</code> field subtracted
+     *         from the current time in milliseconds.
+     */
+    public final long getRuntimeMillis() {
+
+        return active ? System.currentTimeMillis() - timeOfCreation : 0;
+    }
+
+    /**
+     * Retrieve the current time in seconds since the time of creation of this
+     * <code>World</code> instance.
+     * 
+     * @return <code>long</code>: The current runtime milliseconds divided by
+     *         1000.0.
+     */
+    public final double getRuntimeSeconds() {
+
+        return getRuntimeMillis() / 1000.0;
+    }
+
+    private final HashMap<String, LocationInstance> locations = new HashMap<>();
+
+    private final HashMap<String, GlobalEventInstance> events = new HashMap<>();
+
+    private final HashMap<Long, Player> players = new HashMap<>();
+
+    private final Object playerLock = new Object();
+
+    public final boolean addPlayer(long playerId, EntityInstance entity) {
+
+        synchronized (playerLock) {
+
+            // Initiate the player with the default UIs.
+            Player player = new Player(playerId, entity);
+            player.setPanels(overlays.values());
+
+            // If there is already a player with the same id, do not add.
+            if (players.containsKey(playerId)) {
+
+                return false;
+            }
+
+            // If the new player cannot travel to the default area of the default location,
+            // do not add. TODO revert to uncommented
+            // if (!travel(player, defaultLocation, null)) {
+
+            // return false;
+            // }
+
+            players.put(playerId, player);
+            return true;
+        }
+    }
+
+    public final boolean travel(Player player, String location, String area) {
+
+        synchronized (playerLock) {
+
+            // If a location is not specified, assume the current location.
+            if (location == null) {
+
+                location = player.getLocation();
+
+                // If neither the current nor previous location exists, halt.
+                if (location == null) {
+
+                    return false;
+                }
+            } else {
+
+                // If the new location does not exist, halt.
+                if (!locations.containsKey(location)) {
+
+                    return false;
+                }
+            }
+
+            long playerId = player.getPlayerId();
+
+            // If the current location is new, exit the old location.
+            if (!location.equals(player.getLocation())) {
+
+                String prevLocation = player.getLocation();
+                if (prevLocation != null) {
+
+                    locations.get(prevLocation).exit(playerId);
+                }
+            }
+
+            player.setLocation(location);
+            locations.get(location).enter(playerId, area);
+
+            return true;
+        }
+    }
+
+    public final void setScreenSize(long playerId, int width, int height) {
+
+        Player player;
+
+        synchronized (playerLock) {
+
+            player = players.get(playerId);
+        }
+
+        if (player == null) {
+
+            return;
+        }
+
+        synchronized (player) {
+
+            player.setScreenSize(width, height);
+        }
+    }
+
+    public final void setMousePosition(long playerId, int x, int y) {
+
+        Player player;
+
+        synchronized (playerLock) {
+
+            player = players.get(playerId);
+        }
+
+        if (player == null) {
+
+            return;
+        }
+
+        synchronized (player) {
+
+            player.setMousePosition(x, y);
+        }
+    }
+
+    public final void setMousePress(long playerId, boolean pressed) {
+
+        Player player;
+
+        synchronized (playerLock) {
+
+            player = players.get(playerId);
+        }
+
+        if (player == null) {
+
+            return;
+        }
+
+        synchronized (player) {
+
+            player.setMousePress(pressed);
+        }
+    }
+
+    public final void mouseScroll(long playerId, int dx, int dy) {
+
+        Player player;
+
+        synchronized (playerLock) {
+
+            player = players.get(playerId);
+        }
+
+        if (player == null) {
+
+            return;
+        }
+
+        synchronized (player) {
+
+            player.mouseScroll(dx, dy);
+        }
+    }
+
+    public final BufferedImage renderUi(long playerId) {
+
+        Player player;
+
+        synchronized (playerLock) {
+
+            player = players.get(playerId);
+        }
+
+        if (player == null) {
+
+            return null;
+        }
+
+        synchronized (player) {
+
+            return player.renderUi();
+        }
+    }
+
+    private boolean active = false;
+
+    private Thread host = null;
+
+    public final synchronized void startHost() {
+
+        timeOfCreation = System.currentTimeMillis();
+        active = true;
+
+        host = new Thread(this::host);
+    }
+
+    public final synchronized void endHost() {
+
+        active = false;
+        host = null;
+    }
+
+    private void host() {
+
+        while (active) {
+
+            synchronized (this) {
+
+                double time = getRuntimeSeconds();
+
+                // Retrieve the active locations.
+                Set<String> activeLocations = players.values().stream().map(Player::getLocation)
+                        .collect(Collectors.toSet());
+
+                // Update the active locations.
+                activeLocations.stream().forEach(location -> locations.get(location).update(time));
+
+                // Update the UIs.
+                for (Player player : players.values()) {
+
+                    player.updateUiPanels(time);
+                }
+
+                if (simulationRate > 1) {
+
+                    try {
+
+                        wait(1000l / simulationRate);
+                    } catch (InterruptedException e) {
+
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 }

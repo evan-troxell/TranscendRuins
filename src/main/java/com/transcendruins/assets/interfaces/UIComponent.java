@@ -37,7 +37,7 @@ public interface UIComponent {
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
      */
-    public void exit(int mouseX, int mouseY);
+    public void onExit(int mouseX, int mouseY);
 
     /**
      * Adds the hover status to this <code>UIComponent</code> instance.
@@ -45,7 +45,7 @@ public interface UIComponent {
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
      */
-    public void hover(int mouseX, int mouseY);
+    public void onHover(int mouseX, int mouseY);
 
     /**
      * Propagates the hover status to all children of this <code>UIComponent</code>
@@ -62,7 +62,7 @@ public interface UIComponent {
 
         return propagateAction(mouseX, mouseY, (component, x, y) -> {
 
-            component.hover(x, y);
+            component.onHover(x, y);
             return true;
         }, stack);
     }
@@ -75,7 +75,7 @@ public interface UIComponent {
      * @param displacement <code>Point</code>: The distance which the mouse
      *                     scrolled.
      */
-    public void scroll(int mouseX, int mouseY, Point displacement);
+    public void onScroll(int mouseX, int mouseY, Point displacement);
 
     /**
      * Propagates scroll to the topmost children of this <code>UIComponent</code>
@@ -92,7 +92,7 @@ public interface UIComponent {
 
         return propagateAction(mouseX, mouseY, (component, x, y) -> {
 
-            component.scroll(x, y, displacement);
+            component.onScroll(x, y, displacement);
             return displacement.x != 0 || displacement.y != 0;
         }, stack);
     }
@@ -103,7 +103,7 @@ public interface UIComponent {
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
      */
-    public void release(int mouseX, int mouseY);
+    public void onRelease(int mouseX, int mouseY);
 
     /**
      * Adds the hover status to this <code>UIComponent</code> instance.
@@ -111,7 +111,7 @@ public interface UIComponent {
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
      */
-    public boolean press(int mouseX, int mouseY);
+    public boolean onPress(int mouseX, int mouseY);
 
     /**
      * Propagates the press status to the topmost children of this
@@ -126,7 +126,7 @@ public interface UIComponent {
      */
     public default boolean press(int mouseX, int mouseY, List<UIComponent> stack) {
 
-        return propagateAction(mouseX, mouseY, UIComponent::press, stack);
+        return propagateAction(mouseX, mouseY, UIComponent::onPress, stack);
     }
 
     /**
@@ -227,8 +227,8 @@ public interface UIComponent {
             if (child.contains(mouseX, mouseY)) {
 
                 // Adjust into the new reference frame.
-                int adjustedX = mouseX - getX();
-                int adjustedY = mouseY - getY();
+                int adjustedX = mouseX - child.getX();
+                int adjustedY = mouseY - child.getY();
 
                 // If the child does not propagate, end propagation.
                 if (!child.propagateAction(adjustedX, adjustedY, action, stack)) {

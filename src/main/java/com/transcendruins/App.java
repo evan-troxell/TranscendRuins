@@ -17,7 +17,6 @@
 package com.transcendruins;
 
 import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
@@ -35,15 +34,13 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.elements.ElementContext;
 import com.transcendruins.assets.elements.ElementInstance;
-import com.transcendruins.assets.interfaces.InterfaceContext;
-import com.transcendruins.assets.interfaces.InterfaceInstance;
-import com.transcendruins.assets.interfaces.UIComponent;
+import com.transcendruins.assets.entities.EntityContext;
+import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.graphics3d.Camera3D;
 import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.rendering.RenderInstance;
-import com.transcendruins.resources.styles.Style;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 
@@ -80,7 +77,7 @@ public final class App {
 
         World.createWorld(packs, resources, seed);
         World world = World.getWorld();
-        world.start();
+        world.startHost();
 
         // System.out.println(cache);
 
@@ -135,53 +132,56 @@ public final class App {
         // DisplayFrame frame = new DisplayFrame(camera);
         // Render3DPanel renderer = (Render3DPanel)
         // frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
+        // models = new ArrayList<>();
+        // models.add(example);
+        // renderer.render(models, camera);
 
-        models = new ArrayList<>();
-        models.add(example);
+        // Test app = new Test();
+        // app.start();
 
         // synchronized (TIMER) {
         // while (true) {
 
         // renderer.render(models, camera);
 
-        // TIMER.wait(20);
+        // if (true == false) {
+
+        // break;
         // }
         // }
+        // }
 
-        Identifier interfaceId = Identifier.createTestIdentifier("TranscendRuins:playerInventory", null);
-        AssetPresets interfacePresets = new AssetPresets(interfaceId, AssetType.INTERFACE);
-        InterfaceContext interfaceContext = new InterfaceContext(interfacePresets, world, null, null);
+        Identifier playerIdentifier = Identifier.createTestIdentifier("TranscendRuins:player", null);
+        AssetPresets playerPresets = new AssetPresets(playerIdentifier, AssetType.ENTITY);
+        EntityContext playerContext = new EntityContext(playerPresets, world, null);
 
-        InterfaceInstance interfaceExample = (InterfaceInstance) AssetType.INTERFACE.createAsset(interfaceContext);
-        interfaceExample.update(world.getRuntimeSeconds());
+        EntityInstance player = (EntityInstance) AssetType.ENTITY.createAsset(playerContext);
+        long playerId = 0;
 
-        Rectangle interfaceBounds = interfaceExample.renderBounds(400, 400, 16, Style.EMPTY);
-        interfaceBounds = interfaceExample.rescale(400, 400);
-        // interfaceExample.hover(50, 5, new ArrayList<>());
+        world.addPlayer(playerId, player);
 
-        JFrame frame = new JFrame();
-        frame.setBounds(50, 50, 800, 800);
+        JFrame uiFrame = new JFrame();
+        uiFrame.setBounds(50, 50, 800, 800);
 
         JPanel panel = new JPanel() {
 
             @Override
             public void paint(Graphics graphics) {
 
-                int width = getWidth();
-                int height = getHeight();
-                interfaceExample.renderBounds(width, height, 16, Style.EMPTY);
-                interfaceExample.rescale(width, height);
-                BufferedImage image = interfaceExample.render();
-
+                BufferedImage image = world.renderUi(playerId);
                 graphics.drawImage(image, 0, 0, null);
             }
         };
-        frame.add(panel);
-        frame.addComponentListener(new ComponentListener() {
+        uiFrame.add(panel);
+
+        world.setScreenSize(playerId, panel.getWidth(), panel.getHeight());
+
+        panel.addComponentListener(new ComponentListener() {
 
             @Override
             public void componentResized(ComponentEvent e) {
 
+                world.setScreenSize(playerId, panel.getWidth(), panel.getHeight());
                 panel.repaint();
             }
 
@@ -199,11 +199,6 @@ public final class App {
 
         });
 
-        ArrayList<UIComponent> hoveredComponents = new ArrayList<>();
-        ArrayList<UIComponent> pressedComponents = new ArrayList<>();
-
-        int[] mousePosition = { 0, 0 };
-
         panel.addMouseListener(new MouseListener() {
 
             @Override
@@ -213,54 +208,28 @@ public final class App {
             @Override
             public void mousePressed(MouseEvent e) {
 
-                mousePosition[0] = e.getX();
-                mousePosition[1] = e.getY();
-
-                pressedComponents.clear();
-                interfaceExample.press(mousePosition[0], mousePosition[1], pressedComponents);
-
+                world.setMousePress(playerId, true);
                 panel.repaint();
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
 
-                mousePosition[0] = e.getX();
-                mousePosition[1] = e.getY();
-
-                for (UIComponent component : pressedComponents) {
-
-                    component.release(mousePosition[0], mousePosition[1]);
-                }
-                pressedComponents.clear();
-
+                world.setMousePress(playerId, false);
                 panel.repaint();
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
 
-                mousePosition[0] = e.getX();
-                mousePosition[1] = e.getY();
-
-                hoveredComponents.clear();
-                interfaceExample.hover(mousePosition[0], mousePosition[1], hoveredComponents);
-
+                world.setMousePosition(playerId, e.getX(), e.getY());
                 panel.repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
 
-                mousePosition[0] = e.getX();
-                mousePosition[1] = e.getY();
-
-                for (UIComponent component : hoveredComponents) {
-
-                    component.exit(mousePosition[0], mousePosition[1]);
-                }
-                hoveredComponents.clear();
-
+                world.setMousePosition(playerId, e.getX(), e.getY());
                 panel.repaint();
             }
 
@@ -271,51 +240,21 @@ public final class App {
             @Override
             public void mouseDragged(MouseEvent e) {
 
-                mousePosition[0] = e.getX();
-                mousePosition[1] = e.getY();
-
-                for (UIComponent component : hoveredComponents) {
-
-                    component.exit(mousePosition[0], mousePosition[1]);
-                }
-
-                hoveredComponents.clear();
-
-                for (UIComponent component : pressedComponents) {
-
-                    component.release(mousePosition[0], mousePosition[1]);
-                }
-                pressedComponents.clear();
-
-                interfaceExample.hover(mousePosition[0], mousePosition[1], hoveredComponents);
-                interfaceExample.press(mousePosition[0], mousePosition[1], pressedComponents);
-
+                world.setMousePosition(playerId, e.getX(), e.getY());
                 panel.repaint();
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
 
-                mousePosition[0] = e.getX();
-                mousePosition[1] = e.getY();
-
-                for (UIComponent component : hoveredComponents) {
-
-                    component.exit(mousePosition[0], mousePosition[1]);
-                }
-
-                pressedComponents.clear();
-                interfaceExample.hover(mousePosition[0], mousePosition[1], hoveredComponents);
-
+                world.setMousePosition(playerId, e.getX(), e.getY());
                 panel.repaint();
             }
 
         });
 
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        panel.repaint();
-
+        uiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        uiFrame.setVisible(true);
     }
 
     /**

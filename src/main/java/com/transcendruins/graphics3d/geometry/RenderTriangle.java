@@ -276,8 +276,6 @@ public final class RenderTriangle extends Triangle {
         double u = w1 * uv1.getX() + w2 * uv2.getX() + w3 * uv3.getX();
         double v = w1 * uv1.getY() + w2 * uv2.getY() + w3 * uv3.getY();
 
-        System.out.println(w1 + ", " + w2 + ", " + w3);
-
         return new double[] { u, v };
     }
 }
