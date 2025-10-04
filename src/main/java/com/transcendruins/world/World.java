@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,8 +38,14 @@ import com.transcendruins.assets.catalogue.RecipeSet;
 import com.transcendruins.assets.catalogue.events.GlobalEventInstance;
 import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
 import com.transcendruins.assets.catalogue.locations.GlobalLocation;
+import com.transcendruins.assets.elements.ElementContext;
+import com.transcendruins.assets.elements.ElementInstance;
+import com.transcendruins.assets.entities.EntityContext;
 import com.transcendruins.assets.entities.EntityInstance;
+import com.transcendruins.assets.items.ItemContext;
+import com.transcendruins.assets.items.ItemInstance;
 import com.transcendruins.assets.locations.LocationInstance;
+import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.recipes.RecipeContext;
 import com.transcendruins.assets.recipes.RecipeInstance;
 import com.transcendruins.packs.content.ContentPack;
@@ -46,10 +53,9 @@ import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.resources.ResourceSet;
 import com.transcendruins.resources.languages.Language;
 import com.transcendruins.resources.sounds.Sound;
-import com.transcendruins.resources.sounds.SoundSet;
 import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.resources.textures.Texture;
-import com.transcendruins.resources.textures.TextureSet;
+import com.transcendruins.utilities.files.DataConstants;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -194,7 +200,7 @@ public final class World extends PropertyHolder {
     private RecipeInstance createRecipe(AssetPresets presets) {
 
         RecipeContext context = new RecipeContext(presets, world, null);
-        return (RecipeInstance) AssetType.RECIPE.createAsset(context);
+        return (RecipeInstance) context.instantiate();
     }
 
     /**
@@ -313,11 +319,11 @@ public final class World extends PropertyHolder {
 
         if (!containsSound(sound)) {
 
-            return SoundSet.MISSING_SOUND.retrieveAudio();
+            return DataConstants.MISSING_SOUND.retrieveAudio();
         }
 
         StoredSound audio = sounds.get(sound).getSound(random, soundPaths);
-        return audio != null ? audio : SoundSet.MISSING_SOUND.retrieveAudio();
+        return audio != null ? audio : DataConstants.MISSING_SOUND.retrieveAudio();
     }
 
     /**
@@ -355,11 +361,11 @@ public final class World extends PropertyHolder {
 
         if (!containsTexture(texture)) {
 
-            return TextureSet.MISSING_TEXTURE.retrieveImage();
+            return DataConstants.MISSING_TEXTURE.retrieveImage();
         }
 
         ImageIcon icon = textures.get(texture).getTexture(random, texturePaths);
-        return icon != null ? icon : TextureSet.MISSING_TEXTURE.retrieveImage();
+        return icon != null ? icon : DataConstants.MISSING_TEXTURE.retrieveImage();
     }
 
     private StyleSet style;
@@ -534,12 +540,21 @@ public final class World extends PropertyHolder {
 
     private final Object playerLock = new Object();
 
-    public final boolean addPlayer(long playerId, EntityInstance entity) {
+    public final boolean addPlayer(long playerId) {
 
         synchronized (playerLock) {
 
+            EntityContext playerContext = new EntityContext(DataConstants.PLAYER_IDENTIFIER, this, null);
+            EntityInstance playerEntity = (EntityInstance) playerContext.instantiate();
+
+            AssetPresets exampleItemPresets = new AssetPresets(
+                    Identifier.createTestIdentifier("TranscendRuins:example", null), AssetType.ITEM);
+            ItemContext exampleItemContext = new ItemContext(exampleItemPresets, world, playerEntity, 10);
+            ItemInstance exampleItem = (ItemInstance) exampleItemContext.instantiate();
+            playerEntity.getInventory().getSlot("mainhand").putItem(exampleItem);
+
             // Initiate the player with the default UIs.
-            Player player = new Player(playerId, entity);
+            Player player = new Player(playerId, playerEntity);
             player.setPanels(overlays.values());
 
             // If there is already a player with the same id, do not add.
@@ -596,7 +611,7 @@ public final class World extends PropertyHolder {
             }
 
             player.setLocation(location);
-            locations.get(location).enter(playerId, area);
+            locations.get(location).enter(playerId, area, player.getEntity());
 
             return true;
         }
@@ -604,85 +619,112 @@ public final class World extends PropertyHolder {
 
     public final void setScreenSize(long playerId, int width, int height) {
 
-        Player player;
-
-        synchronized (playerLock) {
-
-            player = players.get(playerId);
-        }
-
-        if (player == null) {
-
-            return;
-        }
-
-        synchronized (player) {
-
-            player.setScreenSize(width, height);
-        }
+        playerConsumer(playerId, player -> player.setScreenSize(width, height));
     }
 
     public final void setMousePosition(long playerId, int x, int y) {
 
-        Player player;
-
-        synchronized (playerLock) {
-
-            player = players.get(playerId);
-        }
-
-        if (player == null) {
-
-            return;
-        }
-
-        synchronized (player) {
-
-            player.setMousePosition(x, y);
-        }
+        playerConsumer(playerId, player -> player.setMousePosition(x, y));
     }
 
     public final void setMousePress(long playerId, boolean pressed) {
 
-        Player player;
-
-        synchronized (playerLock) {
-
-            player = players.get(playerId);
-        }
-
-        if (player == null) {
-
-            return;
-        }
-
-        synchronized (player) {
-
-            player.setMousePress(pressed);
-        }
+        playerConsumer(playerId, player -> player.setMousePress(pressed));
     }
 
     public final void mouseScroll(long playerId, int dx, int dy) {
 
-        Player player;
-
-        synchronized (playerLock) {
-
-            player = players.get(playerId);
-        }
-
-        if (player == null) {
-
-            return;
-        }
-
-        synchronized (player) {
-
-            player.mouseScroll(dx, dy);
-        }
+        playerConsumer(playerId, player -> player.mouseScroll(dx, dy));
     }
 
     public final BufferedImage renderUi(long playerId) {
+
+        return playerFunction(playerId, Player::renderUi);
+    }
+
+    public final void openMenu(long playerId, String menu) {
+
+        if (!menus.containsKey(menu)) {
+
+            return;
+        }
+        List<AssetPresets> panel = List.of(menus.get(menu));
+
+        playerConsumer(playerId, player -> {
+
+            player.setPanels(panel);
+        });
+    }
+
+    public final void closeMenu(long playerId) {
+
+        playerConsumer(playerId, player -> player.setPanels(overlays.values()));
+    }
+
+    public final void interact(long playerId) {
+
+        playerConsumer(playerId, player -> {
+
+            AssetPresets exampleAssetPresets = new AssetPresets(
+                    Identifier.createTestIdentifier("TranscendRuins:box", null), AssetType.ELEMENT);
+            ElementContext exampleAssetContext = new ElementContext(exampleAssetPresets, this, null);
+            ElementInstance asset = (ElementInstance) exampleAssetContext.instantiate();
+            // PrimaryAssetInstance asset = getNearestInteractable(player);
+
+            System.out.println("INTERACTION");
+            if (asset == null) {
+
+                return;
+            }
+
+            boolean interacted = asset.interact(player);
+
+            // If an interaction was not triggered.
+            if (!interacted) {
+            }
+        });
+    }
+
+    public final PrimaryAssetInstance getNearestInteractable(Player player) {
+
+        long playerId = player.getPlayerId();
+
+        String location = player.getLocation();
+        if (location == null) {
+
+            return null;
+        }
+
+        AreaGrid area = locations.get(location).getArea(playerId);
+        if (area == null) {
+
+            return null;
+        }
+
+        return area.getNearestInteractable(player.getEntity());
+    }
+
+    public final ItemInstance consumeSlot(long playerId, int slot) {
+
+        return playerFunction(playerId, player -> player.getEntity().getInventory().getSlot(slot).putItem(null));
+    }
+
+    public final ItemInstance consumeSlot(long playerId, String slot) {
+
+        return playerFunction(playerId, player -> player.getEntity().getInventory().getSlot(slot).putItem(null));
+    }
+
+    public final int getItemCount(long playerId, ItemInstance item) {
+
+        return playerFunction(playerId, player -> player.getEntity().getInventory().getItemCount(item));
+    }
+
+    public final int consumeItem(long playerId, ItemInstance item) {
+
+        return playerFunction(playerId, player -> player.getEntity().getInventory().consume(item));
+    }
+
+    public final <K> K playerFunction(long playerId, Function<Player, K> operator) {
 
         Player player;
 
@@ -698,7 +740,27 @@ public final class World extends PropertyHolder {
 
         synchronized (player) {
 
-            return player.renderUi();
+            return operator.apply(player);
+        }
+    }
+
+    public final void playerConsumer(long playerId, Consumer<Player> operator) {
+
+        Player player;
+
+        synchronized (playerLock) {
+
+            player = players.get(playerId);
+        }
+
+        if (player == null) {
+
+            return;
+        }
+
+        synchronized (player) {
+
+            operator.accept(player);
         }
     }
 

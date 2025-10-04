@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import com.transcendruins.assets.layouts.shape.GenerationShapeInstance;
+import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.graphics3d.PolyGroup;
 
 /**
@@ -272,6 +273,18 @@ public final class AreaGrid {
                 tile.apply(newTile);
             }
         }
+    }
+
+    /**
+     * Retrieves the nearest other asset to a specific one from this
+     * <code>AreaGrid</code> instance.
+     * 
+     * @return <code>PrimaryAssetInstance</code>: The retrieved asset.
+     */
+    public final PrimaryAssetInstance getNearestInteractable(PrimaryAssetInstance asset) {
+
+        // TODO retrieve nearest asset
+        return null;
     }
 
     /**

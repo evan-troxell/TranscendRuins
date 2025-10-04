@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animationcontrollers.AnimationControllerAttributes.AnimationStateSchema;
 import com.transcendruins.assets.animations.AnimationContext;
@@ -167,7 +166,7 @@ public final class AnimationControllerInstance extends AssetInstance {
         for (AssetPresets animationPresets : schema.getStateAnimations()) {
 
             AnimationContext animationContext = new AnimationContext(animationPresets, getWorld(), this);
-            animations.add((AnimationInstance) AssetType.ANIMATION.createAsset(animationContext));
+            animations.add((AnimationInstance) animationContext.instantiate());
         }
 
         transitions.clear();

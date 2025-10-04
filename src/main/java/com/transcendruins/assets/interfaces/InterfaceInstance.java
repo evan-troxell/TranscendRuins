@@ -45,10 +45,15 @@ import com.transcendruins.assets.interfaces.InterfaceAttributes.ButtonComponentS
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ContainerComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InterfaceComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryDisplayComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ListComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.StringComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.TextComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.TextureComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.TextureType;
+import com.transcendruins.assets.items.ItemInstance;
+import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.ComponentProperties;
 import com.transcendruins.resources.styles.Style;
@@ -64,6 +69,7 @@ import com.transcendruins.resources.styles.Style.WhiteSpace;
 import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.immutable.ImmutableSet;
 import com.transcendruins.utilities.random.DeterministicRandom;
 
@@ -74,11 +80,24 @@ import com.transcendruins.utilities.random.DeterministicRandom;
 public final class InterfaceInstance extends AssetInstance implements UIComponent {
 
     /**
+     * <code>long</code>: The id of the player which this
+     * <code>InterfaceInstance</code> instance is associated with.
+     */
+    private final long playerId;
+
+    public final long getPlayerId() {
+
+        return playerId;
+    }
+
+    /**
      * <code>ComponentInstance</code>: The parent component of this
      * <code>InterfaceInstance</code> instance. This is the parent which will be
      * used when generating the body content.
      */
     private final ComponentInstance componentParent;
+
+    private final ImmutableList<Object> componentValues;
 
     /**
      * <code>StyleSet</code>: The style set of this <code>InterfaceInstance</code>
@@ -105,7 +124,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         super(assetContext, key);
         InterfaceContext context = (InterfaceContext) assetContext;
 
+        playerId = context.getPlayerId();
         componentParent = context.getComponentParent();
+
+        componentValues = context.getComponentValues();
     }
 
     @Override
@@ -122,11 +144,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         // Apply the new styles to the old.
         styles = calculateAttribute(attributes.getStyles(), set -> styles.extend(set), styles);
 
-        body = calculateAttribute(attributes.getBody(), schema -> {
+        DeterministicRandom random = new DeterministicRandom(getRandomId());
 
-            DeterministicRandom random = new DeterministicRandom(getRandomId());
-            return createComponent(schema, componentParent, random);
-        }, body);
+        body = calculateAttribute(attributes.getBody(), schema -> createComponent(schema, componentParent, random),
+                body);
     }
 
     @Override
@@ -178,6 +199,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         case InterfaceComponentSchema interfaceSchema -> new InterfaceComponentInstance(interfaceSchema, parent,
                 random);
 
+        case InventoryDisplayComponentSchema inventoryDisplaySchema -> new InventoryDisplayComponentInstance(
+                inventoryDisplaySchema, parent, random);
+
         default -> null;
         };
     }
@@ -200,6 +224,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         protected final void addChild(ComponentSchema schema, DeterministicRandom random) {
 
             ComponentInstance child = createComponent(schema, this, random);
+            children.add(child);
+        }
+
+        protected final void addChild(ComponentInstance child) {
+
             children.add(child);
         }
 
@@ -278,7 +307,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         protected int x, y, minWidth, width, minHeight, height, borderLeft, borderRight, borderTop, borderBottom,
                 marginLeft, marginRight, marginTop, marginBottom, rxTL, ryTL, rxTR, ryTR, rxBL, ryBL, rxBR, ryBR,
-                paddingLeft, paddingRight, paddingTop, paddingBottom, fontSize, lineHeight, gapWidth, gapHeight;;
+                paddingLeft, paddingRight, paddingTop, paddingBottom, fontSize, lineHeight, gapWidth, gapHeight,
+                slotSize;
+
+        private SizeDimensions origin;
 
         protected Display displayMode;
 
@@ -287,12 +319,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private Boolean propagateEvents;
 
-        private final boolean defaultpropagateEvents;
+        private final boolean defaultPropagateEvents;
 
-        public final int getFontSize() {
-
-            return fontSize;
-        }
+        private Style.TriggerPhase triggerPhase;
 
         @Override
         public final int getX() {
@@ -386,7 +415,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return randomComponentId;
         }
 
-        public ComponentInstance(ComponentSchema schema, ComponentInstance parent, boolean defaultpropagateEvents,
+        public ComponentInstance(ComponentSchema schema, ComponentInstance parent, boolean defaultPropagateEvents,
                 DeterministicRandom random) {
 
             this.parent = parent;
@@ -397,7 +426,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             style = schema.getStyle();
             value = schema.getValue();
 
-            this.defaultpropagateEvents = defaultpropagateEvents;
+            this.defaultPropagateEvents = defaultPropagateEvents;
             randomComponentId = random.next();
 
             for (ComponentSchema child : schema.getChildren()) {
@@ -517,6 +546,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             textAlign = style.textAlign();
 
+            origin = style.origin();
+
             // Create the font.
             font = new Font(style.fontFamily(), style.fontStyle() | style.fontWeight(), fontSize);
             BufferedImage fontImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
@@ -534,12 +565,19 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             propagateEvents = style.propagateEvents();
             displayMode = style.display();
+
+            slotSize = style.slotSize().getSize(width, 1);
+
+            triggerPhase = style.triggerPhase();
         }
 
         public static final record ImageClip(int x, int y, BufferedImage image) {
         }
 
         public abstract Dimension calculateContentSize(Style style, List<Rectangle> children);
+
+        public abstract Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children);
 
         /**
          * Generates the content of this <code>ComponentInstance</code> instance.
@@ -695,11 +733,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 ryTR *= partial;
             }
 
+            x -= origin.width().getSize(getTotalWidth(), 0);
+            y -= origin.height().getSize(getTotalHeight(), 0);
+
             return new Rectangle(x, y, getTotalWidth(), getTotalHeight());
         }
-
-        public abstract Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
-                List<ComponentInstance> children);
 
         @Override
         public final BufferedImage render() {
@@ -1154,26 +1192,45 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             if (propagateEvents == null) {
 
-                return defaultpropagateEvents;
+                return defaultPropagateEvents;
             }
 
             return propagateEvents;
         }
 
         @Override
-        public final boolean onClick(int mouseX, int mouseY, TRScript value) {
+        public final boolean onTriggerPress(int mouseX, int mouseY, TRScript value) {
 
-            onComponentClick(mouseX, mouseY, value);
+            if (triggerPhase == Style.TriggerPhase.PRESS) {
+
+                onComponentClick(mouseX, mouseY, value);
+            }
 
             if (propagateEvents == null) {
 
-                return defaultpropagateEvents;
+                return defaultPropagateEvents;
             }
 
             return propagateEvents;
         }
 
-        public abstract void onComponentClick(int mouseX, int mouesY, TRScript value);
+        @Override
+        public final boolean onTriggerRelease(int mouseX, int mouseY, TRScript value) {
+
+            if (triggerPhase == Style.TriggerPhase.RELEASE) {
+
+                onComponentClick(mouseX, mouseY, value);
+            }
+
+            if (propagateEvents == null) {
+
+                return defaultPropagateEvents;
+            }
+
+            return propagateEvents;
+        }
+
+        public abstract void onComponentClick(int mouseX, int mouseY, TRScript value);
 
         @Override
         public final void onScroll(int mouseX, int mouseY, Point displacement) {
@@ -1271,7 +1328,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
     public final class TextureComponentInstance extends ComponentInstance {
 
-        private final String texture;
+        private final TextureType texture;
 
         private ImageIcon icon;
 
@@ -1286,24 +1343,35 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
-            icon = getWorld().getTexture(texture, getRandomComponentId());
-            Dimension textureSize = calculateTextureSize(icon, 0, 0, style.textureFit());
+            icon = texture.getTexture(InterfaceInstance.this, getRandomComponentId());
 
-            return new Dimension(textureSize.width, textureSize.height);
+            if (icon == null) {
+
+                return new Dimension();
+            }
+
+            return calculateTextureSize(icon, 0, 0, style.textureFit());
         }
 
         @Override
-        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+        public final Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
                 List<ComponentInstance> children) {
 
-            Dimension textureSize = calculateTextureSize(icon, 0, 0, style.textureFit());
-            return new Dimension(textureSize.width, textureSize.height);
+            if (icon == null) {
+
+                return new Dimension();
+            }
+
+            return calculateTextureSize(icon, 0, 0, style.textureFit());
         }
 
         @Override
         public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            drawTexture(g2d, icon, 0, 0, width, height, style.textureFit());
+            if (icon != null) {
+
+                drawTexture(g2d, icon, 0, 0, width, height, style.textureFit());
+            }
         }
 
         @Override
@@ -1314,21 +1382,18 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
     public final class ButtonComponentInstance extends ComponentInstance {
 
-        private final ImmutableList<TRScript> conditions;
-
-        private final ImmutableList<ComponentAction> action;
+        private final ComponentAction action;
 
         public ButtonComponentInstance(ButtonComponentSchema schema, ComponentInstance parent,
                 DeterministicRandom random) {
 
             super(schema, parent, false, random);
 
-            conditions = schema.getConditions();
             action = schema.getAction();
         }
 
         @Override
-        public Dimension calculateContentSize(Style style, List<Rectangle> children) {
+        public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
             // Buttons are not required to have a child.
             if (children.isEmpty()) {
@@ -1341,7 +1406,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+        public final Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
                 List<ComponentInstance> children) {
 
             // Buttons are not required to have a child.
@@ -1357,7 +1422,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+        public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
             // Buttons are not required to have a child.
             if (children.isEmpty()) {
@@ -1371,20 +1436,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public void onComponentClick(int mouseX, int mouesY, TRScript value) {
+        public void onComponentClick(int mouseX, int mouseY, TRScript value) {
 
-            for (TRScript condition : conditions) {
-
-                if (!condition.evaluateBoolean(InterfaceInstance.this)) {
-
-                    return;
-                }
-            }
-
-            for (ComponentAction call : action) {
-
-                call.call(InterfaceInstance.this);
-            }
+            System.out.println(Math.random());
+            action.call(InterfaceInstance.this, playerId, value);
         }
     }
 
@@ -1398,7 +1453,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             super(schema, parent, true, random);
 
             AssetPresets presets = schema.getPresets();
-            InterfaceContext context = new InterfaceContext(presets, getWorld(), InterfaceInstance.this, this);
+            InterfaceContext context = new InterfaceContext(presets, getWorld(), InterfaceInstance.this, playerId,
+                    this);
 
             asset = (InterfaceInstance) INTERFACE.createAsset(context);
         }
@@ -1490,7 +1546,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public void onComponentClick(int mouseX, int mouesY, TRScript value) {
+        public void onComponentClick(int mouseX, int mouseY, TRScript value) {
         }
     }
 
@@ -1634,7 +1690,247 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public void onComponentClick(int mouseX, int mouesY, TRScript value) {
+        public void onComponentClick(int mouseX, int mouseY, TRScript value) {
+        }
+    }
+
+    public final class InventoryDisplayComponentInstance extends ComponentInstance {
+
+        private final InventoryInstance primaryInventory;
+        private final InventoryComponentInstance primaryUi;
+
+        private final InventoryInstance secondaryInventory;
+        private final InventoryComponentInstance secondaryUi;
+
+        private int buttonGapWidth = 0;
+
+        public InventoryDisplayComponentInstance(InventoryDisplayComponentSchema schema,
+                ComponentInstance componentParent, DeterministicRandom random) {
+
+            super(schema, componentParent, false, random);
+
+            if (componentValues.size() != 4) {
+
+                throw new Error("Inventory could not be displayed");
+            }
+
+            primaryInventory = (InventoryInstance) componentValues.get(0);
+            primaryUi = new InventoryComponentInstance((InventoryComponentSchema) componentValues.get(1), this, random,
+                    primaryInventory);
+
+            secondaryInventory = (InventoryInstance) componentValues.get(2);
+            secondaryUi = new InventoryComponentInstance((InventoryComponentSchema) componentValues.get(3), this,
+                    random, secondaryInventory);
+
+            addChild(primaryUi);
+            addChild(secondaryUi);
+        }
+
+        @Override
+        public Dimension calculateContentSize(Style style, List<Rectangle> children) {
+
+            Rectangle button = children.get(0);
+            Rectangle primary = children.get(1);
+            Rectangle secondary = children.get(2);
+
+            return new Dimension(
+                    button.x + button.width + primary.x + gapWidth + primary.width + secondary.x + secondary.width,
+                    Math.max(button.y + button.height,
+                            Math.max(primary.y + primary.height, secondary.y + secondary.height)));
+        }
+
+        @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            ComponentInstance button = children.get(0);
+            ComponentInstance primary = children.get(1);
+            ComponentInstance secondary = children.get(2);
+
+            double contentWidth = button.getTotalWidth() + primary.getTotalWidth() + gapWidth
+                    + secondary.getTotalWidth();
+            double partial = 1;
+
+            // If the content expands too far horizontally, try to shrink.
+            // Do not expand content, if there is more room the button will move.
+            if (contentWidth > targetWidth) {
+
+                partial = targetWidth / contentWidth;
+            }
+
+            int newContentWidth = 0;
+            int newContentHeight = 0;
+            for (ComponentInstance child : children) {
+
+                Rectangle expanded = child.rescale((int) (child.getTotalWidth() * partial), targetHeight);
+                System.out.println(expanded);
+                newContentWidth += expanded.x + expanded.width;
+                newContentHeight = Math.max(newContentHeight, expanded.y + expanded.height);
+            }
+
+            int targetGapWidth = Math.max(targetWidth - newContentWidth, 0);
+            gapWidth = Math.min(gapWidth, targetGapWidth);
+            buttonGapWidth = targetGapWidth - gapWidth;
+
+            secondary.x += primary.x + primary.width + gapWidth;
+            button.x += secondary.x + secondary.width + buttonGapWidth;
+
+            return new Dimension(newContentWidth + targetGapWidth, newContentHeight);
+        }
+
+        @Override
+        public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            for (ImageClip child : children) {
+
+                System.out.println(child.x() + ", " + child.y() + ", " + child.image().getWidth() + ", "
+                        + child.image().getHeight());
+                drawImage(g2d, child.image(), child.x(), child.y());
+            }
+            System.out.println();
+        }
+
+        @Override
+        public void onComponentClick(int mouseX, int mouseY, TRScript value) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onComponentClick'");
+        }
+    }
+
+    public final class InventoryComponentInstance extends ComponentInstance {
+
+        private final InventoryInstance inventory;
+
+        private final Rectangle grid;
+
+        private final ImmutableMap<String, Point> named;
+
+        private int gridSize;
+
+        private final HashSet<String> namedOverlap = new HashSet<>();
+
+        private int maxSlotWidth;
+        private int maxSlotHeight;
+
+        public InventoryComponentInstance(InventoryComponentSchema schema, ComponentInstance componentParent,
+                DeterministicRandom random, InventoryInstance inventory) {
+
+            super(schema, componentParent, true, random);
+
+            this.inventory = inventory;
+
+            grid = schema.getGrid();
+            named = schema.getNamed();
+        }
+
+        @Override
+        public Dimension calculateContentSize(Style style, List<Rectangle> children) {
+
+            int headerWidth = 0;
+            int headerHeight = 0;
+            if (!children.isEmpty()) {
+
+                Rectangle header = children.getFirst();
+                headerWidth = header.x + header.width;
+                headerHeight = header.y + header.height + gapHeight;
+            }
+
+            gridSize = inventory.getGridSize();
+
+            maxSlotWidth = grid.x + slotSize * (gridSize < grid.width ? gridSize : grid.width);
+            maxSlotHeight = grid.y + slotSize * Math.min(grid.height, (int) Math.ceil((double) gridSize / grid.width));
+
+            namedOverlap.clear();
+            namedOverlap.addAll(named.keySet());
+            namedOverlap.retainAll(inventory.getNamedSlots());
+
+            for (String namedSlot : namedOverlap) {
+
+                Point p = named.get(namedSlot);
+
+                maxSlotWidth = Math.max(maxSlotWidth, p.x + slotSize);
+                maxSlotHeight = Math.max(maxSlotHeight, p.y + slotSize);
+            }
+
+            return new Dimension(Math.max(headerWidth, maxSlotWidth), headerHeight + maxSlotHeight);
+        }
+
+        @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            int headerWidth = 0;
+            int headerHeight = 0;
+            if (!children.isEmpty()) {
+
+                ComponentInstance header = children.getFirst();
+                Rectangle headerBounds = header.rescale(targetWidth, targetHeight - gapHeight - maxSlotHeight);
+                headerWidth = headerBounds.x + headerBounds.width;
+                headerHeight = headerBounds.y + headerBounds.height;
+
+                // The gap height should be resized between 0 and the current gap height.
+                gapHeight = Math.clamp(targetHeight - maxSlotHeight - headerHeight, 0, gapHeight);
+                headerHeight += gapHeight;
+            }
+
+            return new Dimension(Math.max(headerWidth, maxSlotWidth), headerHeight + maxSlotHeight);
+        }
+
+        @Override
+        public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            int heightOffset = 0;
+            if (!children.isEmpty()) {
+
+                ImageClip header = children.getFirst();
+                BufferedImage headerImage = header.image();
+                drawImage(g2d, headerImage, header.x(), header.y());
+                heightOffset += header.y() + headerImage.getHeight() + gapHeight;
+            }
+
+            ImageIcon slotTexture = getWorld().getTexture(style.slotTexture(), getRandomComponentId());
+            TextureSize slotFit = style.textureFit();
+            for (int i = 0; i < gridSize && i < grid.width * grid.height; i++) {
+
+                int slotX = grid.x + slotSize * (i % grid.width);
+                int slotY = heightOffset + grid.y + slotSize * (i / grid.width);
+
+                drawTexture(g2d, slotTexture, slotX, slotY, slotSize, slotSize, slotFit);
+
+                ItemInstance item = inventory.getItem(i);
+                if (item == null) {
+
+                    continue;
+                }
+
+                ImageIcon itemTexture = item.getIcon();
+                drawTexture(g2d, itemTexture, slotX, slotY, slotSize, slotSize, slotFit);
+            }
+
+            for (String namedSlot : namedOverlap) {
+
+                Point p = named.get(namedSlot);
+
+                int slotX = p.x;
+                int slotY = heightOffset + p.y;
+
+                drawTexture(g2d, slotTexture, slotX, slotY, slotSize, slotSize, slotFit);
+
+                ItemInstance item = inventory.getItem(namedSlot);
+                if (item == null) {
+
+                    continue;
+                }
+
+                ImageIcon itemTexture = item.getIcon();
+                drawTexture(g2d, itemTexture, slotX, slotY, slotSize, slotSize, slotFit);
+            }
+        }
+
+        @Override
+        public void onComponentClick(int mouseX, int mouseY, TRScript value) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'onComponentClick'");
         }
     }
 
@@ -1665,7 +1961,13 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
     }
 
     @Override
-    public final boolean onClick(int mouseX, int mouseY, TRScript value) {
+    public final boolean onTriggerPress(int mouseX, int mouseY, TRScript value) {
+
+        return true;
+    }
+
+    @Override
+    public final boolean onTriggerRelease(int mouseX, int mouseY, TRScript value) {
 
         return true;
     }
@@ -1715,19 +2017,19 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
     }
 
     @Override
-    public Rectangle renderBounds(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
+    public final Rectangle renderBounds(int parentWidth, int parentHeight, int parentFontSize, Style parentStyle) {
 
         return body.renderBounds(parentWidth, parentHeight, parentFontSize, parentStyle);
     }
 
     @Override
-    public Rectangle rescale(int targetWidth, int targetHeight) {
+    public final Rectangle rescale(int targetWidth, int targetHeight) {
 
         return body.rescale(targetWidth, targetHeight);
     }
 
     @Override
-    public BufferedImage render() {
+    public final BufferedImage render() {
 
         return body.render();
     }

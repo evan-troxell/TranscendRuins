@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.files.InternalPath;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.json.JSONOperator;
@@ -34,11 +33,6 @@ import com.transcendruins.utilities.json.TracedDictionary;
  * <code>TextureSet</code>: A class representing a set of compiled textures.
  */
 public final class TextureSet {
-
-    /**
-     * <code>InternalPath</code>: The path to the placeholder texture.
-     */
-    public static final InternalPath MISSING_TEXTURE = TracedPath.INTERNAL_DATA_DIRECTORY.extend("missingTexture.png");
 
     /**
      * <code>TracedPath</code>: The path which leads to this <code>TextureSet</code>

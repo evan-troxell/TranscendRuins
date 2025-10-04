@@ -40,9 +40,16 @@ public final class ItemAttributes extends ModelAssetAttributes {
      * @return <code>Integer</code>: The <code>stackSize</code> field of this
      *         <code>ItemAttributes</code> instance.
      */
-    public Integer getStackSize() {
+    public final Integer getStackSize() {
 
         return stackSize;
+    }
+
+    private final String icon;
+
+    public final String getIcon() {
+
+        return icon;
     }
 
     /**
@@ -64,5 +71,8 @@ public final class ItemAttributes extends ModelAssetAttributes {
 
         TracedEntry<Integer> stackSizeEntry = json.getAsInteger("stackSize", true, null);
         stackSize = stackSizeEntry.getValue();
+
+        TracedEntry<String> iconEntry = json.getAsString("icon", !isBase, null);
+        icon = iconEntry.getValue();
     }
 }

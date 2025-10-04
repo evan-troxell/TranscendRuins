@@ -17,12 +17,12 @@
 package com.transcendruins.assets.primaryassets;
 
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
-import com.transcendruins.assets.primaryassets.PrimaryAssetAttributes.InteractionSchema;
 import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.assets.primaryassets.inventory.InventorySchema;
-import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.world.Player;
 
 /**
  * <code>PrimaryAsset</code>: A class representing an <code>AssetInstance</code>
@@ -43,12 +43,19 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
      * @return <code>InventoryInstance</code>: The <code>inventory</code> field of
      *         this <code>PrimaryAssetInstance</code> instance.
      */
-    public InventoryInstance getInventory() {
+    public final InventoryInstance getInventory() {
 
         return inventory;
     }
 
-    private InteractionInstance interaction;
+    private InventoryComponentSchema inventoryUi;
+
+    public final InventoryComponentSchema getInventoryUi() {
+
+        return inventoryUi;
+    }
+
+    private AssetInteraction interaction;
 
     public abstract int getTileWidth();
 
@@ -75,14 +82,18 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         // Updates the inventory field.
         computeAttribute(attributes.getInventory(), inventory::applyAttributes, attributes, InventorySchema.DEFAULT);
 
-        // Update the interaction.
-        interaction = calculateAttribute(attributes.getInteraction(), InteractionInstance::createInteraction,
-                interaction, attributes, InteractionInstance.NONE);
+        // Updates the inventoryUi field.
+        inventoryUi = calculateAttribute(attributes.getInventoryUi(), inventoryUi);
 
-        setProperty("interactionCooldown", interaction.getCooldown());
-        setProperty("interactionEvents", interaction.getEvents());
+        // Update the interaction.
+        interaction = calculateAttribute(attributes.getInteraction(), interaction, attributes, AssetInteraction.NONE);
 
         applyPrimaryAssetAttributes(attributes);
+    }
+
+    public final boolean interact(Player caller) {
+
+        return interaction.call(this, caller);
     }
 
     /**
@@ -106,45 +117,4 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
      * @param time <code>double</code>: The time since the world was created.
      */
     protected abstract void onPrimaryAssetUpdate(double time);
-
-    public static abstract class InteractionInstance {
-
-        public static final InteractionInstance NONE = new InteractionInstance(InteractionSchema.NONE) {
-        };
-
-        private final double cooldown;
-
-        public final double getCooldown() {
-
-            return cooldown;
-        }
-
-        private final ImmutableList<String> events;
-
-        public final ImmutableList<String> getEvents() {
-
-            return events;
-        }
-
-        public InteractionInstance(InteractionSchema schema) {
-
-            cooldown = schema.getCooldown();
-            events = schema.getEvents();
-        }
-
-        public static final InteractionInstance createInteraction(InteractionSchema schema) {
-
-            // TODO: Implement interaction methods
-            return switch (schema) {
-
-            // case InventoryInteractionSchema inventorySchema -> new
-            // InventoryInteractionInstance(inventorySchema);
-
-            // case PassagewayInteractionSchema passagewaySchema -> new
-            // PassagewayInteractionInstance(passagewaySchema);
-
-            default -> InteractionInstance.NONE;
-            };
-        }
-    }
 }

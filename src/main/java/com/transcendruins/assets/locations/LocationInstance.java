@@ -30,6 +30,7 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.layouts.LayoutContext;
 import com.transcendruins.assets.layouts.LayoutInstance;
@@ -147,6 +148,26 @@ public final class LocationInstance extends AssetInstance {
     }
 
     /**
+     * Retrieves the area a specific player is in from this
+     * <code>LocationInstance</code> instance.
+     * 
+     * @param playerId <code>long</code>: The id of the player whose area to
+     *                 retrieve.
+     * @return <code>AreaGrid</code>: The location retrieved from the
+     *         <code>areas</code> field of this <code>LocationInstance</code>
+     *         instance.
+     */
+    public final AreaGrid getArea(long playerId) {
+
+        if (!players.containsKey(playerId)) {
+
+            return null;
+        }
+
+        return areas.get(players.get(playerId));
+    }
+
+    /**
      * <code>String</code>: The key of the primary location of this
      * <code>LocationInstance</code> instance.
      */
@@ -215,7 +236,7 @@ public final class LocationInstance extends AssetInstance {
      */
     private double resetOffsetCounter = 0.0;
 
-    public final void enter(long playerId, String area) {
+    public final void enter(long playerId, String area, EntityInstance entity) {
 
         // If the area cannot be assigned, use the primary area.
         if (area == null || !areas.containsKey(area)) {
@@ -235,6 +256,8 @@ public final class LocationInstance extends AssetInstance {
             }
         }
         players.put(playerId, area);
+
+        // TODO update the area with the player entity;
     }
 
     public final void exit(long playerId) {

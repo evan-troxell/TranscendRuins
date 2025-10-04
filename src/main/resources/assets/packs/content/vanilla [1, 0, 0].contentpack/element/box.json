@@ -1,7 +1,5 @@
 {
-
     "metadata": {
-
         "identifier": "TranscendRuins:box"
     },
     "attributes": {
@@ -10,6 +8,14 @@
         "renderMaterial": "TranscendRuins:opaque",
         "texture": "element.crate",
         "inventory": {
+            "ui": {
+                "grid": {
+                    "x": 0,
+                    "y": 0,
+                    "rows": 3,
+                    "cols": 5
+                }
+            },
             "grid": {
                 "slots": 15,
                 "acceptedTypes": "any"

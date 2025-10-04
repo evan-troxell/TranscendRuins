@@ -34,8 +34,6 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.elements.ElementContext;
 import com.transcendruins.assets.elements.ElementInstance;
-import com.transcendruins.assets.entities.EntityContext;
-import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.graphics3d.Camera3D;
 import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;
@@ -116,7 +114,7 @@ public final class App {
         AssetPresets examplePresets = new AssetPresets(boxId, AssetType.ELEMENT);
         ElementContext exampleContext = new ElementContext(examplePresets, world, null);
 
-        ElementInstance example = (ElementInstance) AssetType.ELEMENT.createAsset(exampleContext);
+        ElementInstance example = (ElementInstance) exampleContext.instantiate();
         example.update(world.getRuntimeSeconds());
 
         // ElementInstance ex2 = new ElementInstance(examplePresets, world, 0, 0, //
@@ -151,14 +149,8 @@ public final class App {
         // }
         // }
 
-        Identifier playerIdentifier = Identifier.createTestIdentifier("TranscendRuins:player", null);
-        AssetPresets playerPresets = new AssetPresets(playerIdentifier, AssetType.ENTITY);
-        EntityContext playerContext = new EntityContext(playerPresets, world, null);
-
-        EntityInstance player = (EntityInstance) AssetType.ENTITY.createAsset(playerContext);
         long playerId = 0;
-
-        world.addPlayer(playerId, player);
+        world.addPlayer(playerId);
 
         JFrame uiFrame = new JFrame();
         uiFrame.setBounds(50, 50, 800, 800);

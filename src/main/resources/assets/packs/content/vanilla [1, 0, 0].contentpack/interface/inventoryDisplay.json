@@ -1,0 +1,46 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:inventoryDisplay"
+    },
+    "attributes": {
+        "style": {
+            "inventoryDisplay": {
+                "slotSize": 40,
+                "slotTexture": "interface.inventoryDisplay.slot"
+            },
+            "inventory": {
+                "width": 200,
+                "height": 200,
+                "border": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": [0, 0, 0]
+                },
+
+                "textureFit": "contain"
+            },
+            "button": {
+                "width": 100,
+                "height": 100,
+                "border": {
+                    "style": "solid",
+                    "width": 2,
+                    "color": [192, 192, 192]
+                }
+            }
+        },
+
+        "body": {
+            "type": "inventoryDisplay",
+            "exitButton": {
+                "type": "button",
+                "id": "inventoryDisplayExitButton",
+
+                "component": "exit",
+                "action": {
+                    "type": "closeMenu"
+                }
+            }
+        }
+    }
+}

@@ -29,5 +29,7 @@
     "event.example": "Example Event",
     "event.example.description": "This is an example event.",
     "event.example.task1": "Example Task",
-    "event.example.task1.description": "This is an example task."
+    "event.example.task1.description": "This is an example task.",
+
+    "interface.player.inventory": "Inventory"
 }

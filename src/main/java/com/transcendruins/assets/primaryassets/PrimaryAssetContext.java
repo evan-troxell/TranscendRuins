@@ -25,7 +25,7 @@ import com.transcendruins.world.World;
  * <code>PrimaryAssetContext</code>: A class representing the instantiation
  * context of a primary asset.
  */
-public class PrimaryAssetContext extends AssetContext {
+public abstract class PrimaryAssetContext extends AssetContext {
 
     /**
      * Creates a new instance of the <code>PrimaryAssetContext</code> class.

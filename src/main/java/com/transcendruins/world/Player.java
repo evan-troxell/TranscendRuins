@@ -6,12 +6,13 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.entities.EntityInstance;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceContext;
 import com.transcendruins.assets.interfaces.InterfaceInstance;
 import com.transcendruins.assets.interfaces.UIComponent;
+import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.resources.styles.Style;
 
 public final class Player {
@@ -24,6 +25,11 @@ public final class Player {
     }
 
     private final EntityInstance entity;
+
+    public final EntityInstance getEntity() {
+
+        return entity;
+    }
 
     private String location;
 
@@ -47,17 +53,37 @@ public final class Player {
 
     public final void setPanels(List<AssetPresets> interfacePresets) {
 
+        replacePanels(interfacePresets.stream()
+                .map(presets -> new InterfaceContext(presets, entity.getWorld(), entity, playerId, null)).toList());
+
+    }
+
+    public final void displayInventory(InventoryInstance secondaryInventory, InventoryComponentSchema secondaryUi) {
+
+        InventoryInstance primaryInventory = entity.getInventory();
+        InventoryComponentSchema primaryUi = entity.getInventoryUi();
+
+        System.out.println("test");
+        System.out.println(primaryUi);
+        System.out.println(secondaryUi);
+
+        if (primaryUi == null || secondaryUi == null) {
+
+            return;
+        }
+
+        InterfaceContext context = InterfaceContext.createInventoryDisplayContext(entity.getWorld(), entity, playerId,
+                primaryInventory, primaryUi, secondaryInventory, secondaryUi);
+        replacePanels(List.of(context));
+    }
+
+    private void replacePanels(List<InterfaceContext> contexts) {
+
         uiPanels.clear();
+        contexts.forEach(context -> uiPanels.add((InterfaceInstance) context.instantiate()));
+
         hovered.clear();
         pressed.clear();
-
-        for (AssetPresets presets : interfacePresets) {
-
-            InterfaceContext interfaceContext = new InterfaceContext(presets, entity.getWorld(), entity, null);
-            InterfaceInstance panel = (InterfaceInstance) AssetType.INTERFACE.createAsset(interfaceContext);
-
-            uiPanels.add(panel);
-        }
 
         calculateSize();
         calculateHovered();
@@ -67,7 +93,6 @@ public final class Player {
         }
 
         uiUpdated = true;
-
     }
 
     public final void updateUiPanels(double time) {
@@ -210,10 +235,11 @@ public final class Player {
         if (pressed) {
 
             calculatePressed();
+            calculateTriggerPress();
         } else {
 
             releaseAll();
-            calculateClicked();
+            calculateTriggerRelease();
         }
 
         uiUpdated = true;
@@ -247,13 +273,26 @@ public final class Player {
         pressed.clear();
     }
 
-    private void calculateClicked() {
+    private void calculateTriggerPress() {
 
         ArrayList<UIComponent> clicked = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            if (!panel.click(mouseX, mouseY, clicked)) {
+            if (!panel.triggerPress(mouseX, mouseY, clicked)) {
+
+                break;
+            }
+        }
+    }
+
+    private void calculateTriggerRelease() {
+
+        ArrayList<UIComponent> clicked = new ArrayList<>();
+        for (int i = uiPanels.size() - 1; i >= 0; i--) {
+
+            InterfaceInstance panel = uiPanels.get(i);
+            if (!panel.triggerRelease(mouseX, mouseY, clicked)) {
 
                 break;
             }
@@ -322,6 +361,9 @@ public final class Player {
         mouseJustReleased = false;
 
         return render;
+    }
+
+    public final void interact() {
     }
 
     public Player(long playerId, EntityInstance entity) {

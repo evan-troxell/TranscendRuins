@@ -11,6 +11,13 @@
         "/element/barrel/barrel3.png": 2.5
     },
 
-    "location.bunkerAlfa": "location/bunkerAlfa.png",
-    "interface.texture.example": "displayIcon.png"
+    "interface.texture.example": "displayIcon.png",
+    "interface.actionBar.actionButton": "interface/actionBar/actionButton.png",
+    "interface.actionBar.interact": "interface/actionBar/interact.png",
+    "interface.inventoryDisplay.slot": "interface/inventoryDisplay/slot.png",
+
+    "item.example.icon": "item/example/icon.png",
+    "item.example.texture": "item/example/texture.png",
+
+    "location.bunkerAlfa": "location/bunkerAlfa.png"
 }

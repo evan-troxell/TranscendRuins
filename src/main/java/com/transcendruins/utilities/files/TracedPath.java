@@ -117,8 +117,6 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
 
     public static final InternalPath INTERNAL_DIRECTORY = InternalPath.ROOT.extend("assets");
 
-    public static final InternalPath INTERNAL_DATA_DIRECTORY = INTERNAL_DIRECTORY.extend("data");
-
     /**
      * <code>ExternalPath</code>: The filepath of the home directory.
      */

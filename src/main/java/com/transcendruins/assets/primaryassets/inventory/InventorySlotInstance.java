@@ -58,7 +58,18 @@ public final class InventorySlotInstance extends Instance {
         this.item = item;
     }
 
+    public final void swap(InventorySlotInstance other) {
+
+        ItemInstance newItem = other.putItem(getItem());
+        setItem(newItem);
+    }
+
     public final ItemInstance putItem(ItemInstance item) {
+
+        if (!isAcceptedType(item)) {
+
+            return item;
+        }
 
         // If the slot is marked for removal and an item is being put in the slot, don't
         // allow the transfer.
@@ -97,6 +108,24 @@ public final class InventorySlotInstance extends Instance {
         return item;
     }
 
+    public final int remove(int count) {
+
+        if (item == null) {
+
+            return count;
+        }
+
+        int quantity = item.getStackSize();
+        if (quantity > count) {
+
+            item.setStackSize(quantity - count);
+            return 0;
+        }
+
+        item = null;
+        return count - quantity;
+    }
+
     public final boolean containsItem() {
 
         return item != null;
@@ -116,7 +145,7 @@ public final class InventorySlotInstance extends Instance {
 
     public final boolean isAcceptedType(ItemInstance item) {
 
-        return acceptedTypes.contains("any") || !Collections.disjoint(acceptedTypes, item.getCategories());
+        return acceptedTypes == null || !Collections.disjoint(acceptedTypes, item.getCategories());
     }
 
     private String modelSocket;
@@ -143,8 +172,7 @@ public final class InventorySlotInstance extends Instance {
 
         InventorySlotSchema attributes = (InventorySlotSchema) attributeSet;
 
-        acceptedTypes = calculateAttribute(attributes.getAcceptedTypes(), acceptedTypes, attributes,
-                new ImmutableList<>("any"));
+        acceptedTypes = calculateAttribute(attributes.getAcceptedTypes(), acceptedTypes, attributes, null);
         modelSocket = calculateAttribute(attributes.getModelSocket(), modelSocket, attributes, null);
     }
 }

@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.files.InternalPath;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.json.JSONOperator;
@@ -34,11 +33,6 @@ import com.transcendruins.utilities.json.TracedDictionary;
  * <code>SoundSet</code>: A class representing a set of compiled sounds.
  */
 public final class SoundSet {
-
-    /**
-     * <code>InternalPath</code>: The path to the placeholder sound.
-     */
-    public static final InternalPath MISSING_SOUND = TracedPath.INTERNAL_DATA_DIRECTORY.extend("missingSound.wav");
 
     /**
      * <code>TracedPath</code>: The path which leads to this <code>SoundSet</code>

@@ -16,20 +16,29 @@
 
 package com.transcendruins.assets.interfaces;
 
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Consumer;
+
+import javax.swing.ImageIcon;
 
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
+import com.transcendruins.assets.items.ItemInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.Style;
 import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.immutable.ImmutableSet;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedCollection;
@@ -60,8 +69,9 @@ public final class InterfaceAttributes extends AssetAttributes {
     public static final String LIST = "list";
     public static final String INTERFACE = "interface";
 
+    // Special compnent types.
+    public static final String INVENTORY_DISPLAY = "inventoryDisplay";
     public static final String INVENTORY = "inventory";
-    public static final String CRAFTING = "crafting";
 
     /**
      * <code>StyleSet</code>: The style set of this <code>InterfaceAttributes</code>
@@ -122,7 +132,7 @@ public final class InterfaceAttributes extends AssetAttributes {
         // The body should only be defined once.
         if (isBase) {
 
-            body = createComponent(json, "body");
+            body = createComponent(json, "body", this::addAssetDependency);
         } else {
 
             body = null;
@@ -132,15 +142,20 @@ public final class InterfaceAttributes extends AssetAttributes {
     /**
      * Creates a new instance of the <code>ComponentSchema</code> class.
      * 
-     * @param collection <code>TracedDictionary</code>: The collection to create the
-     *                   new <code>ComponentSchema</code> instance from.
-     * @param key        <code>Object</code>: The key to retrieve from the
-     *                   collection.
+     * @param collection      <code>TracedDictionary</code>: The collection to
+     *                        create the new <code>ComponentSchema</code> instance
+     *                        from.
+     * @param key             <code>Object</code>: The key to retrieve from the
+     *                        collection.
+     * @param dependencyAdder <code>Consumer&lt;AssetPresets&gt;</code>: The method
+     *                        used to add dependencies to this
+     *                        <code>InterfaceAttributes</code> instance.
      * @return <code>ComponentSchema</code>: The created loot schema.
      * @throws LoggedException Thrown if any exception is raised while creating the
      *                         component.
      */
-    public final ComponentSchema createComponent(TracedCollection collection, Object key) throws LoggedException {
+    public static final ComponentSchema createComponent(TracedCollection collection, Object key,
+            Consumer<AssetPresets> dependencyAdder) throws LoggedException {
 
         return collection.get(key, List.of(
 
@@ -155,18 +170,23 @@ public final class InterfaceAttributes extends AssetAttributes {
                 collection.dictCase(entry -> {
 
                     TracedDictionary json = entry.getValue();
-                    return createDictComponent(json);
+                    return createDictComponent(json, dependencyAdder);
                 })));
     }
 
     /**
      * Creates a UI component schema from a dictionary.
      * 
-     * @param json <code>TracedDictionary</code>: The dictionary to parse.
+     * @param json            <code>TracedDictionary</code>: The dictionary to
+     *                        parse.
+     * @param dependencyAdder <code>Consumer&lt;AssetPresets&gt;</code>: The method
+     *                        used to add dependencies to this
+     *                        <code>InterfaceAttributes</code> instance.
      * @return <code>ComponentSchema</code>: The generated schema.
      * @throws LoggedException Thrown if the dictionary could not be parsed.
      */
-    public final ComponentSchema createDictComponent(TracedDictionary json) throws LoggedException {
+    public static final ComponentSchema createDictComponent(TracedDictionary json,
+            Consumer<AssetPresets> dependencyAdder) throws LoggedException {
 
         TracedEntry<String> typeEntry = json.getAsString("type", false, null);
         String type = typeEntry.getValue();
@@ -178,7 +198,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         case TEXTURE -> new TextureComponentSchema(json);
 
-        case BUTTON -> new ButtonComponentSchema(json);
+        case BUTTON -> new ButtonComponentSchema(json, dependencyAdder);
 
         // case INPUT -> new InputComponentSchema(json);
 
@@ -186,15 +206,15 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         // case SELECT -> new SelectComponentSchema(json);
 
-        case CONTAINER -> new ContainerComponentSchema(json);
+        case CONTAINER -> new ContainerComponentSchema(json, dependencyAdder);
 
-        case LIST -> new ListComponentSchema(json);
+        case LIST -> new ListComponentSchema(json, dependencyAdder);
 
-        case INTERFACE -> new InterfaceComponentSchema(json);
-
-        // case INVENTORY -> new InventoryComponentSchema(json);
+        case INTERFACE -> new InterfaceComponentSchema(json, dependencyAdder);
 
         // case CRAFTING -> new CraftingComponentSchema(json);
+
+        case INVENTORY_DISPLAY -> new InventoryDisplayComponentSchema(json, dependencyAdder);
 
         default -> throw new UnexpectedValueException(typeEntry);
         };
@@ -204,7 +224,7 @@ public final class InterfaceAttributes extends AssetAttributes {
      * <code>ComponentSchema</code>: A class representing the schema of a UI
      * component.
      */
-    public abstract class ComponentSchema {
+    public static abstract class ComponentSchema {
 
         /**
          * <code>String</code>: The component type of this <code>ComponentSchema</code>
@@ -376,7 +396,7 @@ public final class InterfaceAttributes extends AssetAttributes {
      * <code>StringComponentSchema</code>: A class representing the schema of a
      * string literal UI component.
      */
-    public final class StringComponentSchema extends ComponentSchema {
+    public static final class StringComponentSchema extends ComponentSchema {
 
         /**
          * <code>String</code>: The string value of this
@@ -413,7 +433,7 @@ public final class InterfaceAttributes extends AssetAttributes {
      * <code>TextComponentSchema</code>: A class representing the schema of a text
      * UI component.
      */
-    public final class TextComponentSchema extends ComponentSchema {
+    public static final class TextComponentSchema extends ComponentSchema {
 
         /**
          * Creates a new instance of the <code>TextComponentSchema</code> class.
@@ -435,21 +455,21 @@ public final class InterfaceAttributes extends AssetAttributes {
      * <code>TextureComponentSchema</code>: A class representing the schema of a
      * texture UI component.
      */
-    public final class TextureComponentSchema extends ComponentSchema {
+    public static final class TextureComponentSchema extends ComponentSchema {
 
         /**
-         * <code>String</code>: The texture of this <code>TextureComponentSchema</code>
-         * instance.
+         * <code>TextureType</code>: The texture of this
+         * <code>TextureComponentSchema</code> instance.
          */
-        private final String texture;
+        private final TextureType texture;
 
         /**
          * Retrieves the texture of this <code>TextureComponentSchema</code> instance.
          * 
-         * @return <code>String</code>: The <code>texture</code> field of this
+         * @return <code>TextureType</code>: The <code>texture</code> field of this
          *         <code>TextureComponentSchema</code> instance.
          */
-        public final String getTexture() {
+        public final TextureType getTexture() {
 
             return texture;
         }
@@ -464,8 +484,119 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             super(json, TEXTURE);
 
-            TracedEntry<String> textureEntry = json.getAsString("texture", false, null);
-            texture = textureEntry.getValue();
+            texture = json.get("texture", List.of(
+
+                    // Process a string literal texture.
+                    json.stringCase(entry -> new StringTextureType(entry.getValue())),
+
+                    // Process a dictionary texture.
+                    json.dictCase(entry -> TextureType.createTextureType(entry.getValue()))));
+        }
+    }
+
+    public static abstract class TextureType {
+
+        private final String backup;
+
+        public TextureType(String backup) {
+
+            this.backup = backup;
+        }
+
+        public final ImageIcon getTexture(InterfaceInstance component, long componentId) {
+
+            ImageIcon instanceTexture = getInstanceTexture(component, componentId);
+            return instanceTexture == null && backup != null ? component.getWorld().getTexture(backup, componentId)
+                    : instanceTexture;
+        }
+
+        protected abstract ImageIcon getInstanceTexture(InterfaceInstance component, long componentId);
+
+        public static final TextureType createTextureType(TracedDictionary json) throws LoggedException {
+
+            TracedEntry<String> typeEntry = json.getAsString("type", false, null);
+            String type = typeEntry.getValue();
+
+            return switch (type) {
+
+            case "texture" -> {
+
+                TracedEntry<String> textureEntry = json.getAsString("texture", false, null);
+                yield new StringTextureType(textureEntry.getValue());
+            }
+
+            case "inventorySlot" -> json.get("slot",
+                    List.of(json.intCase(entry -> new GridSlotTextureType(entry.getValue())),
+                            json.stringCase(entry -> new NamedSlotTextureType(entry.getValue()))));
+
+            default -> throw new UnexpectedValueException(typeEntry);
+            };
+        }
+    }
+
+    public static final class StringTextureType extends TextureType {
+
+        public StringTextureType(String texture) {
+
+            super(texture);
+        }
+
+        @Override
+        protected ImageIcon getInstanceTexture(InterfaceInstance component, long componentId) {
+
+            return null;
+        }
+    }
+
+    public static final class GridSlotTextureType extends TextureType {
+
+        private final int slot;
+
+        public GridSlotTextureType(int slot) {
+
+            super(null);
+            this.slot = slot;
+        }
+
+        @Override
+        protected ImageIcon getInstanceTexture(InterfaceInstance component, long componentId) {
+
+            return component.getWorld().playerFunction(component.getPlayerId(), player -> {
+
+                ItemInstance item = player.getEntity().getInventory().getItem(slot);
+                if (item == null) {
+
+                    return null;
+                }
+
+                return item.getIcon();
+            });
+        }
+    }
+
+    public static final class NamedSlotTextureType extends TextureType {
+
+        private final String slot;
+
+        public NamedSlotTextureType(String slot) {
+
+            super(null);
+            this.slot = slot;
+        }
+
+        @Override
+        protected ImageIcon getInstanceTexture(InterfaceInstance component, long componentId) {
+
+            return component.getWorld().playerFunction(component.getPlayerId(), player -> {
+
+                ItemInstance item = player.getEntity().getInventory().getItem(slot);
+                if (item == null) {
+
+                    return null;
+                }
+
+                return item.getIcon();
+            });
         }
     }
 
@@ -473,41 +604,20 @@ public final class InterfaceAttributes extends AssetAttributes {
      * <code>ButtonComponentSchema</code>: A class representing the schema of a
      * button UI component.
      */
-    public final class ButtonComponentSchema extends ComponentSchema {
+    public static final class ButtonComponentSchema extends ComponentSchema {
 
         /**
-         * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
-         * to apply the action of this <code>ButtonComponentSchema</code> instance.
+         * <code>ComponentActionSchema</code>: The action to run when pressed.
          */
-        private final ImmutableList<TRScript> conditions;
-
-        /**
-         * Retrieves the conditions required to be met to apply the action of this
-         * <code>ButtonComponentSchema</code> instance.
-         * 
-         * @return <code>ImmutableList&lt;TRScript&gt;</code>: The
-         *         <code>conditions</code> field of this
-         *         <code>ButtonComponentSchema</code> instance.
-         */
-        public final ImmutableList<TRScript> getConditions() {
-
-            return conditions;
-        }
-
-        /**
-         * <code>ImmutableList&lt;ComponentActionSchema&gt;</code>: The action to run
-         * when pressed.
-         */
-        private final ImmutableList<ComponentAction> action;
+        private final ComponentAction action;
 
         /**
          * Retrieves the action to run when pressed.
          * 
-         * @return <code>ImmutableList&lt;ComponentActionSchema&gt;</code>: The
-         *         <code>action</code> field of this <code>ButtonComponentSchema</code>
-         *         instance.
+         * @return <code>ComponentActionSchema</code>: The <code>action</code> field of
+         *         this <code>ButtonComponentSchema</code> instance.
          */
-        public final ImmutableList<ComponentAction> getAction() {
+        public final ComponentAction getAction() {
 
             return action;
         }
@@ -515,66 +625,25 @@ public final class InterfaceAttributes extends AssetAttributes {
         /**
          * Creates a new instance of the <code>ButtonComponentSchema</code> class.
          * 
-         * @param json <code>TracedDictionary</code>: The dictionary to parse.
+         * @param json            <code>TracedDictionary</code>: The dictionary to
+         *                        parse.
+         * @param dependencyAdder <code>Consumer&lt;AssetPresets&gt;</code>: The method
+         *                        used to add dependencies to this
+         *                        <code>InterfaceAttributes</code> instance.
          * @throws LoggedException Thrown if the dictionary could not be parsed.
          */
-        public ButtonComponentSchema(TracedDictionary json) throws LoggedException {
+        public ButtonComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
+                throws LoggedException {
 
             super(json, BUTTON);
 
             if (json.containsKey("component")) {
 
-                ComponentSchema component = createComponent(json, "component");
+                ComponentSchema component = createComponent(json, "component", dependencyAdder);
                 addChild(component);
             }
 
-            conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
-
-                ArrayList<TRScript> conditionsList = new ArrayList<>();
-
-                TracedArray conditionsJson = entry.getValue();
-                for (int i : conditionsJson) {
-
-                    TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
-                    TRScript condition = conditionEntry.getValue();
-                    conditionsList.add(condition);
-                }
-
-                return new ImmutableList<>(conditionsList);
-            }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
-
-                TRScript condition = entry.getValue();
-                return new ImmutableList<>(condition);
-            })));
-
-            action = json.get("action", List.of(
-
-                    // Process a dictionary into a single action.
-                    json.dictCase(entry -> {
-
-                        TracedDictionary actionJson = entry.getValue();
-                        return new ImmutableList<>(ComponentAction.createAction(actionJson));
-                    }),
-
-                    // Process an array into a list of actions.
-                    json.arrayCase(entry -> {
-
-                        ArrayList<ComponentAction> actionsList = new ArrayList<>();
-
-                        TracedArray actionsJson = entry.getValue();
-                        for (int i : actionsJson) {
-
-                            TracedEntry<TracedDictionary> actionEntry = actionsJson.getAsDict(i, false);
-                            TracedDictionary actionJson = actionEntry.getValue();
-
-                            actionsList.add(ComponentAction.createAction(actionJson));
-                        }
-
-                        return new ImmutableList<>(actionsList);
-                    }),
-
-                    // Process no actions.
-                    json.nullCase(_ -> new ImmutableList<>())));
+            action = new ComponentAction.ExecuteActionComponentAction(json);
         }
     }
 
@@ -582,7 +651,7 @@ public final class InterfaceAttributes extends AssetAttributes {
      * <code>InterfaceComponentSchema</code>: A class representing the schema of a
      * UI component which displays the content of another UI interface.
      */
-    public final class InterfaceComponentSchema extends ComponentSchema {
+    public static final class InterfaceComponentSchema extends ComponentSchema {
 
         /**
          * <code>AssetPresets</code>: The presets of the interface to substitute for the
@@ -605,22 +674,28 @@ public final class InterfaceAttributes extends AssetAttributes {
         /**
          * Creates a new instance of the <code>InterfaceComponentSchema</code> class.
          * 
-         * @param json <code>TracedDictionary</code>: The dictionary to parse.
+         * @param json            <code>TracedDictionary</code>: The dictionary to
+         *                        parse.
+         * @param dependencyAdder <code>Consumer&lt;AssetPresets&gt;</code>: The method
+         *                        used to add dependencies to this
+         *                        <code>InterfaceAttributes</code> instance.
          * @throws LoggedException Thrown if the dictionary could not be parsed.
          */
-        public InterfaceComponentSchema(TracedDictionary json) throws LoggedException {
+        public InterfaceComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
+                throws LoggedException {
 
             super(json, INTERFACE);
 
             TracedEntry<AssetPresets> presetsEntry = json.getAsPresets("interface", false, AssetType.INTERFACE);
             presets = presetsEntry.getValue();
-            addAssetDependency(presets);
+            dependencyAdder.accept(presets);
         }
     }
 
-    public final class ContainerComponentSchema extends ComponentSchema {
+    public static final class ContainerComponentSchema extends ComponentSchema {
 
-        public ContainerComponentSchema(TracedDictionary json) throws LoggedException {
+        public ContainerComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
+                throws LoggedException {
 
             super(json, CONTAINER);
 
@@ -631,15 +706,16 @@ public final class InterfaceAttributes extends AssetAttributes {
 
                 for (int i : componentsJson) {
 
-                    addChild(createComponent(componentsJson, i));
+                    addChild(createComponent(componentsJson, i, dependencyAdder));
                 }
             }
         }
     }
 
-    public final class ListComponentSchema extends ComponentSchema {
+    public static final class ListComponentSchema extends ComponentSchema {
 
-        public ListComponentSchema(TracedDictionary json) throws LoggedException {
+        public ListComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
+                throws LoggedException {
 
             super(json, LIST);
 
@@ -650,9 +726,114 @@ public final class InterfaceAttributes extends AssetAttributes {
 
                 for (int i : componentsJson) {
 
-                    addChild(createComponent(componentsJson, i));
+                    addChild(createComponent(componentsJson, i, dependencyAdder));
                 }
             }
+        }
+    }
+
+    public static final class InventoryDisplayComponentSchema extends ComponentSchema {
+
+        public InventoryDisplayComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
+                throws LoggedException {
+
+            super(json, INVENTORY_DISPLAY);
+
+            TracedEntry<TracedDictionary> exitButtonEntry = json.getAsDict("exitButton", false);
+            TracedDictionary exitButtonJson = exitButtonEntry.getValue();
+            addChild(new ButtonComponentSchema(exitButtonJson, dependencyAdder));
+        }
+    }
+
+    public static final class InventoryComponentSchema extends ComponentSchema {
+
+        private final Rectangle grid;
+
+        public final Rectangle getGrid() {
+
+            return grid;
+        }
+
+        private final ImmutableMap<String, Point> named;
+
+        public final ImmutableMap<String, Point> getNamed() {
+
+            return named;
+        }
+
+        public InventoryComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
+                throws LoggedException {
+
+            super(json, INVENTORY);
+
+            if (json.containsKey("header")) {
+
+                addChild(createComponent(json, "header", dependencyAdder));
+            }
+
+            Rectangle gridRect = new Rectangle(0, 0, 0, 0);
+            TracedEntry<TracedDictionary> slotsEntry = json.getAsDict("grid", true);
+            if (slotsEntry.containsValue()) {
+
+                TracedDictionary slotsJson = slotsEntry.getValue();
+
+                TracedEntry<Integer> xEntry = slotsJson.getAsInteger("x", false, null, x -> x >= 0);
+                int x = xEntry.getValue();
+
+                TracedEntry<Integer> yEntry = slotsJson.getAsInteger("y", false, null, y -> y >= 0);
+                int y = yEntry.getValue();
+
+                TracedEntry<Integer> colsEntry = slotsJson.getAsInteger("cols", false, null, cols -> cols > 0);
+                int width = colsEntry.getValue();
+
+                TracedEntry<Integer> rowsEntry = slotsJson.getAsInteger("rows", false, null, rows -> rows > 0);
+                int height = rowsEntry.getValue();
+
+                gridRect = new Rectangle(x, y, width, height);
+            }
+
+            grid = gridRect;
+
+            LinkedHashMap<String, Point> namedMap = new LinkedHashMap<>();
+            TracedEntry<TracedDictionary> namedEntry = json.getAsDict("named", true);
+            if (namedEntry.containsValue()) {
+
+                TracedDictionary namedJson = namedEntry.getValue();
+                for (String name : namedJson) {
+
+                    Point point = namedJson.get(name, List.of(namedJson.arrayCase(entry -> {
+
+                        TracedArray pointJson = entry.getValue();
+                        if (pointJson.size() != 2) {
+
+                            throw new CollectionSizeException(entry, pointJson);
+                        }
+
+                        TracedEntry<Integer> xEntry = pointJson.getAsInteger(0, false, null, x -> x >= 0);
+                        int x = xEntry.getValue();
+
+                        TracedEntry<Integer> yEntry = pointJson.getAsInteger(1, false, null, y -> y >= 0);
+                        int y = yEntry.getValue();
+
+                        return new Point(x, y);
+                    }), namedJson.dictCase(entry -> {
+
+                        TracedDictionary pointJson = entry.getValue();
+
+                        TracedEntry<Integer> xEntry = pointJson.getAsInteger("x", false, null, x -> x >= 0);
+                        int x = xEntry.getValue();
+
+                        TracedEntry<Integer> yEntry = pointJson.getAsInteger("y", false, null, y -> y >= 0);
+                        int y = yEntry.getValue();
+
+                        return new Point(x, y);
+                    })));
+
+                    namedMap.put(name, point);
+                }
+            }
+
+            named = new ImmutableMap<>(namedMap);
         }
     }
 }

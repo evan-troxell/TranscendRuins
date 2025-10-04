@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animationcontrollers.AnimationControllerContext;
 import com.transcendruins.assets.animationcontrollers.AnimationControllerInstance;
@@ -305,7 +304,7 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         // Updates the texture field.
         texturePath = calculateAttribute(attributes.getTexture(), val -> {
 
-            texture = getInstanceTextureAsBufferedImage(texturePath, BufferedImage.TYPE_INT_ARGB);
+            texture = getInstanceTextureAsBufferedImage(val, BufferedImage.TYPE_INT_ARGB);
 
             return val;
         }, texturePath);
@@ -315,14 +314,14 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         model = calculateAttribute(attributes.getModel(), val -> {
 
             ModelContext modelContext = new ModelContext(val, getWorld(), this);
-            return (ModelInstance) AssetType.MODEL.createAsset(modelContext);
+            return (ModelInstance) modelContext.instantiate();
         }, model);
 
         // Updates the renderMaterial field.
         renderMaterial = calculateAttribute(attributes.getRenderMaterial(), val -> {
 
             RenderMaterialContext renderMaterialContext = new RenderMaterialContext(val, getWorld(), this);
-            return (RenderMaterialInstance) AssetType.RENDER_MATERIAL.createAsset(renderMaterialContext);
+            return (RenderMaterialInstance) renderMaterialContext.instantiate();
         }, renderMaterial);
 
         // Updates the animationController field.
@@ -330,7 +329,7 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
 
             AnimationControllerContext animationControllerContext = new AnimationControllerContext(val, getWorld(),
                     this);
-            return (AnimationControllerInstance) AssetType.ANIMATION_CONTROLLER.createAsset(animationControllerContext);
+            return (AnimationControllerInstance) animationControllerContext.instantiate();
         }, animationController, attributes, null);
 
         categories = calculateAttribute(attributes.getCategories(), categories, attributes, new ImmutableList<>());

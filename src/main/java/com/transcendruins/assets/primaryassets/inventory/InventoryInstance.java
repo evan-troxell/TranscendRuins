@@ -38,6 +38,63 @@ import com.transcendruins.utilities.immutable.ImmutableSet;
  */
 public final class InventoryInstance extends Instance {
 
+    public final int getItemCount(ItemInstance item) {
+
+        int count = 0;
+
+        for (InventorySlotInstance slot : grid) {
+
+            ItemInstance slotItem = slot.getItem();
+            if (slotItem.isLikeAsset(item)) {
+
+                count += slotItem.getStackSize();
+            }
+        }
+
+        for (InventorySlotInstance slot : named.values()) {
+
+            ItemInstance slotItem = slot.getItem();
+            if (slotItem.isLikeAsset(item)) {
+
+                count += slotItem.getStackSize();
+            }
+        }
+
+        return count;
+    }
+
+    public final int consume(ItemInstance item) {
+
+        int count = item.getStackSize();
+        for (InventorySlotInstance slot : grid) {
+
+            ItemInstance slotItem = slot.getItem();
+            if (slotItem.isLikeAsset(item)) {
+
+                count = slot.remove(count);
+                if (count == 0) {
+
+                    return 0;
+                }
+            }
+        }
+
+        for (InventorySlotInstance slot : named.values()) {
+
+            ItemInstance slotItem = slot.getItem();
+            if (slotItem.isLikeAsset(item)) {
+
+                count = slot.remove(count);
+                if (count == 0) {
+
+                    return 0;
+                }
+            }
+        }
+
+        return count;
+    }
+
     private int gridSlots;
 
     /**
@@ -45,6 +102,11 @@ public final class InventoryInstance extends Instance {
      * <code>InventoryInstance</code> instance.
      */
     private InventorySlotInstance[] grid = new InventorySlotInstance[0];
+
+    public final int getGridSize() {
+
+        return grid.length;
+    }
 
     /**
      * Retrieves an item from the grid slots of this <code>InventoryInstance</code>
@@ -57,7 +119,16 @@ public final class InventoryInstance extends Instance {
      */
     public final ItemInstance getItem(int index) {
 
-        return (grid.length > index) ? grid[index].getItem() : null;
+        return (0 <= index && index < grid.length) ? grid[index].getItem() : null;
+    }
+
+    public final InventorySlotInstance getSlot(int index) {
+
+        if (grid.length > index) {
+
+            return grid[index];
+        }
+        return null;
     }
 
     /**
@@ -70,8 +141,6 @@ public final class InventoryInstance extends Instance {
      *             this <code>InventoryInstance</code> instance could be resized.
      */
     public final boolean resize(int size) {
-
-        gridSlots = size;
 
         // If the new size is the same as the old size, ignore.
         if (grid.length == size) {
@@ -153,6 +222,11 @@ public final class InventoryInstance extends Instance {
      */
     private final HashMap<String, InventorySlotInstance> named = new HashMap<>();
 
+    public final HashSet<String> getNamedSlots() {
+
+        return new HashSet<>(named.keySet());
+    }
+
     /**
      * Retrieves an item from the named slots of this <code>InventoryInstance</code>
      * instance.
@@ -167,6 +241,11 @@ public final class InventoryInstance extends Instance {
         return (named.containsKey(slot)) ? named.get(slot).getItem() : null;
     }
 
+    public final InventorySlotInstance getSlot(String slot) {
+
+        return named.get(slot);
+    }
+
     /**
      * Resizes the named slots of this <code>InventoryInstance</code> instance to a
      * set size.
@@ -178,7 +257,6 @@ public final class InventoryInstance extends Instance {
      */
     public final boolean resize(Set<String> slots) {
 
-        namedSet = new ImmutableSet<>(slots);
         Set<String> oldSlots = named.keySet();
 
         // If the old slots are the same as the new slots, ignore.
@@ -203,7 +281,7 @@ public final class InventoryInstance extends Instance {
         // are not contained in the new ones, completely copy the old slots.
         if (negativeSlots.isEmpty() || isEmpty(negativeSlots)) {
 
-            named.keySet().removeAll(slots);
+            named.keySet().removeAll(negativeSlots);
             return true;
         }
 
@@ -237,64 +315,6 @@ public final class InventoryInstance extends Instance {
         }
 
         return true;
-    }
-
-    /**
-     * Copies the contents of the named slots of this <code>InventoryInstance</code>
-     * instance to another slot set of specified contents.
-     * 
-     * @param slotNames <code>Set&lt;String&gt;</code>: The slot set to resize to.
-     * @return <code>HashMap&lt;String, InventorySlot&gt;</code>: The resized slot
-     *         set.
-     */
-    public final HashMap<String, InventorySlotInstance> copyContents(Set<String> slotNames) {
-
-        HashMap<String, InventorySlotInstance> newSlots = new HashMap<>();
-
-        for (String slotName : slotNames) {
-
-            newSlots.put(slotName, named.getOrDefault(slotName, new InventorySlotInstance(this, slotName)));
-        }
-
-        return newSlots;
-    }
-
-    public final HashSet<InventorySlotInstance> getEmptyNamedSlots() {
-
-        HashSet<InventorySlotInstance> empty = new HashSet<>();
-
-        for (InventorySlotInstance slot : named.values()) {
-
-            if (slot.isEmpty()) {
-
-                empty.add(slot);
-            }
-        }
-
-        return empty;
-    }
-
-    /**
-     * Retrieves the map of items of this <code>InventoryInstance</code> instance.
-     * 
-     * @return <code>HashMap&lt;String, ItemInstance&gt;</code>: The map of
-     *         inventory slots to their items.
-     */
-    public final HashMap<String, ItemInstance> getItems() {
-
-        HashMap<String, ItemInstance> items = new HashMap<>();
-
-        for (Map.Entry<String, InventorySlotInstance> slotEntry : named.entrySet()) {
-
-            items.put(slotEntry.getKey(), slotEntry.getValue().getItem());
-        }
-
-        for (int i = 0; i < grid.length; i++) {
-
-            items.put(String.valueOf(i), grid[i].getItem());
-        }
-
-        return items;
     }
 
     /**
@@ -429,7 +449,8 @@ public final class InventoryInstance extends Instance {
 
         computeAttribute(attributes.getNamed(), namedSchemas -> {
 
-            resize(namedSchemas.keySet());
+            namedSet = new ImmutableSet<>(namedSchemas.keySet());
+            resize(namedSet);
 
             for (Map.Entry<String, InventorySlotInstance> namedEntry : named.entrySet()) {
 

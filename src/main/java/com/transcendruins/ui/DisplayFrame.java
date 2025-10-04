@@ -41,7 +41,7 @@ import com.transcendruins.ui.mappedcomponents.containers.TRFrame;
 import com.transcendruins.ui.mappedcomponents.containers.TRLayeredPanel;
 import com.transcendruins.ui.mappedcomponents.containers.TRPanel;
 import com.transcendruins.ui.mappedcomponents.settings.ComponentSettings;
-import com.transcendruins.utilities.files.TracedPath;
+import com.transcendruins.utilities.files.DataConstants;
 
 /**
  * <code>DisplayFrame</code>: A class representing the display frame used
@@ -90,7 +90,8 @@ public final class DisplayFrame extends TRFrame {
     public DisplayFrame(Camera3D camera) {
 
         super("displayFrame", ComponentSettings.BACKGROUND_PANEL_SETTINGS);
-        ImageIcon icon = TracedPath.INTERNAL_DATA_DIRECTORY.extend("frameIcon.png").retrieveImage();
+
+        ImageIcon icon = DataConstants.FRAME_ICON_PATH.retrieveImage();
         if (icon != null)
             setIconImage(icon.getImage());
         setName("Transcend Ruins V2");

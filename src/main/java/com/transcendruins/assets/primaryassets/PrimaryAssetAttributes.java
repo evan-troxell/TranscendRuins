@@ -16,16 +16,11 @@
 
 package com.transcendruins.assets.primaryassets;
 
-import java.util.ArrayList;
-
 import com.transcendruins.assets.assets.schema.AssetSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.primaryassets.inventory.InventorySchema;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
-import com.transcendruins.utilities.immutable.ImmutableList;
-import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -54,9 +49,16 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
         return inventory;
     }
 
-    private final InteractionSchema interaction;
+    private final InventoryComponentSchema inventoryUi;
 
-    public final InteractionSchema getInteraction() {
+    public final InventoryComponentSchema getInventoryUi() {
+
+        return inventoryUi;
+    }
+
+    private final AssetInteraction interaction;
+
+    public final AssetInteraction getInteraction() {
 
         return interaction;
     }
@@ -82,103 +84,33 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
         TracedEntry<TracedDictionary> inventoryEntry = json.getAsDict("inventory", true);
         if (inventoryEntry.containsValue()) {
 
-            inventory = new InventorySchema(inventoryEntry.getValue(), isBase);
+            TracedDictionary inventoryJson = inventoryEntry.getValue();
+
+            inventory = new InventorySchema(inventoryJson, isBase);
+
+            TracedEntry<TracedDictionary> inventoryUiEntry = inventoryJson.getAsDict("ui", true);
+            if (inventoryUiEntry.containsValue()) {
+
+                TracedDictionary inventoryUiJson = inventoryUiEntry.getValue();
+                inventoryUi = new InventoryComponentSchema(inventoryUiJson, this::addAssetDependency);
+            } else {
+
+                inventoryUi = null;
+            }
         } else {
 
             inventory = null;
+            inventoryUi = null;
         }
 
         TracedEntry<TracedDictionary> interactionEntry = json.getAsDict("interaction", true);
         if (interactionEntry.containsValue()) {
 
             TracedDictionary interactionJson = interactionEntry.getValue();
-            interaction = InteractionSchema.createInteraction(interactionJson);
+            interaction = AssetInteraction.createInteraction(interactionJson);
         } else {
 
             interaction = null;
-        }
-    }
-
-    public static abstract class InteractionSchema {
-
-        public static final InteractionSchema NONE = new InteractionSchema() {
-        };
-
-        private final double cooldown;
-
-        public final double getCooldown() {
-
-            return cooldown;
-        }
-
-        private final ImmutableList<String> events;
-
-        public final ImmutableList<String> getEvents() {
-
-            return events;
-        }
-
-        private InteractionSchema() {
-
-            cooldown = 0.0;
-            events = new ImmutableList<>();
-        }
-
-        public InteractionSchema(TracedDictionary json, AssetSchema schema) throws LoggedException {
-
-            TracedEntry<Double> cooldownEntry = json.getAsDouble("cooldown", true, 0.0, num -> num >= 0.0);
-            cooldown = cooldownEntry.getValue();
-
-            ArrayList<String> eventsList = new ArrayList<>();
-
-            TracedEntry<TracedArray> eventsEntry = json.getAsArray("events", true);
-            if (eventsEntry.containsValue()) {
-
-                TracedArray eventsJson = eventsEntry.getValue();
-                for (int i : eventsJson) {
-
-                    TracedEntry<String> eventEntry = eventsJson.getAsString(i, false, null);
-                    String event = eventEntry.getValue();
-
-                    if (!schema.containsEvent(event)) {
-
-                        throw new ReferenceWithoutDefinitionException(eventEntry, "Event");
-                    }
-
-                    eventsList.add(event);
-                }
-            }
-
-            events = new ImmutableList<>(eventsList);
-        }
-
-        public static final InteractionSchema createInteraction(TracedDictionary json) throws LoggedException {
-
-            TracedEntry<String> typeEntry = json.getAsString("type", false, null);
-            String type = typeEntry.getValue();
-
-            return switch (type) {
-
-            case "inventory" -> new InventoryInteractionSchema(json);
-
-            case "passageway" -> new PassagewayInteractionSchema(json);
-
-            case "none" -> InteractionSchema.NONE;
-
-            default -> throw new UnexpectedValueException(typeEntry);
-            };
-        }
-    }
-
-    public static final class InventoryInteractionSchema extends InteractionSchema {
-
-        public InventoryInteractionSchema(TracedDictionary json) {
-        }
-    }
-
-    public static final class PassagewayInteractionSchema extends InteractionSchema {
-
-        public PassagewayInteractionSchema(TracedDictionary json) {
         }
     }
 }

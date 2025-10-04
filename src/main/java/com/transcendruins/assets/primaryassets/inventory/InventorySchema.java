@@ -96,7 +96,7 @@ public final class InventorySchema extends Attributes {
 
             for (String slotName : namedJson) {
 
-                // If the slot name matches an index pattern, raise an exceptiopn to ensure it
+                // If the slot name matches an index pattern, raise an exception to ensure it
                 // does not overlap with a grid slot name.
                 if (slotName.matches(INDEX_PATTERN)) {
 

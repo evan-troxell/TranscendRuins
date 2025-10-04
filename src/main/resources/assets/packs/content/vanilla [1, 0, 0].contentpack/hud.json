@@ -1,8 +1,9 @@
 {
     "overlays": {
 
-        "playerInventory": "TranscendRuins:playerInventory"
+        "actionBar": "TranscendRuins:actionBar"
     },
 
-    "menus": {}
+    "menus": {
+    }
 }

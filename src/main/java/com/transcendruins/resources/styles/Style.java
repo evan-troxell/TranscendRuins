@@ -36,16 +36,17 @@ import com.transcendruins.utilities.json.TracedEntry;
  * <code>Style</code>: A record representing the schema of the style of a visual
  * component.
  */
-public final record Style(Size x, Size y, Size width, Size height, Size minWidth, Size minHeight, Color backgroundColor,
-        String backgroundTexture, TextureSize backgroundSize, BorderStyle borderTopStyle, Size borderTopWidth,
-        Color borderTopColor, BorderStyle borderBottomStyle, Size borderBottomWidth, Color borderBottomColor,
-        BorderStyle borderLeftStyle, Size borderLeftWidth, Color borderLeftColor, BorderStyle borderRightStyle,
-        Size borderRightWidth, Color borderRightColor, SizeDimensions rTL, SizeDimensions rTR, SizeDimensions rBL,
-        SizeDimensions rBR, Size marginTop, Size marginBottom, Size marginLeft, Size marginRight, Size paddingTop,
-        Size paddingBottom, Size paddingLeft, Size paddingRight, Integer fontStyle, Integer fontWeight, Size fontSize,
-        String fontFamily, Size lineHeight, TextAlign textAlign, Color color, TextureSize textureFit,
-        WhiteSpace whiteSpace, OverflowWrap overflowWrap, TextOverflow textOverflow, Overflow overflowX,
-        Overflow overflowY, SizeDimensions gap, Direction listDirection, Boolean propagateEvents, Display display) {
+public final record Style(Size x, Size y, Size width, Size height, Size minWidth, Size minHeight, SizeDimensions origin,
+        Color backgroundColor, String backgroundTexture, TextureSize backgroundSize, BorderStyle borderTopStyle,
+        Size borderTopWidth, Color borderTopColor, BorderStyle borderBottomStyle, Size borderBottomWidth,
+        Color borderBottomColor, BorderStyle borderLeftStyle, Size borderLeftWidth, Color borderLeftColor,
+        BorderStyle borderRightStyle, Size borderRightWidth, Color borderRightColor, SizeDimensions rTL,
+        SizeDimensions rTR, SizeDimensions rBL, SizeDimensions rBR, Size marginTop, Size marginBottom, Size marginLeft,
+        Size marginRight, Size paddingTop, Size paddingBottom, Size paddingLeft, Size paddingRight, Integer fontStyle,
+        Integer fontWeight, Size fontSize, String fontFamily, Size lineHeight, TextAlign textAlign, Color color,
+        TextureSize textureFit, WhiteSpace whiteSpace, OverflowWrap overflowWrap, TextOverflow textOverflow,
+        Overflow overflowX, Overflow overflowY, SizeDimensions gap, Direction listDirection, Boolean propagateEvents,
+        Display display, Size slotSize, String slotTexture, TriggerPhase triggerPhase) {
 
     /**
      * <code>Color</code>: A fully transparent color.
@@ -59,16 +60,16 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null);
+            null, null, null, null, null, null);
 
     /**
      * <code>Style</code>: A style which represents default string literal UI
      * components.
      */
-    public static final Style STRING_STYLE = new Style(null, null, Size.FIT_CONTENT, Size.FIT_CONTENT, null, null,
+    public static final Style STRING_STYLE = new Style(null, null, Size.FIT_CONTENT, Size.FIT_CONTENT, null, null, null,
             TRANSPARENT, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, Display.FLEX);
+            null, null, null, null, null, null, null, null, Display.FLEX, null, null, null);
 
     /**
      * Creates a new instance of the <code>Style</code> class.
@@ -93,6 +94,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Size height = null;
         Size minWidth = null;
         Size minHeight = null;
+
+        SizeDimensions origin = null;
 
         Color backgroundColor = null;
         String backgroundTexture = null;
@@ -152,6 +155,11 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Boolean propagateEvents = null;
         Display display = null;
 
+        Size slotSize = null;
+        String slotTexture = null;
+
+        TriggerPhase triggerPhase = null;
+
         TracedDictionary json = entry.getValue();
 
         // Iterate through each property in the JSON.
@@ -168,6 +176,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             case "height" -> height = Size.createSize(json, property);
             case "minWidth" -> minWidth = Size.createSize(json, property);
             case "minHeight" -> minHeight = Size.createSize(json, property);
+
+            case "origin" -> origin = SizeDimensions.createSizeDimensions(json, property);
 
             // Process the background.
             case "background" -> {
@@ -417,16 +427,22 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             case "propagateEvents" -> propagateEvents = createBoolean(json, property);
 
             case "display" -> display = Display.createDisplay(json, property);
+
+            case "slotSize" -> slotSize = Size.createSize(json, property);
+
+            case "slotTexture" -> slotTexture = createString(json, property);
+
+            case "triggerPhase" -> triggerPhase = TriggerPhase.createTriggerPhase(json, property);
             }
         }
 
-        Style s = new Style(x, y, width, height, minWidth, minHeight, backgroundColor, backgroundTexture,
+        Style s = new Style(x, y, width, height, minWidth, minHeight, origin, backgroundColor, backgroundTexture,
                 backgroundSize, borderTopStyle, borderTopWidth, borderTopColor, borderBottomStyle, borderBottomWidth,
                 borderBottomColor, borderLeftStyle, borderLeftWidth, borderLeftColor, borderRightStyle,
                 borderRightWidth, borderRightColor, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft,
                 marginRight, paddingTop, paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize,
                 fontFamily, lineHeight, textAlign, color, textureFit, whiteSpace, overflowWrap, textOverflow, overflowX,
-                overflowY, gap, listDirection, propagateEvents, display);
+                overflowY, gap, listDirection, propagateEvents, display, slotSize, slotTexture, triggerPhase);
 
         return s;
     }
@@ -452,6 +468,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::x, Size.NONE), parseVal(styles, Style::y, Size.NONE),
                 parseVal(styles, Style::width, Size.FULL), parseVal(styles, Style::height, Size.AUTO),
                 parseVal(styles, Style::minWidth, Size.NONE), parseVal(styles, Style::minHeight, Size.NONE),
+                parseVal(styles, Style::origin, SizeDimensions.NONE),
                 parseVal(styles, Style::backgroundColor, TRANSPARENT), parseVal(styles, Style::backgroundTexture, null),
                 parseVal(styles, Style::backgroundSize, TextureSize.COVER),
                 parseVal(styles, Style::borderTopStyle, BorderStyle.NONE),
@@ -494,7 +511,12 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::listDirection, Direction.VERTICAL),
 
                 parseVal(styles, Style::propagateEvents, null),
-                inheritVal(styles, Style::display, parent, Display.BLOCK));
+                inheritVal(styles, Style::display, parent, Display.BLOCK),
+
+                inheritVal(styles, Style::slotSize, parent, new Size(_ -> 40.0)),
+                inheritVal(styles, Style::slotTexture, parent, null),
+
+                parseVal(styles, Style::triggerPhase, TriggerPhase.PRESS));
     }
 
     /**
@@ -1550,12 +1572,12 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         FLEX;
 
         /**
-         * Parses a collection into a block or flexible display
+         * Parses a collection into a block or flexible display.
          * 
          * @param collection <code>TracedCollection</code>: The collection to parse.
          * @param key        <code>Object</code>: The key to retrieve.
          * @return <code>Direction</code>: The resulting display.
-         * @throws Display Thrown if the collection could not be parsed.
+         * @throws LoggedException Thrown if the collection could not be parsed.
          */
         public static final Display createDisplay(TracedCollection collection, Object key) throws LoggedException {
 
@@ -1567,6 +1589,47 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             case "block" -> BLOCK;
             case "flex" -> FLEX;
             default -> throw new UnexpectedValueException(displayEntry);
+            };
+        };
+    }
+
+    /**
+     * <code>TriggerPhase</code>: An enum class representing the input trigger phase
+     * of a component.
+     */
+    public static enum TriggerPhase {
+
+        /**
+         * <code>TriggerPhase</code>: An enum constant representing triggering the
+         * action upon the press.
+         */
+        PRESS,
+
+        /**
+         * <code>TriggerPhase</code>: An enum constant representing triggering the
+         * action upon the release.
+         */
+        RELEASE;
+
+        /**
+         * Parses a collection into a press or release.
+         * 
+         * @param collection <code>TracedCollection</code>: The collection to parse.
+         * @param key        <code>Object</code>: The key to retrieve.
+         * @return <code>TriggerPhase</code>: The resulting trigger phase.
+         * @throws Display Thrown if the collection could not be parsed.
+         */
+        public static final TriggerPhase createTriggerPhase(TracedCollection collection, Object key)
+                throws LoggedException {
+
+            TracedEntry<String> triggerPhaseEntry = collection.getAsString(key, false, null);
+            String triggerPhase = triggerPhaseEntry.getValue();
+
+            return switch (triggerPhase) {
+
+            case "press" -> PRESS;
+            case "release" -> RELEASE;
+            default -> throw new UnexpectedValueException(triggerPhaseEntry);
             };
         };
     }

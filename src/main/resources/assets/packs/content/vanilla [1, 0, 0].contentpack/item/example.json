@@ -1,0 +1,15 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:example"
+    },
+    "attributes": {
+        "texture": "item.example.texture",
+        "model": "TranscendRuins:box",
+        "animationController": "TranscendRuins:box",
+        "renderMaterial": "TranscendRuins:opaque",
+
+        "stackSize": 20,
+        "icon": "item.example.icon",
+        "categories": [ "weapon" ]
+    }
+}

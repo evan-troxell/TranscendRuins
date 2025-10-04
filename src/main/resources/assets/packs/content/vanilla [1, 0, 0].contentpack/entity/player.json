@@ -10,33 +10,32 @@
         "animationController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
         "inventory": {
+            "ui": {
+            },
             "grid": {
-                "slots": 15,
-                "acceptedTypes": "any"
+                "slots": 15
             },
             "named": {
-                "slots": {
-                    "helmet": {
-                        "acceptedTypes": ["helmet"]
+                "cap": {
+                    "acceptedTypes": ["cap"]
+                },
+                "top": {
+                    "acceptedTypes": ["top"]
                     },
-                    "chestplate": {
-                        "acceptedTypes": ["chestplate"]
-                      },
-                    "pants": {
-                        "acceptedTypes": ["pants"]
-                      },
-                    "boots": {
-                        "acceptedTypes": ["boots"]
-                      },
-                    "backpack": {
-                        "acceptedTypes": ["backpack"]
+                "pants": {
+                    "acceptedTypes": ["pants"]
                     },
-                    "mainhand": {
-                        "acceptedTypes": ["weapon", "tool"]
+                "boots": {
+                    "acceptedTypes": ["boots"]
                     },
-                    "offhand": {
-                        "acceptedTypes": ["medical"]
-                    }
+                "backpack": {
+                    "acceptedTypes": ["backpack"]
+                },
+                "mainhand": {
+                    "acceptedTypes": ["weapon"]
+                },
+                "offhand": {
+                    "acceptedTypes": ["weapon", "medicine", "consumable", "useable"]
                 }
             }
         }

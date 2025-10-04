@@ -131,7 +131,7 @@ public interface UIComponent {
 
     /**
      * Evaluates the event which should be run when this <code>UIComponent</code>
-     * instance is clicked.
+     * instance is pressed.
      * 
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
@@ -140,11 +140,11 @@ public interface UIComponent {
      * @return <code>boolean</code>: Whether or not the event should continue to
      *         propogate.
      */
-    public boolean onClick(int mouseX, int mouseY, TRScript value);
+    public boolean onTriggerPress(int mouseX, int mouseY, TRScript value);
 
     /**
      * Propagates the click status to the topmost children of this
-     * <code>UIComponent</code> instance under the mouse.
+     * <code>UIComponent</code> instance under the mouse when pressed.
      * 
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
@@ -153,10 +153,40 @@ public interface UIComponent {
      * @return <code>boolean</code>: Whether or not to continue propagating the
      *         click event, if applicable.
      */
-    public default boolean click(int mouseX, int mouseY, List<UIComponent> stack) {
+    public default boolean triggerPress(int mouseX, int mouseY, List<UIComponent> stack) {
 
-        return propagateAction(mouseX, mouseY, (component, x, y) -> component.onClick(x, y, component.getValue()),
-                stack);
+        return propagateAction(mouseX, mouseY,
+                (component, x, y) -> component.onTriggerPress(x, y, component.getValue()), stack);
+    }
+
+    /**
+     * Evaluates the event which should be run when this <code>UIComponent</code>
+     * instance is released.
+     * 
+     * @param mouseX <code>int</code>: The X coordinate of the mouse event.
+     * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
+     * @param value  <code>TRScript</code>: The value of this
+     *               <code>UIComponent</code> instance.
+     * @return <code>boolean</code>: Whether or not the event should continue to
+     *         propogate.
+     */
+    public boolean onTriggerRelease(int mouseX, int mouseY, TRScript value);
+
+    /**
+     * Propagates the click status to the topmost children of this
+     * <code>UIComponent</code> instance under the mouse when release.
+     * 
+     * @param mouseX <code>int</code>: The X coordinate of the mouse event.
+     * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
+     * @param stack  <code>List&lt;UIComponent&gt;</code>: The stack of elements
+     *               which have been clicked to add to.
+     * @return <code>boolean</code>: Whether or not to continue propagating the
+     *         click event, if applicable.
+     */
+    public default boolean triggerRelease(int mouseX, int mouseY, List<UIComponent> stack) {
+
+        return propagateAction(mouseX, mouseY,
+                (component, x, y) -> component.onTriggerRelease(x, y, component.getValue()), stack);
     }
 
     /**

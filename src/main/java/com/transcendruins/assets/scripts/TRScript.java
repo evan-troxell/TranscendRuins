@@ -51,14 +51,13 @@ public final class TRScript {
      */
     public TRScript(TracedCollection collection, Object key) throws LoggedException {
 
-        value = collection.get(key,
-                List.of(collection.booleanCase(TracedEntry::getValue), collection.longCase(TracedEntry::getValue),
-                        collection.doubleCase(TracedEntry::getValue), collection.stringCase(TracedEntry::getValue),
-                        collection.dictCase(entry -> {
+        value = collection.get(key, List.of(collection.booleanCase(TracedEntry::getValue),
+                collection.longCase(entry -> (double) entry.getValue()), collection.doubleCase(TracedEntry::getValue),
+                collection.stringCase(TracedEntry::getValue), collection.dictCase(entry -> {
 
-                            TracedDictionary json = entry.getValue();
-                            return new TRScriptExpression(json);
-                        }), collection.defaultCase(_ -> null)));
+                    TracedDictionary json = entry.getValue();
+                    return new TRScriptExpression(json);
+                }), collection.defaultCase(_ -> null)));
     }
 
     /**

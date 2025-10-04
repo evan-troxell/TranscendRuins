@@ -16,10 +16,16 @@
 
 package com.transcendruins.assets.interfaces;
 
+import java.util.List;
+
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceInstance.ComponentInstance;
+import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
+import com.transcendruins.utilities.files.DataConstants;
+import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.world.World;
 
 /**
@@ -27,6 +33,27 @@ import com.transcendruins.world.World;
  * of an interface.
  */
 public final class InterfaceContext extends AssetContext {
+
+    public static final String INVENTORY = "inventory";
+    public static final String CRAFTING = "crafting";
+
+    /**
+     * <code>long</code>: The id of the player which this
+     * <code>InterfaceContext</code> instance is associated with.
+     */
+    private final long playerId;
+
+    /**
+     * Retrieves the id of the player which this <code>InterfaceContext</code>
+     * instance is associated with.
+     * 
+     * @return <code>long</code>: The <code>playerId</code> field of this
+     *         <code>InterfaceContext</code> instance.
+     */
+    public final long getPlayerId() {
+
+        return playerId;
+    }
 
     /**
      * <code>ComponentInstance</code>: The parent component to this
@@ -46,6 +73,13 @@ public final class InterfaceContext extends AssetContext {
         return componentParent;
     }
 
+    private List<Object> componentValues = List.of();
+
+    public final ImmutableList<Object> getComponentValues() {
+
+        return new ImmutableList<>(componentValues);
+    }
+
     /**
      * Creates a new instance of the <code>InterfaceContext</code> class.
      * 
@@ -56,15 +90,31 @@ public final class InterfaceContext extends AssetContext {
      *                        <code>InterfaceContext</code> instance.
      * @param parent          <code>AssetInstance</code>: The parent to assign to
      *                        this <code>InterfaceContext</code> instance.
+     * @param playerId        <code>long</code>: The id of the player which this
+     *                        <code>InterfaceContext</code> instance is associated
+     *                        with.
      * @param componentParent <code>ComponentInstance</code>: The parent component
      *                        to assign to this <code>InterfaceContext</code>
      *                        instance.
      */
-    public InterfaceContext(AssetPresets presets, World world, AssetInstance parent,
+    public InterfaceContext(AssetPresets presets, World world, AssetInstance parent, long playerId,
             ComponentInstance componentParent) {
 
         super(presets, world, parent);
 
+        this.playerId = playerId;
         this.componentParent = componentParent;
+        this.componentValues = List.of();
+    }
+
+    public static InterfaceContext createInventoryDisplayContext(World world, AssetInstance parent, long playerId,
+            InventoryInstance primaryInventory, InventoryComponentSchema primaryUi,
+            InventoryInstance secondaryInventory, InventoryComponentSchema secondaryUi) {
+
+        InterfaceContext context = new InterfaceContext(DataConstants.INVENTORY_DISPLAY_IDENTIFIER, world, parent,
+                playerId, null);
+        context.componentValues = List.of(primaryInventory, primaryUi, secondaryInventory, secondaryUi);
+
+        return context;
     }
 }

@@ -18,6 +18,8 @@ package com.transcendruins.assets.items;
 
 import java.util.HashMap;
 
+import javax.swing.ImageIcon;
+
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
@@ -103,6 +105,15 @@ public final class ItemInstance extends ModelAssetInstance {
         return stackSize - this.stackSize;
     }
 
+    private String iconPath;
+
+    private ImageIcon icon;
+
+    public final ImageIcon getIcon() {
+
+        return icon;
+    }
+
     /**
      * <code>PrimaryAssetInstance</code>: The parent inventory to this
      * <code>ItemInstance</code> instance.
@@ -165,6 +176,15 @@ public final class ItemInstance extends ModelAssetInstance {
         // Updates the maxStackSize field.
         maxStackSize = calculateAttribute(attributes.getStackSize(), maxStackSize, attributes, 20);
         setProperty("maxStackSize", maxStackSize);
+
+        // Updates the icon field.
+        iconPath = calculateAttribute(attributes.getIcon(), val -> {
+
+            icon = getInstanceTexture(val);
+
+            return val;
+        }, iconPath);
+        setProperty("icon", iconPath);
     }
 
     @Override

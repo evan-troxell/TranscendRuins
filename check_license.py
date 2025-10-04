@@ -19,7 +19,7 @@ license_header = """/* Copyright 2025 Evan Troxell
 """
 
 # Define the root directory of your project
-root_dir = "/Users/evantroxell/Desktop/TranscendRuins"
+root_dir = "/Users/evantroxell/Desktop/TranscendRuins/src/main"
 
 
 # Function to check if a file contains the license header
@@ -33,6 +33,7 @@ def file_contains_license(file_path):
 files_missing_license = []
 
 count = 0
+lines = 0
 
 # Walk through the project directory
 for subdir, _, files in os.walk(root_dir):
@@ -40,10 +41,15 @@ for subdir, _, files in os.walk(root_dir):
         if file.endswith(".java"):  # Check only Java files
             count += 1
             file_path = os.path.join(subdir, file)
+            with open(file_path, "r") as file:
+                line_count = sum(1 for line in file)
+                lines += line_count
+
             if not file_contains_license(file_path):
                 files_missing_license.append(file_path)
 
 print(f"{count} java files checked.")
+print(f"{lines} lines of code+comments")
 
 # Print the files missing the license header
 if files_missing_license:

@@ -56,40 +56,29 @@ public final class InventorySlotSchema extends Attributes {
 
         super(isBase);
 
-        if (json.containsKey("acceptedTypes")) {
+        acceptedTypes = json.get("acceptedTypes", List.of(
 
-            ArrayList<String> acceptedTypesList = new ArrayList<>();
+                json.arrayCase(entry -> {
 
-            json.get("acceptedTypes", List.of(
+                    ArrayList<String> acceptedTypesList = new ArrayList<>();
 
-                    json.arrayCase(entry -> {
+                    TracedArray acceptedTypesJson = entry.getValue();
+                    for (int i : acceptedTypesJson) {
 
-                        TracedArray acceptedTypesJson = entry.getValue();
+                        TracedEntry<String> acceptedTypeEntry = acceptedTypesJson.getAsString(i, false, null);
+                        String acceptedType = acceptedTypeEntry.getValue();
 
-                        for (int i : acceptedTypesJson) {
+                        acceptedTypesList.add(acceptedType);
+                    }
 
-                            TracedEntry<String> acceptedTypeEntry = acceptedTypesJson.getAsString(i, false, null);
-                            String acceptedType = acceptedTypeEntry.getValue();
+                    return new ImmutableList<>(acceptedTypesList);
+                }),
 
-                            acceptedTypesList.add(acceptedType);
-                        }
+                json.stringCase(entry -> {
 
-                        return null;
-                    }),
-
-                    json.stringCase(entry -> {
-
-                        String acceptedTypesJson = entry.getValue();
-
-                        acceptedTypesList.add(acceptedTypesJson);
-                        return null;
-                    })));
-
-            acceptedTypes = new ImmutableList<>(acceptedTypesList);
-        } else {
-
-            acceptedTypes = null;
-        }
+                    String acceptedType = entry.getValue();
+                    return new ImmutableList<>(acceptedType);
+                }), json.nullCase(_ -> null)));
 
         TracedEntry<String> modelSocketEntry = json.getAsString("modelSocket", true, null);
         modelSocket = modelSocketEntry.getValue();

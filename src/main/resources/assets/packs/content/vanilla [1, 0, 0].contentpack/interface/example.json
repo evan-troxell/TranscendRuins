@@ -49,7 +49,10 @@
             "type": "list",
             "components": [
                 {
-                    "type": "button"
+                    "type": "button",
+                    "action": {
+                        "type": "closeMenu"
+                    }
                 },
                 "This is another string :D"
             ]

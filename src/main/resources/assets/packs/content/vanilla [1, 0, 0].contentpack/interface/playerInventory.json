@@ -93,7 +93,11 @@
                         "width": 250,
                         "height": 250
                     },
-                    "component": "i think i've gone a 'lil overboard with this"
+                    "component": "i think i've gone a 'lil overboard with this",
+                    "action": {
+                        "type": "openMenu",
+                        "value": "test"
+                    }
                 },
                 {
                     "type": "text",

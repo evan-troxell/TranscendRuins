@@ -100,4 +100,9 @@ public abstract class AssetContext {
 
         this.runtimeSeconds = world.getRuntimeSeconds();
     }
+
+    public final AssetInstance instantiate() {
+
+        return presets.getType().createAsset(this);
+    }
 }
