@@ -27,6 +27,10 @@ public final class DataConstants {
 
     public static final AssetPresets INVENTORY_DISPLAY_IDENTIFIER;
 
+    public static final String INVENTORY_SLOT_TEXTURE = "interface.inventoryDisplay.slot";
+
+    public static final String INVENTORY_SLOT_SELECTED_TEXTURE = "interface.inventoryDisplay.slotSelected";
+
     static {
 
         try {

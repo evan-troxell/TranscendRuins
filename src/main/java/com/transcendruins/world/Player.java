@@ -63,10 +63,6 @@ public final class Player {
         InventoryInstance primaryInventory = entity.getInventory();
         InventoryComponentSchema primaryUi = entity.getInventoryUi();
 
-        System.out.println("test");
-        System.out.println(primaryUi);
-        System.out.println(secondaryUi);
-
         if (primaryUi == null || secondaryUi == null) {
 
             return;
@@ -78,6 +74,8 @@ public final class Player {
     }
 
     private void replacePanels(List<InterfaceContext> contexts) {
+
+        pressFocus = null;
 
         uiPanels.clear();
         contexts.forEach(context -> uiPanels.add((InterfaceInstance) context.instantiate()));
@@ -100,7 +98,6 @@ public final class Player {
         for (InterfaceInstance panel : uiPanels) {
 
             panel.update(time);
-            uiUpdated = true;
         }
 
         calculateSize();
@@ -182,11 +179,13 @@ public final class Player {
 
     private void calculateHovered() {
 
+        long timestamp = System.currentTimeMillis();
+
         ArrayList<UIComponent> newHovered = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            if (!panel.hover(mouseX, mouseY, newHovered)) {
+            if (!panel.hover(mouseX, mouseY, newHovered, timestamp)) {
 
                 break;
             }
@@ -199,9 +198,11 @@ public final class Player {
 
     private void exitAll() {
 
+        long timestamp = System.currentTimeMillis();
+
         for (UIComponent exited : hovered) {
 
-            exited.onExit(mouseX, mouseY);
+            exited.onExit(mouseX, mouseY, timestamp);
         }
 
         hovered.clear();
@@ -248,11 +249,13 @@ public final class Player {
 
     private void calculatePressed() {
 
+        long timestamp = System.currentTimeMillis();
+
         ArrayList<UIComponent> newPressed = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            if (!panel.press(mouseX, mouseY, newPressed)) {
+            if (!panel.press(mouseX, mouseY, newPressed, timestamp)) {
 
                 break;
             }
@@ -265,21 +268,30 @@ public final class Player {
 
     private void releaseAll() {
 
+        long timestamp = System.currentTimeMillis();
+
         for (UIComponent exited : pressed) {
 
-            exited.onRelease(mouseX, mouseY);
+            exited.onRelease(mouseX, mouseY, timestamp);
         }
 
         pressed.clear();
     }
 
+    private UIComponent pressFocus = null;
+
     private void calculateTriggerPress() {
+
+        pressFocus = null;
+        long timestamp = System.currentTimeMillis();
 
         ArrayList<UIComponent> clicked = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            if (!panel.triggerPress(mouseX, mouseY, clicked)) {
+            pressFocus = panel.triggerPress(mouseX, mouseY, clicked, timestamp);
+
+            if (pressFocus != null) {
 
                 break;
             }
@@ -288,11 +300,13 @@ public final class Player {
 
     private void calculateTriggerRelease() {
 
+        long timestamp = System.currentTimeMillis();
+
         ArrayList<UIComponent> clicked = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            if (!panel.triggerRelease(mouseX, mouseY, clicked)) {
+            if (panel.triggerRelease(mouseX, mouseY, clicked, timestamp) != null) {
 
                 break;
             }
@@ -306,14 +320,16 @@ public final class Player {
             return;
         }
 
+        long timestamp = System.currentTimeMillis();
         Point displacement = new Point(dx, dy);
 
         ArrayList<UIComponent> scrolled = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
+            System.out.println("TEST");
 
-            if (!panel.scroll(mouseX, mouseY, displacement, scrolled)) {
+            if (!panel.scroll(mouseX, mouseY, displacement, scrolled, timestamp)) {
 
                 resizePanel(panel);
                 break;
@@ -331,10 +347,10 @@ public final class Player {
 
     public final BufferedImage renderUi() {
 
-        if (!uiUpdated && !forceRender) {
+        // if (!uiUpdated && !forceRender) {
 
-            return render;
-        }
+        // return render;
+        // }
 
         uiUpdated = false;
         forceRender = false;

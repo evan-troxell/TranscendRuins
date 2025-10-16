@@ -1,9 +1,11 @@
 {
     "overlays": {
 
+        "utilityBar": "TranscendRuins:utilityBar",
         "actionBar": "TranscendRuins:actionBar"
     },
 
     "menus": {
+        "test": "TranscendRuins:example"
     }
 }

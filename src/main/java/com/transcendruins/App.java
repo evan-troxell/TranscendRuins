@@ -16,7 +16,9 @@
 
 package com.transcendruins;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
@@ -153,7 +155,7 @@ public final class App {
         world.addPlayer(playerId);
 
         JFrame uiFrame = new JFrame();
-        uiFrame.setBounds(50, 50, 800, 800);
+        uiFrame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
         JPanel panel = new JPanel() {
 
@@ -161,6 +163,11 @@ public final class App {
             public void paint(Graphics graphics) {
 
                 BufferedImage image = world.renderUi(playerId);
+                float hue = (float) ((System.currentTimeMillis() * 0.0002) % 1.0f);
+                Color rainbow = Color.getHSBColor(hue, 1.0f, 1.0f);
+                graphics.setColor(rainbow);
+                graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+
                 graphics.drawImage(image, 0, 0, null);
             }
         };
@@ -174,7 +181,6 @@ public final class App {
             public void componentResized(ComponentEvent e) {
 
                 world.setScreenSize(playerId, panel.getWidth(), panel.getHeight());
-                panel.repaint();
             }
 
             @Override
@@ -200,29 +206,25 @@ public final class App {
             @Override
             public void mousePressed(MouseEvent e) {
 
-                world.setMousePress(playerId, true);
-                panel.repaint();
+                world.playerConsumer(playerId, player -> player.setMousePress(true));
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
 
-                world.setMousePress(playerId, false);
-                panel.repaint();
+                world.playerConsumer(playerId, player -> player.setMousePress(false));
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
 
                 world.setMousePosition(playerId, e.getX(), e.getY());
-                panel.repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
 
                 world.setMousePosition(playerId, e.getX(), e.getY());
-                panel.repaint();
             }
 
         });
@@ -233,20 +235,29 @@ public final class App {
             public void mouseDragged(MouseEvent e) {
 
                 world.setMousePosition(playerId, e.getX(), e.getY());
-                panel.repaint();
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
 
                 world.setMousePosition(playerId, e.getX(), e.getY());
-                panel.repaint();
             }
 
         });
 
+        panel.addMouseWheelListener(e -> {
+
+            int scroll = e.getUnitsToScroll();
+            world.playerConsumer(playerId, player -> player.mouseScroll(0, scroll * 3));
+        });
+
         uiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         uiFrame.setVisible(true);
+
+        while (true) {
+
+            panel.repaint();
+        }
     }
 
     /**

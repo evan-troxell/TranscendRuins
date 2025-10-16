@@ -2,8 +2,11 @@ package com.transcendruins.assets.interfaces;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
+import com.transcendruins.assets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
@@ -21,9 +24,8 @@ public abstract class ComponentAction {
     public static final String EXECUTE_ACTION = "executeAction";
     public static final String OPEN_MENU = "openMenu";
     public static final String CLOSE_MENU = "closeMenu";
+    public static final String SWAP_SLOTS = "swapSlots";
     public static final String INTERACT = "interact";
-
-    private final TRScript value;
 
     /**
      * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
@@ -51,8 +53,6 @@ public abstract class ComponentAction {
      * @throws LoggedException Thrown if the dictionary could not be parsed.
      */
     public ComponentAction(TracedDictionary json) throws LoggedException {
-
-        value = json.get("value", List.of(json.nullCase(_ -> null), json.scriptCase(TracedEntry::getValue)));
 
         conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
 
@@ -102,11 +102,6 @@ public abstract class ComponentAction {
 
         if (passes(asset)) {
 
-            if (this.value != null) {
-
-                value = this.value;
-            }
-
             onCall(asset, playerId, value);
         }
     }
@@ -139,6 +134,8 @@ public abstract class ComponentAction {
         // case SET_PROPERTY
 
         // case SET_GLOBAL_PROPERTY
+
+        case SWAP_SLOTS -> new SwapSlotsComponentAction(json);
 
         case INTERACT -> new InteractComponentAction(json);
 
@@ -209,15 +206,20 @@ public abstract class ComponentAction {
 
     public static final class OpenMenuComponentAction extends ComponentAction {
 
+        private final String menu;
+
         public OpenMenuComponentAction(TracedDictionary json) throws LoggedException {
 
             super(json);
+
+            TracedEntry<String> menuEntry = json.getAsString("menu", false, null);
+            menu = menuEntry.getValue();
         }
 
         @Override
         protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
 
-            asset.getWorld().openMenu(playerId, value.evaluateString(asset));
+            asset.getWorld().openMenu(playerId, menu);
         }
     }
 
@@ -232,6 +234,56 @@ public abstract class ComponentAction {
         protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
 
             asset.getWorld().closeMenu(playerId);
+        }
+    }
+
+    public static final class SwapSlotsComponentAction extends ComponentAction {
+
+        private final Function<InventoryInstance, InventorySlotInstance> first;
+
+        private final Function<InventoryInstance, InventorySlotInstance> second;
+
+        public SwapSlotsComponentAction(TracedDictionary json) throws LoggedException {
+
+            super(json);
+
+            first = json.get("first", List.of(json.intCase(entry -> {
+
+                int slot = entry.getValue();
+                return (inventory) -> inventory.getSlot(slot);
+            }), json.stringCase(entry -> {
+
+                String slot = entry.getValue();
+                return (inventory) -> inventory.getSlot(slot);
+            })));
+
+            second = json.get("second", List.of(json.intCase(entry -> {
+
+                int slot = entry.getValue();
+                return (inventory) -> inventory.getSlot(slot);
+            }), json.stringCase(entry -> {
+
+                String slot = entry.getValue();
+                return (inventory) -> inventory.getSlot(slot);
+            })));
+        }
+
+        @Override
+        protected final void onCall(InterfaceInstance asset, long playerId, TRScript value) {
+
+            asset.getWorld().playerConsumer(playerId, player -> {
+
+                InventoryInstance inventory = player.getEntity().getInventory();
+                InventorySlotInstance firstSlot = first.apply(inventory);
+                InventorySlotInstance secondSlot = second.apply(inventory);
+
+                if (firstSlot == null || secondSlot == null) {
+
+                    return;
+                }
+
+                firstSlot.putSlot(secondSlot);
+            });
         }
     }
 

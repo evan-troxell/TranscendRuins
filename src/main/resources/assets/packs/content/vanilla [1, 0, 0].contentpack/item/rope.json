@@ -1,15 +1,15 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:example"
+        "identifier": "TranscendRuins:rope"
     },
     "attributes": {
-        "texture": "item.example.texture",
+        "texture": "item.rope.texture",
         "model": "TranscendRuins:box",
         "animationController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
 
         "stackSize": 20,
-        "icon": "item.example.icon",
-        "categories": [ "weapon" ]
+        "icon": "item.rope.icon",
+        "categories": [ "material" ]
     }
 }

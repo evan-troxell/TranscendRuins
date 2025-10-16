@@ -45,8 +45,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Size marginRight, Size paddingTop, Size paddingBottom, Size paddingLeft, Size paddingRight, Integer fontStyle,
         Integer fontWeight, Size fontSize, String fontFamily, Size lineHeight, TextAlign textAlign, Color color,
         TextureSize textureFit, WhiteSpace whiteSpace, OverflowWrap overflowWrap, TextOverflow textOverflow,
-        Overflow overflowX, Overflow overflowY, SizeDimensions gap, Direction listDirection, Boolean propagateEvents,
-        Display display, Size slotSize, String slotTexture, TriggerPhase triggerPhase) {
+        Overflow overflowX, Overflow overflowY, Size gapWidth, Size gapHeight, Direction listDirection,
+        Boolean propagateEvents, Display display, TriggerPhase triggerPhase) {
 
     /**
      * <code>Color</code>: A fully transparent color.
@@ -60,7 +60,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null);
+            null, null, null, null, null);
 
     /**
      * <code>Style</code>: A style which represents default string literal UI
@@ -69,7 +69,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     public static final Style STRING_STYLE = new Style(null, null, Size.FIT_CONTENT, Size.FIT_CONTENT, null, null, null,
             TRANSPARENT, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, Display.FLEX, null, null, null);
+            null, null, null, null, null, null, null, null, null, Display.FLEX, null);
 
     /**
      * Creates a new instance of the <code>Style</code> class.
@@ -149,14 +149,12 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Overflow overflowX = null;
         Overflow overflowY = null;
 
-        SizeDimensions gap = null;
+        Size gapWidth = null;
+        Size gapHeight = null;
         Direction listDirection = null;
 
         Boolean propagateEvents = null;
         Display display = null;
-
-        Size slotSize = null;
-        String slotTexture = null;
 
         TriggerPhase triggerPhase = null;
 
@@ -418,7 +416,9 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             case "overflowY" -> overflowY = Overflow.createOverflow(json, property);
 
             // Process the list element gap.
-            case "gap" -> gap = SizeDimensions.createSizeDimensions(json, property);
+            case "gap" -> gapWidth = gapHeight = Size.createSize(json, property);
+            case "gapWidth" -> gapWidth = Size.createSize(json, property);
+            case "gapHeight" -> gapHeight = Size.createSize(json, property);
 
             // Process the list direction.
             case "listDirection" -> listDirection = Direction.createDirection(json, property);
@@ -427,10 +427,6 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             case "propagateEvents" -> propagateEvents = createBoolean(json, property);
 
             case "display" -> display = Display.createDisplay(json, property);
-
-            case "slotSize" -> slotSize = Size.createSize(json, property);
-
-            case "slotTexture" -> slotTexture = createString(json, property);
 
             case "triggerPhase" -> triggerPhase = TriggerPhase.createTriggerPhase(json, property);
             }
@@ -442,7 +438,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 borderRightWidth, borderRightColor, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft,
                 marginRight, paddingTop, paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize,
                 fontFamily, lineHeight, textAlign, color, textureFit, whiteSpace, overflowWrap, textOverflow, overflowX,
-                overflowY, gap, listDirection, propagateEvents, display, slotSize, slotTexture, triggerPhase);
+                overflowY, gapWidth, gapHeight, listDirection, propagateEvents, display, triggerPhase);
 
         return s;
     }
@@ -507,16 +503,13 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::overflowX, Overflow.CLIP), parseVal(styles, Style::overflowY, Overflow.CLIP),
 
                 // All listing properties should be independent.
-                parseVal(styles, Style::gap, SizeDimensions.NONE),
+                parseVal(styles, Style::gapWidth, Size.NONE), parseVal(styles, Style::gapHeight, Size.NONE),
                 parseVal(styles, Style::listDirection, Direction.VERTICAL),
 
                 parseVal(styles, Style::propagateEvents, null),
-                inheritVal(styles, Style::display, parent, Display.BLOCK),
+                inheritVal(styles, Style::display, parent, Display.FLEX),
 
-                inheritVal(styles, Style::slotSize, parent, new Size(_ -> 40.0)),
-                inheritVal(styles, Style::slotTexture, parent, null),
-
-                parseVal(styles, Style::triggerPhase, TriggerPhase.PRESS));
+                parseVal(styles, Style::triggerPhase, TriggerPhase.RELEASE));
     }
 
     /**

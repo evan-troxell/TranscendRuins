@@ -12,12 +12,26 @@
     },
 
     "interface.texture.example": "displayIcon.png",
+
+    "interface.utilityBar.backpack": "interface/utilityBar/backpack.png",
+    "interface.utilityBar.backpackDark": "interface/utilityBar/backpackDark.png",
+
     "interface.actionBar.actionButton": "interface/actionBar/actionButton.png",
     "interface.actionBar.interact": "interface/actionBar/interact.png",
-    "interface.inventoryDisplay.slot": "interface/inventoryDisplay/slot.png",
 
-    "item.example.icon": "item/example/icon.png",
-    "item.example.texture": "item/example/texture.png",
+    "interface.inventoryDisplay.slot": "interface/inventoryDisplay/slot.png",
+    "interface.inventoryDisplay.slotSelected": "interface/inventoryDisplay/slotSelected.png",
+    "interface.inventoryDisplay.x": "interface/inventoryDisplay/x.png",
+
+    "item.ironPickaxe.icon": "item/tool/ironPickaxe/icon.png",
+    "item.ironPickaxe.texture": "item/tool/ironPickaxe/texture.png",
+    "item.ironHatchet.icon": "item/tool/ironHatchet/icon.png",
+    "item.ironHatchet.texture": "item/tool/ironHatchet/texture.png",
+
+    "item.cloth.icon": "item/material/cloth/icon.png",
+    "item.cloth.texture": "item/material/cloth/texture.png",
+    "item.rope.icon": "item/material/rope/icon.png",
+    "item.rope.texture": "item/material/rope/texture.png",
 
     "location.bunkerAlfa": "location/bunkerAlfa.png"
 }

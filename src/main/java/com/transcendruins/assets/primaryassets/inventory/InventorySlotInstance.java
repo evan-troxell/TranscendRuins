@@ -53,20 +53,31 @@ public final class InventorySlotInstance extends Instance {
         return item == null;
     }
 
-    private void setItem(ItemInstance item) {
+    public final void setItem(ItemInstance item) {
 
         this.item = item;
     }
 
-    public final void swap(InventorySlotInstance other) {
+    public final boolean putSlot(InventorySlotInstance other) {
 
-        ItemInstance newItem = other.putItem(getItem());
+        ItemInstance oldItem = getItem();
+        ItemInstance newItem = other.getItem();
+
+        // If the slots cannot be swapped, do not.
+        if (newItem != null && !isAcceptedType(newItem) || oldItem != null && !other.isAcceptedType(oldItem)) {
+
+            return false;
+        }
+
+        newItem = other.putItem(oldItem);
         setItem(newItem);
+
+        return item == newItem;
     }
 
     public final ItemInstance putItem(ItemInstance item) {
 
-        if (!isAcceptedType(item)) {
+        if (item != null && !isAcceptedType(item)) {
 
             return item;
         }
@@ -93,6 +104,14 @@ public final class InventorySlotInstance extends Instance {
             setItem(item);
             item = null;
         } else {
+
+            if (item == null) {
+
+                item = this.item;
+                this.item = null;
+
+                return item;
+            }
 
             if (this.item.isLikeAsset(item)) {
 
@@ -133,7 +152,7 @@ public final class InventorySlotInstance extends Instance {
 
     public final boolean containsItem(ItemInstance item) {
 
-        return this.item.isLikeAsset(item);
+        return this.item != null && item != null && this.item.isLikeAsset(item);
     }
 
     public final ItemInstance getItem() {
@@ -146,6 +165,16 @@ public final class InventorySlotInstance extends Instance {
     public final boolean isAcceptedType(ItemInstance item) {
 
         return acceptedTypes == null || !Collections.disjoint(acceptedTypes, item.getCategories());
+    }
+
+    public final boolean canAddLike(ItemInstance item) {
+
+        return containsItem(item) && this.item.getStackSize() < this.item.getMaxStackSize();
+    }
+
+    public final boolean canAddEmpty(ItemInstance item) {
+
+        return isEmpty() && isAcceptedType(item);
     }
 
     private String modelSocket;

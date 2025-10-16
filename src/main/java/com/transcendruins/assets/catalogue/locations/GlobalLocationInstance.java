@@ -14,21 +14,19 @@
  *
  */
 
-package com.transcendruins.assets.locations;
+package com.transcendruins.assets.catalogue.locations;
 
+import java.awt.geom.Point2D;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
 
+import com.transcendruins.PropertyHolder;
 import static com.transcendruins.assets.AssetType.LAYOUT;
-import com.transcendruins.assets.Attributes;
-import com.transcendruins.assets.assets.AssetContext;
-import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.assets.extra.WeightedRoll;
@@ -37,37 +35,44 @@ import com.transcendruins.assets.layouts.LayoutInstance;
 import com.transcendruins.graphics3d.PolyGroup;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
+import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.world.AreaGrid;
+import com.transcendruins.world.World;
 
-public final class LocationInstance extends AssetInstance {
+public final class GlobalLocationInstance extends PropertyHolder {
+
+    private final World world;
+
+    private final long randomId;
+
+    private final DeterministicRandom random;
+
+    private final String name;
 
     /**
-     * <code>String</code>: The name of this <code>LocationInstance</code> instance.
-     */
-    private String name;
-
-    /**
-     * Retrieves the name of this <code>LocationInstance</code> instance.
+     * <code>String</code>: The description of this
+     * <code>GlobalLocationInstance</code> instance.
      * 
      * @return <code>String</code>: The <code>name</code> field of this
-     *         <code>LocationInstance</code> instance.
+     *         <code>GlobalLocationInstance</code> instance.
      */
-    public String getName() {
+    public final String getName() {
 
         return name;
     }
 
     /**
-     * <code>String</code>: The description of this <code>LocationInstance</code>
-     * instance.
+     * <code>String</code>: The description of this
+     * <code>GlobalLocationInstance</code> instance.
      */
-    private String description;
+    private final String description;
 
     /**
-     * Retrieves the description of this <code>LocationInstance</code> instance.
+     * Retrieves the description of this <code>GlobalLocationInstance</code>
+     * instance.
      * 
      * @return <code>String</code>: The <code>description</code> field of this
-     *         <code>LocationInstance</code> instance.
+     *         <code>GlobalLocationInstance</code> instance.
      */
     public final String getDescription() {
 
@@ -75,26 +80,38 @@ public final class LocationInstance extends AssetInstance {
     }
 
     /**
-     * <code>String</code>: The path to the icon of this
-     * <code>LocationInstance</code> instance.
-     */
-    private String iconPath;
-
-    /**
-     * <code>ImageIcon</code>: The icon of this <code>LocationInstance</code>
+     * <code>ImageIcon</code>: The icon of this <code>GlobalLocationInstance</code>
      * instance.
      */
-    private ImageIcon icon;
+    private final ImageIcon icon;
 
     /**
-     * Retrieves the icon of this <code>LocationInstance</code> instance.
+     * Retrieves the icon of this <code>GlobalLocationInstance</code> instance.
      * 
      * @return <code>ImageIcon</code>: The <code>icon</code> field of this
-     *         <code>LocationInstance</code> instance.
+     *         <code>GlobalLocationInstance</code> instance.
      */
     public final ImageIcon getIcon() {
 
         return icon;
+    }
+
+    /**
+     * <code>Point2D</code>: The coordinates of this
+     * <code>GlobalLocationInstance</code> instance.
+     */
+    private final Point2D coordinates;
+
+    /**
+     * Retrieves the coordinates of this <code>GlobalLocationInstance</code>
+     * instance.
+     *
+     * @return <code>Point2D</code>: The <code>coordinates</code> field of this
+     *         <code>GlobalLocationInstance</code> instance.
+     */
+    public final Point2D getCoordinates() {
+
+        return coordinates;
     }
 
     /**
@@ -104,16 +121,7 @@ public final class LocationInstance extends AssetInstance {
      * whether or not the <code>generate()</code> method has been called since the
      * previous application of attributes.
      */
-    private ImmutableMap<String, WeightedRoll<AssetPresets>> areaTemplates;
-
-    /**
-     * <code>String</code>: The key of the primary area template for this
-     * <code>LocationInstance</code> instance. This refers to an area which may or
-     * have may not been instantiated yet, depending on whether or not the
-     * <code>generate()</code> method has been called since the previous application
-     * of attributes.
-     */
-    private String primaryTemplate;
+    private final ImmutableMap<String, WeightedRoll<AssetPresets>> areaTemplates;
 
     /**
      * <code>HashMap&lt;String, AreaGrid&gt;</code>: The areas of this
@@ -171,7 +179,7 @@ public final class LocationInstance extends AssetInstance {
      * <code>String</code>: The key of the primary location of this
      * <code>LocationInstance</code> instance.
      */
-    private String primary;
+    private final String primary;
 
     /**
      * Retrieves the key of the primary location of this
@@ -185,24 +193,6 @@ public final class LocationInstance extends AssetInstance {
         return primary;
     }
 
-    private String currentArea;
-
-    public final boolean setCurrentArea(String currentArea) {
-
-        if (!areas.containsKey(currentArea)) {
-
-            return false;
-        }
-
-        this.currentArea = currentArea;
-        return true;
-    }
-
-    public final String getCurrentArea() {
-
-        return currentArea;
-    }
-
     /**
      * <code>ZonedDateTime</code>: The timestamp at which this
      * <code>LocationInstance</code> was created.
@@ -213,7 +203,7 @@ public final class LocationInstance extends AssetInstance {
      * <code>LocationReset</code>: The reset behavior of this
      * <code>LocationInstance</code> instance.
      */
-    private LocationReset reset;
+    private final LocationReset reset;
 
     private ZonedDateTime locationResetTimestamp;
 
@@ -292,12 +282,6 @@ public final class LocationInstance extends AssetInstance {
 
     private boolean active;
 
-    private void setActive(boolean active) {
-
-        this.active = active;
-        setProperty("active", active);
-    }
-
     public final boolean isActive() {
 
         return active;
@@ -310,7 +294,7 @@ public final class LocationInstance extends AssetInstance {
             return;
         }
 
-        setActive(true);
+        active = true;
         locationResetTimestamp = ZonedDateTime.now();
     }
 
@@ -321,7 +305,7 @@ public final class LocationInstance extends AssetInstance {
             return;
         }
 
-        setActive(false);
+        active = false;
     }
 
     /**
@@ -413,49 +397,24 @@ public final class LocationInstance extends AssetInstance {
      * @param key          <code>Object</code>: The instantiation key, which is
      *                     required to match <code>AssetType.KEY</code>.
      */
-    public LocationInstance(AssetContext assetContext, Object key) {
+    public GlobalLocationInstance(GlobalLocationSchema schema, World world) {
 
-        super(assetContext, key);
+        this.world = world;
+        randomId = world.nextRandom();
+        random = new DeterministicRandom(randomId);
 
-        LocationContext context = (LocationContext) assetContext;
+        name = schema.getName();
+        description = schema.getDescription();
+        icon = world.getTexture(schema.getIcon(), randomId);
+        coordinates = schema.getCoordinates().get(randomId);
+
+        reset = schema.getReset();
+        schema.getTrigger();
+
+        areaTemplates = schema.getAreas();
+        primary = schema.getPrimary();
 
         locationCreatedTimestamp = ZonedDateTime.now();
-
-        setActive(false);
-    }
-
-    @Override
-    public void applyAttributes(Attributes attributeSet) {
-
-        LocationAttributes attributes = (LocationAttributes) attributeSet;
-
-        name = calculateAttribute(attributes.getName(), name);
-        setProperty("name", name);
-
-        description = calculateAttribute(attributes.getDescription(), name);
-        setProperty("description", description);
-
-        iconPath = calculateAttribute(attributes.getIcon(), val -> {
-
-            icon = getInstanceTexture(val);
-
-            return val;
-        }, iconPath);
-        setProperty("icon", iconPath);
-
-        areaTemplates = calculateAttribute(attributes.getAreas(), areaTemplates);
-
-        // Under certain circumstances, the new primary may not be contained in the area
-        // templates - the primary should only be set/replaced if it points to an area.
-        String newPrimaryTemplate = attributes.getPrimary();
-        if (areaTemplates.containsKey(newPrimaryTemplate)) {
-
-            primaryTemplate = newPrimaryTemplate;
-        }
-
-        reset = attributes.getReset();
-        setProperty("resetDuration", reset.getDuration());
-        setProperty("displayCountdownTimer", reset.getDisplayCountdownTimer());
     }
 
     /**
@@ -471,76 +430,17 @@ public final class LocationInstance extends AssetInstance {
 
             String areaName = areaEntry.getKey();
             WeightedRoll<AssetPresets> presetsRoll = areaEntry.getValue();
-            AssetPresets areaPresets = presetsRoll.get(nextRandom());
+            AssetPresets areaPresets = presetsRoll.get(random.next());
 
-            LayoutContext areaContext = new LayoutContext(areaPresets, getWorld(), this);
+            LayoutContext areaContext = new LayoutContext(areaPresets, world, this);
             LayoutInstance areaLayout = (LayoutInstance) LAYOUT.createAsset(areaContext);
 
             AreaGrid area = areaLayout.generate();
             areas.put(areaName, area);
         }
-
-        setProperty("areas", getAreas());
-
-        primary = primaryTemplate;
-        setProperty("primary", primary);
     }
 
-    /**
-     * Adds a new area to this <code>LocationInstance</code> instance using the
-     * provided asset presets. This area will be named using the area id and will be
-     * assigned a number based on the existing areas in this location.
-     * 
-     * @param areaPresets <code>AssetPresets</code>: The presets to use for the new
-     *                    area.
-     * @return <code>String</code>: The name of the new area.
-     */
-    public final String addArea(AssetPresets areaPresets) {
-
-        String areaId = areaPresets.getIdentifier().toString();
-
-        List<Integer> matches = getAreas().stream()
-                // Filter out areas that don't start with the area ID.
-                .filter(area -> area.startsWith(areaId))
-                // Retrieve the area number from the name.
-                .map(area -> Integer.valueOf(area.split(" ")[1]))
-                // Sort the area numbers into a list.
-                .sorted().toList();
-
-        int next = matches.isEmpty() ? 0 : matches.getLast() + 1;
-        String areaName = "%s %d".formatted(areaId, next);
-
-        return addArea(areaName, areaPresets);
-    }
-
-    /**
-     * Adds a new area to this <code>LocationInstance</code> instance using the
-     * provided asset presets and area name.
-     * 
-     * @param areaName    <code>String</code>: The name of the new area.
-     * @param areaPresets <code>AssetPresets</code>: The presets to use for the new
-     *                    area.
-     * @return <code>String</code>: The name of the new area.
-     */
-    public final String addArea(String areaName, AssetPresets areaPresets) {
-
-        if (areas.containsKey(areaName)) {
-
-            return null;
-        }
-
-        LayoutContext areaContext = new LayoutContext(areaPresets, getWorld(), this);
-        LayoutInstance areaLayout = (LayoutInstance) LAYOUT.createAsset(areaContext);
-
-        AreaGrid area = areaLayout.generate();
-        areas.put(areaName, area);
-        setProperty("areas", getAreas());
-
-        return areaName;
-    }
-
-    @Override
-    protected final void onUpdate(double time) {
+    public final void update(double time) {
 
     }
 
@@ -586,5 +486,4 @@ public final class LocationInstance extends AssetInstance {
             return "%02d:%02d".formatted(minutesTemp, secondsTemp);
         }
     }
-
 }

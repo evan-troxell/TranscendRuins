@@ -1,0 +1,15 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:cloth"
+    },
+    "attributes": {
+        "texture": "item.cloth.texture",
+        "model": "TranscendRuins:box",
+        "animationController": "TranscendRuins:box",
+        "renderMaterial": "TranscendRuins:opaque",
+
+        "stackSize": 20,
+        "icon": "item.cloth.icon",
+        "categories": [ "material" ]
+    }
+}

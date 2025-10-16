@@ -41,8 +41,6 @@ import com.transcendruins.assets.items.ItemAttributes;
 import com.transcendruins.assets.items.ItemInstance;
 import com.transcendruins.assets.layouts.LayoutAttributes;
 import com.transcendruins.assets.layouts.LayoutInstance;
-import com.transcendruins.assets.locations.LocationAttributes;
-import com.transcendruins.assets.locations.LocationInstance;
 import com.transcendruins.assets.loottables.LootTableAttributes;
 import com.transcendruins.assets.loottables.LootTableInstance;
 import com.transcendruins.assets.models.ModelAttributes;
@@ -109,11 +107,6 @@ public enum AssetType {
      * <code>AssetType</code>: An asset type representing layouts.
      */
     LAYOUT(LayoutAttributes::new, LayoutInstance::new),
-
-    /**
-     * <code>AssetType</code>: An asset type representing locations.
-     */
-    LOCATION(LocationAttributes::new, LocationInstance::new),
 
     /**
      * <code>AssetType</code>: An asset type representing interfaces.

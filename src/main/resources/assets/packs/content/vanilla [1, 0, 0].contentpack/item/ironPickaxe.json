@@ -1,0 +1,15 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:ironPickaxe"
+    },
+    "attributes": {
+        "texture": "item.ironPickaxe.texture",
+        "model": "TranscendRuins:box",
+        "animationController": "TranscendRuins:box",
+        "renderMaterial": "TranscendRuins:opaque",
+
+        "stackSize": 1,
+        "icon": "item.ironPickaxe.icon",
+        "categories": [ "tool", "weapon" ]
+    }
+}

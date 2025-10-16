@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.locations;
+package com.transcendruins.assets.catalogue.locations;
 
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;

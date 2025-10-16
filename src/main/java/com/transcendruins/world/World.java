@@ -37,14 +37,14 @@ import com.transcendruins.assets.catalogue.AssetCatalogue;
 import com.transcendruins.assets.catalogue.RecipeSet;
 import com.transcendruins.assets.catalogue.events.GlobalEventInstance;
 import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
-import com.transcendruins.assets.catalogue.locations.GlobalLocation;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationSchema;
 import com.transcendruins.assets.elements.ElementContext;
 import com.transcendruins.assets.elements.ElementInstance;
 import com.transcendruins.assets.entities.EntityContext;
 import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.assets.items.ItemContext;
 import com.transcendruins.assets.items.ItemInstance;
-import com.transcendruins.assets.locations.LocationInstance;
 import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.recipes.RecipeContext;
 import com.transcendruins.assets.recipes.RecipeInstance;
@@ -169,7 +169,7 @@ public final class World extends PropertyHolder {
 
     private String defaultLocation;
 
-    private ImmutableMap<String, GlobalLocation> locationSchemas;
+    private ImmutableMap<String, GlobalLocationSchema> locationSchemas;
 
     private ImmutableMap<String, ImmutableList<GlobalEventSchema>> eventSchemas;
 
@@ -501,7 +501,7 @@ public final class World extends PropertyHolder {
         return StyleSet.createStyleSet(resources.map(ResourceSet::getStyle).toList());
     }
 
-    private long simulationRate = 80;
+    private long simulationRate = 500;
 
     /**
      * <code>long</code>: The time of creation of this <code>World</code> instance.
@@ -532,7 +532,7 @@ public final class World extends PropertyHolder {
         return getRuntimeMillis() / 1000.0;
     }
 
-    private final HashMap<String, LocationInstance> locations = new HashMap<>();
+    private final HashMap<String, GlobalLocationInstance> locations = new HashMap<>();
 
     private final HashMap<String, GlobalEventInstance> events = new HashMap<>();
 
@@ -547,11 +547,23 @@ public final class World extends PropertyHolder {
             EntityContext playerContext = new EntityContext(DataConstants.PLAYER_IDENTIFIER, this, null);
             EntityInstance playerEntity = (EntityInstance) playerContext.instantiate();
 
-            AssetPresets exampleItemPresets = new AssetPresets(
-                    Identifier.createTestIdentifier("TranscendRuins:example", null), AssetType.ITEM);
-            ItemContext exampleItemContext = new ItemContext(exampleItemPresets, world, playerEntity, 10);
-            ItemInstance exampleItem = (ItemInstance) exampleItemContext.instantiate();
-            playerEntity.getInventory().getSlot("mainhand").putItem(exampleItem);
+            AssetPresets ropeItemPresets = new AssetPresets(
+                    Identifier.createTestIdentifier("TranscendRuins:rope", null), AssetType.ITEM);
+            ItemContext ropeItemContext = new ItemContext(ropeItemPresets, world, playerEntity, 10);
+            ItemInstance ropeItem = (ItemInstance) ropeItemContext.instantiate();
+            playerEntity.getInventory().getSlot(1).putItem(ropeItem);
+
+            AssetPresets ironPickaxePresets = new AssetPresets(
+                    Identifier.createTestIdentifier("TranscendRuins:ironPickaxe", null), AssetType.ITEM);
+            ItemContext ironPickaxeContext = new ItemContext(ironPickaxePresets, world, playerEntity, 10);
+            ItemInstance ironPickaxeItem = (ItemInstance) ironPickaxeContext.instantiate();
+            playerEntity.getInventory().getSlot("mainhand").putItem(ironPickaxeItem);
+
+            AssetPresets ironHatchetPresets = new AssetPresets(
+                    Identifier.createTestIdentifier("TranscendRuins:ironHatchet", null), AssetType.ITEM);
+            ItemContext ironHatchetContext = new ItemContext(ironHatchetPresets, world, playerEntity, 10);
+            ItemInstance ironHatchetItem = (ItemInstance) ironHatchetContext.instantiate();
+            playerEntity.getInventory().getSlot("offhand").putItem(ironHatchetItem);
 
             // Initiate the player with the default UIs.
             Player player = new Player(playerId, playerEntity);
@@ -627,16 +639,6 @@ public final class World extends PropertyHolder {
         playerConsumer(playerId, player -> player.setMousePosition(x, y));
     }
 
-    public final void setMousePress(long playerId, boolean pressed) {
-
-        playerConsumer(playerId, player -> player.setMousePress(pressed));
-    }
-
-    public final void mouseScroll(long playerId, int dx, int dy) {
-
-        playerConsumer(playerId, player -> player.mouseScroll(dx, dy));
-    }
-
     public final BufferedImage renderUi(long playerId) {
 
         return playerFunction(playerId, Player::renderUi);
@@ -670,6 +672,18 @@ public final class World extends PropertyHolder {
             ElementContext exampleAssetContext = new ElementContext(exampleAssetPresets, this, null);
             ElementInstance asset = (ElementInstance) exampleAssetContext.instantiate();
             // PrimaryAssetInstance asset = getNearestInteractable(player);
+
+            AssetPresets clothItemPresets = new AssetPresets(
+                    Identifier.createTestIdentifier("TranscendRuins:cloth", null), AssetType.ITEM);
+            ItemContext clothItemContext = new ItemContext(clothItemPresets, world, asset, 10);
+            ItemInstance clothItem = (ItemInstance) clothItemContext.instantiate();
+            asset.getInventory().getSlot(1).putItem(clothItem);
+
+            AssetPresets ropeItemPresets = new AssetPresets(
+                    Identifier.createTestIdentifier("TranscendRuins:rope", null), AssetType.ITEM);
+            ItemContext ropeItemContext = new ItemContext(ropeItemPresets, world, asset, 10);
+            ItemInstance ropeItem = (ItemInstance) ropeItemContext.instantiate();
+            asset.getInventory().getSlot(5).putItem(ropeItem);
 
             System.out.println("INTERACTION");
             if (asset == null) {

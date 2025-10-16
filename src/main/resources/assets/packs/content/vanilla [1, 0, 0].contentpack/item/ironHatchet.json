@@ -1,0 +1,15 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:ironHatchet"
+    },
+    "attributes": {
+        "texture": "item.ironHatchet.texture",
+        "model": "TranscendRuins:box",
+        "animationController": "TranscendRuins:box",
+        "renderMaterial": "TranscendRuins:opaque",
+
+        "stackSize": 1,
+        "icon": "item.ironHatchet.icon",
+        "categories": [ "tool", "weapon" ]
+    }
+}

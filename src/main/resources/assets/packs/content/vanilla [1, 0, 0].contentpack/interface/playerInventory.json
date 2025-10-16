@@ -96,7 +96,7 @@
                     "component": "i think i've gone a 'lil overboard with this",
                     "action": {
                         "type": "openMenu",
-                        "value": "test"
+                        "menu": "test"
                     }
                 },
                 {
@@ -123,16 +123,6 @@
                         "textureFit": [80, 80]
                     },
                     "texture": "interface.texture.example"
-                },
-                {
-                    "type": "interface",
-                    "style": {
-                        "x":50,
-                        "y":350,
-                        "width": "fitContent",
-                        "height": "fitContent"
-                    },
-                    "interface": "TranscendRuins:example"
                 }
             ]
         },
@@ -161,8 +151,7 @@
             "component": "12345678 12345678",
 
             "action": {
-                "type": "closeMenu",
-                "menu": "example"
+                "type": "closeMenu"
             }
         },
 
@@ -190,8 +179,7 @@
                     "component": "Text here :)",
 
                     "action": {
-                        "type": "closeMenu",
-                        "menu": "example"
+                        "type": "closeMenu"
                     }
                 },
 

@@ -16,8 +16,8 @@
 
 package com.transcendruins.assets.layouts;
 
+import com.transcendruins.PropertyHolder;
 import com.transcendruins.assets.assets.AssetContext;
-import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
@@ -35,10 +35,10 @@ public final class LayoutContext extends AssetContext {
      *                instance.
      * @param world   <code>World</code>: The world copy of this
      *                <code>LayoutContext</code> instance.
-     * @param parent  <code>AssetInstance</code>: The parent to assign to this
+     * @param parent  <code>PropertyHolder</code>: The parent to assign to this
      *                <code>LayoutContext</code> instance.
      */
-    public LayoutContext(AssetPresets presets, World world, AssetInstance parent) {
+    public LayoutContext(AssetPresets presets, World world, PropertyHolder parent) {
 
         super(presets, world, parent);
     }

@@ -4,43 +4,98 @@
     },
     "attributes": {
         "style": {
+            "#inventoryDisplayList": {
+
+                "listDirection": "horizontal",
+                "backgroundColor": [64, 64, 64, 128]
+
+            },
             "inventoryDisplay": {
-                "slotSize": 40,
-                "slotTexture": "interface.inventoryDisplay.slot"
+                "gap": 40,
+                "width": "fitContent",
+                "x": "50% - 50",
+                "origin": ["50%", 0],
+
+                "triggerPhase": "press"
             },
             "inventory": {
-                "width": 200,
-                "height": 200,
-                "border": {
-                    "style": "solid",
-                    "width": 1,
-                    "color": [0, 0, 0]
-                },
+                "width": "fitContent",
+                "height": "fitContent",
 
-                "textureFit": "contain"
+                "textureFit": "contain",
+                "color": [255, 255, 255],
+                "textAlign": "right",
+
+                "gap": 5,
+                "fontSize": 16,
+                "lineHeight": 1.4
             },
-            "button": {
+            "#inventoryDisplayExitButton": {
                 "width": 100,
-                "height": 100,
-                "border": {
-                    "style": "solid",
-                    "width": 2,
-                    "color": [192, 192, 192]
-                }
+                "height": "100%",
+                "fontSize": 28,
+                "backgroundColor": [64, 64, 64, 128],
+                "color": [160, 160, 160]
+            },
+            "#inventoryDisplayExitButtonList": {
+                "gap": 10
+            },
+            "#inventoryDisplayExitButton:hover": {
+                "backgroundColor": [32, 32, 32, 128]
+            },
+            "#inventoryDisplayExitButton:active": {
+                "backgroundColor": [32, 32, 32, 192]
+            },
+            "#inventoryDisplayExitButtonX": {
+                "x": "50",
+                "y": "50",
+                "width": 50,
+                "height": 50,
+                "origin": "50%",
+                "textureFit": "contain"
             }
         },
 
         "body": {
-            "type": "inventoryDisplay",
-            "exitButton": {
-                "type": "button",
-                "id": "inventoryDisplayExitButton",
+            "type": "list",
+            "id": "inventoryDisplayList",
+            "classes": [ "menu" ],
 
-                "component": "exit",
-                "action": {
-                    "type": "closeMenu"
+            "components": [
+                {
+                    "type": "inventoryDisplay"
+                },
+
+                {
+                    "type": "button",
+                    "id": "inventoryDisplayExitButton",
+
+                    "component": {
+                        "type": "list",
+                        "id": "inventoryDisplayExitButtonList",
+                        "components": [
+                            {
+                                "type": "texture",
+                                "id": "inventoryDisplayExitButtonX",
+
+                                "texture": "interface.inventoryDisplay.x"
+                            },
+                            {
+                                "type": "rotate",
+                                "id": "inventoryDisplayExitButtonText",
+
+                                "angle": 90,
+                                "centerX": 70.25,
+                                "centerY": 37.75,
+                                "component": "CLOSE"
+                            }
+                        ]
+                    },
+                    "action": {
+                        "type": "closeMenu"
+                    }
                 }
-            }
+            ]
         }
     }
 }

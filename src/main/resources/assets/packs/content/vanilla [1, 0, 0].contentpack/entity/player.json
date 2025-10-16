@@ -11,6 +11,13 @@
         "renderMaterial": "TranscendRuins:opaque",
         "inventory": {
             "ui": {
+                "slotSize": 80,
+                "grid": {
+                    "x": 0,
+                    "y": 0,
+                    "rows": 3,
+                    "cols": 5
+                }
             },
             "grid": {
                 "slots": 15

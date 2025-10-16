@@ -17,7 +17,6 @@
 package com.transcendruins.assets.interfaces;
 
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -33,6 +32,7 @@ import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.items.ItemInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.Style;
+import com.transcendruins.resources.styles.Style.Size;
 import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
@@ -67,9 +67,10 @@ public final class InterfaceAttributes extends AssetAttributes {
     // Container component types.
     public static final String CONTAINER = "container";
     public static final String LIST = "list";
+    public static final String ROTATE = "rotate";
     public static final String INTERFACE = "interface";
 
-    // Special compnent types.
+    // Special component types.
     public static final String INVENTORY_DISPLAY = "inventoryDisplay";
     public static final String INVENTORY = "inventory";
 
@@ -209,6 +210,8 @@ public final class InterfaceAttributes extends AssetAttributes {
         case CONTAINER -> new ContainerComponentSchema(json, dependencyAdder);
 
         case LIST -> new ListComponentSchema(json, dependencyAdder);
+
+        case ROTATE -> new RotateComponentSchema(json, dependencyAdder);
 
         case INTERFACE -> new InterfaceComponentSchema(json, dependencyAdder);
 
@@ -647,6 +650,45 @@ public final class InterfaceAttributes extends AssetAttributes {
         }
     }
 
+    public static final class RotateComponentSchema extends ComponentSchema {
+
+        private final double angle;
+
+        public final double getAngle() {
+
+            return angle;
+        }
+
+        private final Size centerX;
+
+        public final Size getCenterX() {
+
+            return centerX;
+        }
+
+        private final Size centerY;
+
+        public final Size getCenterY() {
+
+            return centerY;
+        }
+
+        public RotateComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
+                throws LoggedException {
+
+            super(json, ROTATE);
+
+            TracedEntry<Double> angleEntry = json.getAsDouble("angle", false, null);
+            angle = angleEntry.getValue();
+
+            centerX = Size.createSize(json, "centerX");
+            centerY = Size.createSize(json, "centerY");
+
+            ComponentSchema component = createComponent(json, "component", dependencyAdder);
+            addChild(component);
+        }
+    }
+
     /**
      * <code>InterfaceComponentSchema</code>: A class representing the schema of a
      * UI component which displays the content of another UI interface.
@@ -738,18 +780,14 @@ public final class InterfaceAttributes extends AssetAttributes {
                 throws LoggedException {
 
             super(json, INVENTORY_DISPLAY);
-
-            TracedEntry<TracedDictionary> exitButtonEntry = json.getAsDict("exitButton", false);
-            TracedDictionary exitButtonJson = exitButtonEntry.getValue();
-            addChild(new ButtonComponentSchema(exitButtonJson, dependencyAdder));
         }
     }
 
     public static final class InventoryComponentSchema extends ComponentSchema {
 
-        private final Rectangle grid;
+        private final ImmutableList<ImmutableList<Integer>> grid;
 
-        public final Rectangle getGrid() {
+        public final ImmutableList<ImmutableList<Integer>> getGrid() {
 
             return grid;
         }
@@ -759,6 +797,13 @@ public final class InterfaceAttributes extends AssetAttributes {
         public final ImmutableMap<String, Point> getNamed() {
 
             return named;
+        }
+
+        private final Size slotSize;
+
+        public final Size getSlotSize() {
+
+            return slotSize;
         }
 
         public InventoryComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
@@ -771,10 +816,7 @@ public final class InterfaceAttributes extends AssetAttributes {
                 addChild(createComponent(json, "header", dependencyAdder));
             }
 
-            Rectangle gridRect = new Rectangle(0, 0, 0, 0);
-            TracedEntry<TracedDictionary> slotsEntry = json.getAsDict("grid", true);
-            if (slotsEntry.containsValue()) {
-
+            grid = json.get("grid", List.of(json.dictCase(slotsEntry -> {
                 TracedDictionary slotsJson = slotsEntry.getValue();
 
                 TracedEntry<Integer> xEntry = slotsJson.getAsInteger("x", false, null, x -> x >= 0);
@@ -789,10 +831,47 @@ public final class InterfaceAttributes extends AssetAttributes {
                 TracedEntry<Integer> rowsEntry = slotsJson.getAsInteger("rows", false, null, rows -> rows > 0);
                 int height = rowsEntry.getValue();
 
-                gridRect = new Rectangle(x, y, width, height);
-            }
+                TracedEntry<Integer> startEntry = slotsJson.getAsInteger("start", true, 0, rows -> rows >= 0);
+                int start = startEntry.getValue();
 
-            grid = gridRect;
+                ArrayList<ImmutableList<Integer>> gridList = new ArrayList<>();
+                gridList.add(new ImmutableList<>(x, y, width, height, start));
+
+                return new ImmutableList<>(gridList);
+            }), json.arrayCase(entry -> {
+
+                ArrayList<ImmutableList<Integer>> gridList = new ArrayList<>();
+
+                TracedArray gridJson = entry.getValue();
+                for (int i : gridJson) {
+
+                    TracedEntry<TracedDictionary> slotsEntry = gridJson.getAsDict(i, false);
+                    TracedDictionary slotsJson = slotsEntry.getValue();
+
+                    TracedEntry<Integer> xEntry = slotsJson.getAsInteger("x", false, null, x -> x >= 0);
+                    int x = xEntry.getValue();
+
+                    TracedEntry<Integer> yEntry = slotsJson.getAsInteger("y", false, null, y -> y >= 0);
+                    int y = yEntry.getValue();
+
+                    TracedEntry<Integer> colsEntry = slotsJson.getAsInteger("cols", false, null, cols -> cols > 0);
+                    int width = colsEntry.getValue();
+
+                    TracedEntry<Integer> rowsEntry = slotsJson.getAsInteger("rows", false, null, rows -> rows > 0);
+                    int height = rowsEntry.getValue();
+
+                    TracedEntry<Integer> startEntry = slotsJson.getAsInteger("start", true, 0, rows -> rows >= 0);
+                    int start = startEntry.getValue();
+
+                    ImmutableList<Integer> slotsList = new ImmutableList<>(x, y, width, height, start);
+
+                    gridList.add(slotsList);
+                }
+
+                return new ImmutableList<>(gridList);
+            }), json.nullCase(_ -> new ImmutableList<>())
+
+            ));
 
             LinkedHashMap<String, Point> namedMap = new LinkedHashMap<>();
             TracedEntry<TracedDictionary> namedEntry = json.getAsDict("named", true);
@@ -834,6 +913,8 @@ public final class InterfaceAttributes extends AssetAttributes {
             }
 
             named = new ImmutableMap<>(namedMap);
+
+            slotSize = Size.createSize(json, "slotSize");
         }
     }
 }

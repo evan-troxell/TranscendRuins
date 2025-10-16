@@ -29,6 +29,22 @@ import com.transcendruins.utilities.json.TracedEntry;
 public final class LocationTrigger {
 
     /**
+     * <code>LocationTrigger</code>: The default location trigger presets.
+     */
+    public static final LocationTrigger DEFAULT = new LocationTrigger();
+
+    /**
+     * Creates a new instance of the <code>LocationTrigger</code> class.
+     */
+    public LocationTrigger() {
+
+        duration = -1.0;
+        startTimestamp = null;
+        displayCountdownTimer = false;
+        endOnExit = false;
+    }
+
+    /**
      * <code>double</code>: The duration of this <code>LocationTrigger</code>
      * instance, in minutes. This value is guaranteed to be greater than or equal to
      * 0.0, except for values of -1 which represent no countdown.
@@ -85,24 +101,6 @@ public final class LocationTrigger {
 
     /**
      * <code>boolean</code>: Whether or not this <code>LocationTrigger</code>
-     * instance should retain location data after the location deactivates.
-     */
-    private final boolean retainLocationData;
-
-    /**
-     * Retrieves whether or not this <code>LocationTrigger</code> instance should
-     * retain location data after the location deactivates.
-     *
-     * @return <code>boolean</code>: The <code>retainLocationData</code> field of
-     *         this <code>LocationTrigger</code> instance.
-     */
-    public boolean getRetainLocationData() {
-
-        return retainLocationData;
-    }
-
-    /**
-     * <code>boolean</code>: Whether or not this <code>LocationTrigger</code>
      * instance should deactivate once the player exits the location.
      */
     private final boolean endOnExit;
@@ -138,10 +136,9 @@ public final class LocationTrigger {
         TracedEntry<Boolean> displayCountdownTimerEntry = json.getAsBoolean("displayCountdownTimer", true, true);
         displayCountdownTimer = displayCountdownTimerEntry.getValue() && duration > -1;
 
-        TracedEntry<Boolean> retainLocationDataEntry = json.getAsBoolean("retainLocationData", true, false);
-        retainLocationData = retainLocationDataEntry.getValue();
-
         TracedEntry<Boolean> endOnExitEntry = json.getAsBoolean("endOnExit", true, false);
         endOnExit = endOnExitEntry.getValue();
+
+        // TODO: retain location data option
     }
 }

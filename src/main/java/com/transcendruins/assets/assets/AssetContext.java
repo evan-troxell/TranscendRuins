@@ -16,6 +16,7 @@
 
 package com.transcendruins.assets.assets;
 
+import com.transcendruins.PropertyHolder;
 import com.transcendruins.world.World;
 
 /**
@@ -38,9 +39,9 @@ public abstract class AssetContext {
         return world;
     }
 
-    private final AssetInstance parent;
+    private final PropertyHolder parent;
 
-    public final AssetInstance getParent() {
+    public final PropertyHolder getParent() {
 
         return parent;
     }
@@ -87,10 +88,10 @@ public abstract class AssetContext {
      *                instance.
      * @param world   <code>World</code>: The world copy of this
      *                <code>AssetContext</code> instance.
-     * @param parent  <code>AssetInstance</code>: The parent to assign to this
+     * @param parent  <code>PropertyHolder</code>: The parent to assign to this
      *                <code>AssetContext</code> instance.
      */
-    public AssetContext(AssetPresets presets, World world, AssetInstance parent) {
+    public AssetContext(AssetPresets presets, World world, PropertyHolder parent) {
 
         this.presets = presets;
 

@@ -9,6 +9,7 @@
         "texture": "element.crate",
         "inventory": {
             "ui": {
+                "slotSize": 80,
                 "grid": {
                     "x": 0,
                     "y": 0,
@@ -17,13 +18,11 @@
                 }
             },
             "grid": {
-                "slots": 15,
-                "acceptedTypes": "any"
+                "slots": 15
             },
             "named": {
                 "top": {
-                    "modelSocket": "topSocket",
-                    "acceptedTypes": "any"
+                    "modelSocket": "topSocket"
                 }
             }
         },
