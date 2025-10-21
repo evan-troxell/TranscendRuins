@@ -10,13 +10,46 @@
         "animationController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
         "inventory": {
-            "ui": {
+            "privateUi": {
                 "slotSize": 80,
                 "grid": {
                     "x": 0,
                     "y": 0,
                     "rows": 3,
                     "cols": 5
+                }
+            },
+            "ui": {
+                "slotSize": 80,
+                "named": {
+                    "mainhand": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "offhand": {
+                        "x": 0,
+                        "y": 95
+                    },
+                    "backpack": {
+                        "x": 0,
+                        "y": 285
+                    },
+                    "cap": {
+                        "x": 320,
+                        "y": 0
+                    },
+                    "top": {
+                        "x": 320,
+                        "y": 95
+                    },
+                    "pants": {
+                        "x": 320,
+                        "y": 190
+                    },
+                    "boots": {
+                        "x": 320,
+                        "y": 285
+                    }
                 }
             },
             "grid": {

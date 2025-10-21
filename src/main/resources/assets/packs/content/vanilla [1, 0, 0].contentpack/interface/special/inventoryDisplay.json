@@ -16,6 +16,8 @@
                 "x": "50% - 50",
                 "origin": ["50%", 0],
 
+                "marginTop": 10,
+
                 "triggerPhase": "press"
             },
             "inventory": {

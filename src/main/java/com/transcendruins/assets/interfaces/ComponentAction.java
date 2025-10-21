@@ -26,6 +26,7 @@ public abstract class ComponentAction {
     public static final String CLOSE_MENU = "closeMenu";
     public static final String SWAP_SLOTS = "swapSlots";
     public static final String INTERACT = "interact";
+    public static final String OPEN_INVENTORY = "openInventory";
 
     /**
      * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met
@@ -162,6 +163,8 @@ public abstract class ComponentAction {
         case SWAP_SLOTS -> new SwapSlotsComponentAction(json);
 
         case INTERACT -> new InteractComponentAction(json);
+
+        case OPEN_INVENTORY -> new OpenInventoryComponentAction(json);
 
         case null, default -> throw new UnexpectedValueException(typeEntry);
         };
@@ -322,6 +325,20 @@ public abstract class ComponentAction {
         protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
 
             asset.getWorld().interact(playerId);
+        }
+    }
+
+    public static final class OpenInventoryComponentAction extends ComponentAction {
+
+        public OpenInventoryComponentAction(TracedDictionary json) throws LoggedException {
+
+            super(json);
+        }
+
+        @Override
+        protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
+
+            asset.getWorld().playerConsumer(playerId, player -> player.displayInventory(player.getEntity()));
         }
     }
 }

@@ -56,6 +56,13 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
         return inventoryUi;
     }
 
+    private final InventoryComponentSchema privateInventoryUi;
+
+    public final InventoryComponentSchema getPrivateInventoryUi() {
+
+        return privateInventoryUi;
+    }
+
     private final AssetInteraction interaction;
 
     public final AssetInteraction getInteraction() {
@@ -97,10 +104,21 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
 
                 inventoryUi = null;
             }
+
+            TracedEntry<TracedDictionary> privateInventoryUiEntry = inventoryJson.getAsDict("privateUi", true);
+            if (privateInventoryUiEntry.containsValue()) {
+
+                TracedDictionary privateInventoryUiJson = privateInventoryUiEntry.getValue();
+                privateInventoryUi = new InventoryComponentSchema(privateInventoryUiJson, this::addAssetDependency);
+            } else {
+
+                privateInventoryUi = null;
+            }
         } else {
 
             inventory = null;
             inventoryUi = null;
+            privateInventoryUi = null;
         }
 
         TracedEntry<TracedDictionary> interactionEntry = json.getAsDict("interaction", true);

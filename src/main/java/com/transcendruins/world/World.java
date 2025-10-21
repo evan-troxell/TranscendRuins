@@ -616,13 +616,13 @@ public final class World extends PropertyHolder {
 
             AssetPresets ironPickaxePresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:ironPickaxe", null), AssetType.ITEM);
-            ItemContext ironPickaxeContext = new ItemContext(ironPickaxePresets, world, playerEntity, 10);
+            ItemContext ironPickaxeContext = new ItemContext(ironPickaxePresets, world, playerEntity, 1);
             ItemInstance ironPickaxeItem = ironPickaxeContext.instantiate();
             playerEntity.getInventory().getSlot("mainhand").putItem(ironPickaxeItem);
 
             AssetPresets ironHatchetPresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:ironHatchet", null), AssetType.ITEM);
-            ItemContext ironHatchetContext = new ItemContext(ironHatchetPresets, world, playerEntity, 10);
+            ItemContext ironHatchetContext = new ItemContext(ironHatchetPresets, world, playerEntity, 1);
             ItemInstance ironHatchetItem = ironHatchetContext.instantiate();
             playerEntity.getInventory().getSlot("offhand").putItem(ironHatchetItem);
 

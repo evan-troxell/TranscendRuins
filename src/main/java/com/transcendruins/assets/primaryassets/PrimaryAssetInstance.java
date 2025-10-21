@@ -55,6 +55,13 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         return inventoryUi;
     }
 
+    private InventoryComponentSchema privateInventoryUi;
+
+    public final InventoryComponentSchema getPrivateInventoryUi() {
+
+        return privateInventoryUi;
+    }
+
     private AssetInteraction interaction;
 
     public abstract int getTileWidth();
@@ -84,6 +91,8 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
         // Updates the inventoryUi field.
         inventoryUi = calculateAttribute(attributes.getInventoryUi(), inventoryUi);
+
+        privateInventoryUi = calculateAttribute(attributes.getPrivateInventoryUi(), privateInventoryUi);
 
         // Update the interaction.
         interaction = calculateAttribute(attributes.getInteraction(), interaction, attributes, AssetInteraction.NONE);

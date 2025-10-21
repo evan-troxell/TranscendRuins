@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
-import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
@@ -212,10 +210,7 @@ public abstract class AssetInteraction {
         @Override
         public final void onCall(PrimaryAssetInstance self, Player caller) {
 
-            InventoryInstance inventory = self.getInventory();
-            InventoryComponentSchema ui = self.getInventoryUi();
-
-            caller.displayInventory(inventory, ui);
+            caller.displayInventory(self);
         }
     }
 

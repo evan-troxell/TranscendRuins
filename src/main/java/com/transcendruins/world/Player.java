@@ -15,6 +15,7 @@ import com.transcendruins.assets.interfaces.InterfaceContext;
 import com.transcendruins.assets.interfaces.InterfaceInstance;
 import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponentInstance.LocationDisplay;
 import com.transcendruins.assets.interfaces.UIComponent;
+import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.resources.styles.Style;
 
@@ -147,10 +148,13 @@ public final class Player {
         replacePanels(List.of(context));
     }
 
-    public final void displayInventory(InventoryInstance secondaryInventory, InventoryComponentSchema secondaryUi) {
+    public final void displayInventory(PrimaryAssetInstance other) {
+
+        InventoryInstance secondaryInventory = other.getInventory();
+        InventoryComponentSchema secondaryUi = other.getInventoryUi();
 
         InventoryInstance primaryInventory = entity.getInventory();
-        InventoryComponentSchema primaryUi = entity.getInventoryUi();
+        InventoryComponentSchema primaryUi = entity.getPrivateInventoryUi();
 
         if (primaryUi == null || secondaryUi == null) {
 

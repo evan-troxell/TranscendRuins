@@ -45,7 +45,11 @@
                 {
                     "type": "button",
                     "id": "inventoryButton",
-                    "classes": [ "utilityButton" ]
+                    "classes": [ "utilityButton" ],
+
+                    "action": {
+                        "type": "openInventory"
+                    }
                 }
             ]
         }
