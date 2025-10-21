@@ -1,4 +1,19 @@
 {
+    "pinIcons": {
+        "difficult": {
+            "icon": "global.pin.difficult",
+            "size": 45
+        },
+        "moderate": {
+            "icon": "global.pin.moderate",
+            "size": 45
+        },
+        "easy": {
+            "icon": "global.pin.easy",
+            "size": 45
+        }
+    },
+    "defaultLocation": "bunkerAlfa",
     "locations": {
         "home": {
             "location": "TranscendRuins:home"
@@ -15,14 +30,33 @@
         },
 
         "bunkerAlfa": {
-            "location": "TranscendRuins:bunkerAlfa"
+            "name": "location.bunkerAlfa",
+            "description": "location.bunkerAlfa.description",
+            "icon": "location.bunkerAlfa",
+            "pin": "difficult",
+            "coordinates": {
+                "x": 500,
+                "y": 0
+            },
+
+            "areas": {
+                "main": "TranscendRuins:bunkerAlfaMain"
+            },
+            "primary": "main",
+
+            "reset": {
+                "duration": 2880
+            },
+            "duration": {
+                "duration": -1,
+                "endOnExit": true
+            },
+            "triggerType": "automatic"
         },
 
         "convoy": {
-            "location": "TranscendRuins:convoy"
         },
         "survivorHome": {
-            "location": "TranscendRuins:survivorHome"
         }
 
     },

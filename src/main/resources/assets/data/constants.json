@@ -1,4 +1,6 @@
 {
     "playerIdentifier": "TranscendRuins:player",
+    "globalMapIdentifier": "TranscendRuins:globalMap",
+    "locationDisplayIdentifier": "TranscendRuins:locationDisplay",
     "inventoryDisplayIdentifier": "TranscendRuins:inventoryDisplay"
 }

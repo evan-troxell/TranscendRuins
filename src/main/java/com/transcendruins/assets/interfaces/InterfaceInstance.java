@@ -32,14 +32,15 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.DoubleStream;
 
 import javax.swing.ImageIcon;
 
-import static com.transcendruins.assets.AssetType.INTERFACE;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
@@ -47,15 +48,20 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ButtonComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ContainerComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.GlobalMapComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InterfaceComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryDisplayComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ListComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.LocationDisplayComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.RotateComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.StringComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.TextComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.TextureComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.TextureType;
+import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponentInstance.LocationDisplay;
+import com.transcendruins.assets.interfaces.map.LocationRender;
+import com.transcendruins.assets.interfaces.map.MapRender;
 import com.transcendruins.assets.items.ItemInstance;
 import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.assets.primaryassets.inventory.InventorySlotInstance;
@@ -79,6 +85,8 @@ import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.immutable.ImmutableSet;
 import com.transcendruins.utilities.random.DeterministicRandom;
+import com.transcendruins.world.Player;
+import com.transcendruins.world.World;
 
 /**
  * <code>InterfaceInstance</code>: A class representing a generated interface
@@ -118,6 +126,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
      */
     private ComponentInstance body;
 
+    private final HashMap<Attributes, ComponentInstance> bodyCache = new HashMap<>();
+
     /**
      * Creates a new instance of the <code>InterfaceInstance</code> class.
      * 
@@ -153,13 +163,21 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         DeterministicRandom random = new DeterministicRandom(getRandomId());
 
-        body = calculateAttribute(attributes.getBody(), schema -> createComponent(schema, componentParent, random),
+        body = calculateAttribute(attributes.getBody(),
+                schema -> bodyCache.computeIfAbsent(attributes, _ -> createComponent(schema, componentParent, random)),
                 body);
     }
 
     @Override
     protected void onUpdate(double time) {
 
+        body.updateContent(time);
+    }
+
+    @Override
+    public void updateContent(double time) {
+
+        onUpdate(time);
     }
 
     /**
@@ -207,6 +225,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         case InterfaceComponentSchema interfaceSchema -> new InterfaceComponentInstance(interfaceSchema, parent,
                 random);
+
+        case GlobalMapComponentSchema globalMapSchema -> new GlobalMapComponentInstance(globalMapSchema, parent,
+                random);
+
+        case LocationDisplayComponentSchema locationDisplaySchema -> new LocationDisplayComponentInstance(
+                locationDisplaySchema, parent, random);
 
         case InventoryDisplayComponentSchema inventoryDisplaySchema -> new InventoryDisplayComponentInstance(
                 inventoryDisplaySchema, parent, random);
@@ -288,13 +312,13 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return new ComponentProperties(type, id, classes, states) {
 
                 @Override
-                public ComponentProperties getParent() {
+                public final ComponentProperties getParent() {
 
                     return hasParent() ? parent.getProperties() : null;
                 }
 
                 @Override
-                public List<ComponentProperties> getChildren() {
+                public final List<ComponentProperties> getChildren() {
 
                     return children.stream().map(ComponentInstance::getProperties).toList();
                 }
@@ -1218,26 +1242,23 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final void onExit(int mouseX, int mouseY, long timestamp) {
-
-            removeState("hover");
-        }
-
-        @Override
-        public final void onHover(int mouseX, int mouseY, long timestamp) {
+        public void onHover(int mouseX, int mouseY, long timestamp) {
 
             addState("hover");
         }
 
         @Override
-        public final void onRelease(int mouseX, int mouseY, long timestamp) {
+        public void onExit(int mouseX, int mouseY, long timestamp) {
 
-            removeState("active");
+            removeState("hover");
         }
 
-        @Override
-        public final boolean onPress(int mouseX, int mouseY, long timestamp) {
+        protected boolean pressed = false;
 
+        @Override
+        public boolean onPress(int mouseX, int mouseY, long timestamp) {
+
+            pressed = true;
             addState("active");
 
             if (propagateEvents == null) {
@@ -1249,7 +1270,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final boolean onTriggerPress(int mouseX, int mouseY, TRScript value, long timestamp) {
+        public void onRelease(int mouseX, int mouseY, long timestamp) {
+
+            pressed = false;
+            removeState("active");
+        }
+
+        @Override
+        public boolean onTriggerPress(int mouseX, int mouseY, TRScript value, long timestamp) {
 
             if (triggerPhase == Style.TriggerPhase.PRESS) {
 
@@ -1265,7 +1293,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final boolean onTriggerRelease(int mouseX, int mouseY, TRScript value, long timestamp) {
+        public boolean onTriggerRelease(int mouseX, int mouseY, TRScript value, long timestamp) {
 
             if (triggerPhase == Style.TriggerPhase.RELEASE) {
 
@@ -1284,7 +1312,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final void onScroll(int mouseX, int mouseY, Point displacement, long timestamp) {
+        public void onScroll(int mouseX, int mouseY, Point displacement, long timestamp) {
 
             // Calculate the adjustment to scroll.
             int newScrollX = overflowX == Overflow.CLIP || contentSize.width <= width ? scrollX
@@ -1299,6 +1327,17 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             scrollX = newScrollX;
             scrollY = newScrollY;
+        }
+
+        @Override
+        public final void updateContent(double time) {
+
+            updateContent(time, children);
+        }
+
+        public final void updateContent(double time, List<ComponentInstance> children) {
+
+            children.forEach(child -> child.updateContent(time));
         }
     }
 
@@ -1343,8 +1382,21 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             super(schema, parent, true, random);
         }
 
+        public TextComponentInstance(TextComponentSchema schema, ComponentInstance parent, DeterministicRandom random,
+                String text) {
+
+            super(schema, parent, true, random);
+
+            addChild(new StringComponentInstance(new StringComponentSchema(text), this, random));
+        }
+
         @Override
         public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
+
+            if (children.isEmpty()) {
+
+                return new Dimension();
+            }
 
             Rectangle textSize = children.getFirst();
 
@@ -1355,6 +1407,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
                 List<ComponentInstance> children) {
 
+            if (children.isEmpty()) {
+
+                return new Dimension();
+            }
+
             ComponentInstance text = children.getFirst();
             Rectangle textSize = text.rescale(targetWidth, targetHeight);
 
@@ -1363,6 +1420,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         @Override
         public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            if (children.isEmpty()) {
+
+                return;
+            }
 
             ImageClip textRender = children.getFirst();
             BufferedImage text = textRender.image();
@@ -1430,6 +1492,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             super(schema, parent, false, random);
 
             action = schema.getAction();
+        }
+
+        public ButtonComponentInstance(ButtonComponentSchema schema, ComponentInstance parent,
+                DeterministicRandom random, ComponentAction.OnCall action) {
+
+            super(schema, parent, false, random);
+
+            this.action = ComponentAction.createComponentAction(action);
         }
 
         @Override
@@ -1548,6 +1618,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             ComponentInstance child = children.getFirst();
             Rectangle childSize = new Rectangle(child.x, child.y, child.getTotalWidth(), child.getTotalHeight());
 
+            // TODO finish rotation scaling
             return new Dimension(targetWidth, targetHeight);
         }
 
@@ -1572,7 +1643,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             InterfaceContext context = new InterfaceContext(presets, getWorld(), InterfaceInstance.this, playerId,
                     this);
 
-            asset = (InterfaceInstance) INTERFACE.createAsset(context);
+            asset = context.instantiate();
         }
 
         @Override
@@ -1796,6 +1867,389 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                 BufferedImage childRender = child.image();
                 g2d.drawImage(childRender, child.x(), child.y(), null);
+            }
+        }
+    }
+
+    public final class GlobalMapComponentInstance extends ComponentInstance {
+
+        private double centerX;
+        private double centerY;
+
+        private int prevMouseX;
+        private int prevMouseY;
+
+        private double zoom = 0;
+
+        private double H;
+
+        private double height() {
+
+            return 1.0 - 1.5 * Math.atan(zoom / 20.0) / Math.PI;
+        }
+
+        private LinkedHashMap<ImageIcon, Rectangle> mapRenders;
+
+        private LinkedHashMap<String, LocationDisplay> locationRenders;
+
+        public final record LocationDisplay(String name, String description, ImageIcon icon, Rectangle bounds,
+                ImageIcon pin, Rectangle pinBounds) {
+        }
+
+        private String pressedLocation;
+
+        private String currentLocation;
+
+        public GlobalMapComponentInstance(GlobalMapComponentSchema schema, ComponentInstance parent,
+                DeterministicRandom random) {
+
+            super(schema, parent, false, random);
+
+            if (componentValues.size() != 2) {
+
+                throw new Error("Global map could not be displayed");
+            }
+
+            centerX = (double) componentValues.get(0);
+            centerY = (double) componentValues.get(1);
+
+            ButtonComponentSchema enterButtonSchema = schema.getEnterButton();
+            addChild(new ButtonComponentInstance(enterButtonSchema, this, random,
+                    (_, playerId, _) -> getWorld().enterLocation(playerId)));
+        }
+
+        @Override
+        public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
+
+            World world = getWorld();
+
+            DeterministicRandom random = new DeterministicRandom(getRandomComponentId());
+            H = height();
+
+            mapRenders = new LinkedHashMap<>();
+            for (MapRender render : world.getMapRenders()) {
+
+                double h = render.height();
+                if (h >= H) {
+
+                    continue;
+                }
+
+                ImageIcon icon = world.getTexture(render.icon(), random.next());
+                double cX = render.x();
+                double cY = render.y();
+                double scale = 1 / (H - h);
+
+                int left = (int) ((cX - centerX) * scale + centerX);
+                int top = (int) ((cY - centerY) * scale + centerY);
+                int iconW = (int) (icon.getIconWidth() * scale);
+                int iconH = (int) (icon.getIconHeight() * scale);
+                Rectangle bounds = new Rectangle(left, top, iconW, iconH);
+
+                mapRenders.put(icon, bounds);
+            }
+
+            locationRenders = new LinkedHashMap<>();
+            for (Map.Entry<String, LocationRender> renderEntry : world.getLocationRenders().entrySet()) {
+
+                String locationId = renderEntry.getKey();
+                LocationRender render = renderEntry.getValue();
+
+                double h = render.height();
+                if (h >= H) {
+
+                    continue;
+                }
+
+                double cX = render.x();
+                double cY = render.y();
+                double scale = 1 / (H - h);
+
+                ImageIcon icon = render.icon();
+                int iconW = icon.getIconWidth();
+                int iconH = icon.getIconHeight();
+
+                int iconLeft = (int) ((cX - centerX - iconW / 2.0) * scale + centerX);
+                int iconTop = (int) ((cY - centerY - iconH / 2.0) * scale + centerY);
+                int iconBoundsW = (int) (iconW * scale);
+                int iconBoundsH = (int) (iconH * scale);
+                Rectangle bounds = new Rectangle(iconLeft, iconTop, iconBoundsW, iconBoundsH);
+
+                ImageIcon pin = render.pin();
+                TextureSize pinSize = render.pinSize();
+
+                Rectangle pinBounds = null;
+                if (pin != null) {
+
+                    scale = 1 / (H + 0.35 - h);
+
+                    Dimension pinDim = calculateTextureSize(pin, 0, 0, pinSize);
+                    int pinW = pinDim.width;
+                    int pinH = pinDim.height;
+
+                    int pinBoundsW = (int) (pinW * scale);
+                    int pinBoundsH = (int) (pinH * scale);
+
+                    int pinLeft = iconLeft + iconBoundsW / 2 - pinBoundsW / 2;
+                    int pinTop = iconTop - pinBoundsW - (int) (8 * scale);
+                    pinBounds = new Rectangle(pinLeft, pinTop, pinBoundsW, pinBoundsH);
+                }
+
+                locationRenders.put(locationId, new LocationDisplay(render.name(), render.description(), icon, bounds,
+                        render.pin(), pinBounds));
+            }
+
+            currentLocation = world.playerFunction(playerId, Player::getLocation);
+
+            return new Dimension(width, height);
+        }
+
+        @Override
+        public final Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            ComponentInstance enterButton = children.getFirst();
+            enterButton.rescale(width, height);
+
+            if (locationRenders.containsKey(currentLocation)) {
+
+                LocationDisplay location = locationRenders.get(currentLocation);
+                Rectangle locationBounds = location.bounds();
+                enterButton.x += locationBounds.getCenterX() - enterButton.getTotalWidth() / 2 + width / 2 - centerX;
+                enterButton.y += locationBounds.y + locationBounds.height + gapHeight + height / 2 - centerY;
+            } else {
+
+                enterButton.x = -1 - enterButton.getTotalWidth();
+                enterButton.y = -1 - enterButton.getTotalHeight();
+            }
+
+            return new Dimension(width, height);
+        }
+
+        @Override
+        public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            Graphics2D init = (Graphics2D) g2d.create();
+
+            if (pressedLocation != null) {
+
+                Rectangle target = locationRenders.get(pressedLocation).bounds();
+
+                double adjust = 0.99;
+                zoom = Math.pow(adjust, 2) * (zoom - 50) + 50;
+
+                double targetX = width / 4.0 + target.getX();
+                double targetY = target.getY();
+                centerX = adjust * (centerX - targetX) + targetX;
+                centerY = adjust * (centerY - targetY) + targetY;
+            }
+
+            g2d.translate(width / 2 - centerX, height / 2 - centerY);
+
+            TextureSize size = style.textureFit();
+
+            for (Map.Entry<ImageIcon, Rectangle> mapRender : mapRenders.sequencedEntrySet()) {
+
+                Rectangle renderBounds = mapRender.getValue();
+                drawTexture(g2d, mapRender.getKey(), renderBounds.x, renderBounds.y, renderBounds.width,
+                        renderBounds.height, size);
+            }
+
+            for (Map.Entry<String, LocationDisplay> locationRender : locationRenders.sequencedEntrySet()) {
+
+                LocationDisplay locationDisplay = locationRender.getValue();
+
+                ImageIcon icon = locationDisplay.icon();
+                Rectangle bounds = locationDisplay.bounds();
+                drawTexture(g2d, icon, bounds.x, bounds.y, bounds.width, bounds.height, size);
+
+                ImageIcon pin = locationDisplay.pin();
+                if (pin == null) {
+
+                    continue;
+                }
+                Rectangle pinBounds = locationDisplay.pinBounds();
+                drawTexture(g2d, pin, pinBounds.x, pinBounds.y, pinBounds.width, pinBounds.height, size);
+            }
+
+            g2d.dispose();
+            g2d = init;
+
+            if (locationRenders.containsKey(currentLocation)) {
+
+                Rectangle locationBounds = locationRenders.get(currentLocation).bounds();
+
+                ImageIcon playerPin = getWorld().getTexture(DataConstants.GLOBAL_MAP_PLAYER_PIN,
+                        getRandomComponentId());
+                double scale = 0.1 / (H + 0.35);
+                int playerPinWidth = (int) (playerPin.getIconWidth() * scale);
+                int playerPinHeight = (int) (playerPin.getIconHeight() * scale);
+                int playerPinX = (int) (locationBounds.getCenterX() + width / 2.0 - centerX) - playerPinWidth / 2;
+                int playerPinY = (int) (locationBounds.getCenterY() + locationBounds.height / 3.25 + height / 2.0
+                        - centerY) - playerPinHeight;
+
+                drawTexture(g2d, playerPin, playerPinX, playerPinY, playerPinWidth, playerPinHeight, TextureSize.COVER);
+
+                ImageClip enterButton = children.getFirst();
+                BufferedImage enterButtonImage = enterButton.image();
+
+                drawImage(g2d, enterButtonImage, enterButton.x(), enterButton.y());
+            }
+        }
+
+        @Override
+        public final boolean onPress(int mouseX, int mouseY, long timestamp) {
+
+            if (pressedLocation == null) {
+
+                // The map should only move if the mouse is already pressed.
+                if (pressed) {
+
+                    double scale = 1 * height();
+                    int dx = mouseX - prevMouseX;
+                    int dy = mouseY - prevMouseY;
+
+                    centerX -= dx * scale;
+                    centerY -= dy * scale;
+                }
+            }
+
+            prevMouseX = mouseX;
+            prevMouseY = mouseY;
+
+            return super.onPress(mouseX, mouseY, timestamp);
+        }
+
+        @Override
+        public final void onScroll(int mouseX, int mouseY, Point displacement, long timestamp) {
+
+            unselectLocation();
+
+            double newZoom = Math.clamp(zoom + displacement.y, -200, 200);
+
+            // Remove the adjustment from the scroll
+            displacement.translate(0, (int) (zoom - newZoom));
+
+            zoom = newZoom;
+        }
+
+        @Override
+        public final void onComponentClick(int mouseX, int mouseY, TRScript value, long timestamp) {
+
+            unselectLocation();
+            mouseX -= width / 2;
+            mouseY -= height / 2;
+
+            for (Map.Entry<String, LocationDisplay> locationRender : locationRenders.sequencedEntrySet().reversed()) {
+
+                String location = locationRender.getKey();
+                LocationDisplay locationDisplay = locationRender.getValue();
+                Rectangle bounds = locationDisplay.bounds();
+                if (bounds.contains(mouseX + centerX, mouseY + centerY)) {
+
+                    pressedLocation = location;
+                    break;
+                }
+            }
+
+            // TODO add action for when location is clicked
+            if (pressedLocation != null) {
+
+                System.out.println("LOCATION SELECTED: " + pressedLocation);
+                selectLocation();
+            }
+        }
+
+        private void selectLocation() {
+
+            LocationDisplay location = locationRenders.get(pressedLocation);
+            getWorld().playerConsumer(playerId, player -> {
+
+                player.displayLocation(pressedLocation, location);
+            });
+        }
+
+        private void unselectLocation() {
+
+            pressedLocation = null;
+            getWorld().closeMenu(playerId);
+        }
+    }
+
+    public final class LocationDisplayComponentInstance extends ComponentInstance {
+
+        private final String location;
+
+        public LocationDisplayComponentInstance(LocationDisplayComponentSchema schema,
+                ComponentInstance componentParent, DeterministicRandom random) {
+
+            super(schema, componentParent, false, random);
+
+            if (componentValues.size() != 2) {
+
+                throw new Error("Location could not be displayed");
+            }
+
+            location = (String) componentValues.get(0);
+            LocationDisplay locationDisplay = (LocationDisplay) componentValues.get(1);
+
+            addChild(new TextComponentInstance(schema.getNameText(), this, random, locationDisplay.name()));
+            addChild(new TextComponentInstance(schema.getDescriptionText(), this, random,
+                    locationDisplay.description()));
+            addChild(new ButtonComponentInstance(schema.getTravelButton(), this, random,
+                    (_, playerId, _) -> getWorld().travel(playerId, location)));
+        }
+
+        @Override
+        public Dimension calculateContentSize(Style style, List<Rectangle> children) {
+
+            return new Dimension(width, height);
+        }
+
+        @Override
+        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
+                List<ComponentInstance> children) {
+
+            ComponentInstance nameText = children.get(0);
+            int offset = nameText.getTotalHeight() + nameText.getY();
+
+            ComponentInstance descriptionText = children.get(1);
+            descriptionText.y += offset;
+            offset = descriptionText.getTotalHeight() + descriptionText.getY();
+
+            ComponentInstance travelButton = children.get(2);
+
+            boolean different = !location.equals(getWorld().playerFunction(playerId, Player::getLocation));
+            if (different) {
+
+                travelButton.y += offset;
+                offset = travelButton.getTotalHeight() + travelButton.getY();
+            } else {
+
+                travelButton.x = -1 - travelButton.getTotalWidth();
+                travelButton.y = -1 - travelButton.getTotalHeight();
+            }
+
+            int leftover = height - offset;
+            int pad = Math.clamp(leftover, 0, gapHeight);
+            leftover -= pad;
+            descriptionText.y += pad;
+            travelButton.y += pad;
+
+            if (leftover > 0 && different) {
+
+                travelButton.y += leftover / 2;
+            }
+
+            return new Dimension(width, height);
+        }
+
+        @Override
+        public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
+
+            for (ImageClip child : children) {
+
+                drawImage(g2d, child.image(), child.x(), child.y());
             }
         }
     }
@@ -2305,11 +2759,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                             slotWidth + fontSize - lineHeight, style.color());
                 }
             }
-        }
-
-        @Override
-        public final void onComponentClick(int mouseX, int mouseY, TRScript value, long timestamp) {
-
         }
     }
 

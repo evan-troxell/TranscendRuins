@@ -23,6 +23,7 @@ import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceInstance.ComponentInstance;
+import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponentInstance.LocationDisplay;
 import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.utilities.files.DataConstants;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -107,7 +108,27 @@ public final class InterfaceContext extends AssetContext {
         this.componentValues = List.of();
     }
 
-    public static InterfaceContext createInventoryDisplayContext(World world, AssetInstance parent, long playerId,
+    public static final InterfaceContext createGlobalMapContext(World world, AssetInstance parent, long playerId,
+            double centerX, double centerY) {
+
+        InterfaceContext context = new InterfaceContext(DataConstants.GLOBAL_MAP_IDENTIFIER, world, parent, playerId,
+                null);
+        context.componentValues = List.of(centerX, centerY);
+
+        return context;
+    }
+
+    public static final InterfaceContext createLocationDisplayContext(World world, AssetInstance parent, long playerId,
+            String location, LocationDisplay locationDisplay) {
+
+        InterfaceContext context = new InterfaceContext(DataConstants.LOCATION_DISPLAY_IDENTIFIER, world, parent,
+                playerId, null);
+        context.componentValues = List.of(location, locationDisplay);
+
+        return context;
+    }
+
+    public static final InterfaceContext createInventoryDisplayContext(World world, AssetInstance parent, long playerId,
             InventoryInstance primaryInventory, InventoryComponentSchema primaryUi,
             InventoryInstance secondaryInventory, InventoryComponentSchema secondaryUi) {
 
@@ -116,5 +137,11 @@ public final class InterfaceContext extends AssetContext {
         context.componentValues = List.of(primaryInventory, primaryUi, secondaryInventory, secondaryUi);
 
         return context;
+    }
+
+    @Override
+    public final InterfaceInstance instantiate() {
+
+        return (InterfaceInstance) instantiate(this);
     }
 }

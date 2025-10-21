@@ -42,4 +42,10 @@ public final class RecipeContext extends AssetContext {
 
         super(presets, world, parent);
     }
+
+    @Override
+    public final RecipeInstance instantiate() {
+
+        return (RecipeInstance) instantiate(this);
+    }
 }

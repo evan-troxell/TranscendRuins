@@ -26,17 +26,19 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 
 import com.transcendruins.PropertyHolder;
-import static com.transcendruins.assets.AssetType.LAYOUT;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.entities.EntityInstance;
+import com.transcendruins.assets.catalogue.AssetCatalogue.PinIcon;
 import com.transcendruins.assets.extra.WeightedRoll;
+import com.transcendruins.assets.interfaces.map.LocationRender;
 import com.transcendruins.assets.layouts.LayoutContext;
 import com.transcendruins.assets.layouts.LayoutInstance;
 import com.transcendruins.graphics3d.PolyGroup;
+import com.transcendruins.resources.styles.Style.TextureSize;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.world.AreaGrid;
+import com.transcendruins.world.Player;
 import com.transcendruins.world.World;
 
 public final class GlobalLocationInstance extends PropertyHolder {
@@ -94,6 +96,32 @@ public final class GlobalLocationInstance extends PropertyHolder {
     public final ImageIcon getIcon() {
 
         return icon;
+    }
+
+    /**
+     * <code>ImageIcon</code>: The pin of this <code>GlobalLocationInstance</code>
+     * instance.
+     */
+    private final ImageIcon pin;
+
+    private final TextureSize pinSize;
+
+    /**
+     * <code>double</code>: The icon height of this
+     * <code>GlobalLocationInstance</code> instance.
+     */
+    private final double iconHeight;
+
+    /**
+     * Retrieves the icon height of this <code>GlobalLocationInstance</code>
+     * instance.
+     * 
+     * @return <code>double</code>: The <code>iconHeight</code> field of this
+     *         <code>GlobalLocationInstance</code> instance.
+     */
+    public final double getIconHeight() {
+
+        return iconHeight;
     }
 
     /**
@@ -159,20 +187,20 @@ public final class GlobalLocationInstance extends PropertyHolder {
      * Retrieves the area a specific player is in from this
      * <code>LocationInstance</code> instance.
      * 
-     * @param playerId <code>long</code>: The id of the player whose area to
-     *                 retrieve.
+     * @param player <code>Player</code>: The id of the player whose area to
+     *               retrieve.
      * @return <code>AreaGrid</code>: The location retrieved from the
      *         <code>areas</code> field of this <code>LocationInstance</code>
      *         instance.
      */
-    public final AreaGrid getArea(long playerId) {
+    public final AreaGrid getArea(Player player) {
 
-        if (!players.containsKey(playerId)) {
+        if (!players.containsKey(player)) {
 
             return null;
         }
 
-        return areas.get(players.get(playerId));
+        return areas.get(players.get(player));
     }
 
     /**
@@ -205,6 +233,15 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     private final LocationReset reset;
 
+    private final LocationDuration duration;
+
+    private final LocationTriggerType triggerType;
+
+    public final LocationTriggerType getTriggerType() {
+
+        return triggerType;
+    }
+
     private ZonedDateTime locationResetTimestamp;
 
     /**
@@ -213,7 +250,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     private ZonedDateTime prevEntranceTimestamp;
 
-    private final HashMap<Long, String> players = new HashMap<>();
+    private final HashMap<Player, String> players = new HashMap<>();
 
     public final boolean isEmpty() {
 
@@ -226,7 +263,9 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     private double resetOffsetCounter = 0.0;
 
-    public final void enter(long playerId, String area, EntityInstance entity) {
+    private boolean active;
+
+    public final void add(Player player, String area) {
 
         // If the area cannot be assigned, use the primary area.
         if (area == null || !areas.containsKey(area)) {
@@ -234,23 +273,35 @@ public final class GlobalLocationInstance extends PropertyHolder {
             area = primary;
         }
 
+        // If there are no players in the location, check if it needs to be generated.
         if (isEmpty()) {
 
-            prevEntranceTimestamp = ZonedDateTime.now();
+            ZonedDateTime now = ZonedDateTime.now();
 
-            // If there are currently no players and the location should be reset,
-            // regenerate.
-            if (getMinutesUntilReset(prevEntranceTimestamp) <= 0) {
+            // If the location is active, the location should reset, and the active period
+            // is over, regenerate.
+            if (active) {
+
+                active = reset.getDuration() == -1 || getMinutesUntilReset(now) > 0;
+            }
+
+            // If the location is not already active, generate.
+            if (!active) {
+
+                active = true;
+
+                locationResetTimestamp = now;
+                resetOffsetCounter = 0;
 
                 generate();
             }
-        }
-        players.put(playerId, area);
 
-        // TODO update the area with the player entity;
+            prevEntranceTimestamp = now;
+        }
+        players.put(player, area);
     }
 
-    public final void exit(long playerId) {
+    public final void remove(Player player) {
 
         // If there is not a player in the location, the entrance timestamp will be
         // null.
@@ -259,53 +310,36 @@ public final class GlobalLocationInstance extends PropertyHolder {
             return;
         }
 
-        players.remove(playerId);
+        players.remove(player);
         if (players.isEmpty()) {
 
             ZonedDateTime now = ZonedDateTime.now();
-            double duration = minutesBetween(prevEntranceTimestamp, now);
-            resetOffsetCounter += duration;
+            resetOffsetCounter += minutesBetween(prevEntranceTimestamp, now);
 
             prevEntranceTimestamp = null;
         }
     }
 
-    public final Set<PolyGroup> getPolygons(long playerId) {
+    public final void enter(Player player) {
 
-        if (!players.containsKey(playerId)) {
+        AreaGrid area = getArea(player);
+        // TODO update the area with the player entity
+    }
+
+    public final void exit(Player player) {
+
+        AreaGrid area = getArea(player);
+        // TODO update the area with the player entity
+    }
+
+    public final Set<PolyGroup> getPolygons(Player player) {
+
+        if (!players.containsKey(player)) {
 
             return Set.of();
         }
 
-        return areas.get(players.get(playerId)).getPolygons();
-    }
-
-    private boolean active;
-
-    public final boolean isActive() {
-
-        return active;
-    }
-
-    public final void activate() {
-
-        if (!active) {
-
-            return;
-        }
-
-        active = true;
-        locationResetTimestamp = ZonedDateTime.now();
-    }
-
-    public final void deactivate() {
-
-        if (!active) {
-
-            return;
-        }
-
-        active = false;
+        return areas.get(players.get(player)).getPolygons();
     }
 
     /**
@@ -331,7 +365,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     public final String getResetCounter(ZonedDateTime now) {
 
-        if (!reset.getDisplayCountdownTimer()) {
+        if (!reset.getDisplayCountdownTimer() || reset.getDuration() == -1) {
 
             return null;
         }
@@ -348,18 +382,12 @@ public final class GlobalLocationInstance extends PropertyHolder {
     /**
      * Determines the length in minutes until the location will end.
      * 
-     * @param start           <code>ZonedDateTime</code>: The time of origin of this
-     *                        <code>LocationInstance</code> instance. If this
-     *                        location does not have a set origin time, its moment
-     *                        of creation will be the time the location was created.
-     * @param triggerDuration <code>double</code>: The total duration of time
-     *                        between the creation of this
-     *                        <code>LocationInstance</code> instance and its end.
+     * @param now <code>ZonedDateTime</code>: The current timestamp.
      * @return <code>double</code>: The duration in minutes.
      */
-    public final double getMinutesUntilEnd(ZonedDateTime start, double triggerDuration) {
+    public final double getMinutesUntilEnd(ZonedDateTime now) {
 
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime start = duration.getStartTimestamp();
         if (start == null) {
 
             start = locationCreatedTimestamp;
@@ -367,25 +395,24 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
         double minutes = minutesBetween(start, now);
 
-        return triggerDuration - minutes;
+        return duration.getDuration() - minutes;
     }
 
     /**
      * Outputs the end counter as a <code>String</code>, or <code>null</code> if the
      * location does not have a end countdown or if the countdown has finished.
      * 
-     * @param start           <code>ZonedDateTime</code>: The time of origin of this
-     *                        <code>LocationInstance</code> instance. If this
-     *                        location does not have a set origin time, its moment
-     *                        of creation will be the time the location was created.
-     * @param triggerDuration <code>double</code>: The total duration of time
-     *                        between the creation of this
-     *                        <code>LocationInstance</code> instance and its end.
+     * @param now <code>ZonedDateTime</code>: The current timestamp.
      * @return <code>String</code>: The minutes formatted as H:MM:SS or MM:SS.
      */
-    public final String getEndCounter(ZonedDateTime start, double triggerDuration) {
+    public final String getEndCounter(ZonedDateTime now) {
 
-        double remaining = getMinutesUntilEnd(start, triggerDuration);
+        if (!duration.getDisplayCountdownTimer() || duration.getDuration() == -1) {
+
+            return null;
+        }
+
+        double remaining = getMinutesUntilEnd(now);
         return formatMinutes(remaining);
     }
 
@@ -406,10 +433,26 @@ public final class GlobalLocationInstance extends PropertyHolder {
         name = schema.getName();
         description = schema.getDescription();
         icon = world.getTexture(schema.getIcon(), randomId);
+
+        PinIcon pinIcon = world.getPinIcon(schema.getPin());
+        if (pinIcon != null) {
+
+            String pinPath = pinIcon.icon();
+
+            pin = world.getTexture(pinPath, randomId);
+            pinSize = pinIcon.size();
+        } else {
+
+            pin = null;
+            pinSize = null;
+        }
+        iconHeight = schema.getIconHeight();
+
         coordinates = schema.getCoordinates().get(randomId);
 
         reset = schema.getReset();
-        schema.getTrigger();
+        duration = schema.getDuration();
+        triggerType = schema.getTriggerType();
 
         areaTemplates = schema.getAreas();
         primary = schema.getPrimary();
@@ -433,15 +476,36 @@ public final class GlobalLocationInstance extends PropertyHolder {
             AssetPresets areaPresets = presetsRoll.get(random.next());
 
             LayoutContext areaContext = new LayoutContext(areaPresets, world, this);
-            LayoutInstance areaLayout = (LayoutInstance) LAYOUT.createAsset(areaContext);
+            LayoutInstance areaLayout = areaContext.instantiate();
 
             AreaGrid area = areaLayout.generate();
             areas.put(areaName, area);
         }
     }
 
+    public final boolean expired(ZonedDateTime now) {
+
+        // The location cannot expire while occupied.
+        if (!isEmpty()) {
+
+            return false;
+        }
+
+        // If the location automatically ends when the last player leaves, expire.
+        if (resetOffsetCounter > 0 && duration.getEndOnExit()) {
+
+            return true;
+        }
+
+        return duration.getDuration() != -1 && getMinutesUntilEnd(now) <= 0;
+    }
+
     public final void update(double time) {
 
+        if (active) {
+
+            // TODO add area updates
+        }
     }
 
     /**
@@ -485,5 +549,11 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
             return "%02d:%02d".formatted(minutesTemp, secondsTemp);
         }
+    }
+
+    public final LocationRender getRender() {
+
+        return new LocationRender(name, description, icon, pin, pinSize, coordinates.getX(), coordinates.getY(),
+                iconHeight);
     }
 }

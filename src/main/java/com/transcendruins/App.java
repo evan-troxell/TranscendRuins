@@ -77,7 +77,7 @@ public final class App {
 
         World.createWorld(packs, resources, seed);
         World world = World.getWorld();
-        world.startHost();
+        world.setLanguage("en");
 
         // System.out.println(cache);
 
@@ -116,7 +116,7 @@ public final class App {
         AssetPresets examplePresets = new AssetPresets(boxId, AssetType.ELEMENT);
         ElementContext exampleContext = new ElementContext(examplePresets, world, null);
 
-        ElementInstance example = (ElementInstance) exampleContext.instantiate();
+        ElementInstance example = exampleContext.instantiate();
         example.update(world.getRuntimeSeconds());
 
         // ElementInstance ex2 = new ElementInstance(examplePresets, world, 0, 0, //
@@ -153,6 +153,7 @@ public final class App {
 
         long playerId = 0;
         world.addPlayer(playerId);
+        world.startHost();
 
         JFrame uiFrame = new JFrame();
         uiFrame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
@@ -163,6 +164,7 @@ public final class App {
             public void paint(Graphics graphics) {
 
                 BufferedImage image = world.renderUi(playerId);
+
                 float hue = (float) ((System.currentTimeMillis() * 0.0002) % 1.0f);
                 Color rainbow = Color.getHSBColor(hue, 1.0f, 1.0f);
                 graphics.setColor(rainbow);

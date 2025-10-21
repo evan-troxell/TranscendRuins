@@ -42,4 +42,10 @@ public final class ModelContext extends AssetContext {
 
         super(presets, world, parent);
     }
+
+    @Override
+    public final ModelInstance instantiate() {
+
+        return (ModelInstance) instantiate(this);
+    }
 }

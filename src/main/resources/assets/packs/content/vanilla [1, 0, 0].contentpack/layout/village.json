@@ -20,12 +20,12 @@
             }
         },
 
-        "generation": "distributed",
+        "type": "distributed",
 
         "iterationType": "sequential",
         "components": [
             {
-                "generation": "grid",
+                "type": "grid",
 
                 "gridDimensions": [6, 8],
                 "cellDimensions": [16, 16],
@@ -37,14 +37,14 @@
                     {
                         "tileDimensions": [2, 2],
 
-                        "generation": "layout",
+                        "type": "layout",
                         "layout": "townHall",
                         "limit": 1
                     },
                     {
                         "tileDimensions": [1, 1],
 
-                        "generation": "layout",
+                        "type": "layout",
                         "layout": "townHall",
                         "chance": 50
                     }

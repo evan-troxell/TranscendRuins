@@ -19,7 +19,6 @@ package com.transcendruins.assets.entities;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.primaryassets.PrimaryAssetContext;
-import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.world.World;
 
 /**
@@ -42,5 +41,11 @@ public final class EntityContext extends PrimaryAssetContext {
     public EntityContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world, parent);
+    }
+
+    @Override
+    public final EntityInstance instantiate() {
+
+        return (EntityInstance) instantiate(this);
     }
 }

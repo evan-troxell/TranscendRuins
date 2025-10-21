@@ -106,7 +106,7 @@ public interface UIComponent {
     public void onRelease(int mouseX, int mouseY, long timestamp);
 
     /**
-     * Adds the hover status to this <code>UIComponent</code> instance.
+     * Adds the press status to this <code>UIComponent</code> instance.
      * 
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
@@ -369,4 +369,6 @@ public interface UIComponent {
      * Draws this <code>UIComponent</code> instance.
      */
     public BufferedImage render();
+
+    public void updateContent(double time);
 }

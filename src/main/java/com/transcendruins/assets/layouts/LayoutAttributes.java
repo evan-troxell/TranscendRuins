@@ -165,7 +165,7 @@ public final class LayoutAttributes extends AssetAttributes {
 
         case "grid" -> new GridGenerationSchema(json);
 
-        // case "blueprint" -> new BlueprintGenerationSchema(json);
+        case "blueprint" -> new BlueprintGenerationSchema(json);
 
         default -> throw new UnexpectedValueException(typeEntry);
         };
@@ -188,7 +188,7 @@ public final class LayoutAttributes extends AssetAttributes {
          * @return <code>String</code>: The <code>componentId</code> field of this
          *         <code>GenerationSchema</code> instance.
          */
-        public String getComponentId() {
+        public final String getComponentId() {
 
             return componentId;
         }
@@ -206,7 +206,7 @@ public final class LayoutAttributes extends AssetAttributes {
          *         <code>componentTags</code> field of this
          *         <code>GenerationSchema</code> instance.
          */
-        public ImmutableList<String> getComponentTags() {
+        public final ImmutableList<String> getComponentTags() {
 
             return componentTags;
         }
@@ -225,7 +225,7 @@ public final class LayoutAttributes extends AssetAttributes {
          * @return <code>Range</code>: The <code>count</code> field of this
          *         <code>GenerationSchema</code> instance.
          */
-        public Range getCount() {
+        public final Range getCount() {
 
             return count;
         }
@@ -432,6 +432,14 @@ public final class LayoutAttributes extends AssetAttributes {
             iterationType = parseSelectionType(json, "iterationType");
 
             components = json.getAsRoll("components", false, null, entry -> createGeneration(entry.getValue()));
+        }
+    }
+
+    public final class BlueprintGenerationSchema extends GenerationSchema {
+
+        public BlueprintGenerationSchema(TracedDictionary json) throws LoggedException {
+
+            super(json);
         }
     }
 

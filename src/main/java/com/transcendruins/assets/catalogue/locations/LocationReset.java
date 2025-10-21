@@ -38,7 +38,7 @@ public final class LocationReset {
 
         duration = -1.0;
 
-        displayCountdownTimer = false;
+        displayCountdown = false;
     }
 
     /**
@@ -64,18 +64,18 @@ public final class LocationReset {
      * <code>boolean</code>: Whether or not this <code>LocationReset</code> instance
      * should display the countdown timer.
      */
-    private final boolean displayCountdownTimer;
+    private final boolean displayCountdown;
 
     /**
      * Retrieves whether or not this <code>LocationReset</code> instance should
      * display the countdown timer.
      * 
-     * @return <code>boolean</code>: The <code>displayCountdownTimer</code> field of
-     *         this <code>LocationReset</code> instance.
+     * @return <code>boolean</code>: The <code>displayCountdown</code> field of this
+     *         <code>LocationReset</code> instance.
      */
     public boolean getDisplayCountdownTimer() {
 
-        return displayCountdownTimer;
+        return displayCountdown;
     }
 
     /**
@@ -91,7 +91,7 @@ public final class LocationReset {
         TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, 0.0, num -> num >= 0 || num == -1);
         duration = durationEntry.getValue();
 
-        TracedEntry<Boolean> displayCountdownTimerEntry = json.getAsBoolean("displayCountdownTimer", true, true);
-        displayCountdownTimer = displayCountdownTimerEntry.getValue() && duration > -1.0;
+        TracedEntry<Boolean> displayCountdownEntry = json.getAsBoolean("displayCountdown", true, true);
+        displayCountdown = displayCountdownEntry.getValue() && duration > -1.0;
     }
 }

@@ -11,17 +11,17 @@
                 "entranceStairwell": {
                     "identifier": "TranscendRuins:stairwell",
                     "properties": {
-                        "passagewayLocation": "bunkerAlfa", // Designate the location. Default: current location. Required for functionality.
-                        "passagewayArea": "floor1", // Designate the area. Default: the current area if location is not specified, otherwise the default area of the specified location.
-                        "passagewayTarget": "exitStairwell", // Designate the target spawn coordinate. Default: the default spawn location of the area.
-                        "passagewayTargetLink": false // Links the return element to point to this one. Default: false.
+                        "passagewayLocation": "bunkerAlfa",
+                        "passagewayArea": "floor1",
+                        "passagewayTarget": "exitStairwell",
+                        "passagewayTargetLink": false
                     }
                 }
             },
             "entities": {}
         },
 
-        "generation": "blueprint",
+        "type": "blueprint",
         "components": {}
     }
 }

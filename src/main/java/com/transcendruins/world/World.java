@@ -17,8 +17,11 @@
 package com.transcendruins.world;
 
 import java.awt.image.BufferedImage;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,15 +37,19 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.catalogue.AssetCatalogue;
+import com.transcendruins.assets.catalogue.AssetCatalogue.PinIcon;
 import com.transcendruins.assets.catalogue.RecipeSet;
 import com.transcendruins.assets.catalogue.events.GlobalEventInstance;
 import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationSchema;
+import com.transcendruins.assets.catalogue.locations.LocationTriggerType;
 import com.transcendruins.assets.elements.ElementContext;
 import com.transcendruins.assets.elements.ElementInstance;
 import com.transcendruins.assets.entities.EntityContext;
 import com.transcendruins.assets.entities.EntityInstance;
+import com.transcendruins.assets.interfaces.map.LocationRender;
+import com.transcendruins.assets.interfaces.map.MapRender;
 import com.transcendruins.assets.items.ItemContext;
 import com.transcendruins.assets.items.ItemInstance;
 import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
@@ -167,13 +174,24 @@ public final class World extends PropertyHolder {
         return assets.get(type).get(identifier);
     }
 
+    private ImmutableMap<String, PinIcon> pinIcons;
+
+    public final PinIcon getPinIcon(String pin) {
+
+        return pinIcons.get(pin);
+    }
+
     private String defaultLocation;
 
     private ImmutableMap<String, GlobalLocationSchema> locationSchemas;
 
+    private ImmutableList<MapRender> mapSections;
+
     private ImmutableMap<String, ImmutableList<GlobalEventSchema>> eventSchemas;
 
     private ImmutableMap<String, AssetPresets> overlays;
+
+    private ImmutableMap<String, AssetPresets> globalOverlays;
 
     private ImmutableMap<String, AssetPresets> menus;
 
@@ -200,7 +218,7 @@ public final class World extends PropertyHolder {
     private RecipeInstance createRecipe(AssetPresets presets) {
 
         RecipeContext context = new RecipeContext(presets, world, null);
-        return (RecipeInstance) context.instantiate();
+        return context.instantiate();
     }
 
     /**
@@ -419,38 +437,15 @@ public final class World extends PropertyHolder {
 
         assets = new ImmutableMap<>(assetsMap);
 
+        // Join the content pack resources to the resource pack resources and apply.
+        List<ResourceSet> resourceList = new ArrayList<>();
+        resourceList.addAll(packs.stream().map(ContentPack::getResources).toList());
+        resourceList.addAll(resources.stream().map(ResourcePack::getResources).toList());
+        applyResources(resourceList);
+
         // Apply the catalogues.
         List<AssetCatalogue> catalogues = packs.stream().map(ContentPack::getCatalogue).toList();
         applyCatalogue(catalogues);
-
-        // Join the content pack resources to the resource pack resources and apply.
-        List<ResourceSet> reesources = new ArrayList<>();
-        reesources.addAll(packs.stream().map(ContentPack::getResources).toList());
-        reesources.addAll(resources.stream().map(ResourcePack::getResources).toList());
-        applyResources(reesources);
-    }
-
-    public final void applyCatalogue(List<AssetCatalogue> catalogues) {
-
-        defaultLocation = null;
-        for (int i = catalogues.size() - 1; i >= 0; i--) {
-
-            defaultLocation = catalogues.get(i).getDefaultLocation();
-            if (defaultLocation != null) {
-
-                break;
-            }
-        }
-
-        locationSchemas = compile(catalogues, AssetCatalogue::getLocations);
-        eventSchemas = compile(catalogues, AssetCatalogue::getEvents);
-
-        // TODO: Add overlays/menus to the global map
-
-        overlays = compile(catalogues, AssetCatalogue::getOverlays);
-        menus = compile(catalogues, AssetCatalogue::getMenus);
-
-        recipes = compileGroup(catalogues, AssetCatalogue::getRecipes, RecipeSet::getRecipes);
     }
 
     public final void applyResources(List<ResourceSet> resources) {
@@ -465,6 +460,51 @@ public final class World extends PropertyHolder {
         texturePaths = compile(resources, set -> set.getTextures().getPaths());
 
         style = createStyle(resources.stream());
+    }
+
+    public final void applyCatalogue(List<AssetCatalogue> catalogues) {
+
+        pinIcons = compile(catalogues, AssetCatalogue::getPinIcons);
+
+        defaultLocation = null;
+        for (int i = catalogues.size() - 1; i >= 0; i--) {
+
+            defaultLocation = catalogues.get(i).getDefaultLocation();
+            if (defaultLocation != null) {
+
+                break;
+            }
+        }
+
+        locationSchemas = compile(catalogues, AssetCatalogue::getLocations);
+        queuedLocations.addAll(locationSchemas.entrySet().stream()
+                .filter(entry -> entry.getValue().getTriggerType() == LocationTriggerType.AUTOMATIC)
+                .map(Map.Entry::getKey).toList());
+
+        // Create all of the locations that do not have an implicit start time.
+        List<String> newLocations = queuedLocations.stream()
+                .filter(location -> locationSchemas.get(location).getDuration().getStartTimestamp() == null).toList();
+        queuedLocations.removeAll(newLocations);
+
+        for (String location : newLocations) {
+
+            GlobalLocationSchema schema = locationSchemas.get(location);
+            GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
+            locations.put(location, instance);
+        }
+
+        mapSections = new ImmutableList<>(
+                catalogues.stream().flatMap(catalogue -> catalogue.getMapSections().stream()).toList());
+
+        eventSchemas = compile(catalogues, AssetCatalogue::getEvents);
+
+        // TODO: Add overlays/menus to the global map
+
+        overlays = compile(catalogues, AssetCatalogue::getOverlays);
+        globalOverlays = compile(catalogues, AssetCatalogue::getGlobalOverlays);
+        menus = compile(catalogues, AssetCatalogue::getMenus);
+
+        recipes = compileGroup(catalogues, AssetCatalogue::getRecipes, RecipeSet::getRecipes);
     }
 
     public static final <T, V, K> ImmutableMap<String, ImmutableMap<String, K>> compileGroup(List<T> resources,
@@ -501,7 +541,10 @@ public final class World extends PropertyHolder {
         return StyleSet.createStyleSet(resources.map(ResourceSet::getStyle).toList());
     }
 
-    private long simulationRate = 500;
+    private final Object FRAMERATE_LOCK = new Object();
+
+    private long simulationRate = 40;
+    private long tickNs = simulationRate > 0 ? 1_000_000_000l / simulationRate : 0;
 
     /**
      * <code>long</code>: The time of creation of this <code>World</code> instance.
@@ -532,42 +575,56 @@ public final class World extends PropertyHolder {
         return getRuntimeMillis() / 1000.0;
     }
 
-    private final HashMap<String, GlobalLocationInstance> locations = new HashMap<>();
+    private final HashSet<String> queuedLocations = new HashSet<>();
 
-    private final HashMap<String, GlobalEventInstance> events = new HashMap<>();
+    private final LinkedHashMap<String, GlobalLocationInstance> locations = new LinkedHashMap<>();
+
+    public final Map<String, LocationRender> getLocationRenders() {
+
+        return locations.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getRender()));
+    }
+
+    public final List<MapRender> getMapRenders() {
+
+        return mapSections;
+    }
+
+    private final LinkedHashMap<String, GlobalEventInstance> events = new LinkedHashMap<>();
 
     private final HashMap<Long, Player> players = new HashMap<>();
 
-    private final Object playerLock = new Object();
+    private final Object PLAYER_LOCK = new Object();
 
     public final boolean addPlayer(long playerId) {
 
-        synchronized (playerLock) {
+        return addPlayer(playerId, defaultLocation);
+    }
+
+    public final boolean addPlayer(long playerId, String location) {
+
+        synchronized (PLAYER_LOCK) {
 
             EntityContext playerContext = new EntityContext(DataConstants.PLAYER_IDENTIFIER, this, null);
-            EntityInstance playerEntity = (EntityInstance) playerContext.instantiate();
+            EntityInstance playerEntity = playerContext.instantiate();
 
             AssetPresets ropeItemPresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:rope", null), AssetType.ITEM);
             ItemContext ropeItemContext = new ItemContext(ropeItemPresets, world, playerEntity, 10);
-            ItemInstance ropeItem = (ItemInstance) ropeItemContext.instantiate();
+            ItemInstance ropeItem = ropeItemContext.instantiate();
             playerEntity.getInventory().getSlot(1).putItem(ropeItem);
 
             AssetPresets ironPickaxePresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:ironPickaxe", null), AssetType.ITEM);
             ItemContext ironPickaxeContext = new ItemContext(ironPickaxePresets, world, playerEntity, 10);
-            ItemInstance ironPickaxeItem = (ItemInstance) ironPickaxeContext.instantiate();
+            ItemInstance ironPickaxeItem = ironPickaxeContext.instantiate();
             playerEntity.getInventory().getSlot("mainhand").putItem(ironPickaxeItem);
 
             AssetPresets ironHatchetPresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:ironHatchet", null), AssetType.ITEM);
             ItemContext ironHatchetContext = new ItemContext(ironHatchetPresets, world, playerEntity, 10);
-            ItemInstance ironHatchetItem = (ItemInstance) ironHatchetContext.instantiate();
+            ItemInstance ironHatchetItem = ironHatchetContext.instantiate();
             playerEntity.getInventory().getSlot("offhand").putItem(ironHatchetItem);
-
-            // Initiate the player with the default UIs.
-            Player player = new Player(playerId, playerEntity);
-            player.setPanels(overlays.values());
 
             // If there is already a player with the same id, do not add.
             if (players.containsKey(playerId)) {
@@ -575,21 +632,38 @@ public final class World extends PropertyHolder {
                 return false;
             }
 
-            // If the new player cannot travel to the default area of the default location,
-            // do not add. TODO revert to uncommented
-            // if (!travel(player, defaultLocation, null)) {
+            // Initiate the player with the default UIs.
+            Player player = new Player(playerId, playerEntity);
 
-            // return false;
-            // }
+            // If the new player cannot travel to the default area of the default location,
+            // do not add.
+            if (!travel(player, location, null)) {
+
+                return false;
+            }
 
             players.put(playerId, player);
+
+            if (false/* location.equals(defaultLocation) */) {
+
+                enterLocation(playerId);
+            } else {
+
+                exitLocation(playerId);
+            }
+
             return true;
         }
     }
 
+    public final boolean travel(long playerId, String location) {
+
+        return playerFunction(playerId, player -> travel(player, location, null));
+    }
+
     public final boolean travel(Player player, String location, String area) {
 
-        synchronized (playerLock) {
+        synchronized (PLAYER_LOCK) {
 
             // If a location is not specified, assume the current location.
             if (location == null) {
@@ -597,8 +671,12 @@ public final class World extends PropertyHolder {
                 location = player.getLocation();
 
                 // If neither the current nor previous location exists, halt.
-                if (location == null) {
+                if (!locations.containsKey(location)) {
 
+                    if (location != null) {
+
+                        player.setLocation(null);
+                    }
                     return false;
                 }
             } else {
@@ -610,23 +688,57 @@ public final class World extends PropertyHolder {
                 }
             }
 
-            long playerId = player.getPlayerId();
-
             // If the current location is new, exit the old location.
-            if (!location.equals(player.getLocation())) {
+            String prevLocation = player.getLocation();
+            if (!location.equals(prevLocation)) {
 
-                String prevLocation = player.getLocation();
                 if (prevLocation != null) {
 
-                    locations.get(prevLocation).exit(playerId);
+                    locations.get(prevLocation).remove(player);
                 }
+
+                player.setLocation(location);
             }
 
-            player.setLocation(location);
-            locations.get(location).enter(playerId, area, player.getEntity());
+            GlobalLocationInstance locationInstance = locations.get(location);
+            player.setGlobalMapCoordinates(locationInstance.getCoordinates());
+            locationInstance.add(player, area);
 
             return true;
         }
+    }
+
+    public final void enterLocation(long playerId) {
+
+        playerConsumer(playerId, player -> {
+
+            String locationKey = player.getLocation();
+            if (locationKey == null || !locations.containsKey(locationKey)) {
+
+                return;
+            }
+            GlobalLocationInstance location = locations.get(locationKey);
+            location.enter(player);
+
+            player.exitGlobalMap();
+            player.setPanels(overlays.values());
+        });
+    }
+
+    public final void exitLocation(long playerId) {
+
+        playerConsumer(playerId, player -> {
+
+            String locationKey = player.getLocation();
+            if (locationKey != null && locations.containsKey(locationKey)) {
+
+                GlobalLocationInstance location = locations.get(locationKey);
+                location.exit(player);
+            }
+
+            player.enterGlobalMap();
+            player.setPanels(globalOverlays.values());
+        });
     }
 
     public final void setScreenSize(long playerId, int width, int height) {
@@ -660,7 +772,16 @@ public final class World extends PropertyHolder {
 
     public final void closeMenu(long playerId) {
 
-        playerConsumer(playerId, player -> player.setPanels(overlays.values()));
+        playerConsumer(playerId, player -> {
+
+            if (player.onGlobalMap()) {
+
+                player.setPanels(globalOverlays.values());
+            } else {
+
+                player.setPanels(overlays.values());
+            }
+        });
     }
 
     public final void interact(long playerId) {
@@ -670,22 +791,21 @@ public final class World extends PropertyHolder {
             AssetPresets exampleAssetPresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:box", null), AssetType.ELEMENT);
             ElementContext exampleAssetContext = new ElementContext(exampleAssetPresets, this, null);
-            ElementInstance asset = (ElementInstance) exampleAssetContext.instantiate();
+            ElementInstance asset = exampleAssetContext.instantiate();
             // PrimaryAssetInstance asset = getNearestInteractable(player);
 
             AssetPresets clothItemPresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:cloth", null), AssetType.ITEM);
             ItemContext clothItemContext = new ItemContext(clothItemPresets, world, asset, 10);
-            ItemInstance clothItem = (ItemInstance) clothItemContext.instantiate();
+            ItemInstance clothItem = clothItemContext.instantiate();
             asset.getInventory().getSlot(1).putItem(clothItem);
 
             AssetPresets ropeItemPresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:rope", null), AssetType.ITEM);
             ItemContext ropeItemContext = new ItemContext(ropeItemPresets, world, asset, 10);
-            ItemInstance ropeItem = (ItemInstance) ropeItemContext.instantiate();
+            ItemInstance ropeItem = ropeItemContext.instantiate();
             asset.getInventory().getSlot(5).putItem(ropeItem);
 
-            System.out.println("INTERACTION");
             if (asset == null) {
 
                 return;
@@ -701,15 +821,13 @@ public final class World extends PropertyHolder {
 
     public final PrimaryAssetInstance getNearestInteractable(Player player) {
 
-        long playerId = player.getPlayerId();
-
         String location = player.getLocation();
-        if (location == null) {
+        if (location == null || !locations.containsKey(location)) {
 
             return null;
         }
 
-        AreaGrid area = locations.get(location).getArea(playerId);
+        AreaGrid area = locations.get(location).getArea(player);
         if (area == null) {
 
             return null;
@@ -742,7 +860,7 @@ public final class World extends PropertyHolder {
 
         Player player;
 
-        synchronized (playerLock) {
+        synchronized (PLAYER_LOCK) {
 
             player = players.get(playerId);
         }
@@ -752,17 +870,14 @@ public final class World extends PropertyHolder {
             return null;
         }
 
-        synchronized (player) {
-
-            return operator.apply(player);
-        }
+        return operator.apply(player);
     }
 
     public final void playerConsumer(long playerId, Consumer<Player> operator) {
 
         Player player;
 
-        synchronized (playerLock) {
+        synchronized (PLAYER_LOCK) {
 
             player = players.get(playerId);
         }
@@ -772,10 +887,7 @@ public final class World extends PropertyHolder {
             return;
         }
 
-        synchronized (player) {
-
-            operator.accept(player);
-        }
+        operator.accept(player);
     }
 
     private boolean active = false;
@@ -788,6 +900,7 @@ public final class World extends PropertyHolder {
         active = true;
 
         host = new Thread(this::host);
+        host.start();
     }
 
     public final synchronized void endHost() {
@@ -798,36 +911,90 @@ public final class World extends PropertyHolder {
 
     private void host() {
 
-        while (active) {
+        int frame = 0;
+
+        while (true) {
+
+            long start = System.nanoTime();
+            long startMs = System.currentTimeMillis();
 
             synchronized (this) {
 
+                if (!active) {
+
+                    break;
+                }
+
                 double time = getRuntimeSeconds();
+
+                ZonedDateTime now = ZonedDateTime.now();
+
+                List<String> expiredLocations = locations.entrySet().stream()
+                        .filter(entry -> entry.getValue().expired(now)).map(Map.Entry::getKey).toList();
+                locations.keySet().removeAll(expiredLocations);
+
+                List<String> newLocations = queuedLocations.stream().filter(
+                        location -> !now.isBefore(locationSchemas.get(location).getDuration().getStartTimestamp()))
+                        .toList();
+                queuedLocations.removeAll(newLocations);
+
+                for (String location : newLocations) {
+
+                    GlobalLocationSchema schema = locationSchemas.get(location);
+                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
+                    locations.put(location, instance);
+                }
 
                 // Retrieve the active locations.
                 Set<String> activeLocations = players.values().stream().map(Player::getLocation)
                         .collect(Collectors.toSet());
 
                 // Update the active locations.
-                activeLocations.stream().forEach(location -> locations.get(location).update(time));
+                for (String location : activeLocations) {
+
+                    locations.get(location).update(time);
+                }
 
                 // Update the UIs.
                 for (Player player : players.values()) {
 
                     player.updateUiPanels(time);
                 }
+            }
 
-                if (simulationRate > 1) {
+            synchronized (FRAMERATE_LOCK) {
 
-                    try {
+                if (simulationRate > 0) {
 
-                        wait(1000l / simulationRate);
-                    } catch (InterruptedException e) {
-
-                        e.printStackTrace();
+                    while (tickNs + start - System.nanoTime() > 0) {
                     }
                 }
             }
+
+            // System.out.println("Frame " + frame++ + " : " + (System.currentTimeMillis() -
+            // startMs) + "ms");
+        }
+    }
+
+    private final class StopWatch {
+
+        private long start = -1;
+
+        public final void start() {
+
+            start = System.currentTimeMillis();
+        }
+
+        public final void stop(Object message) {
+
+            if (start == -1) {
+
+                return;
+            }
+
+            long end = System.currentTimeMillis();
+            System.out.println(message + " : " + (end - start));
+            start = -1;
         }
     }
 }

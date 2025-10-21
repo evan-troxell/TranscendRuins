@@ -42,4 +42,10 @@ public final class ElementContext extends PrimaryAssetContext {
 
         super(presets, world, parent);
     }
+
+    @Override
+    public final ElementInstance instantiate() {
+
+        return (ElementInstance) instantiate(this);
+    }
 }

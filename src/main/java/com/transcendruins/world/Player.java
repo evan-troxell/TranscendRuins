@@ -1,7 +1,9 @@
 package com.transcendruins.world;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +13,7 @@ import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceContext;
 import com.transcendruins.assets.interfaces.InterfaceInstance;
+import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponentInstance.LocationDisplay;
 import com.transcendruins.assets.interfaces.UIComponent;
 import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.resources.styles.Style;
@@ -33,21 +36,46 @@ public final class Player {
 
     private String location;
 
+    private double globalMapX;
+
+    private double globalMapY;
+
+    public final void setGlobalMapCoordinates(Point2D coordinates) {
+
+        synchronized (LOCATION_LOCK) {
+
+            this.globalMapX = coordinates.getX();
+            this.globalMapY = coordinates.getY();
+        }
+    }
+
+    public final Point2D getGlobalMapCoordinates() {
+
+        synchronized (LOCATION_LOCK) {
+
+            return new Point2D.Double(globalMapX, globalMapY);
+        }
+    }
+
+    private final Object LOCATION_LOCK = new Object();
+
     public final void setLocation(String location) {
 
-        this.location = location;
+        synchronized (LOCATION_LOCK) {
+
+            this.location = location;
+        }
     }
 
     public final String getLocation() {
 
-        return location;
+        synchronized (LOCATION_LOCK) {
+
+            return location;
+        }
     }
 
-    private boolean uiUpdated = true;
-
-    private boolean forceRender = false;
-
-    private BufferedImage render;
+    private final Object UI_LOCK = new Object();
 
     private final ArrayList<InterfaceInstance> uiPanels = new ArrayList<>();
 
@@ -56,6 +84,67 @@ public final class Player {
         replacePanels(interfacePresets.stream()
                 .map(presets -> new InterfaceContext(presets, entity.getWorld(), entity, playerId, null)).toList());
 
+    }
+
+    private boolean onGlobalMap;
+
+    public final boolean onGlobalMap() {
+
+        synchronized (UI_LOCK) {
+
+            return onGlobalMap;
+        }
+    }
+
+    public final void enterGlobalMap() {
+
+        synchronized (UI_LOCK) {
+
+            if (onGlobalMap) {
+
+                return;
+            }
+
+            onGlobalMap = true;
+            InterfaceContext globalMapContext = InterfaceContext.createGlobalMapContext(entity.getWorld(), entity,
+                    playerId, globalMapX, globalMapY);
+            uiPanels.addFirst((InterfaceInstance) globalMapContext.instantiate());
+
+            calculateSize();
+            calculateHovered();
+            if (mousePressed) {
+
+                calculatePressed();
+            }
+        }
+    }
+
+    public final void exitGlobalMap() {
+
+        synchronized (UI_LOCK) {
+
+            if (!onGlobalMap) {
+
+                return;
+            }
+
+            onGlobalMap = false;
+            uiPanels.removeFirst();
+
+            calculateSize();
+            calculateHovered();
+            if (mousePressed) {
+
+                calculatePressed();
+            }
+        }
+    }
+
+    public final void displayLocation(String location, LocationDisplay locationDisplay) {
+
+        InterfaceContext context = InterfaceContext.createLocationDisplayContext(entity.getWorld(), entity, playerId,
+                location, locationDisplay);
+        replacePanels(List.of(context));
     }
 
     public final void displayInventory(InventoryInstance secondaryInventory, InventoryComponentSchema secondaryUi) {
@@ -75,66 +164,77 @@ public final class Player {
 
     private void replacePanels(List<InterfaceContext> contexts) {
 
-        pressFocus = null;
+        synchronized (UI_LOCK) {
 
-        uiPanels.clear();
-        contexts.forEach(context -> uiPanels.add((InterfaceInstance) context.instantiate()));
+            InterfaceInstance globalMap = onGlobalMap ? uiPanels.getFirst() : null;
 
-        hovered.clear();
-        pressed.clear();
+            pressFocus = null;
 
-        calculateSize();
-        calculateHovered();
-        if (mousePressed) {
+            uiPanels.clear();
+            if (onGlobalMap) {
 
-            calculatePressed();
+                uiPanels.add(globalMap);
+            }
+            contexts.forEach(context -> uiPanels.add((InterfaceInstance) context.instantiate()));
+
+            hovered.clear();
+            pressed.clear();
+
+            calculateSize();
+            calculateHovered();
+            if (mousePressed) {
+
+                calculatePressed();
+            }
         }
-
-        uiUpdated = true;
     }
 
     public final void updateUiPanels(double time) {
 
-        for (InterfaceInstance panel : uiPanels) {
+        synchronized (UI_LOCK) {
 
-            panel.update(time);
+            for (InterfaceInstance panel : uiPanels) {
+
+                panel.update(time);
+            }
+
+            calculateSize();
+            calculateHovered();
+            if (mousePressed) {
+
+                calculatePressed();
+            }
         }
-
-        calculateSize();
-        calculateHovered();
-        if (mousePressed) {
-
-            calculatePressed();
-        }
-
-        uiUpdated = true;
-
     }
 
     private int screenWidth = 1;
 
     private int screenHeight = 1;
 
+    public final Dimension getScreenSize() {
+
+        return new Dimension(screenWidth, screenHeight);
+    }
+
     public final void setScreenSize(int width, int height) {
 
-        if (screenWidth == width && screenHeight == height) {
+        synchronized (UI_LOCK) {
 
-            return;
+            if (screenWidth == width && screenHeight == height) {
+
+                return;
+            }
+
+            screenWidth = width;
+            screenHeight = height;
+
+            calculateSize();
+            calculateHovered();
+            if (mousePressed) {
+
+                calculatePressed();
+            }
         }
-
-        screenWidth = width;
-        screenHeight = height;
-
-        calculateSize();
-
-        calculateHovered();
-        if (mousePressed) {
-
-            calculatePressed();
-        }
-
-        uiUpdated = true;
-
     }
 
     private void calculateSize() {
@@ -159,22 +259,23 @@ public final class Player {
 
     public final void setMousePosition(int x, int y) {
 
-        if (mouseX == x && mouseY == y) {
+        synchronized (UI_LOCK) {
 
-            return;
+            if (mouseX == x && mouseY == y) {
+
+                return;
+            }
+
+            mouseX = x;
+            mouseY = y;
+
+            calculateSize();
+            calculateHovered();
+            if (mousePressed) {
+
+                calculatePressed();
+            }
         }
-
-        mouseX = x;
-        mouseY = y;
-
-        calculateHovered();
-        if (mousePressed) {
-
-            calculatePressed();
-        }
-
-        uiUpdated = true;
-
     }
 
     private void calculateHovered() {
@@ -217,34 +318,34 @@ public final class Player {
 
     public final void setMousePress(boolean pressed) {
 
-        if (mousePressed == pressed) {
+        synchronized (UI_LOCK) {
 
-            return;
+            if (mousePressed == pressed) {
+
+                return;
+            }
+
+            mousePressed = pressed;
+
+            if (pressed) {
+
+                mouseJustPressed = true;
+            } else {
+
+                mouseJustReleased = true;
+            }
+
+            // If the mouse is not being clicked, calculate hover and press states.
+            if (pressed) {
+
+                calculatePressed();
+                calculateTriggerPress();
+            } else {
+
+                releaseAll();
+                calculateTriggerRelease();
+            }
         }
-
-        mousePressed = pressed;
-
-        if (pressed) {
-
-            mouseJustPressed = true;
-        } else {
-
-            mouseJustReleased = true;
-        }
-
-        // If the mouse is not being clicked, calculate hover and press states.
-        if (pressed) {
-
-            calculatePressed();
-            calculateTriggerPress();
-        } else {
-
-            releaseAll();
-            calculateTriggerRelease();
-        }
-
-        uiUpdated = true;
-
     }
 
     private void calculatePressed() {
@@ -324,59 +425,55 @@ public final class Player {
         Point displacement = new Point(dx, dy);
 
         ArrayList<UIComponent> scrolled = new ArrayList<>();
-        for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
-            InterfaceInstance panel = uiPanels.get(i);
-            System.out.println("TEST");
+        synchronized (UI_LOCK) {
+            for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
-            if (!panel.scroll(mouseX, mouseY, displacement, scrolled, timestamp)) {
+                InterfaceInstance panel = uiPanels.get(i);
+
+                if (!panel.scroll(mouseX, mouseY, displacement, scrolled, timestamp)) {
+
+                    resizePanel(panel);
+                    break;
+                }
 
                 resizePanel(panel);
-                break;
             }
 
-            resizePanel(panel);
+            calculateHovered();
+            if (mousePressed) {
+
+                calculatePressed();
+            }
         }
-
-        calculateHovered();
-        calculatePressed();
-
-        uiUpdated = true;
-
     }
 
     public final BufferedImage renderUi() {
 
-        // if (!uiUpdated && !forceRender) {
+        synchronized (UI_LOCK) {
 
-        // return render;
-        // }
+            BufferedImage render = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = render.createGraphics();
 
-        uiUpdated = false;
-        forceRender = false;
+            for (InterfaceInstance panel : uiPanels) {
 
-        render = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = render.createGraphics();
+                resizePanel(panel);
+                g2d.drawImage(panel.render(), 0, 0, null);
+            }
 
-        for (InterfaceInstance panel : uiPanels) {
+            // If the event was a 'click', draw the pressed state first and then release for
+            // next frame.
+            if (mouseJustPressed && mouseJustReleased) {
 
-            resizePanel(panel);
-            g2d.drawImage(panel.render(), 0, 0, null);
+                calculateHovered();
+                calculatePressed();
+            }
+
+            mouseJustPressed = false;
+            mouseJustReleased = false;
+
+            return render;
         }
-
-        // If the event was a 'click', draw the pressed state first and then release for
-        // next frame.
-        if (mouseJustPressed && mouseJustReleased) {
-
-            calculateHovered();
-            calculatePressed();
-            forceRender = true;
-        }
-
-        mouseJustPressed = false;
-        mouseJustReleased = false;
-
-        return render;
     }
 
     public final void interact() {
@@ -386,5 +483,22 @@ public final class Player {
 
         this.playerId = playerId;
         this.entity = entity;
+    }
+
+    @Override
+    public final int hashCode() {
+
+        return Long.hashCode(playerId);
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+
+        if (obj == null || !(obj instanceof Player)) {
+
+            return false;
+        }
+
+        return obj == this;
     }
 }

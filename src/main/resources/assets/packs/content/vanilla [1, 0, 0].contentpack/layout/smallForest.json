@@ -19,12 +19,12 @@
             }
         },
 
-        "generation": "distributed",
+        "type": "distributed",
 
         "iterationType": "sequential",
         "components": [
             {
-                "generation": "layout",
+                "type": "layout",
                 "layout": "smallCabin",
                 
                 "count": {
@@ -44,7 +44,7 @@
                 }
             },
             {
-                "generation": "element",
+                "type": "element",
                 "element": "campfire",
 
                 "count": {
@@ -114,7 +114,7 @@
                 ]
             },
             {
-                "generation": "distributed",
+                "type": "distributed",
 
                 "count": {
                     "min": 1,

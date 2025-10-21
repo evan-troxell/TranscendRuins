@@ -42,4 +42,10 @@ public final class AnimationControllerContext extends AssetContext {
 
         super(presets, world, parent);
     }
+
+    @Override
+    public final AnimationControllerInstance instantiate() {
+
+        return (AnimationControllerInstance) instantiate(this);
+    }
 }

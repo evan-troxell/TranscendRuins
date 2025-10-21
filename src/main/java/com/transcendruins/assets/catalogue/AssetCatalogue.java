@@ -24,6 +24,8 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationSchema;
+import com.transcendruins.assets.interfaces.map.MapRender;
+import com.transcendruins.resources.styles.Style.TextureSize;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.FileException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
@@ -43,8 +45,53 @@ import com.transcendruins.utilities.json.TracedEntry;
  */
 public final class AssetCatalogue {
 
+    public final record PinIcon(String icon, TextureSize size) {
+
+        public static PinIcon createPinIcon(TracedCollection collection, Object key) throws LoggedException {
+
+            TracedEntry<TracedDictionary> pinEntry = collection.getAsDict(key, false);
+            TracedDictionary pinJson = pinEntry.getValue();
+
+            TracedEntry<String> iconEntry = pinJson.getAsString("icon", false, null);
+            String icon = iconEntry.getValue();
+
+            TextureSize size = TextureSize.createSize(pinJson, "size");
+
+            return new PinIcon(icon, size);
+        }
+    }
+
+    /**
+     * <code>ImmutableMap&lt;String, PinIcon&gt;</code>: The pin icon catalogue of
+     * this <code>AssetCatalogue</code> instance.
+     */
+    private final ImmutableMap<String, PinIcon> pinIcons;
+
+    /**
+     * Retrieves the pin icon catalogue of this <code>AssetCatalogue</code>
+     * instance.
+     * 
+     * @return <code>ImmutableMap&lt;String, PinIcon&gt;</code>: The
+     *         <code>pinIcons</code> field of this <code>AssetCatalogue</code>
+     *         instance.
+     */
+    public final ImmutableMap<String, PinIcon> getPinIcons() {
+
+        return pinIcons;
+    }
+
+    /**
+     * <code>String</code>: The default location of this <code>AssetCatalogue</code>
+     * instance.
+     */
     private final String defaultLocation;
 
+    /**
+     * Retrieves the default location of this <code>AssetCatalogue</code> instance.
+     * 
+     * @return <code>String</code>: The <code>defaultLocation</code> field of this
+     *         <code>AssetCatalogue</code> instance.
+     */
     public final String getDefaultLocation() {
 
         return defaultLocation;
@@ -67,6 +114,25 @@ public final class AssetCatalogue {
     public final ImmutableMap<String, GlobalLocationSchema> getLocations() {
 
         return locations;
+    }
+
+    /**
+     * <code>ImmutableList&lt;MapRender&gt;</code>: The map section catalogue of
+     * this <code>AssetCatalogue</code> instance.
+     */
+    private final ImmutableList<MapRender> mapSections;
+
+    /**
+     * Retrieves the map section catalogue of this <code>AssetCatalogue</code>
+     * instance.
+     * 
+     * @return <code>ImmutableList&lt;MapRender&gt;</code>: The
+     *         <code>mapSections</code> field of this <code>AssetCatalogue</code>
+     *         instance.
+     */
+    public final ImmutableList<MapRender> getMapSections() {
+
+        return mapSections;
     }
 
     /**
@@ -105,6 +171,25 @@ public final class AssetCatalogue {
     public final ImmutableMap<String, AssetPresets> getOverlays() {
 
         return overlays;
+    }
+
+    /**
+     * <code>ImmutableMap&lt;String, AssetPreset&gt;</code>: The global map overlay
+     * catalogue of this <code>AssetCatalogue</code> instance.
+     */
+    private final ImmutableMap<String, AssetPresets> globalOverlays;
+
+    /**
+     * Retrieves the global map overlay catalogue of this
+     * <code>AssetCatalogue</code> instance.
+     * 
+     * @return <code>ImmutableMap&lt;String, AssetPreset&gt;</code>: The
+     *         <code>globalOverlays</code> field of this <code>AssetCatalogue</code>
+     *         instance.
+     */
+    public final ImmutableMap<String, AssetPresets> getGlobalOverlays() {
+
+        return globalOverlays;
     }
 
     /**
@@ -151,10 +236,11 @@ public final class AssetCatalogue {
      */
     public AssetCatalogue(TracedPath path) {
 
+        ImmutableMap<String, PinIcon> pinIconsMap = new ImmutableMap<>();
+
         String defaultLocationString = null;
-
         ImmutableMap<String, GlobalLocationSchema> locationsMap = new ImmutableMap<>();
-
+        ImmutableList<MapRender> mapSectionsList = new ImmutableList<>();
         ImmutableMap<String, ImmutableList<GlobalEventSchema>> eventsMap = new ImmutableMap<>();
 
         // Process the global map data.
@@ -165,8 +251,72 @@ public final class AssetCatalogue {
 
                 TracedDictionary json = JSONOperator.retrieveJSON(globalPath);
 
+                try {
+
+                    TracedEntry<TracedDictionary> pinIconsEntry = json.getAsDict("pinIcons", true);
+                    if (pinIconsEntry.containsValue()) {
+
+                        HashMap<String, PinIcon> pinIconsTemp = new HashMap<>();
+
+                        TracedDictionary pinIconsJson = pinIconsEntry.getValue();
+                        for (String pinIconKey : pinIconsJson) {
+
+                            try {
+
+                                PinIcon pinIcon = PinIcon.createPinIcon(pinIconsJson, pinIconKey);
+                                pinIconsTemp.put(pinIconKey, pinIcon);
+                            } catch (LoggedException _) {
+                            }
+                        }
+
+                        pinIconsMap = new ImmutableMap<>(pinIconsTemp);
+                    }
+                } catch (LoggedException _) {
+                }
+
                 // Attempt to process the locations.
                 locationsMap = createLocations(json, "locations");
+
+                // Attempt to process the map sections.
+                try {
+
+                    TracedEntry<TracedDictionary> mapSectionsEntry = json.getAsDict("mapSections", true);
+                    if (mapSectionsEntry.containsValue()) {
+
+                        ArrayList<MapRender> mapSectionsTemp = new ArrayList<>();
+
+                        TracedDictionary mapSectionsJson = mapSectionsEntry.getValue();
+                        for (String mapSectionKey : mapSectionsJson) {
+
+                            try {
+
+                                TracedEntry<TracedDictionary> mapSectionEntry = mapSectionsJson.getAsDict(mapSectionKey,
+                                        false);
+                                TracedDictionary mapSectionJson = mapSectionEntry.getValue();
+
+                                TracedEntry<String> iconEntry = mapSectionJson.getAsString("icon", false, null);
+                                String icon = iconEntry.getValue();
+
+                                TracedEntry<Double> xEntry = mapSectionJson.getAsDouble("x", false, null);
+                                double x = xEntry.getValue();
+
+                                TracedEntry<Double> yEntry = mapSectionJson.getAsDouble("y", false, null);
+                                double y = yEntry.getValue();
+
+                                TracedEntry<Double> heightEntry = mapSectionJson.getAsDouble("height", true, 0.0,
+                                        num -> 0 <= num && num < 1);
+                                double height = heightEntry.getValue();
+
+                                MapRender mapSection = new MapRender(icon, x, y, height);
+                                mapSectionsTemp.add(mapSection);
+                            } catch (LoggedException _) {
+                            }
+                        }
+
+                        mapSectionsList = new ImmutableList<>(mapSectionsTemp);
+                    }
+                } catch (LoggedException _) {
+                }
 
                 // Attempt to process the events.
                 eventsMap = createEvents(json, "events");
@@ -174,11 +324,14 @@ public final class AssetCatalogue {
                 try {
 
                     TracedEntry<String> defaultLocationEntry = json.getAsString("defaultLocation", true, null);
-                    defaultLocationString = defaultLocationEntry.getValue();
+                    if (defaultLocationEntry.containsValue()) {
 
-                    if (!locationsMap.containsKey(defaultLocationString)) {
+                        defaultLocationString = defaultLocationEntry.getValue();
 
-                        throw new ReferenceWithoutDefinitionException(defaultLocationEntry, "Location");
+                        if (!locationsMap.containsKey(defaultLocationString)) {
+
+                            throw new ReferenceWithoutDefinitionException(defaultLocationEntry, "Location");
+                        }
                     }
                 } catch (LoggedException _) {
                 }
@@ -186,11 +339,15 @@ public final class AssetCatalogue {
             }
         }
 
+        pinIcons = pinIconsMap;
+
         defaultLocation = defaultLocationString;
         locations = locationsMap;
+        mapSections = mapSectionsList;
         events = eventsMap;
 
         ImmutableMap<String, AssetPresets> overlaysMap = new ImmutableMap<>();
+        ImmutableMap<String, AssetPresets> globalOverlaysMap = new ImmutableMap<>();
         ImmutableMap<String, AssetPresets> menusMap = new ImmutableMap<>();
 
         // Process the hud data.
@@ -213,6 +370,18 @@ public final class AssetCatalogue {
                 } catch (PropertyException e) {
                 }
 
+                // Attempt to process the global map overlays.
+                try {
+
+                    TracedEntry<TracedDictionary> globalOverlaysEntry = json.getAsDict("globalOverlays", true);
+                    if (globalOverlaysEntry.containsValue()) {
+
+                        TracedDictionary globalOverlaysJson = globalOverlaysEntry.getValue();
+                        globalOverlaysMap = createMenus(globalOverlaysJson);
+                    }
+                } catch (PropertyException e) {
+                }
+
                 // Attempt to process the menus.
                 try {
 
@@ -229,6 +398,7 @@ public final class AssetCatalogue {
         }
 
         overlays = overlaysMap;
+        globalOverlays = globalOverlaysMap;
         menus = menusMap;
 
         ImmutableMap<String, RecipeSet> recipesMap = new ImmutableMap<>();

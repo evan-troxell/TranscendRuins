@@ -102,8 +102,10 @@ public abstract class AssetContext {
         this.runtimeSeconds = world.getRuntimeSeconds();
     }
 
-    public final AssetInstance instantiate() {
+    protected static final AssetInstance instantiate(AssetContext context) {
 
-        return presets.getType().createAsset(this);
+        return context.presets.getType().createAsset(context);
     }
+
+    public abstract AssetInstance instantiate();
 }

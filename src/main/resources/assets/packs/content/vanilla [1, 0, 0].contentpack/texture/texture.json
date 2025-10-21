@@ -1,15 +1,11 @@
 {
-    "element.box": "/element/box.png",
-    "element.crate": [
-        "/element/crate/crate1.png",
-        "/element/crate/crate2.png",
-        "/element/crate/crate3.png"
-    ],
-    "element.barrel": {
-        "/element/barrel/barrel1.png": 10.0,
-        "/element/barrel/barrel2.png": 5.0,
-        "/element/barrel/barrel3.png": 2.5
-    },
+    "global.globalMap": "global/globalMap.png",
+    "global.pin.safe": "global/pin/safe.png",
+    "global.pin.moderate": "global/pin/moderate.png",
+    "global.pin.difficult": "global/pin/difficult.png",
+    "global.pin.player": "global/pin/player.png",
+
+    "location.bunkerAlfa": "location/bunkerAlfa.png",
 
     "interface.texture.example": "displayIcon.png",
 
@@ -23,6 +19,18 @@
     "interface.inventoryDisplay.slotSelected": "interface/inventoryDisplay/slotSelected.png",
     "interface.inventoryDisplay.x": "interface/inventoryDisplay/x.png",
 
+    "element.box": "/element/box.png",
+    "element.crate": [
+        "/element/crate/crate1.png",
+        "/element/crate/crate2.png",
+        "/element/crate/crate3.png"
+    ],
+    "element.barrel": {
+        "/element/barrel/barrel1.png": 10.0,
+        "/element/barrel/barrel2.png": 5.0,
+        "/element/barrel/barrel3.png": 2.5
+    },
+
     "item.ironPickaxe.icon": "item/tool/ironPickaxe/icon.png",
     "item.ironPickaxe.texture": "item/tool/ironPickaxe/texture.png",
     "item.ironHatchet.icon": "item/tool/ironHatchet/icon.png",
@@ -31,7 +39,5 @@
     "item.cloth.icon": "item/material/cloth/icon.png",
     "item.cloth.texture": "item/material/cloth/texture.png",
     "item.rope.icon": "item/material/rope/icon.png",
-    "item.rope.texture": "item/material/rope/texture.png",
-
-    "location.bunkerAlfa": "location/bunkerAlfa.png"
+    "item.rope.texture": "item/material/rope/texture.png"
 }

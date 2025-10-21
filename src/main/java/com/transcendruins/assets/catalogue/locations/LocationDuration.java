@@ -23,40 +23,40 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>LocationTrigger</code>: A class representing the event settings of a
- * global location.
+ * <code>LocationDuration</code>: A class representing the duration settings of
+ * a global location.
  */
-public final class LocationTrigger {
+public final class LocationDuration {
 
     /**
-     * <code>LocationTrigger</code>: The default location trigger presets.
+     * <code>LocationDuration</code>: The default location trigger presets.
      */
-    public static final LocationTrigger DEFAULT = new LocationTrigger();
+    public static final LocationDuration DEFAULT = new LocationDuration();
 
     /**
-     * Creates a new instance of the <code>LocationTrigger</code> class.
+     * Creates a new instance of the <code>LocationDuration</code> class.
      */
-    public LocationTrigger() {
+    public LocationDuration() {
 
         duration = -1.0;
         startTimestamp = null;
-        displayCountdownTimer = false;
+        displayCountdown = false;
         endOnExit = false;
     }
 
     /**
-     * <code>double</code>: The duration of this <code>LocationTrigger</code>
+     * <code>double</code>: The duration of this <code>LocationDuration</code>
      * instance, in minutes. This value is guaranteed to be greater than or equal to
      * 0.0, except for values of -1 which represent no countdown.
      */
     private final double duration;
 
     /**
-     * Retrieves the duration of this <code>LocationTrigger</code> instance, in
+     * Retrieves the duration of this <code>LocationDuration</code> instance, in
      * minutes.
      *
      * @return <code>double</code>: The <code>duration</code> field of this
-     *         <code>LocationTrigger</code> instance.
+     *         <code>LocationDuration</code> instance.
      */
     public double getDuration() {
 
@@ -65,16 +65,16 @@ public final class LocationTrigger {
 
     /**
      * <code>ZonedDateTime</code>: The timestamp at which the duration of this
-     * <code>LocationTrigger</code> instance started.
+     * <code>LocationDuration</code> instance started.
      */
     private final ZonedDateTime startTimestamp;
 
     /**
      * Retrieves the timestamp at which the duration of this
-     * <code>LocationTrigger</code> instance started.
+     * <code>LocationDuration</code> instance started.
      *
      * @return <code>ZonedDateTime</code>: The <code>startTimestamp</code> field of
-     *         this <code>LocationTrigger</code> instance.
+     *         this <code>LocationDuration</code> instance.
      */
     public ZonedDateTime getStartTimestamp() {
 
@@ -82,35 +82,35 @@ public final class LocationTrigger {
     }
 
     /**
-     * <code>boolean</code>: Whether or not this <code>LocationTrigger</code>
+     * <code>boolean</code>: Whether or not this <code>LocationDuration</code>
      * instance should display the countdown timer.
      */
-    private final boolean displayCountdownTimer;
+    private final boolean displayCountdown;
 
     /**
-     * Retrieves whether or not this <code>LocationTrigger</code> instance should
+     * Retrieves whether or not this <code>LocationDuration</code> instance should
      * display the countdown timer.
      * 
-     * @return <code>boolean</code>: The <code>displayCountdownTimer</code> field of
-     *         this <code>LocationTrigger</code> instance.
+     * @return <code>boolean</code>: The <code>displayCountdown</code> field of this
+     *         <code>LocationDuration</code> instance.
      */
     public boolean getDisplayCountdownTimer() {
 
-        return displayCountdownTimer;
+        return displayCountdown;
     }
 
     /**
-     * <code>boolean</code>: Whether or not this <code>LocationTrigger</code>
+     * <code>boolean</code>: Whether or not this <code>LocationDuration</code>
      * instance should deactivate once the player exits the location.
      */
     private final boolean endOnExit;
 
     /**
-     * Retrieves whether or not this <code>LocationTrigger</code> instance should
+     * Retrieves whether or not this <code>LocationDuration</code> instance should
      * deactivate once the player exits the location.
      *
      * @return <code>boolean</code>: The <code>endOnExit</code> field of this
-     *         <code>LocationTrigger</code> instance.
+     *         <code>LocationDuration</code> instance.
      */
     public boolean getEndOnExit() {
 
@@ -118,14 +118,14 @@ public final class LocationTrigger {
     }
 
     /**
-     * Creates a new instance of the <code>LocationTrigger</code> class.
+     * Creates a new instance of the <code>LocationDuration</code> class.
      * 
      * @param json <code>TracedDictionary</code>: The JSON to parse into this
-     *             <code>LocationTrigger</code> instance.
+     *             <code>LocationDuration</code> instance.
      * @throws LoggedException Thrown if there are any issues or missing fields when
      *                         parsing the JSON.
      */
-    public LocationTrigger(TracedDictionary json) throws LoggedException {
+    public LocationDuration(TracedDictionary json) throws LoggedException {
 
         TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, -1.0, num -> num > 0 || num == -1);
         duration = durationEntry.getValue();
@@ -133,8 +133,8 @@ public final class LocationTrigger {
         TracedEntry<ZonedDateTime> startTimestampEntry = json.getAsTimestamp("startTimestamp", true);
         startTimestamp = startTimestampEntry.getValue();
 
-        TracedEntry<Boolean> displayCountdownTimerEntry = json.getAsBoolean("displayCountdownTimer", true, true);
-        displayCountdownTimer = displayCountdownTimerEntry.getValue() && duration > -1;
+        TracedEntry<Boolean> displayCountdownEntry = json.getAsBoolean("displayCountdown", true, true);
+        displayCountdown = displayCountdownEntry.getValue() && duration > -1;
 
         TracedEntry<Boolean> endOnExitEntry = json.getAsBoolean("endOnExit", true, false);
         endOnExit = endOnExitEntry.getValue();

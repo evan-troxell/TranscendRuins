@@ -1,4 +1,7 @@
 {
+    "globalOverlays": {
+        "utilityBar": "TranscendRuins:utilityBar"
+    },
     "overlays": {
 
         "utilityBar": "TranscendRuins:utilityBar",

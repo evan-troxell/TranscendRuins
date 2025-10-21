@@ -314,14 +314,14 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         model = calculateAttribute(attributes.getModel(), val -> {
 
             ModelContext modelContext = new ModelContext(val, getWorld(), this);
-            return (ModelInstance) modelContext.instantiate();
+            return modelContext.instantiate();
         }, model);
 
         // Updates the renderMaterial field.
         renderMaterial = calculateAttribute(attributes.getRenderMaterial(), val -> {
 
             RenderMaterialContext renderMaterialContext = new RenderMaterialContext(val, getWorld(), this);
-            return (RenderMaterialInstance) renderMaterialContext.instantiate();
+            return renderMaterialContext.instantiate();
         }, renderMaterial);
 
         // Updates the animationController field.
@@ -329,7 +329,7 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
 
             AnimationControllerContext animationControllerContext = new AnimationControllerContext(val, getWorld(),
                     this);
-            return (AnimationControllerInstance) animationControllerContext.instantiate();
+            return animationControllerContext.instantiate();
         }, animationController, attributes, null);
 
         categories = calculateAttribute(attributes.getCategories(), categories, attributes, new ImmutableList<>());

@@ -17,9 +17,6 @@
 package com.transcendruins.assets.layouts;
 
 import com.transcendruins.assets.AssetType;
-import static com.transcendruins.assets.AssetType.ELEMENT;
-import static com.transcendruins.assets.AssetType.ENTITY;
-import static com.transcendruins.assets.AssetType.LAYOUT;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
@@ -29,9 +26,11 @@ import com.transcendruins.assets.entities.EntityContext;
 import com.transcendruins.assets.extra.Range;
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.layouts.LayoutAttributes.AssetGenerationSchema;
+import com.transcendruins.assets.layouts.LayoutAttributes.BlueprintGenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.DistributionGenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.GenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.GridGenerationSchema;
+import com.transcendruins.assets.layouts.LayoutAttributes.LayoutGenerationSchema;
 import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.world.AreaGrid;
@@ -80,18 +79,17 @@ public final class LayoutInstance extends AssetInstance {
 
     public GenerationInstance createGeneration(GenerationSchema schema) {
 
-        // TODO implement rest of generation types
         return switch (schema) {
 
-        case AssetGenerationSchema s -> new AssetGenerationInstance(s);
+        case AssetGenerationSchema assetSchema -> new AssetGenerationInstance(assetSchema);
 
-        // case LayoutGenerationSchema s -> new LayoutGenerationInstance(s);
+        case LayoutGenerationSchema layoutSchema -> new LayoutGenerationInstance(layoutSchema);
 
-        case DistributionGenerationSchema s -> new DistributionGenerationInstance(s);
+        case DistributionGenerationSchema distributionSchema -> new DistributionGenerationInstance(distributionSchema);
 
-        case GridGenerationSchema s -> new GridGenerationInstance(s);
+        case GridGenerationSchema gridSchema -> new GridGenerationInstance(gridSchema);
 
-        // case BlueprintGenerationSchema s -> new BlueprintGenerationInstance(s);
+        case BlueprintGenerationSchema blueprintSchema -> new BlueprintGenerationInstance(blueprintSchema);
 
         default -> null;
         };
@@ -162,20 +160,20 @@ public final class LayoutInstance extends AssetInstance {
 
             case ELEMENT -> {
 
-                AssetContext context = new ElementContext(presets, world, null);
-                yield ELEMENT.createAsset(context);
+                ElementContext context = new ElementContext(presets, world, null);
+                yield context.instantiate();
             }
 
             case ENTITY -> {
 
-                AssetContext context = new EntityContext(presets, world, null);
-                yield ENTITY.createAsset(context);
+                EntityContext context = new EntityContext(presets, world, null);
+                yield context.instantiate();
             }
 
             case LAYOUT -> {
 
-                AssetContext context = new LayoutContext(presets, world, null);
-                yield LAYOUT.createAsset(context);
+                LayoutContext context = new LayoutContext(presets, world, null);
+                yield context.instantiate();
             }
 
             case null, default -> null;
@@ -232,6 +230,32 @@ public final class LayoutInstance extends AssetInstance {
         }
     }
 
+    public final class LayoutGenerationInstance extends GenerationInstance {
+
+        public LayoutGenerationInstance(LayoutGenerationSchema schema) {
+
+            super(schema);
+        }
+
+        @Override
+        public int getWidth() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getWidth'");
+        }
+
+        @Override
+        public int getLength() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getLength'");
+        }
+
+        @Override
+        public AreaGrid generate() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'generate'");
+        }
+    }
+
     public final class DistributionGenerationInstance extends GenerationInstance {
 
         public DistributionGenerationInstance(DistributionGenerationSchema schema) {
@@ -240,21 +264,21 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public final int getWidth() {
-
-            return 0;
+        public int getWidth() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getWidth'");
         }
 
         @Override
-        public final int getLength() {
-
-            return 0;
+        public int getLength() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getLength'");
         }
 
         @Override
-        public final AreaGrid generate() {
-
-            return createArea();
+        public AreaGrid generate() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'generate'");
         }
     }
 
@@ -275,20 +299,46 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public final int getWidth() {
+        public int getWidth() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getWidth'");
+        }
 
+        @Override
+        public int getLength() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getLength'");
+        }
+
+        @Override
+        public AreaGrid generate() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'generate'");
+        }
+    }
+
+    public final class BlueprintGenerationInstance extends GenerationInstance {
+
+        public BlueprintGenerationInstance(BlueprintGenerationSchema schema) {
+
+            super(schema);
+        }
+
+        @Override
+        public int getWidth() {
+            // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
-        public final int getLength() {
-
+        public int getLength() {
+            // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
-        public final AreaGrid generate() {
-
+        public AreaGrid generate() {
+            // TODO Auto-generated method stub
             return createArea();
         }
     }

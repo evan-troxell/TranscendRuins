@@ -63,7 +63,8 @@
 
             "components": [
                 {
-                    "type": "inventoryDisplay"
+                    "type": "inventoryDisplay",
+                    "id": "inventoryDisplay"
                 },
 
                 {
@@ -87,7 +88,7 @@
                                 "angle": 90,
                                 "centerX": 70.25,
                                 "centerY": 37.75,
-                                "component": "CLOSE"
+                                "component": "interface.close"
                             }
                         ]
                     },

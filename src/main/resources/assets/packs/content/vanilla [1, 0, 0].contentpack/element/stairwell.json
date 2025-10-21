@@ -3,10 +3,15 @@
         "identifier": "TranscendRuins:stairwell"
     },
     "attributes": {
-        "model": "TranscendRuins:stairwell",
-        "animationController": "TranscendRuins:stairwell",
+        "modelX": "TranscendRuins:stairwell",
+        "animationControllerX": "TranscendRuins:stairwell",
+        "renderMaterialX": "TranscendRuins:opaque",
+        "textureX": "element.stairwell",
+
+        "model": "TranscendRuins:box",
+        "animationController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
-        "texture": "element.stairwell"
+        "texture": "element.crate"
     },
 
     "permutations": {

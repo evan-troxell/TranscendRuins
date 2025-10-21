@@ -42,4 +42,10 @@ public final class RenderMaterialContext extends AssetContext {
 
         super(presets, world, parent);
     }
+
+    @Override
+    public final RenderMaterialInstance instantiate() {
+
+        return (RenderMaterialInstance) instantiate(this);
+    }
 }

@@ -42,4 +42,10 @@ public final class LayoutContext extends AssetContext {
 
         super(presets, world, parent);
     }
+
+    @Override
+    public final LayoutInstance instantiate() {
+
+        return (LayoutInstance) instantiate(this);
+    }
 }

@@ -42,4 +42,10 @@ public final class LootTableContext extends AssetContext {
 
         super(presets, world, parent);
     }
+
+    @Override
+    public final LootTableInstance instantiate() {
+
+        return (LootTableInstance) instantiate(this);
+    }
 }

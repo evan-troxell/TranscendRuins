@@ -62,4 +62,10 @@ public final class ItemContext extends AssetContext {
 
         this.stackSize = stackSize;
     }
+
+    @Override
+    public final ItemInstance instantiate() {
+
+        return (ItemInstance) instantiate(this);
+    }
 }

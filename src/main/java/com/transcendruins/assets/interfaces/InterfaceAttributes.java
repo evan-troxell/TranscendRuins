@@ -71,6 +71,8 @@ public final class InterfaceAttributes extends AssetAttributes {
     public static final String INTERFACE = "interface";
 
     // Special component types.
+    public static final String GLOBAL_MAP = "globalMap";
+    public static final String LOCATION_DISPLAY = "locationDisplay";
     public static final String INVENTORY_DISPLAY = "inventoryDisplay";
     public static final String INVENTORY = "inventory";
 
@@ -216,6 +218,10 @@ public final class InterfaceAttributes extends AssetAttributes {
         case INTERFACE -> new InterfaceComponentSchema(json, dependencyAdder);
 
         // case CRAFTING -> new CraftingComponentSchema(json);
+
+        case GLOBAL_MAP -> new GlobalMapComponentSchema(json, dependencyAdder);
+
+        case LOCATION_DISPLAY -> new LocationDisplayComponentSchema(json, dependencyAdder);
 
         case INVENTORY_DISPLAY -> new InventoryDisplayComponentSchema(json, dependencyAdder);
 
@@ -448,9 +454,12 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             super(json, TEXT);
 
-            TracedEntry<String> textEntry = json.getAsString("text", false, null);
-            StringComponentSchema text = new StringComponentSchema(textEntry.getValue());
-            addChild(text);
+            TracedEntry<String> textEntry = json.getAsString("text", true, null);
+            if (textEntry.containsValue()) {
+
+                StringComponentSchema text = new StringComponentSchema(textEntry.getValue());
+                addChild(text);
+            }
         }
     }
 
@@ -771,6 +780,75 @@ public final class InterfaceAttributes extends AssetAttributes {
                     addChild(createComponent(componentsJson, i, dependencyAdder));
                 }
             }
+        }
+    }
+
+    public static final class GlobalMapComponentSchema extends ComponentSchema {
+
+        private final ButtonComponentSchema enterButton;
+
+        public final ButtonComponentSchema getEnterButton() {
+
+            return enterButton;
+        }
+
+        public GlobalMapComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
+                throws LoggedException {
+
+            super(json, GLOBAL_MAP);
+
+            TracedEntry<TracedDictionary> componentsEntry = json.getAsDict("components", false);
+            TracedDictionary componentsJson = componentsEntry.getValue();
+
+            TracedEntry<TracedDictionary> enterButtonEntry = componentsJson.getAsDict("enterButton", false);
+            TracedDictionary enterButtonJson = enterButtonEntry.getValue();
+            enterButton = new ButtonComponentSchema(enterButtonJson, dependencyAdder);
+        }
+    }
+
+    public static final class LocationDisplayComponentSchema extends ComponentSchema {
+
+        private final TextComponentSchema nameText;
+
+        public final TextComponentSchema getNameText() {
+
+            return nameText;
+        }
+
+        private final TextComponentSchema descriptionText;
+
+        public final TextComponentSchema getDescriptionText() {
+
+            return descriptionText;
+        }
+
+        private final ButtonComponentSchema travelButton;
+
+        public final ButtonComponentSchema getTravelButton() {
+
+            return travelButton;
+        }
+
+        public LocationDisplayComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
+                throws LoggedException {
+
+            super(json, LOCATION_DISPLAY);
+
+            TracedEntry<TracedDictionary> componentsEntry = json.getAsDict("components", false);
+            TracedDictionary componentsJson = componentsEntry.getValue();
+
+            // nameText, descriptionText, travelButton
+            TracedEntry<TracedDictionary> nameTextEntry = componentsJson.getAsDict("nameText", false);
+            TracedDictionary nameTextJson = nameTextEntry.getValue();
+            nameText = new TextComponentSchema(nameTextJson);
+
+            TracedEntry<TracedDictionary> descriptionTextEntry = componentsJson.getAsDict("descriptionText", false);
+            TracedDictionary descriptionTextJson = descriptionTextEntry.getValue();
+            descriptionText = new TextComponentSchema(descriptionTextJson);
+
+            TracedEntry<TracedDictionary> travelButtonEntry = componentsJson.getAsDict("travelButton", false);
+            TracedDictionary travelButtonJson = travelButtonEntry.getValue();
+            travelButton = new ButtonComponentSchema(travelButtonJson, dependencyAdder);
         }
     }
 

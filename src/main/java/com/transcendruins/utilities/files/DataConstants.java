@@ -25,7 +25,13 @@ public final class DataConstants {
 
     public static final AssetPresets PLAYER_IDENTIFIER;
 
+    public static final AssetPresets GLOBAL_MAP_IDENTIFIER;
+
+    public static final AssetPresets LOCATION_DISPLAY_IDENTIFIER;
+
     public static final AssetPresets INVENTORY_DISPLAY_IDENTIFIER;
+
+    public static final String GLOBAL_MAP_PLAYER_PIN = "global.pin.player";
 
     public static final String INVENTORY_SLOT_TEXTURE = "interface.inventoryDisplay.slot";
 
@@ -41,6 +47,14 @@ public final class DataConstants {
             TracedEntry<AssetPresets> playerIdentifierEntry = constantsJson.getAsPresets("playerIdentifier", false,
                     AssetType.ENTITY);
             PLAYER_IDENTIFIER = playerIdentifierEntry.getValue();
+
+            TracedEntry<AssetPresets> globalMapIdentifierEntry = constantsJson.getAsPresets("globalMapIdentifier",
+                    false, AssetType.INTERFACE);
+            GLOBAL_MAP_IDENTIFIER = globalMapIdentifierEntry.getValue();
+
+            TracedEntry<AssetPresets> locationDisplayIdentifierEntry = constantsJson
+                    .getAsPresets("locationDisplayIdentifier", false, AssetType.INTERFACE);
+            LOCATION_DISPLAY_IDENTIFIER = locationDisplayIdentifierEntry.getValue();
 
             TracedEntry<AssetPresets> inventoryDisplayIdentifierEntry = constantsJson
                     .getAsPresets("inventoryDisplayIdentifier", false, AssetType.INTERFACE);

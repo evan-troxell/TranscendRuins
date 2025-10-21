@@ -74,6 +74,30 @@ public abstract class ComponentAction {
         })));
     }
 
+    @FunctionalInterface
+    public interface OnCall {
+
+        public void onCall(InterfaceInstance asset, long playerId, TRScript value);
+    }
+
+    private ComponentAction() {
+
+        conditions = new ImmutableList<>();
+    }
+
+    public static final ComponentAction createComponentAction(OnCall action) {
+
+        return new ComponentAction() {
+
+            @Override
+            protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
+
+                action.onCall(asset, playerId, value);
+            }
+
+        };
+    }
+
     /**
      * Determines whether or not this <code>ComponentAction</code> instance passes
      * for a given asset.

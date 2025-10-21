@@ -80,6 +80,40 @@ public final class GlobalLocationSchema {
     }
 
     /**
+     * <code>String</code>: The pin of this <code>GlobalLocationSchema</code>
+     * instance.
+     */
+    private final String pin;
+
+    /**
+     * Retrieves the pin of this <code>GlobalLocationSchema</code> instance.
+     * 
+     * @return <code>String</code>: The <code>pin</code> field of this
+     *         <code>GlobalLocationSchema</code> instance.
+     */
+    public final String getPin() {
+
+        return pin;
+    }
+
+    /**
+     * <code>double</code>: The height of the icon for this
+     * <code>GlobalLocationSchema</code> instance.
+     */
+    private final double iconHeight;
+
+    /**
+     * Retrieves the icon height of this <code>GlobalLocationSchema</code> instance.
+     * 
+     * @return <code>double</code>: The <code>iconHeight</code> field of this
+     *         <code>GlobalLocationSchema</code> instance.
+     */
+    public final double getIconHeight() {
+
+        return iconHeight;
+    }
+
+    /**
      * <code>ImmutableMap&lt;String, WeightedRoll&lt;AssetPresets&gt;&gt;</code>:
      * The areas contained within this <code>GlobalLocationSchema</code> instance.
      * Each key-value pair represents an area layout combined with its associated
@@ -145,11 +179,18 @@ public final class GlobalLocationSchema {
         return reset;
     }
 
-    private final LocationTrigger trigger;
+    private final LocationDuration duration;
 
-    public final LocationTrigger getTrigger() {
+    public final LocationDuration getDuration() {
 
-        return trigger;
+        return duration;
+    }
+
+    private final LocationTriggerType triggerType;
+
+    public final LocationTriggerType getTriggerType() {
+
+        return triggerType;
     }
 
     public GlobalLocationSchema(TracedCollection json) throws LoggedException {
@@ -162,6 +203,12 @@ public final class GlobalLocationSchema {
 
         TracedEntry<String> iconEntry = json.getAsString("icon", false, null);
         icon = iconEntry.getValue();
+
+        TracedEntry<String> pinEntry = json.getAsString("pin", true, null);
+        pin = pinEntry.getValue();
+
+        TracedEntry<Double> iconHeightEntry = json.getAsDouble("iconHeight", true, 0.0, num -> 0 <= num && num < 1.0);
+        iconHeight = iconHeightEntry.getValue();
 
         TracedEntry<TracedDictionary> areasEntry = json.getAsDict("areas", false);
 
@@ -183,7 +230,7 @@ public final class GlobalLocationSchema {
 
         areas = new ImmutableMap<>(areasDict);
 
-        TracedEntry<String> primaryEntry = json.getAsString("primary", true, "primary");
+        TracedEntry<String> primaryEntry = json.getAsString("primary", true, "main");
         primary = primaryEntry.getValue();
 
         // If the areas are defined in these attributes, then they should be required to
@@ -209,15 +256,17 @@ public final class GlobalLocationSchema {
             reset = LocationReset.DEFAULT;
         }
 
-        TracedEntry<TracedDictionary> triggerEntry = json.getAsDict("trigger", true);
-        if (triggerEntry.containsValue()) {
+        TracedEntry<TracedDictionary> durationEntry = json.getAsDict("duration", true);
+        if (durationEntry.containsValue()) {
 
-            TracedDictionary triggerJson = triggerEntry.getValue();
-            trigger = new LocationTrigger(triggerJson);
+            TracedDictionary durationJson = durationEntry.getValue();
+            duration = new LocationDuration(durationJson);
         } else {
 
-            trigger = LocationTrigger.DEFAULT;
+            duration = LocationDuration.DEFAULT;
         }
+
+        triggerType = LocationTriggerType.createLocationTriggerType(json, "triggerType");
     }
 
     /**
