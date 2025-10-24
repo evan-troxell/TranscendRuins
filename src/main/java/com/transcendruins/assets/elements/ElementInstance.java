@@ -95,7 +95,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
     };
 
     @Override
-    public final Rectangle getTileBounds() {
+    protected final Rectangle getInternalTileBounds() {
 
         return new Rectangle(position.x, position.y, rotatedTileWidth, rotatedTileLength);
     }
@@ -185,7 +185,6 @@ public final class ElementInstance extends PrimaryAssetInstance {
             tileWidth = tileDimensions.width;
             tileLength = tileDimensions.height;
 
-            queueTileUpdate();
         }, attributes, new Dimension(1, 1));
 
         updateTileRotation();

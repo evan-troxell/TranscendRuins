@@ -16,10 +16,12 @@
 
 package com.transcendruins.assets.rendermaterials;
 
+import com.jme3.math.ColorRGBA;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
+import com.transcendruins.utilities.json.TracedEntry;
 
 /**
  * <code>RenderMaterialAttributes</code>: A class which represents the
@@ -27,129 +29,103 @@ import com.transcendruins.utilities.json.TracedDictionary;
  */
 public final class RenderMaterialAttributes extends AssetAttributes {
 
-    /**
-     * <code>Boolean</code>: Whether or not backface culling should be applied to
-     * the model.
-     */
-    private final Boolean backfaceCulling;
+    private final Boolean lit;
 
-    /**
-     * Retrieves whether or not this <code>RenderMaterialAttributes</code>
-     * instance implements backface culling.
-     * 
-     * @return <code>Boolean</code>: The <code>backfaceCulling</code> field of this
-     *         <code>RenderMaterialAttributes</code> instance.
-     */
-    public Boolean getBackfaceCulling() {
+    public final Boolean getLit() {
 
-        return backfaceCulling;
+        return lit;
+    }
+
+    private final ColorRGBA diffuse;
+
+    public final ColorRGBA getDiffuse() {
+
+        return diffuse;
+    }
+
+    private final ColorRGBA ambient;
+
+    public final ColorRGBA getAmbient() {
+
+        return ambient;
+    }
+
+    private final Integer shininess;
+
+    public final Integer getShininess() {
+
+        return shininess;
+    }
+
+    private final ColorRGBA specular;
+
+    public final ColorRGBA getSpecular() {
+
+        return specular;
+    }
+
+    private final String specularMap;
+
+    public final String getSpecularMap() {
+
+        return specularMap;
+    }
+
+    private final Boolean transparent;
+
+    public final Boolean getTransparent() {
+
+        return transparent;
+    }
+
+    private final Boolean hasBackfaceCulling;
+
+    public final Boolean getHasBackfaceCulling() {
+
+        return hasBackfaceCulling;
     }
 
     /**
-     * <code>Boolean</code>: Whether or not the fresnel effect (opaqueness increase
-     * as the viewing plane becomes perpendicular to the polygon being viewed)
-     * should be applied to the model.
-     */
-    private final Boolean fresnelEffect;
-
-    /**
-     * Retrieves whether or not this <code>RenderMaterialAttributes</code>
-     * instance implements the fresnel effect.
+     * Compiles this <code>RenderMaterialAttributes</code> instance into a completed
+     * instance.
      * 
-     * @return <code>Boolean</code>: The <code>fresnelEffect</code> field of this
-     *         <code>RenderMaterialAttributes</code> instance.
-     */
-    public Boolean getFresnelEffect() {
-
-        return fresnelEffect;
-    }
-
-    /**
-     * <code>Double</code>: The factor which should be applied to the face dimming
-     * effect.
-     */
-    private final Double faceDimmingFactor;
-
-    /**
-     * Retrieves the face dimming factor of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: The <code>faceDimmingFactor</code> field of
-     *         this <code>RenderMaterialAttributes</code> instance.
-     */
-    public Double getFaceDimmingFactor() {
-
-        return faceDimmingFactor;
-    }
-
-    /**
-     * <code>Boolean</code>: Whether or not anti aliasing (pixel alpha adjustments
-     * as the polygon border intersects more of the pixel) should be applied to the
-     * model.
-     */
-    private final Boolean antiAliasing;
-
-    /**
-     * Retrieves whether or not this <code>RenderMaterialAttributes</code>
-     * instance implements anti aliasing.
-     * 
-     * @return <code>Boolean</code>: The <code>antiAliasing</code> field of this
-     *         <code>RenderMaterialAttributes</code> instance.
-     */
-    public Boolean getAntiAliasing() {
-
-        return antiAliasing;
-    }
-
-    /**
-     * <code>Boolean</code>: Whether or alpha cancelling (total opaqueness) should
-     * be applied to the model.
-     */
-    private final Boolean opaque;
-
-    /**
-     * Retrieves whether or not this <code>RenderMaterialAttributes</code>
-     * instance implements opaqueness.
-     * 
-     * @return <code>Boolean</code>: The <code>opaque</code> field of this
-     *         <code>RenderMaterialAttributes</code> instance.
-     */
-    public Boolean getOpaque() {
-
-        return opaque;
-    }
-
-    /**
-     * Compiles this <code>RenderMaterialAttributes</code> instance into a
-     * completed instance.
-     * 
-     * @param schema <code>AssetSchema</code>: The schema which created
-     *               this <code>RenderMaterialAttributes</code> instance.
-     * @param json   <code>TracedDictionary</code>: The schema JSON used to
-     *               compile this <code>RenderMaterialAttributes</code>
-     *               instance.
-     * @param isBase <code>boolean</code>: Whether or not this
-     *               <code>RenderMaterialAttributes</code> instance is the
-     *               base attribute set of a
+     * @param schema <code>AssetSchema</code>: The schema which created this
      *               <code>RenderMaterialAttributes</code> instance.
+     * @param json   <code>TracedDictionary</code>: The schema JSON used to compile
+     *               this <code>RenderMaterialAttributes</code> instance.
+     * @param isBase <code>boolean</code>: Whether or not this
+     *               <code>RenderMaterialAttributes</code> instance is the base
+     *               attribute set of a <code>RenderMaterialAttributes</code>
+     *               instance.
      * @throws LoggedException Thrown if an exception is raised while processing
-     *                         this <code>RenderMaterialAttributes</code>
-     *                         instance.
+     *                         this <code>RenderMaterialAttributes</code> instance.
      */
-    public RenderMaterialAttributes(AssetSchema schema, TracedDictionary json, boolean isBase)
-            throws LoggedException {
+    public RenderMaterialAttributes(AssetSchema schema, TracedDictionary json, boolean isBase) throws LoggedException {
 
         super(schema, json, isBase);
 
-        backfaceCulling = json.getAsBoolean("backfaceCulling", true, null).getValue();
+        TracedEntry<Boolean> litEntry = json.getAsBoolean("lit", true, null);
+        lit = litEntry.getValue();
 
-        fresnelEffect = json.getAsBoolean("fresnelEffect", true, null).getValue();
+        TracedEntry<ColorRGBA> diffuseEntry = json.getAsColorRGBA("diffuse", true, null);
+        diffuse = diffuseEntry.getValue();
 
-        faceDimmingFactor = json.getAsDouble("faceDimmingFactor", true, null, num -> 0.0 <= num && num <= 1.0)
-                .getValue();
+        TracedEntry<ColorRGBA> ambientEntry = json.getAsColorRGBA("ambient", true, null);
+        ambient = ambientEntry.getValue();
 
-        antiAliasing = json.getAsBoolean("antiAliasing", true, null).getValue();
+        TracedEntry<Integer> shininessEntry = json.getAsByte("shininess", true, null);
+        shininess = shininessEntry.getValue();
 
-        opaque = json.getAsBoolean("opaque", true, null).getValue();
+        TracedEntry<ColorRGBA> specularEntry = json.getAsColorRGBA("specular", true, null);
+        specular = specularEntry.getValue();
+
+        TracedEntry<String> specularMapEntry = json.getAsString("specularMap", true, null);
+        specularMap = specularMapEntry.getValue();
+
+        TracedEntry<Boolean> transparentEntry = json.getAsBoolean("transparent", true, null);
+        transparent = transparentEntry.getValue();
+
+        TracedEntry<Boolean> hasBackfaceCullingEntry = json.getAsBoolean("hasBackfaceCulling", true, null);
+        hasBackfaceCulling = hasBackfaceCullingEntry.getValue();
     }
 }

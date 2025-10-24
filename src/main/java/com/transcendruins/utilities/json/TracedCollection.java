@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import com.jme3.math.ColorRGBA;
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.WeightedRoll;
@@ -979,6 +980,12 @@ public abstract class TracedCollection {
         return getAsNumber(key, nullCaseAllowed, ifNull, generator, _ -> true);
     }
 
+    public final TracedEntry<Integer> getAsByte(Object key, boolean nullCaseAllowed, Integer ifNull)
+            throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
+
+        return getAsInteger(key, nullCaseAllowed, ifNull, num -> 0 <= num && num < 256);
+    }
+
     /**
      * Retrieves a field from this <code>TracedCollection</code> instance and parses
      * it into a <code>Long</code> value.
@@ -1182,7 +1189,7 @@ public abstract class TracedCollection {
 
             for (int i : array) {
 
-                TracedEntry<Integer> colorEntry = array.getAsInteger(i, false, null, num -> 0 <= num && num <= 255);
+                TracedEntry<Integer> colorEntry = array.getAsInteger(i, false, null, num -> 0 <= num && num < 256);
                 rgb[i] = colorEntry.getValue();
             }
 
@@ -1191,13 +1198,37 @@ public abstract class TracedCollection {
         }), stringCase(entry -> {
 
             String color = entry.getValue();
-            try {
+            return entry.cast(switch (color) {
 
-                return entry.cast(Color.decode(color));
-            } catch (NumberFormatException e) {
+            case "white" -> Color.WHITE;
+            case "lightGray" -> Color.LIGHT_GRAY;
+            case "gray" -> Color.GRAY;
+            case "darkGray" -> Color.DARK_GRAY;
+            case "black" -> Color.BLACK;
 
-                throw new UnexpectedValueException(entry);
+            case "red" -> Color.RED;
+            case "pink" -> Color.PINK;
+            case "orange" -> Color.ORANGE;
+            case "yellow" -> Color.YELLOW;
+            case "green" -> Color.GREEN;
+            case "magenta" -> Color.MAGENTA;
+            case "cyan" -> Color.CYAN;
+            case "blue" -> Color.BLUE;
+
+            default -> {
+
+                Color colorVal;
+                try {
+
+                    colorVal = Color.decode(color);
+                } catch (NumberFormatException e) {
+
+                    throw new UnexpectedValueException(entry);
+                }
+
+                yield colorVal;
             }
+            });
         })));
 
         if (nullCaseAllowed) {
@@ -1206,6 +1237,19 @@ public abstract class TracedCollection {
         }
 
         return get(key, cases);
+    }
+
+    public final TracedEntry<ColorRGBA> getAsColorRGBA(Object key, boolean nullCaseAllowed, ColorRGBA ifNull)
+            throws LoggedException {
+
+        TracedEntry<Color> colorEntry = getAsColor(key, nullCaseAllowed, null);
+
+        Color color = colorEntry.getValue();
+        ColorRGBA colorRGBA = color == null ? ifNull
+                : new ColorRGBA(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f,
+                        color.getAlpha() / 255f);
+
+        return colorEntry.cast(colorRGBA);
     }
 
     /**

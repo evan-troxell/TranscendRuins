@@ -201,12 +201,12 @@ public final class LayoutInstance extends AssetInstance {
 
             case PrimaryAssetInstance primary -> {
 
-                area.apply(primary);
+                // area.apply(primary);
             }
 
             case LayoutInstance layout -> {
 
-                area.apply(layout);
+                // area.apply(layout);
             }
 
             default -> {

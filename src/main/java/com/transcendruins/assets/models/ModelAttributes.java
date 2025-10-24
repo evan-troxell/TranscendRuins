@@ -21,11 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jme3.math.Vector2f;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.rendering.renderBuffer.LightData;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.KeyNameException;
@@ -97,9 +99,9 @@ public final class ModelAttributes extends AssetAttributes {
         return vertices;
     }
 
-    private final ImmutableList<Vector> uvs;
+    private final ImmutableList<Vector2f> uvs;
 
-    public final ImmutableList<Vector> getUvs() {
+    public final ImmutableList<Vector2f> getUvs() {
 
         return uvs;
     }
@@ -119,6 +121,13 @@ public final class ModelAttributes extends AssetAttributes {
     public ImmutableList<Integer> getPolygons() {
 
         return polygons;
+    }
+
+    private final ImmutableList<LightData> lights;
+
+    public final ImmutableList<LightData> getLights() {
+
+        return lights;
     }
 
     private final Bone root;
@@ -278,14 +287,24 @@ public final class ModelAttributes extends AssetAttributes {
                 throw new CollectionSizeException(uvsEntry, uvsJson);
             }
 
-            Vector minUvBounds = new Vector(0, 0);
-            Vector maxUvBounds = new Vector(textureWidth, textureHeight);
-
-            ArrayList<Vector> uvsList = new ArrayList<>();
+            ArrayList<Vector2f> uvsList = new ArrayList<>();
             for (int i : uvsJson) {
 
-                TracedEntry<Vector> uvEntry = uvsJson.getAsVector(i, false, 21, minUvBounds, maxUvBounds);
-                uvsList.add(uvEntry.getValue());
+                TracedEntry<TracedArray> uvEntry = uvsJson.getAsArray(i, false);
+                TracedArray uvJson = uvEntry.getValue();
+
+                if (uvJson.size() != 2) {
+
+                    throw new CollectionSizeException(uvEntry, uvJson);
+                }
+
+                TracedEntry<Float> uEntry = uvJson.getAsFloat(0, false, null, num -> 0 <= num && num < textureWidth);
+                float u = uEntry.getValue() / textureWidth;
+
+                TracedEntry<Float> vEntry = uvJson.getAsFloat(1, false, null, num -> 0 <= num && num < textureHeight);
+                float v = vEntry.getValue() / textureHeight;
+
+                uvsList.add(new Vector2f(u, v));
             }
 
             uvs = new ImmutableList<>(uvsList);
@@ -319,8 +338,20 @@ public final class ModelAttributes extends AssetAttributes {
 
             polygons = new ImmutableList<>(polygonsList);
 
+            ArrayList<LightData> lightsArray = new ArrayList<>();
+            TracedEntry<TracedArray> lightsEntry = modelJson.getAsArray("lights", true);
+            if (lightsEntry.containsValue()) {
+
+                TracedArray lightsJson = lightsEntry.getValue();
+                for (int i : lightsJson) {
+
+                    lightsArray.add(LightData.createLightData(lightsJson, i, vertices.size()));
+                }
+            }
+            lights = new ImmutableList<>(lightsArray);
+
             HashMap<String, Bone> allBonesMap = new HashMap<>();
-            root = Bone.createBone(json, allBonesMap, vertices.size());
+            root = Bone.createBone(modelJson, allBonesMap, vertices.size());
 
             allBones = new ImmutableMap<>(allBonesMap);
         } else {
@@ -331,6 +362,7 @@ public final class ModelAttributes extends AssetAttributes {
             vertices = null;
             uvs = null;
             polygons = null;
+            lights = null;
 
             root = null;
             allBones = null;

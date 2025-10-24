@@ -55,7 +55,7 @@ public final class EntityInstance extends PrimaryAssetInstance {
     }
 
     @Override
-    public final Rectangle getTileBounds() {
+    protected final Rectangle getInternalTileBounds() {
 
         double C = Math.cos(Math.toRadians(heading));
         double S = Math.sin(Math.toRadians(heading));

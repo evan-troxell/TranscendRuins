@@ -18,11 +18,10 @@ package com.transcendruins.world;
 
 import java.awt.Dimension;
 import java.util.Arrays;
-import java.util.Set;
 
 import com.transcendruins.assets.layouts.shape.GenerationShapeInstance;
 import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
-import com.transcendruins.graphics3d.PolyGroup;
+import com.transcendruins.rendering.renderBuffer.RenderBuffer;
 
 /**
  * <code>AreaGrid</code>: A class representing a grid of tiles which a location
@@ -289,12 +288,12 @@ public final class AreaGrid {
     /**
      * Retrieves the polygons contained within this <code>AreaGrid</code> instance.
      * 
-     * @return <code>Set&lt;PolyGroup&gt;</code>: The set of all polygons in the
-     *         elements, entities, items, and other rendered assets of this
-     *         <code>AreaGrid</code> instance.
+     * @return <code>RenderBuffer</code>: The polygons in the elements, entities,
+     *         items, and other rendered assets of this <code>AreaGrid</code>
+     *         instance.
      */
-    public final Set<PolyGroup> getPolygons() {
+    public final RenderBuffer getPolygons() {
 
-        return Set.of();
+        return new RenderBuffer();
     }
 }

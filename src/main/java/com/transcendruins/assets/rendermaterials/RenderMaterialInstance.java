@@ -16,9 +16,13 @@
 
 package com.transcendruins.assets.rendermaterials;
 
+import java.awt.image.BufferedImage;
+
+import com.jme3.math.ColorRGBA;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.rendering.renderBuffer.MaterialData;
 
 /**
  * <code>RenderMaterialInstance</code>: A class representing a generated render
@@ -26,114 +30,44 @@ import com.transcendruins.assets.assets.AssetInstance;
  */
 public final class RenderMaterialInstance extends AssetInstance {
 
-    /**
-     * <code>boolean</code>: Whether or not backface culling should be applied to
-     * this <code>RenderMaterialInstance</code> instance.
-     */
-    private boolean backfaceCulling;
+    private boolean lit;
 
-    /**
-     * Retrieves the <code>backfaceCulling</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not backface culling should be
-     *         implemented.
-     */
-    public final boolean backfaceCulling() {
+    private boolean diffuses;
+    private ColorRGBA diffuse;
 
-        return backfaceCulling;
-    }
+    private boolean hasAmbient;
+    private ColorRGBA ambient;
 
-    /**
-     * <code>boolean</code>: Whether or not the fresnel effect (opaqueness increase
-     * as the viewing plane becomes perpendicular to the polygon being viewed)
-     * should be applied to this <code>RenderMaterialInstance</code> instance.
-     */
-    private boolean fresnelEffect;
+    private int shininess;
 
-    /**
-     * Retrieves the <code>fresnelEffect</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not the Fresnel effect should be
-     *         implemented.
-     */
-    public final boolean fresnelEffect() {
+    private boolean hasSpecularMap;
 
-        return fresnelEffect;
-    }
+    private ColorRGBA specular;
+    private boolean hasSpecular;
 
-    /**
-     * <code>boolean</code>: Whether or not the face dimming effect (light becomes
-     * dimmer as the viewing plane becomes orthogonal to the polygon being viewed)
-     * should be applied to this <code>RenderMaterialInstance</code> instance.
-     */
-    private boolean faceDimming;
+    private String specularMapPath;
+    private BufferedImage specularMap;
 
-    /**
-     * Retrieves the <code>faceDimming</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not face dimming should be
-     *         implemented.
-     */
-    public final boolean faceDimming() {
+    private boolean transparent;
 
-        return faceDimming;
-    }
+    private boolean hasBackfaceCulling;
 
-    /**
-     * <code>double</code>: The factor which should be applied to the face dimming
-     * effect.
-     */
-    private double faceDimmingFactor;
+    private int materialBitMask;
 
-    /**
-     * Retrieves the <code>faceDimmingFactor</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>double</code>: The retrieved face dimming factor.
-     */
-    public final double faceDimmingFactor() {
+    private int createMaterialBitMask() {
 
-        return faceDimmingFactor;
-    }
+        byte mask = 0;
+        boolean[] bits = { lit, diffuses, hasAmbient, hasSpecular, hasSpecularMap, transparent, hasBackfaceCulling };
 
-    /**
-     * <code>boolean</code>: Whether or not anti aliasing (pixel alpha adjustments
-     * as the polygon border intersects more of the pixel) should be applied to this
-     * <code>RenderMaterialInstance</code> instance.
-     */
-    private boolean antiAliasing;
+        for (int i = 0; i < bits.length; i++) {
 
-    /**
-     * Retrieves the <code>antiAliasing</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not anti aliasing should be
-     *         implemented.
-     */
-    public final boolean antiAliasing() {
+            if (bits[i]) {
 
-        return antiAliasing;
-    }
+                mask |= 1 << i;
+            }
+        }
 
-    /**
-     * <code>boolean</code>: Whether or alpha cancelling (total opaqueness) should
-     * be applied to this <code>RenderMaterialInstance</code> instance.
-     */
-    private boolean opaque;
-
-    /**
-     * Retrieves the <code>opaque</code> field of this
-     * <code>RenderMaterialAttributes</code> instance.
-     * 
-     * @return <code>boolean</code>: Whether or not alpha cancelling should be
-     *         implemented.
-     */
-    public final boolean opaque() {
-
-        return opaque;
+        return mask;
     }
 
     /**
@@ -156,31 +90,56 @@ public final class RenderMaterialInstance extends AssetInstance {
 
         RenderMaterialAttributes attributes = (RenderMaterialAttributes) attributeSet;
 
-        // Updates the backfaceCulling field.
-        backfaceCulling = calculateAttribute(attributes.getBackfaceCulling(), backfaceCulling, attributeSet, true);
-        setProperty("backfaceCulling", backfaceCulling);
+        lit = calculateAttribute(attributes.getLit(), lit, attributes, false);
+        setProperty("lit", lit);
 
-        // Updates the fresnelEffect field.
-        fresnelEffect = calculateAttribute(attributes.getFresnelEffect(), fresnelEffect, attributeSet, false);
-        setProperty("fresnelEffect", fresnelEffect);
+        diffuse = calculateAttribute(attributes.getDiffuse(), diffuse, attributes, null);
+        diffuses = diffuse != null;
+        setProperty("diffuses", diffuses);
 
-        // Updates the faceDimmingFactor field.
-        faceDimmingFactor = calculateAttribute(attributes.getFaceDimmingFactor(), faceDimmingFactor, attributeSet, 0.0);
-        setProperty("faceDimmingFactor", faceDimmingFactor);
+        ambient = calculateAttribute(attributes.getAmbient(), ambient, attributes, null);
+        hasAmbient = ambient != null;
+        setProperty("hasAmbient", hasAmbient);
 
-        faceDimming = faceDimmingFactor != 0.0;
-        setProperty("faceDimming", faceDimming);
+        shininess = calculateAttribute(attributes.getShininess(), shininess, attributes, 16);
+        setProperty("shininess", shininess);
 
-        // Updates the antiAliasing field.
-        antiAliasing = calculateAttribute(attributes.getAntiAliasing(), antiAliasing, attributeSet, true);
-        setProperty("antiAliasing", antiAliasing);
+        specular = calculateAttribute(attributes.getSpecular(), specular, attributes, null);
+        hasSpecular = specular != null;
+        setProperty("hasSpecular", hasSpecular);
 
-        // Updates the opaque field.
-        opaque = calculateAttribute(attributes.getOpaque(), opaque, attributeSet, true);
-        setProperty("opaque", opaque);
+        specularMapPath = calculateAttribute(attributes.getSpecularMap(), specularMapPath, attributes, null);
+        setProperty("specularMap", specularMapPath);
+
+        hasSpecularMap = specularMapPath != null;
+        setProperty("hasSpecularMap", hasSpecularMap);
+
+        if (hasSpecularMap) {
+
+            specularMap = getInstanceTextureAsBufferedImage(specularMapPath, BufferedImage.TYPE_INT_ARGB);
+        } else {
+
+            specularMap = null;
+        }
+
+        transparent = calculateAttribute(attributes.getTransparent(), transparent, attributes, false);
+        setProperty("transparent", transparent);
+
+        hasBackfaceCulling = calculateAttribute(attributes.getHasBackfaceCulling(), hasBackfaceCulling, attributes,
+                true);
+        setProperty("hasBackfaceCulling", hasBackfaceCulling);
+
+        materialBitMask = createMaterialBitMask();
+        setProperty("materialBitMask", materialBitMask);
     }
 
     @Override
     protected void onUpdate(double time) {
+    }
+
+    public final MaterialData createMaterialData(BufferedImage texture, int textureWidth, int textureHeight) {
+
+        return new MaterialData(texture, textureWidth, textureHeight, materialBitMask, diffuse, ambient, shininess,
+                specular, specularMap);
     }
 }

@@ -17,9 +17,6 @@
 package com.transcendruins.assets.primaryassets;
 
 import java.awt.Rectangle;
-
-import static com.transcendruins.assets.AssetType.ELEMENT;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,9 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static com.transcendruins.assets.AssetType.ELEMENT;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
@@ -47,7 +43,7 @@ import com.transcendruins.assets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.rendering.RenderBuffer;
+import com.transcendruins.rendering.renderBuffer.RenderBuffer;
 import com.transcendruins.utilities.immutable.ImmutableSet;
 import com.transcendruins.world.AreaGrid;
 import com.transcendruins.world.AreaTile;
@@ -136,7 +132,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
                 for (AreaTile tile : remove) {
 
-                    tile.removeElement(element);
+                    // tile.removeElement(element);
                 }
             } else {
 
@@ -144,7 +140,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
                 for (AreaTile tile : remove) {
 
-                    tile.removeEntity(entity);
+                    // tile.removeEntity(entity);
                 }
             }
         }
@@ -161,7 +157,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
                 for (AreaTile tile : add) {
 
-                    tile.addElement(element);
+                    // tile.addElement(element);
                 }
             } else {
 
@@ -169,7 +165,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
                 for (AreaTile tile : add) {
 
-                    tile.addEntity(entity);
+                    // tile.addEntity(entity);
                 }
             }
         }
@@ -177,7 +173,17 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         tiles = new ImmutableSet<>(newTiles);
     }
 
-    public abstract Rectangle getTileBounds();
+    public final Rectangle getTileBounds() {
+
+        if (hasModelParent()) {
+
+            return getModelParent().getTileBounds();
+        }
+
+        return getInternalTileBounds();
+    }
+
+    protected abstract Rectangle getInternalTileBounds();
 
     private Vector hitbox;
 
@@ -192,6 +198,8 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
         setModelParent(parent);
         this.modelParentAttachment = modelParentAttachment;
+
+        queueTileUpdate();
     }
 
     @Override
@@ -199,6 +207,8 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
         setModelParent(null);
         modelParentAttachment = null;
+
+        queueTileUpdate();
     }
 
     @Override

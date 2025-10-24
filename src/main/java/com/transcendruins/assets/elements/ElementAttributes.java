@@ -36,7 +36,7 @@ public final class ElementAttributes extends PrimaryAssetAttributes {
 
     public final Dimension getTileDimensions() {
 
-        return new Dimension(tileDimensions);
+        return tileDimensions != null ? new Dimension(tileDimensions) : null;
     }
 
     /**

@@ -32,12 +32,14 @@ import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.models.ModelAttributes.WeightedVertex;
 import com.transcendruins.assets.models.ModelContext;
 import com.transcendruins.assets.models.ModelInstance;
+import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.rendermaterials.RenderMaterialContext;
 import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.rendering.RenderBuffer;
 import com.transcendruins.rendering.RenderInstance;
+import com.transcendruins.rendering.renderBuffer.LightData;
+import com.transcendruins.rendering.renderBuffer.RenderBuffer;
 import com.transcendruins.utilities.immutable.ImmutableList;
 
 /**
@@ -59,9 +61,9 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         this.location = location;
     }
 
-    private ModelAssetInstance modelParent;
+    private PrimaryAssetInstance modelParent;
 
-    protected final void setModelParent(ModelAssetInstance modelParent) {
+    protected final void setModelParent(PrimaryAssetInstance modelParent) {
 
         if (modelParent != null) {
 
@@ -83,7 +85,7 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         return modelParent != null;
     }
 
-    public final ModelAssetInstance getModelParent() {
+    public final PrimaryAssetInstance getModelParent() {
 
         return modelParent;
     }
@@ -223,7 +225,11 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
             indices.add(v3);
         }
 
-        return new RenderBuffer(vertices, model.getUvs(), indices, texture, renderMaterial);
+        List<LightData> lights = model.getLights().stream().filter(light -> !disabledVertices.contains(light.index()))
+                .toList();
+
+        return new RenderBuffer(vertices, model.getUvs(), indices, texture, model.getTextureWidth(),
+                model.getTextureHeight(), renderMaterial, lights);
     }
 
     /**

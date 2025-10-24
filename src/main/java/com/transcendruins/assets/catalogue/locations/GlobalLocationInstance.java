@@ -21,7 +21,6 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.ImageIcon;
 
@@ -32,6 +31,7 @@ import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.interfaces.map.LocationRender;
 import com.transcendruins.assets.layouts.LayoutContext;
 import com.transcendruins.assets.layouts.LayoutInstance;
+import com.transcendruins.rendering.renderBuffer.RenderBuffer;
 import com.transcendruins.resources.styles.Style.TextureSize;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -331,11 +331,11 @@ public final class GlobalLocationInstance extends PropertyHolder {
         // TODO update the area with the player entity
     }
 
-    public final Set<PolyGroup> getPolygons(Player player) {
+    public final RenderBuffer getPolygons(Player player) {
 
         if (!players.containsKey(player)) {
 
-            return Set.of();
+            return new RenderBuffer();
         }
 
         return areas.get(players.get(player)).getPolygons();

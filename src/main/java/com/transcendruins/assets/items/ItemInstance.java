@@ -32,7 +32,7 @@ import com.transcendruins.assets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Vector;
-import com.transcendruins.rendering.RenderBuffer;
+import com.transcendruins.rendering.renderBuffer.RenderBuffer;
 
 /**
  * <code>ItemInstance</code>: A class representing a generated item instance.
@@ -158,6 +158,7 @@ public final class ItemInstance extends ModelAssetInstance {
     protected RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector position,
             Quaternion rotation) {
 
+        // Under normal circumstances, this should not be possible.
         return new RenderBuffer();
     }
 

@@ -22,12 +22,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.jme3.math.Vector2f;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelAttributes.WeightedVertex;
 import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.rendering.renderBuffer.LightData;
+import com.transcendruins.utilities.immutable.Immutable;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 
@@ -117,13 +120,13 @@ public final class ModelInstance extends AssetInstance {
     }
 
     /**
-     * <code>ImmutableList&lt;Vector&gt;</code>: The uvs of this
+     * <code>ImmutableList&lt;Vector2f&gt;</code>: The uvs of this
      * <code>ModelInstance</code> instance. Each UV vector corresponds to the
      * respective vertex in the model.
      */
-    private ImmutableList<Vector> uvs;
+    private ImmutableList<Vector2f> uvs;
 
-    public final ImmutableList<Vector> getUvs() {
+    public final ImmutableList<Vector2f> getUvs() {
 
         return uvs;
     }
@@ -138,6 +141,13 @@ public final class ModelInstance extends AssetInstance {
     public final ImmutableList<Integer> getPolygons() {
 
         return polygons;
+    }
+
+    private ImmutableList<LightData> lights;
+
+    public final ImmutableList<LightData> getLights() {
+
+        return lights;
     }
 
     /**
@@ -227,6 +237,8 @@ public final class ModelInstance extends AssetInstance {
             vertices = attributes.getVertices();
             uvs = attributes.getUvs();
             polygons = attributes.getPolygons();
+
+            lights = attributes.getLights();
 
             disableByBone.clear();
             disableByTag.clear();

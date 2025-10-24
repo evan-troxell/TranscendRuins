@@ -16,6 +16,8 @@
 
 package com.transcendruins.rendering;
 
+import com.transcendruins.rendering.renderBuffer.RenderBuffer;
+
 /**
  * <code>RenderInstance</code>: An interface representing a model to be
  * rendered, paired with its instance context.
