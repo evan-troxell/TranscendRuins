@@ -220,11 +220,11 @@ public final class Vector extends Matrix {
      *               <code>Vector</code> instance.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
-    public Vector add(Vector vector) {
+    public final Vector add(Vector vector) {
 
-        if (vector == null) {
+        if (vector == IDENTITY_VECTOR) {
 
-            return null;
+            return this;
         }
 
         return addMatrix(vector);
@@ -242,11 +242,11 @@ public final class Vector extends Matrix {
      *               <code>Vector</code> instance.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
-    public Vector subtract(Vector vector) {
+    public final Vector subtract(Vector vector) {
 
-        if (vector == null) {
+        if (vector == IDENTITY_VECTOR) {
 
-            return null;
+            return this;
         }
 
         return subtractMatrix(vector);
@@ -285,11 +285,11 @@ public final class Vector extends Matrix {
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
     @Override
-    public Vector multiply(Matrix matrix) {
+    public final Vector multiply(Matrix matrix) {
 
-        if (matrix == null) {
+        if (matrix == Matrix.IDENTITY_3X3) {
 
-            return null;
+            return this;
         }
 
         Matrix vectorMatrix = super.multiply(matrix);
@@ -297,6 +297,7 @@ public final class Vector extends Matrix {
 
             return null;
         }
+
         return new Vector(vectorMatrix);
     }
 
@@ -313,7 +314,7 @@ public final class Vector extends Matrix {
      * @return <code>double</code>: The dot product of the two <code>Vector</code>
      *         instances.
      */
-    public Double dot(Vector vector) {
+    public final Double dot(Vector vector) {
 
         if (vector == null || dimensions != vector.dimensions) {
 
@@ -348,7 +349,7 @@ public final class Vector extends Matrix {
      *               using.
      * @return <code>Vector</code>: The generated <code>Vector</code> instance.
      */
-    public Vector cross3D(Vector vector) {
+    public final Vector cross3D(Vector vector) {
 
         if (vector == null || dimensions != 3 || vector.dimensions != 3) {
 
@@ -370,7 +371,12 @@ public final class Vector extends Matrix {
      * @return <code>Vector</code>: The resulting vector.
      */
     @Override
-    public Vector rotate(Quaternion quat) {
+    public final Vector rotate(Quaternion quat) {
+
+        if (quat == Quaternion.IDENTITY_QUATERNION) {
+
+            return this;
+        }
 
         return quat.multiply(toQuaternion()).multiply(quat.toConjugate()).toVector();
     }
@@ -382,7 +388,7 @@ public final class Vector extends Matrix {
      * @return <code>double</code>: The magnitude of this <code>Vector</code>
      *         instance.
      */
-    public double magnitude() {
+    public final double magnitude() {
 
         double newValue = 0d;
 

@@ -16,6 +16,7 @@
 
 package com.transcendruins.world;
 
+import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -154,15 +155,13 @@ public final class AreaGrid {
     /**
      * Creates a new, blank instance of the <code>AreaGrid</code> class.
      * 
-     * @param width  <code>int</code>: The width of the new <code>AreaGrid</code>
-     *               instance.
-     * @param length <code>int</code>: The length of the new <code>AreaGrid</code>
-     *               instance.
+     * @param dimensions <code>Dimension</code>: The dimensions of the new
+     *                   <code>AreaGrid</code> instance.
      */
-    public AreaGrid(int width, int length) {
+    public AreaGrid(Dimension dimensions) {
 
-        this.width = width;
-        this.length = length;
+        this.width = dimensions.width;
+        this.length = dimensions.height;
 
         tiles = new AreaTile[width * length];
         Arrays.setAll(tiles, _ -> new AreaTile());

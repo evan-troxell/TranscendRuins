@@ -32,7 +32,6 @@ import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.interfaces.map.LocationRender;
 import com.transcendruins.assets.layouts.LayoutContext;
 import com.transcendruins.assets.layouts.LayoutInstance;
-import com.transcendruins.graphics3d.PolyGroup;
 import com.transcendruins.resources.styles.Style.TextureSize;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -365,9 +364,18 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     public final String getResetCounter(ZonedDateTime now) {
 
-        if (!reset.getDisplayCountdownTimer() || reset.getDuration() == -1) {
+        if (!reset.getDisplayCountdownTimer() || reset.getDuration() == -1 || locationResetTimestamp == null
+                || locationResetTimestamp == null || resetOffsetCounter == 0) {
 
             return null;
+        }
+
+        if (!players.isEmpty()) {
+
+            double minutes = reset.getDuration() + resetOffsetCounter + minutesBetween(prevEntranceTimestamp, now)
+                    - minutesBetween(locationResetTimestamp, now);
+
+            return formatMinutes(minutes);
         }
 
         double remaining = getMinutesUntilReset(now);

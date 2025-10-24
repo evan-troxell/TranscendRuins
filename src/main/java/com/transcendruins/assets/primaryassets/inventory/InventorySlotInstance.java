@@ -55,7 +55,27 @@ public final class InventorySlotInstance extends Instance {
 
     public final void setItem(ItemInstance item) {
 
+        if (this.item != null) {
+
+            this.item.setModelParent(null, null);
+        }
+
         this.item = item;
+
+        if (this.item != null) {
+
+            this.item.setModelParent(parent.getInventoryParent(), this);
+        }
+    }
+
+    public final boolean transfer(InventorySlotInstance other) {
+
+        ItemInstance newItem = other.getItem();
+
+        ItemInstance remainderItem = other.putItem(item);
+        setItem(remainderItem);
+
+        return getItem() == newItem;
     }
 
     public final boolean putSlot(InventorySlotInstance other) {
@@ -69,8 +89,7 @@ public final class InventorySlotInstance extends Instance {
             return false;
         }
 
-        newItem = other.putItem(oldItem);
-        setItem(newItem);
+        transfer(other);
 
         return item == newItem;
     }
@@ -108,7 +127,7 @@ public final class InventorySlotInstance extends Instance {
             if (item == null) {
 
                 item = this.item;
-                this.item = null;
+                setItem(null);
 
                 return item;
             }
@@ -177,11 +196,11 @@ public final class InventorySlotInstance extends Instance {
         return isEmpty() && isAcceptedType(item);
     }
 
-    private String modelSocket;
+    private String modelAttachment;
 
-    public final String getModelSocket() {
+    public final String getModelAttachment() {
 
-        return modelSocket;
+        return modelAttachment;
     }
 
     public InventorySlotInstance(InventoryInstance parent, int index) {
@@ -202,6 +221,6 @@ public final class InventorySlotInstance extends Instance {
         InventorySlotSchema attributes = (InventorySlotSchema) attributeSet;
 
         acceptedTypes = calculateAttribute(attributes.getAcceptedTypes(), acceptedTypes, attributes, null);
-        modelSocket = calculateAttribute(attributes.getModelSocket(), modelSocket, attributes, null);
+        modelAttachment = calculateAttribute(attributes.getModelAttachment(), modelAttachment, attributes, null);
     }
 }

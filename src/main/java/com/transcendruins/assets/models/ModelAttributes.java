@@ -17,15 +17,14 @@
 package com.transcendruins.assets.models;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
@@ -55,7 +54,7 @@ public final class ModelAttributes extends AssetAttributes {
      * @return <code>Integer</code>: The <code>textureWidth</code> field of this
      *         <code>ModelAttributes</code> instance.
      */
-    public Integer getTextureWidth() {
+    public final Integer getTextureWidth() {
 
         return textureWidth;
     }
@@ -73,7 +72,7 @@ public final class ModelAttributes extends AssetAttributes {
      * @return <code>Integer</code>: The <code>textureHeight</code> field of this
      *         <code>ModelAttributes</code> instance.
      */
-    public Integer getTextureHeight() {
+    public final Integer getTextureHeight() {
 
         return textureHeight;
     }
@@ -93,64 +92,58 @@ public final class ModelAttributes extends AssetAttributes {
      *         <code>vertices</code> field of this <code>ModelAttributes</code>
      *         instance.
      */
-    public ImmutableList<WeightedVertex> getVertices() {
+    public final ImmutableList<WeightedVertex> getVertices() {
 
         return vertices;
     }
 
+    private final ImmutableList<Vector> uvs;
+
+    public final ImmutableList<Vector> getUvs() {
+
+        return uvs;
+    }
+
     /**
-     * <code>ImmutableList&lt;IndexedPolygon&gt;</code>: The polygons of this
+     * <code>ImmutableList&lt;Integer&gt;</code>: The polygons of this
      * <code>ModelAttributes</code> instance.
      */
-    private final ImmutableList<IndexedPolygon> polygons;
+    private final ImmutableList<Integer> polygons;
 
     /**
      * Retrieves the polygons of this <code>ModelAttributes</code> instance.
      * 
-     * @return <code>ImmutableList&lt;IndexedPolygon&gt;</code>: The
-     *         <code>polygons</code> field of this <code>ModelAttributes</code>
-     *         instance.
+     * @return <code>ImmutableList&lt;Integer&gt;</code>: The <code>polygons</code>
+     *         field of this <code>ModelAttributes</code> instance.
      */
-    public ImmutableList<IndexedPolygon> getPolygons() {
+    public ImmutableList<Integer> getPolygons() {
 
         return polygons;
     }
 
+    private final Bone root;
+
+    public final Bone getRoot() {
+
+        return root;
+    }
+
     /**
-     * <code>ImmutableMap&lt;String, Bone&gt;</code>: The bones of this
-     * <code>ModelAttributes</code> instance. Each bone is a polygon layout which
-     * can be used to animate the model.
+     * <code>ImmutableSet&lt;String&gt;</code>: The bones of this
+     * <code>ModelAttributes</code> instance.
      */
-    private final ImmutableMap<String, Bone> bones;
+    private final ImmutableMap<String, Bone> allBones;
 
     /**
      * Retrieves the bones of this <code>ModelAttributes</code> instance.
      * 
-     * @return <code>ImmutableMap&lt;String, Bone&gt;</code>: The <code>bones</code>
-     *         field of this <code>ModelAttributes</code> instance.
+     * @return <code>ImmutableMap&lt;String, Bone&gt;</code>: The
+     *         <code>pivotPoints</code> field of this <code>ModelAttributes</code>
+     *         instance.
      */
-    public ImmutableMap<String, Bone> getBones() {
+    public ImmutableMap<String, Bone> getAllBones() {
 
-        return bones;
-    }
-
-    /**
-     * <code>Vector</code>: The origin of this <code>ModelAttributes</code>
-     * instance. This is the point around which the model will rotate and scale
-     * about during animations. Note that, as the origin, all vertices in the model
-     * are relative to this point.
-     */
-    private final Vector origin;
-
-    /**
-     * Retrieves the origin of this <code>ModelAttributes</code> instance.
-     * 
-     * @return <code>Vector</code>: The <code>origin</code> field of this
-     *         <code>ModelAttributes</code> instance.
-     */
-    public Vector getOrigin() {
-
-        return origin;
+        return allBones;
     }
 
     /**
@@ -167,7 +160,7 @@ public final class ModelAttributes extends AssetAttributes {
      *         <code>disableByBone</code> field of this <code>ModelAttributes</code>
      *         instance.
      */
-    public ImmutableList<String> getdisableByBone() {
+    public ImmutableList<String> getDisableByBone() {
 
         return disableByBone;
     }
@@ -186,7 +179,7 @@ public final class ModelAttributes extends AssetAttributes {
      *         <code>enableByBone</code> field of this <code>ModelAttributes</code>
      *         instance.
      */
-    public ImmutableList<String> getenableByBone() {
+    public ImmutableList<String> getEnableByBone() {
 
         return enableByBone;
     }
@@ -205,7 +198,7 @@ public final class ModelAttributes extends AssetAttributes {
      *         <code>disableByTag</code> field of this <code>ModelAttributes</code>
      *         instance.
      */
-    public ImmutableList<String> getdisableByTag() {
+    public ImmutableList<String> getDisableByTag() {
 
         return disableByTag;
     }
@@ -224,7 +217,7 @@ public final class ModelAttributes extends AssetAttributes {
      *         <code>enableByTag</code> field of this <code>ModelAttributes</code>
      *         instance.
      */
-    public ImmutableList<String> getenableByTag() {
+    public ImmutableList<String> getEnableByTag() {
 
         return enableByTag;
     }
@@ -270,7 +263,6 @@ public final class ModelAttributes extends AssetAttributes {
             }
 
             ArrayList<WeightedVertex> verticesList = new ArrayList<>();
-
             for (int i : verticesJson) {
 
                 TracedEntry<Vector> vertexIndexEntry = verticesJson.getAsVector(i, false, 3);
@@ -279,99 +271,69 @@ public final class ModelAttributes extends AssetAttributes {
 
             vertices = new ImmutableList<>(verticesList);
 
+            TracedEntry<TracedArray> uvsEntry = modelJson.getAsArray("uvs", false);
+            TracedArray uvsJson = uvsEntry.getValue();
+            if (uvsJson.size() != vertices.size()) {
+
+                throw new CollectionSizeException(uvsEntry, uvsJson);
+            }
+
+            Vector minUvBounds = new Vector(0, 0);
+            Vector maxUvBounds = new Vector(textureWidth, textureHeight);
+
+            ArrayList<Vector> uvsList = new ArrayList<>();
+            for (int i : uvsJson) {
+
+                TracedEntry<Vector> uvEntry = uvsJson.getAsVector(i, false, 21, minUvBounds, maxUvBounds);
+                uvsList.add(uvEntry.getValue());
+            }
+
+            uvs = new ImmutableList<>(uvsList);
+
             // Create the polygons to be rendered and assign them with their individual
             // vertices.
             TracedEntry<TracedArray> polygonsEntry = modelJson.getAsArray("polygons", false);
             TracedArray polygonsJson = polygonsEntry.getValue();
 
-            ArrayList<IndexedPolygon> polygonsList = new ArrayList<>();
+            ArrayList<Integer> polygonsList = new ArrayList<>();
 
             for (int polygonIndex : polygonsJson) {
 
-                TracedEntry<TracedDictionary> polygonEntry = polygonsJson.getAsDict(polygonIndex, false);
-                TracedDictionary polygonJson = polygonEntry.getValue();
+                TracedEntry<TracedArray> polygonEntry = polygonsJson.getAsArray(polygonIndex, false);
+                TracedArray polygonJson = polygonEntry.getValue();
 
-                TracedEntry<TracedArray> polygonVerticesEntry = polygonJson.getAsArray("vertices", false);
-                TracedArray polygonVerticesJson = polygonVerticesEntry.getValue();
-                if (polygonVerticesJson.size() != 3) {
+                if (polygonJson.size() != 3) {
 
-                    throw new CollectionSizeException(polygonVerticesEntry, polygonVerticesJson);
+                    throw new CollectionSizeException(polygonEntry, polygonJson);
                 }
-                int[] vertexIndices = new int[3];
 
                 // For each vertex of the triangle, retrieve the appropriate vertex from the
                 // vertices perameter.
-                for (int i = 0; i < vertexIndices.length; i++) {
+                for (int i = 0; i < polygonJson.size(); i++) {
 
-                    TracedEntry<Integer> vertexIndexEntry = polygonVerticesJson.getAsInteger(i, false, null,
+                    TracedEntry<Integer> vertexIndexEntry = polygonJson.getAsInteger(i, false, null,
                             num -> 0 <= num && num < vertices.size());
-                    vertexIndices[i] = vertexIndexEntry.getValue();
+                    polygonsList.add(vertexIndexEntry.getValue());
                 }
-
-                // Retrieve the color field of the polygon.
-                TracedEntry<TracedArray> uvsEntry = polygonJson.getAsArray("uvs", false);
-                TracedArray uvsJson = uvsEntry.getValue();
-
-                if (uvsJson.size() != 3) {
-
-                    throw new CollectionSizeException(uvsEntry, uvsJson);
-                }
-
-                Vector minUvBounds = new Vector(0, 0);
-                Vector maxUvBounds = new Vector(textureWidth, textureHeight);
-
-                Vector[] uvsArray = new Vector[3];
-                for (int i : uvsJson) {
-
-                    TracedEntry<Vector> uvEntry = uvsJson.getAsVector(i, false, 2, minUvBounds, maxUvBounds);
-                    uvsArray[i] = uvEntry.getValue();
-                }
-
-                Triangle uvs = new Triangle(uvsArray[0], uvsArray[1], uvsArray[2]);
-
-                polygonsList.add(new IndexedPolygon(vertexIndices, uvs));
             }
 
             polygons = new ImmutableList<>(polygonsList);
 
-            TracedEntry<Vector> originEntry = modelJson.getAsVector("origin", false, 3);
-            origin = originEntry.getValue();
+            HashMap<String, Bone> allBonesMap = new HashMap<>();
+            root = Bone.createBone(json, allBonesMap, vertices.size());
 
-            HashMap<String, Bone> bonesMap = new HashMap<>();
-
-            // TODO This is duplicate code to the Bone constructor, if the model can have a
-            // single root bone, then this code can be removed.
-            TracedEntry<TracedDictionary> bonesEntry = modelJson.getAsDict("bones", true);
-            if (bonesEntry.containsValue()) {
-
-                TracedDictionary bonesJson = bonesEntry.getValue();
-                for (String boneKey : bonesJson) {
-
-                    // If any other bones in the model have the same key, raise an exception.
-                    if (bonesMap.containsKey(boneKey)) {
-
-                        throw new KeyNameException(bonesJson, boneKey);
-                    }
-
-                    TracedEntry<TracedDictionary> boneEntry = bonesJson.getAsDict(boneKey, false);
-                    TracedDictionary boneJson = boneEntry.getValue();
-
-                    Bone newBone = new Bone(boneJson, bonesMap, new ArrayList<>(), boneKey);
-                    bonesMap.put(boneKey, newBone);
-                }
-
-            }
-
-            bones = new ImmutableMap<>(bonesMap);
+            allBones = new ImmutableMap<>(allBonesMap);
         } else {
 
             textureWidth = null;
             textureHeight = null;
 
-            origin = null;
             vertices = null;
+            uvs = null;
             polygons = null;
-            bones = null;
+
+            root = null;
+            allBones = null;
         }
 
         TracedEntry<TracedArray> disableByBoneEntry = json.getAsArray("disableByBone", true);
@@ -462,7 +424,7 @@ public final class ModelAttributes extends AssetAttributes {
      * <code>ModelAttributes</code> instance which can be modified using a weighting
      * system.
      */
-    public final class WeightedVertex {
+    public static final class WeightedVertex {
 
         /**
          * <code>Vector</code>: The initial position of this <code>WeightedVertex</code>
@@ -485,16 +447,11 @@ public final class ModelAttributes extends AssetAttributes {
         /**
          * Retrieves the weighted vertex of this <code>WeightedVertex</code> instance.
          * 
-         * @param weights <code>HashMap&lt;String, Vector&gt;</code>: The map of bones
-         *                to their respective vertex which should be applied.
+         * @param weights <code>Map&lt;String, Vector&gt;</code>: The map of bones to
+         *                their respective vertex which should be applied.
          * @return <code>Vector</code>: The generated vertex.
          */
-        public Vector getWeightedVertex(HashMap<Vector, Double> vertices) {
-
-            if (vertices == null || vertices.isEmpty()) {
-
-                return baseVertex;
-            }
+        public final Vector getWeightedVertex(Map<Vector, Double> vertices) {
 
             Vector returnVertex = Vector.IDENTITY_VECTOR;
             double weightSum = 0.0;
@@ -513,71 +470,26 @@ public final class ModelAttributes extends AssetAttributes {
 
             return returnVertex.multiply(1.0 / weightSum);
         }
-    }
 
-    /**
-     * <code>IndexedPolygon</code>: A class representing a polygon which is defined
-     * only with the indices of vertices in another list.
-     */
-    public final class IndexedPolygon {
+        public static final List<Vector> getWeightedVertices(List<WeightedVertex> weightedVertices,
+                Map<Integer, Map<Vector, Double>> vertices) {
 
-        /**
-         * <code>int[3]</code>: The vertex indices of this <code>IndexedPolygon</code>
-         * instance.
-         */
-        private final int[] vertexIndices;
+            int verticesCount = weightedVertices.size();
+            ArrayList<Vector> newVertices = new ArrayList<>(verticesCount);
 
-        /**
-         * <code>Triangle</code>: The texture UVs of this <code>IndexedPolygon</code>
-         * instance.
-         */
-        private final Triangle uvs;
+            for (int i = 0; i < verticesCount; i++) {
 
-        /**
-         * Creates a new instance of the <code>IndexedPolygon</code> class.
-         * 
-         * @param vertexIndices <code>int[3]</code>: The vertex index of this
-         *                      <code>IndexedPolygon</code> instance.
-         * @param uvs           <code>Triangle</code>: The texture UVs of this
-         *                      <code>IndexedPolygon</code> instance.
-         */
-        private IndexedPolygon(int[] vertexIndices, Triangle uvs) {
+                WeightedVertex weighted = weightedVertices.get(i);
+                if (vertices.containsKey(i)) {
 
-            this.vertexIndices = vertexIndices;
-            this.uvs = uvs;
-        }
+                    newVertices.add(weighted.getWeightedVertex(vertices.get(i)));
+                } else {
 
-        /**
-         * Retrieves the polygon of this <code>IndexedPolygon</code> instance.
-         * 
-         * @param modelledVertices <code>List&lt;Vector&gt;</code>: The modelled
-         *                         vertices to index when creating the polygon.
-         * @param hideVertices     <code>Collection&lt;Integer&gt;</code>: The vertices
-         *                         which should be hidden when rendering this polygon.
-         * @return <code>Triangle</code>: The generated polygon, split between the model
-         *         vertices in the first 3 indices and the UV vertices in the last 3.
-         */
-        public Triangle getPolygon(List<Vector> modelledVertices, Collection<Integer> hideVertices) {
-
-            if (hideVertices.contains(vertexIndices[0]) || hideVertices.contains(vertexIndices[1])
-                    || hideVertices.contains(vertexIndices[2])) {
-
-                return null; // If any of the vertices are hidden, do not render this polygon.
+                    newVertices.add(weighted.baseVertex);
+                }
             }
 
-            return new Triangle(modelledVertices.get(vertexIndices[0]), modelledVertices.get(vertexIndices[1]),
-                    modelledVertices.get(vertexIndices[2]));
-        }
-
-        /**
-         * Retrieves the texture UVs of this <code>IndexedPolygon</code> instance.
-         * 
-         * @return <code>Triangle</code>: The <code>uvs</code> field of this
-         *         <code>IndexedPolygon</code> instance.
-         */
-        public Triangle getUvs() {
-
-            return uvs;
+            return newVertices;
         }
     }
 
@@ -585,84 +497,14 @@ public final class ModelAttributes extends AssetAttributes {
      * <code>Bone</code>: A class representing a polygon layout of a
      * <code>ModelAttributes</code> instance.
      */
-    public final class Bone {
+    public static final record Bone(ImmutableList<String> tags, ImmutableMap<Integer, Double> vertexWeights,
+            Vector pivotPoint, ImmutableMap<String, Bone> bones) {
 
         /**
          * <code>String</code>: The regular expression used to ensure all vertex indices
          * are of the expected pattern.
          */
         private static final String INDEX_PATTERN = "[+]?\\d+";
-
-        /**
-         * <code>ImmutableMap&lt;String, Bone&gt;</code>: The tags of this
-         * <code>Bone</code> instance.
-         */
-        private final ImmutableList<String> tags;
-
-        /**
-         * Retrieves the tags of this <code>Bone</code> instance.
-         * 
-         * @return <code>ImmutableList&lt;String&gt;</code>: The <code>tags</code> field
-         *         of this <code>Bone</code> instance.
-         */
-        public ImmutableList<String> getTags() {
-
-            return tags;
-        }
-
-        /**
-         * <code>ImmutableMap&lt;Integer, Double&gt;</code>: The vertex weights of this
-         * <code>Bone</code> instance.
-         */
-        private final ImmutableMap<Integer, Double> vertexWeights;
-
-        /**
-         * Retrieves the vertex weights of this <code>Bone</code> instance.
-         * 
-         * @return <code>ImmutableMap&lt;Integer, Double&gt;</code>: The
-         *         <code>vertexWeights</code> field of this <code>Bone</code> instance.
-         */
-        public ImmutableMap<Integer, Double> getVertexWeights() {
-
-            return vertexWeights;
-        }
-
-        /**
-         * <code>ImmutableList&lt;String&gt;</code>: The pathway of bones traced to
-         * arrive at this <code>Bone</code> instance.
-         */
-        private final ImmutableList<String> bonePathway;
-
-        /**
-         * Retrieves the pathway of bones traced to arrive at this <code>Bone</code>
-         * instance.
-         * 
-         * @return <code>ImmutableList&lt;String&gt;</code>: The
-         *         <code>bonePathway</code> field of this <code>Bone</code> instance.
-         */
-        public ImmutableList<String> getBonePathway() {
-
-            return bonePathway;
-        }
-
-        /**
-         * <code>Vector</code>: The pivot point around which this <code>Bone</code>
-         * should rotate and scale about during animations. Note that this value is in
-         * relative space, assuming the model is centered at (0, 0, 0).
-         */
-        private final Vector pivotPoint;
-
-        /**
-         * Retrieves the pivot point around which this <code>Bone</code> should rotate
-         * and scale about during animations.
-         * 
-         * @return <code>Vector</code>: The <code>pivotPoint</code> field of this
-         *         <code>Bone</code> instance.
-         */
-        public Vector getPivotPoint() {
-
-            return pivotPoint;
-        }
 
         /**
          * Creates a new instance of the <code>Bone</code> class.
@@ -672,12 +514,10 @@ public final class ModelAttributes extends AssetAttributes {
          * @throws LoggedException Thrown to represent any exception raised which
          *                         creating the bone.
          */
-        private Bone(TracedDictionary modelJson, HashMap<String, Bone> bonesMap, List<String> bonePathway,
-                String boneName) throws LoggedException {
+        public static Bone createBone(TracedDictionary modelJson, HashMap<String, Bone> allBonesMap, int vertices)
+                throws LoggedException {
 
-            ArrayList<String> bonePathwayList = new ArrayList<>(bonePathway);
-            bonePathwayList.add(0, boneName);
-            this.bonePathway = new ImmutableList<>(bonePathwayList);
+            ImmutableList<String> tags;
 
             TracedEntry<TracedArray> tagsEntry = modelJson.getAsArray("tags", true);
             if (tagsEntry.containsValue()) {
@@ -715,7 +555,7 @@ public final class ModelAttributes extends AssetAttributes {
 
                     int vertexIndex = Integer.parseInt(vertexKey);
 
-                    if (vertexWeightsMap.containsKey(vertexIndex) || vertexIndex >= vertices.size()) {
+                    if (vertexWeightsMap.containsKey(vertexIndex) || vertexIndex >= vertices || vertexIndex < 0) {
 
                         throw new KeyNameException(vertexWeightsJson, vertexKey);
                     }
@@ -728,31 +568,43 @@ public final class ModelAttributes extends AssetAttributes {
                 }
             }
 
-            vertexWeights = new ImmutableMap<>(vertexWeightsMap);
+            ImmutableMap<Integer, Double> vertexWeights = new ImmutableMap<>(vertexWeightsMap);
 
-            // TODO Use this with reference to the ModelAttributes constructor.
+            TracedEntry<Vector> pivotPointEntry = modelJson.getAsVector("pivotPoint", false, 3);
+            Vector pivotPoint = pivotPointEntry.getValue();
+
+            HashMap<String, Bone> bonesMap = new HashMap<>();
             TracedEntry<TracedDictionary> bonesEntry = modelJson.getAsDict("bones", true);
             if (bonesEntry.containsValue()) {
 
                 TracedDictionary bonesJson = bonesEntry.getValue();
                 for (String boneKey : bonesJson) {
 
+                    TracedEntry<TracedDictionary> boneEntry = bonesJson.getAsDict(boneKey, false);
+                    TracedDictionary boneJson = boneEntry.getValue();
+
+                    Bone bone = createBone(boneJson, allBonesMap, vertices);
+
                     // If any other bones in the model have the same key, raise an exception.
-                    if (bonesMap.containsKey(boneKey)) {
+                    if (allBonesMap.containsKey(boneKey)) {
 
                         throw new KeyNameException(bonesJson, boneKey);
                     }
 
-                    TracedEntry<TracedDictionary> boneEntry = bonesJson.getAsDict(boneKey, false);
-                    TracedDictionary boneJson = boneEntry.getValue();
-
-                    Bone newBone = new Bone(boneJson, bonesMap, this.bonePathway, boneKey);
-                    bonesMap.put(boneKey, newBone);
+                    allBonesMap.put(boneKey, bone);
+                    bonesMap.put(boneKey, bone);
                 }
             }
 
-            TracedEntry<Vector> pivotPointEntry = modelJson.getAsVector("pivotPoint", false, 3);
-            pivotPoint = pivotPointEntry.getValue();
+            ImmutableMap<String, Bone> bones = new ImmutableMap<>(bonesMap);
+
+            return new Bone(tags, vertexWeights, pivotPoint, bones);
+        }
+
+        @FunctionalInterface
+        public interface BoneConsumer {
+
+            public void accept(String bone, BoneActor boneActor, Vector pivotPoint);
         }
 
         /**
@@ -760,29 +612,49 @@ public final class ModelAttributes extends AssetAttributes {
          * 
          * @param boneActors <code>List&lt;BoneActorSet&gt;</code>: The bone actors used
          *                   to model the bones of this <code>Bone</code> instance.
-         * @return <code>HashMap&lt;Integer, HashMap&lt;Vector, Double&gt;&gt;</code>:
-         *         The retrieved vertex weights of this <code>Bone</code> instance.
+         * @return <code>Map&lt;Integer, Map&lt;Vector, Double&gt;&gt;</code>: The
+         *         retrieved vertex weights of this <code>Bone</code> instance.
          */
-        public HashMap<Integer, HashMap<Vector, Double>> getVertexWeights(BoneActorSet boneActors) {
+        public final Map<Integer, Map<Vector, Double>> computeVertexWeights(BoneActorSet boneActors,
+                BoneActor boneActor, ImmutableList<WeightedVertex> vertices, BoneConsumer operator) {
 
-            HashMap<Integer, HashMap<Vector, Double>> boneVertices = new HashMap<>();
+            Map<Integer, Map<Vector, Double>> boneVertices = new HashMap<>();
 
-            for (Map.Entry<Integer, Double> vertexWeight : vertexWeights.entrySet()) {
+            for (Map.Entry<Integer, Double> vertexWeightEntry : vertexWeights.entrySet()) {
 
-                int index = vertexWeight.getKey();
-                Vector vertex = vertices.get(index).baseVertex;
-                double weight = vertexWeight.getValue();
+                HashMap<Vector, Double> vertexWeight = new HashMap<>();
 
-                boneVertices.computeIfAbsent(index, _ -> new HashMap<>()).put(vertex, weight);
+                int index = vertexWeightEntry.getKey();
+                vertexWeight.put(vertices.get(index).baseVertex, vertexWeightEntry.getValue());
+
+                boneVertices.put(index, vertexWeight);
             }
 
-            for (String boneName : bonePathway) {
+            for (Map.Entry<String, Bone> boneEntry : bones.entrySet()) {
 
-                Vector bonePivot = bones.get(boneName).pivotPoint;
-                boneVertices = boneActors.apply(boneVertices, boneName, bonePivot);
+                String boneName = boneEntry.getKey();
+                if (operator != null) {
+
+                    operator.accept(boneName, boneActor, pivotPoint);
+                }
+
+                Bone bone = boneEntry.getValue();
+
+                for (Map.Entry<Integer, Map<Vector, Double>> boneVerticesEntry : bone
+                        .computeVertexWeights(boneActors, boneActors.getBoneActor(boneName), vertices, operator)
+                        .entrySet()) {
+
+                    int index = boneVerticesEntry.getKey();
+                    boneVertices.computeIfAbsent(index, _ -> new HashMap<>()).putAll(boneVerticesEntry.getValue());
+                }
             }
 
-            return boneVertices;
+            if (boneActor == null || boneActor == BoneActor.DEFAULT) {
+
+                return boneVertices;
+            }
+
+            return boneActor.apply(boneVertices, pivotPoint);
         }
     }
 }

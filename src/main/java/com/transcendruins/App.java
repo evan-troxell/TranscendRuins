@@ -41,6 +41,7 @@ import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.rendering.RenderInstance;
+import com.transcendruins.utilities.files.DataConstants;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 
@@ -77,7 +78,7 @@ public final class App {
 
         World.createWorld(packs, resources, seed);
         World world = World.getWorld();
-        world.setLanguage("en");
+        world.setLanguage(World.LanguageType.ENGLISH);
 
         // System.out.println(cache);
 
@@ -253,6 +254,7 @@ public final class App {
             world.playerConsumer(playerId, player -> player.mouseScroll(0, scroll * 3));
         });
 
+        uiFrame.setIconImage(DataConstants.FRAME_ICON_PATH.retrieveImage().getImage());
         uiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         uiFrame.setVisible(true);
 

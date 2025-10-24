@@ -16,7 +16,6 @@
 
 package com.transcendruins.assets.interfaces;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -537,9 +536,15 @@ public final class InterfaceAttributes extends AssetAttributes {
                 yield new StringTextureType(textureEntry.getValue());
             }
 
-            case "inventorySlot" -> json.get("slot",
-                    List.of(json.intCase(entry -> new GridSlotTextureType(entry.getValue())),
-                            json.stringCase(entry -> new NamedSlotTextureType(entry.getValue()))));
+            case "inventorySlot" -> {
+
+                TracedEntry<String> textureEntry = json.getAsString("texture", true, null);
+                String texture = textureEntry.getValue();
+
+                yield json.get("slot",
+                        List.of(json.intCase(entry -> new GridSlotTextureType(entry.getValue(), texture)),
+                                json.stringCase(entry -> new NamedSlotTextureType(entry.getValue(), texture))));
+            }
 
             default -> throw new UnexpectedValueException(typeEntry);
             };
@@ -564,10 +569,13 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         private final int slot;
 
-        public GridSlotTextureType(int slot) {
+        private final String texture;
+
+        public GridSlotTextureType(int slot, String texture) {
 
             super(null);
             this.slot = slot;
+            this.texture = texture;
         }
 
         @Override
@@ -578,7 +586,7 @@ public final class InterfaceAttributes extends AssetAttributes {
                 ItemInstance item = player.getEntity().getInventory().getItem(slot);
                 if (item == null) {
 
-                    return null;
+                    return texture != null ? component.getWorld().getTexture(texture, componentId) : null;
                 }
 
                 return item.getIcon();
@@ -590,10 +598,13 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         private final String slot;
 
-        public NamedSlotTextureType(String slot) {
+        private final String texture;
+
+        public NamedSlotTextureType(String slot, String texture) {
 
             super(null);
             this.slot = slot;
+            this.texture = texture;
         }
 
         @Override
@@ -604,7 +615,7 @@ public final class InterfaceAttributes extends AssetAttributes {
                 ItemInstance item = player.getEntity().getInventory().getItem(slot);
                 if (item == null) {
 
-                    return null;
+                    return texture != null ? component.getWorld().getTexture(texture, componentId) : null;
                 }
 
                 return item.getIcon();
@@ -792,6 +803,13 @@ public final class InterfaceAttributes extends AssetAttributes {
             return enterButton;
         }
 
+        private final ButtonComponentSchema travelButton;
+
+        public final ButtonComponentSchema getTravelButton() {
+
+            return travelButton;
+        }
+
         public GlobalMapComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
                 throws LoggedException {
 
@@ -803,6 +821,10 @@ public final class InterfaceAttributes extends AssetAttributes {
             TracedEntry<TracedDictionary> enterButtonEntry = componentsJson.getAsDict("enterButton", false);
             TracedDictionary enterButtonJson = enterButtonEntry.getValue();
             enterButton = new ButtonComponentSchema(enterButtonJson, dependencyAdder);
+
+            TracedEntry<TracedDictionary> travelButtonEntry = componentsJson.getAsDict("travelButton", false);
+            TracedDictionary travelButtonJson = travelButtonEntry.getValue();
+            travelButton = new ButtonComponentSchema(travelButtonJson, dependencyAdder);
         }
     }
 
@@ -822,13 +844,6 @@ public final class InterfaceAttributes extends AssetAttributes {
             return descriptionText;
         }
 
-        private final ButtonComponentSchema travelButton;
-
-        public final ButtonComponentSchema getTravelButton() {
-
-            return travelButton;
-        }
-
         public LocationDisplayComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
                 throws LoggedException {
 
@@ -845,10 +860,6 @@ public final class InterfaceAttributes extends AssetAttributes {
             TracedEntry<TracedDictionary> descriptionTextEntry = componentsJson.getAsDict("descriptionText", false);
             TracedDictionary descriptionTextJson = descriptionTextEntry.getValue();
             descriptionText = new TextComponentSchema(descriptionTextJson);
-
-            TracedEntry<TracedDictionary> travelButtonEntry = componentsJson.getAsDict("travelButton", false);
-            TracedDictionary travelButtonJson = travelButtonEntry.getValue();
-            travelButton = new ButtonComponentSchema(travelButtonJson, dependencyAdder);
         }
     }
 
@@ -863,18 +874,25 @@ public final class InterfaceAttributes extends AssetAttributes {
 
     public static final class InventoryComponentSchema extends ComponentSchema {
 
-        private final ImmutableList<ImmutableList<Integer>> grid;
+        private final ImmutableList<GridDisplay> grid;
 
-        public final ImmutableList<ImmutableList<Integer>> getGrid() {
+        public final ImmutableList<GridDisplay> getGrid() {
 
             return grid;
         }
 
-        private final ImmutableMap<String, Point> named;
+        public static final record GridDisplay(int x, int y, int width, int height, int start, String slotTexture,
+                String selectedSlotTexture) {
+        }
 
-        public final ImmutableMap<String, Point> getNamed() {
+        private final ImmutableMap<String, NamedDisplay> named;
+
+        public final ImmutableMap<String, NamedDisplay> getNamed() {
 
             return named;
+        }
+
+        public static final record NamedDisplay(int x, int y, String slotTexture, String selectedSlotTexture) {
         }
 
         private final Size slotSize;
@@ -912,13 +930,17 @@ public final class InterfaceAttributes extends AssetAttributes {
                 TracedEntry<Integer> startEntry = slotsJson.getAsInteger("start", true, 0, rows -> rows >= 0);
                 int start = startEntry.getValue();
 
-                ArrayList<ImmutableList<Integer>> gridList = new ArrayList<>();
-                gridList.add(new ImmutableList<>(x, y, width, height, start));
+                TracedEntry<String> slotTextureEntry = slotsJson.getAsString("slotTexture", true, null);
+                String slotTexture = slotTextureEntry.getValue();
 
-                return new ImmutableList<>(gridList);
+                TracedEntry<String> selectedSlotTextureEntry = slotsJson.getAsString("selectedSlotTexture", true, null);
+                String selectedSlotTexture = selectedSlotTextureEntry.getValue();
+
+                return new ImmutableList<>(
+                        new GridDisplay(x, y, width, height, start, slotTexture, selectedSlotTexture));
             }), json.arrayCase(entry -> {
 
-                ArrayList<ImmutableList<Integer>> gridList = new ArrayList<>();
+                ArrayList<GridDisplay> gridList = new ArrayList<>();
 
                 TracedArray gridJson = entry.getValue();
                 for (int i : gridJson) {
@@ -941,9 +963,14 @@ public final class InterfaceAttributes extends AssetAttributes {
                     TracedEntry<Integer> startEntry = slotsJson.getAsInteger("start", true, 0, rows -> rows >= 0);
                     int start = startEntry.getValue();
 
-                    ImmutableList<Integer> slotsList = new ImmutableList<>(x, y, width, height, start);
+                    TracedEntry<String> slotTextureEntry = slotsJson.getAsString("slotTexture", true, null);
+                    String slotTexture = slotTextureEntry.getValue();
 
-                    gridList.add(slotsList);
+                    TracedEntry<String> selectedSlotTextureEntry = slotsJson.getAsString("selectedSlotTexture", true,
+                            null);
+                    String selectedSlotTexture = selectedSlotTextureEntry.getValue();
+
+                    gridList.add(new GridDisplay(x, y, width, height, start, slotTexture, selectedSlotTexture));
                 }
 
                 return new ImmutableList<>(gridList);
@@ -951,14 +978,14 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             ));
 
-            LinkedHashMap<String, Point> namedMap = new LinkedHashMap<>();
+            LinkedHashMap<String, NamedDisplay> namedMap = new LinkedHashMap<>();
             TracedEntry<TracedDictionary> namedEntry = json.getAsDict("named", true);
             if (namedEntry.containsValue()) {
 
                 TracedDictionary namedJson = namedEntry.getValue();
                 for (String name : namedJson) {
 
-                    Point point = namedJson.get(name, List.of(namedJson.arrayCase(entry -> {
+                    NamedDisplay namedSlot = namedJson.get(name, List.of(namedJson.arrayCase(entry -> {
 
                         TracedArray pointJson = entry.getValue();
                         if (pointJson.size() != 2) {
@@ -972,7 +999,7 @@ public final class InterfaceAttributes extends AssetAttributes {
                         TracedEntry<Integer> yEntry = pointJson.getAsInteger(1, false, null, y -> y >= 0);
                         int y = yEntry.getValue();
 
-                        return new Point(x, y);
+                        return new NamedDisplay(x, y, null, null);
                     }), namedJson.dictCase(entry -> {
 
                         TracedDictionary pointJson = entry.getValue();
@@ -983,10 +1010,17 @@ public final class InterfaceAttributes extends AssetAttributes {
                         TracedEntry<Integer> yEntry = pointJson.getAsInteger("y", false, null, y -> y >= 0);
                         int y = yEntry.getValue();
 
-                        return new Point(x, y);
+                        TracedEntry<String> slotTextureEntry = pointJson.getAsString("slotTexture", true, null);
+                        String slotTexture = slotTextureEntry.getValue();
+
+                        TracedEntry<String> selectedSlotTextureEntry = pointJson.getAsString("selectedSlotTexture",
+                                true, null);
+                        String selectedSlotTexture = selectedSlotTextureEntry.getValue();
+
+                        return new NamedDisplay(x, y, slotTexture, selectedSlotTexture);
                     })));
 
-                    namedMap.put(name, point);
+                    namedMap.put(name, namedSlot);
                 }
             }
 

@@ -16,6 +16,9 @@
 
 package com.transcendruins.assets.layouts;
 
+import java.awt.Dimension;
+import java.awt.Rectangle;
+
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
@@ -44,14 +47,9 @@ public final class LayoutInstance extends AssetInstance {
 
     private GenerationInstance generation;
 
-    public final int getWidth() {
+    public final Dimension getDimensions() {
 
-        return generation.getWidth();
-    }
-
-    public final int getLength() {
-
-        return generation.getLength();
+        return generation.getDimensions();
     }
 
     /**
@@ -126,16 +124,14 @@ public final class LayoutInstance extends AssetInstance {
             count = schema.getCount();
         }
 
-        public abstract int getWidth();
-
-        public abstract int getLength();
+        public abstract Dimension getDimensions();
 
         protected final AreaGrid createArea() {
 
-            return new AreaGrid(getWidth(), getLength());
+            return new AreaGrid(getDimensions());
         }
 
-        public abstract AreaGrid generate();
+        public abstract void generate(AreaGrid area);
     }
 
     public final class AssetGenerationInstance extends GenerationInstance {
@@ -181,52 +177,41 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public final int getWidth() {
-
-            return switch (asset) {
-
-            case PrimaryAssetInstance primary -> primary.getTileWidth();
-
-            case LayoutInstance layout -> layout.getWidth();
-
-            default -> 0;
-            };
-        }
-
-        @Override
-        public final int getLength() {
-
-            return switch (asset) {
-
-            case PrimaryAssetInstance primary -> primary.getTileLength();
-
-            case LayoutInstance layout -> layout.getLength();
-
-            default -> 0;
-            };
-        }
-
-        @Override
-        public final AreaGrid generate() {
+        public final Dimension getDimensions() {
 
             return switch (asset) {
 
             case PrimaryAssetInstance primary -> {
 
-                AreaGrid area = createArea();
-                // area.apply(primary);
-                yield area;
+                Rectangle bounds = primary.getTileBounds();
+
+                yield new Dimension(bounds.x + bounds.width, bounds.y + bounds.height);
+            }
+
+            case LayoutInstance layout -> layout.getDimensions();
+
+            default -> new Dimension();
+            };
+        }
+
+        @Override
+        public final void generate(AreaGrid area) {
+
+            switch (asset) {
+
+            case PrimaryAssetInstance primary -> {
+
+                area.apply(primary);
             }
 
             case LayoutInstance layout -> {
 
-                AreaGrid area = createArea();
-                // area.apply(layout);
-                yield area;
+                area.apply(layout);
             }
 
-            default -> null;
-            };
+            default -> {
+            }
+            }
         }
     }
 
@@ -238,21 +223,13 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public int getWidth() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'getWidth'");
+        public final Dimension getDimensions() {
+
+            return new Dimension();
         }
 
         @Override
-        public int getLength() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'getLength'");
-        }
-
-        @Override
-        public AreaGrid generate() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'generate'");
+        public void generate(AreaGrid area) {
         }
     }
 
@@ -264,21 +241,13 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public int getWidth() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'getWidth'");
+        public final Dimension getDimensions() {
+
+            return new Dimension();
         }
 
         @Override
-        public int getLength() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'getLength'");
-        }
-
-        @Override
-        public AreaGrid generate() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'generate'");
+        public void generate(AreaGrid area) {
         }
     }
 
@@ -299,21 +268,13 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public int getWidth() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'getWidth'");
+        public final Dimension getDimensions() {
+
+            return new Dimension();
         }
 
         @Override
-        public int getLength() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'getLength'");
-        }
-
-        @Override
-        public AreaGrid generate() {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'generate'");
+        public void generate(AreaGrid area) {
         }
     }
 
@@ -325,27 +286,22 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public int getWidth() {
-            // TODO Auto-generated method stub
-            return 0;
+        public final Dimension getDimensions() {
+
+            return new Dimension();
         }
 
         @Override
-        public int getLength() {
-            // TODO Auto-generated method stub
-            return 0;
-        }
-
-        @Override
-        public AreaGrid generate() {
-            // TODO Auto-generated method stub
-            return createArea();
+        public void generate(AreaGrid area) {
         }
     }
 
     public final AreaGrid generate() {
 
-        return generation.generate();
+        AreaGrid area = generation.createArea();
+        generation.generate(area);
+
+        return area;
     }
 
     @Override

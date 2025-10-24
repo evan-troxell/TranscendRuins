@@ -51,8 +51,8 @@ public final class ItemContext extends AssetContext {
      *                  instance.
      * @param world     <code>World</code>: The world copy of this
      *                  <code>ItemContext</code> instance.
-     * @param parent    <code>AssetInstance</code>: The parent to assign to this
-     *                  <code>ItermContext</code> instance.
+     * @param parent    <code>PrimaryAssetInstance</code>: The parent to assign to
+     *                  this <code>ItemContext</code> instance.
      * @param stackSize <code>int</code>: The stack size of this
      *                  <code>ItemContext</code> instance.
      */

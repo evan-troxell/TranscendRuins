@@ -115,7 +115,9 @@
 
                         "texture": {
                             "type": "inventorySlot",
-                            "slot": "mainhand"
+                            "slot": "mainhand",
+
+                            "texture": "interface.actionBar.attack"
                         }
                     },
 

@@ -33,9 +33,9 @@ public final class DataConstants {
 
     public static final String GLOBAL_MAP_PLAYER_PIN = "global.pin.player";
 
-    public static final String INVENTORY_SLOT_TEXTURE = "interface.inventoryDisplay.slot";
+    public static final String INVENTORY_SLOT_TEXTURE = "interface.inventory.slot";
 
-    public static final String INVENTORY_SLOT_SELECTED_TEXTURE = "interface.inventoryDisplay.slotSelected";
+    public static final String INVENTORY_SLOT_SELECTED_TEXTURE = "interface.inventory.slotSelected";
 
     static {
 

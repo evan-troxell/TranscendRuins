@@ -16,57 +16,17 @@
 
 package com.transcendruins.rendering;
 
-import java.awt.Color;
-import java.util.Set;
-
-import com.transcendruins.assets.animations.boneactors.BoneActorSet;
-import com.transcendruins.assets.models.ModelInstance;
-import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
-import com.transcendruins.graphics3d.PolyGroup;
-
 /**
  * <code>RenderInstance</code>: An interface representing a model to be
  * rendered, paired with its instance context.
  */
+@FunctionalInterface
 public interface RenderInstance {
 
     /**
-     * Retrieves the bone actors of this <code>RenderInstance</code> instance.
+     * Retrieves the polygons of this <code>RenderInstance</code> instance.
      * 
-     * @return <code>BoneActorSet</code>: The retrieved bone actors.
+     * @return <code>RenderBuffer</code>: The retrieved polygons.
      */
-    public BoneActorSet getBoneActors();
-
-    /**
-     * Retrieves the polygon groups of this <code>RenderInstance</code> instance.
-     * 
-     * @return <code>Set&lt;PolyGroup&gt;</code>: The retrieved polygons.
-     */
-    public Set<PolyGroup> getPolygons();
-
-    /**
-     * Retrieves the model of this <code>RenderInstance</code> instance.
-     * 
-     * @return <code>ModelInstance</code>: The retrieved model.
-     */
-    public ModelInstance getModel();
-
-    /**
-     * Retrieves the render material of this <code>RenderInstance</code> instance.
-     * 
-     * @return <code>RenderMaterialInstance</code>: The render material of this
-     *         <code>RenderInstance</code> instance.
-     */
-    public RenderMaterialInstance getRenderMaterial();
-
-    /**
-     * Retrieves the color of the texture of this <code>RenderInstance</code>
-     * instance at a specific coordinate.
-     * 
-     * @param uvX <code>double</code>: The X coordinate to retrieve.
-     * @param uvY <code>double</code>: The Y coordinate to retrieve.
-     * @return <code>Color</code>: The RGBA color space of the texture of this
-     *         <code>RenderInstance</code> at the UV position.
-     */
-    public Color getRGB(double uvX, double uvY);
+    public RenderBuffer getPolygons();
 }

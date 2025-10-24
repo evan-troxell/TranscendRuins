@@ -30,6 +30,7 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,12 +46,15 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ButtonComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ContainerComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.GlobalMapComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InterfaceComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema.GridDisplay;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema.NamedDisplay;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryDisplayComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ListComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.LocationDisplayComponentSchema;
@@ -1320,8 +1324,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             int newScrollY = overflowY == Overflow.CLIP || contentSize.height <= height ? scrollY
                     : Math.clamp(scrollY + displacement.y, 0, maxScrollY);
 
-            System.out.println(displacement);
-
             // Remove the adjustment from the scroll
             displacement.translate(scrollX - newScrollX, scrollY - newScrollY);
 
@@ -1885,7 +1887,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private double height() {
 
-            return 1.0 - 1.5 * Math.atan(zoom / 20.0) / Math.PI;
+            return 1.0 / (1.7 + Math.atan(zoom / 80));
         }
 
         private LinkedHashMap<ImageIcon, Rectangle> mapRenders;
@@ -1916,6 +1918,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             ButtonComponentSchema enterButtonSchema = schema.getEnterButton();
             addChild(new ButtonComponentInstance(enterButtonSchema, this, random,
                     (_, playerId, _) -> getWorld().enterLocation(playerId)));
+
+            ButtonComponentSchema travelButtonSchema = schema.getTravelButton();
+            addChild(new ButtonComponentInstance(travelButtonSchema, this, random,
+                    (_, playerId, _) -> getWorld().travel(playerId, pressedLocation)));
         }
 
         @Override
@@ -2008,7 +2014,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         public final Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
                 List<ComponentInstance> children) {
 
-            ComponentInstance enterButton = children.getFirst();
+            ComponentInstance enterButton = children.get(0);
             enterButton.rescale(width, height);
 
             if (locationRenders.containsKey(currentLocation)) {
@@ -2021,6 +2027,22 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                 enterButton.x = -1 - enterButton.getTotalWidth();
                 enterButton.y = -1 - enterButton.getTotalHeight();
+            }
+
+            ComponentInstance travelButton = children.get(1);
+            travelButton.rescale(width, height);
+
+            if (pressedLocation != null && locationRenders.containsKey(pressedLocation)
+                    && !pressedLocation.equals(currentLocation)) {
+
+                LocationDisplay location = locationRenders.get(pressedLocation);
+                Rectangle locationBounds = location.bounds();
+                travelButton.x += locationBounds.getCenterX() - travelButton.getTotalWidth() / 2 + width / 2 - centerX;
+                travelButton.y += locationBounds.y + locationBounds.height + gapHeight + height / 2 - centerY;
+            } else {
+
+                travelButton.x = -1 - travelButton.getTotalWidth();
+                travelButton.y = -1 - travelButton.getTotalHeight();
             }
 
             return new Dimension(width, height);
@@ -2038,8 +2060,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 double adjust = 0.99;
                 zoom = Math.pow(adjust, 2) * (zoom - 50) + 50;
 
-                double targetX = width / 4.0 + target.getX();
-                double targetY = target.getY();
+                double targetX = width / 4.0 + target.getCenterX();
+                double targetY = target.getCenterY();
                 centerX = adjust * (centerX - targetX) + targetX;
                 centerY = adjust * (centerY - targetY) + targetY;
             }
@@ -2055,7 +2077,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                         renderBounds.height, size);
             }
 
+            ZonedDateTime now = ZonedDateTime.now();
+
             for (Map.Entry<String, LocationDisplay> locationRender : locationRenders.sequencedEntrySet()) {
+
+                String locationKey = locationRender.getKey();
 
                 LocationDisplay locationDisplay = locationRender.getValue();
 
@@ -2063,13 +2089,64 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 Rectangle bounds = locationDisplay.bounds();
                 drawTexture(g2d, icon, bounds.x, bounds.y, bounds.width, bounds.height, size);
 
+                int centerX = (int) bounds.getCenterX();
+                int top = bounds.y;
+
                 ImageIcon pin = locationDisplay.pin();
-                if (pin == null) {
+                if (pin != null) {
+
+                    Rectangle pinBounds = locationDisplay.pinBounds();
+                    drawTexture(g2d, pin, pinBounds.x, pinBounds.y, pinBounds.width, pinBounds.height, size);
+
+                    top = pinBounds.y;
+                }
+
+                GlobalLocationInstance location = getWorld().getLocation(locationKey);
+                if (location == null) {
 
                     continue;
                 }
-                Rectangle pinBounds = locationDisplay.pinBounds();
-                drawTexture(g2d, pin, pinBounds.x, pinBounds.y, pinBounds.width, pinBounds.height, size);
+
+                String endCounter = location.getEndCounter(now);
+                if (endCounter != null) {
+
+                    Dimension endCounterSize = calculateTextSize(endCounter, 0, 0, width);
+
+                    int endCounterX = centerX - endCounterSize.width / 2;
+                    int endCounterY = top - endCounterSize.height - gapHeight;
+
+                    g2d.setColor(new Color(128, 128, 128, 128));
+                    g2d.fillRect(endCounterX - 5, endCounterY - 2, endCounterSize.width + 10,
+                            endCounterSize.height + 4);
+
+                    drawText(g2d, endCounter, endCounterX, endCounterY, width, style.color());
+
+                    top = endCounterY - 2;
+                }
+
+                String resetCounter = location.getResetCounter(now);
+                if (resetCounter != null) {
+
+                    Dimension resetCounterSize = calculateTextSize(resetCounter, 0, 0, width);
+
+                    int resetCounterX = centerX - resetCounterSize.width / 2;
+                    int resetCounterY = top - resetCounterSize.height - gapHeight;
+                    top = resetCounterY;
+
+                    String resetLabel = getWorld().getText("global.resetLabel");
+                    Dimension resetLabelSize = calculateTextSize(resetLabel, 0, 0, width);
+
+                    int resetLabelX = centerX - resetLabelSize.width / 2;
+                    int resetLabelY = top - resetLabelSize.height;
+
+                    g2d.setColor(new Color(80, 200, 220));
+                    g2d.fillRect(Math.min(resetCounterX, resetLabelX) - 35, resetLabelY - 2,
+                            Math.max(resetCounterSize.width, resetLabelSize.width) + 70,
+                            resetCounterSize.height + resetLabelSize.height + 4);
+
+                    drawText(g2d, resetCounter, resetCounterX, resetCounterY, width, style.color());
+                    drawText(g2d, resetLabel, resetLabelX, resetLabelY, width, style.color());
+                }
             }
 
             g2d.dispose();
@@ -2090,10 +2167,19 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                 drawTexture(g2d, playerPin, playerPinX, playerPinY, playerPinWidth, playerPinHeight, TextureSize.COVER);
 
-                ImageClip enterButton = children.getFirst();
+                ImageClip enterButton = children.get(0);
                 BufferedImage enterButtonImage = enterButton.image();
 
                 drawImage(g2d, enterButtonImage, enterButton.x(), enterButton.y());
+            }
+
+            if (pressedLocation != null && locationRenders.containsKey(pressedLocation)
+                    && !pressedLocation.equals(currentLocation)) {
+
+                ImageClip travelButton = children.get(1);
+                BufferedImage travelButtonImage = travelButton.image();
+
+                drawImage(g2d, travelButtonImage, travelButton.x(), travelButton.y());
             }
         }
 
@@ -2152,10 +2238,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 }
             }
 
-            // TODO add action for when location is clicked
             if (pressedLocation != null) {
 
-                System.out.println("LOCATION SELECTED: " + pressedLocation);
                 selectLocation();
             }
         }
@@ -2165,7 +2249,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             LocationDisplay location = locationRenders.get(pressedLocation);
             getWorld().playerConsumer(playerId, player -> {
 
-                player.displayLocation(pressedLocation, location);
+                player.displayLocation(location);
             });
         }
 
@@ -2178,26 +2262,21 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
     public final class LocationDisplayComponentInstance extends ComponentInstance {
 
-        private final String location;
-
         public LocationDisplayComponentInstance(LocationDisplayComponentSchema schema,
                 ComponentInstance componentParent, DeterministicRandom random) {
 
             super(schema, componentParent, false, random);
 
-            if (componentValues.size() != 2) {
+            if (componentValues.size() != 1) {
 
                 throw new Error("Location could not be displayed");
             }
 
-            location = (String) componentValues.get(0);
-            LocationDisplay locationDisplay = (LocationDisplay) componentValues.get(1);
+            LocationDisplay locationDisplay = (LocationDisplay) componentValues.get(0);
 
             addChild(new TextComponentInstance(schema.getNameText(), this, random, locationDisplay.name()));
             addChild(new TextComponentInstance(schema.getDescriptionText(), this, random,
                     locationDisplay.description()));
-            addChild(new ButtonComponentInstance(schema.getTravelButton(), this, random,
-                    (_, playerId, _) -> getWorld().travel(playerId, location)));
         }
 
         @Override
@@ -2217,29 +2296,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             descriptionText.y += offset;
             offset = descriptionText.getTotalHeight() + descriptionText.getY();
 
-            ComponentInstance travelButton = children.get(2);
-
-            boolean different = !location.equals(getWorld().playerFunction(playerId, Player::getLocation));
-            if (different) {
-
-                travelButton.y += offset;
-                offset = travelButton.getTotalHeight() + travelButton.getY();
-            } else {
-
-                travelButton.x = -1 - travelButton.getTotalWidth();
-                travelButton.y = -1 - travelButton.getTotalHeight();
-            }
-
             int leftover = height - offset;
             int pad = Math.clamp(leftover, 0, gapHeight);
-            leftover -= pad;
             descriptionText.y += pad;
-            travelButton.y += pad;
-
-            if (leftover > 0 && different) {
-
-                travelButton.y += leftover / 2;
-            }
 
             return new Dimension(width, height);
         }
@@ -2281,30 +2340,30 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private boolean displayTransfer(ItemTransfer transfer, Graphics2D g2d, long timestamp) {
 
             InventoryComponentInstance firstUi = transfer.startIsPrimary() ? primaryUi : secondaryUi;
-            Point first = firstUi.slots.get(transfer.start());
+            InventoryComponentInstance.SlotDisplay first = firstUi.slots.get(transfer.start());
 
             InventoryComponentInstance secondUi = transfer.endIsPrimary() ? primaryUi : secondaryUi;
-            Point second = secondUi.slots.get(transfer.end());
+            InventoryComponentInstance.SlotDisplay second = secondUi.slots.get(transfer.end());
 
             if (first == null || second == null) {
 
                 return false;
             }
 
-            first = new Point(first);
-            second = new Point(second);
+            Point p1 = new Point(first.x, first.y);
+            Point p2 = new Point(second.x, second.y);
 
-            first.x += firstUi.getX() + firstUi.getContentOffsetX();
-            first.y += firstUi.getY() + firstUi.getContentOffsetY();
+            p1.x += firstUi.getX() + firstUi.getContentOffsetX();
+            p1.y += firstUi.getY() + firstUi.getContentOffsetY();
 
-            second.x += secondUi.getX() + secondUi.getContentOffsetX();
-            second.y += secondUi.getY() + secondUi.getContentOffsetY();
+            p2.x += secondUi.getX() + secondUi.getContentOffsetX();
+            p2.y += secondUi.getY() + secondUi.getContentOffsetY();
 
             int slotWidth = firstUi.slotWidth;
             ImageIcon item = transfer.item();
 
             long dt = timestamp - transfer.timestamp();
-            double distance = Math.hypot(second.x - first.x, second.y - first.y);
+            double distance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
 
             double speed = Math.sqrt(distance) / 5;
 
@@ -2315,13 +2374,13 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             if (dt * speed > distance) {
 
-                slotX = second.x;
-                slotY = second.y;
+                slotX = p2.x;
+                slotY = p2.y;
                 end = true;
             } else {
 
-                slotX = first.x + (int) ((second.x - first.x) * dt * speed / distance);
-                slotY = first.y + (int) ((second.y - first.y) * dt * speed / distance);
+                slotX = p1.x + (int) ((p2.x - p1.x) * dt * speed / distance);
+                slotY = p1.y + (int) ((p2.y - p1.y) * dt * speed / distance);
             }
 
             drawTexture(g2d, item, slotX, slotY, slotWidth, slotWidth, Style.TextureSize.CONTAIN);
@@ -2486,41 +2545,35 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             if (newSlot != selectedSlot) {
 
                 ItemInstance firstItem = selectedSlot.getItem();
+                ItemInstance secondItem = newSlot.getItem();
 
-                // If there is not an item to transfer, ignore.
-                if (firstItem == null) {
+                // If the items cannot be swapped, do nothing.
+                if (!newSlot.isAcceptedType(firstItem)
+                        || secondItem != null && !selectedSlot.isAcceptedType(secondItem)) {
 
                     selectedSlot = null;
                 } else {
 
-                    ItemInstance secondItem = newSlot.getItem();
+                    // If the first item can be swapped, register the transfer.
+                    if (secondItem == null || secondItem.isLikeAsset(firstItem)
+                            && secondItem.getStackSize() < secondItem.getMaxStackSize()) {
 
-                    if (!newSlot.isAcceptedType(firstItem)
-                            || secondItem != null && !selectedSlot.isAcceptedType(secondItem)) {
-
-                        selectedSlot = null;
-                    } else {
-
-                        if (secondItem == null || secondItem.isLikeAsset(firstItem)
-                                && secondItem.getStackSize() < secondItem.getMaxStackSize()) {
-
-                            ImageIcon firstItemIcon = firstItem.getIcon();
-                            addTransfer(timestamp, selectedSlot, primaryInventorySelected, newSlot,
-                                    newPrimaryInventorySelected, firstItemIcon);
-                        }
-
-                        if (secondItem != null && !secondItem.isLikeAsset(firstItem)) {
-
-                            ImageIcon secondItemIcon = secondItem.getIcon();
-                            addTransfer(timestamp, newSlot, newPrimaryInventorySelected, selectedSlot,
-                                    primaryInventorySelected, secondItemIcon);
-                        }
-
-                        firstItem = newSlot.putItem(firstItem);
-                        selectedSlot.setItem(firstItem);
-
-                        selectedSlot = null;
+                        ImageIcon firstItemIcon = firstItem.getIcon();
+                        addTransfer(timestamp, selectedSlot, primaryInventorySelected, newSlot,
+                                newPrimaryInventorySelected, firstItemIcon);
                     }
+
+                    // If the second item is different, register the transfer.
+                    if (secondItem != null && !secondItem.isLikeAsset(firstItem)) {
+
+                        ImageIcon secondItemIcon = secondItem.getIcon();
+                        addTransfer(timestamp, newSlot, newPrimaryInventorySelected, selectedSlot,
+                                primaryInventorySelected, secondItemIcon);
+                    }
+
+                    newSlot.transfer(selectedSlot);
+
+                    selectedSlot = null;
                 }
 
                 primaryUi.setSelectedSlot(selectedSlot);
@@ -2583,9 +2636,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private final InventoryInstance inventory;
 
-        private final ImmutableList<ImmutableList<Integer>> grid;
+        private final ImmutableList<GridDisplay> grid;
 
-        private final ImmutableMap<String, Point> named;
+        private final ImmutableMap<String, NamedDisplay> named;
 
         private final Size slotSize;
         private int slotWidth;
@@ -2594,7 +2647,21 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private final HashSet<String> namedOverlap = new HashSet<>();
 
-        private final LinkedHashMap<InventorySlotInstance, Point> slots = new LinkedHashMap<>();
+        private final LinkedHashMap<InventorySlotInstance, SlotDisplay> slots = new LinkedHashMap<>();
+
+        public final class SlotDisplay {
+
+            private int x, y;
+            private final ImageIcon slotIcon, selectedSlotIcon;
+
+            private SlotDisplay(int x, int y, ImageIcon slotIcon, ImageIcon selectedSlotIcon) {
+
+                this.x = x;
+                this.y = y;
+                this.slotIcon = slotIcon;
+                this.selectedSlotIcon = selectedSlotIcon;
+            }
+        }
 
         private int maxSlotWidth;
         private int maxSlotHeight;
@@ -2610,7 +2677,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             for (InventorySlotInstance slot : slots.reversed().sequencedKeySet()) {
 
-                Point p = slots.get(slot);
+                SlotDisplay p = slots.get(slot);
 
                 if (p.x <= mouseX && mouseX < p.x + slotWidth && p.y <= mouseY && mouseY < p.y + slotWidth) {
 
@@ -2650,13 +2717,24 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             slotWidth = slotSize.getSize(width, 0);
 
-            for (ImmutableList<Integer> gridSlots : grid) {
+            DeterministicRandom random = new DeterministicRandom(getRandomComponentId());
+            World world = getWorld();
 
-                int gridX = gridSlots.get(0);
-                int gridY = gridSlots.get(1);
-                int gridWidth = gridSlots.get(2);
-                int gridHeight = gridSlots.get(3);
-                int start = gridSlots.get(4);
+            for (GridDisplay gridSlots : grid) {
+
+                int gridX = gridSlots.x();
+                int gridY = gridSlots.y();
+                int gridWidth = gridSlots.width();
+                int gridHeight = gridSlots.height();
+                int start = gridSlots.start();
+
+                String slotTexture = gridSlots.slotTexture();
+                ImageIcon slotIcon = slotTexture != null ? world.getTexture(slotTexture, random.next()) : null;
+
+                String selectedSlotTexture = gridSlots.selectedSlotTexture();
+                ImageIcon selectedSlotIcon = selectedSlotTexture != null
+                        ? world.getTexture(selectedSlotTexture, random.next())
+                        : null;
 
                 int displayGridWidth = ((gridSize - start) < gridWidth ? gridSize : gridWidth);
                 int displayGridHeight = Math.min(gridHeight, (int) Math.ceil((double) (gridSize - start) / gridWidth));
@@ -2671,8 +2749,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                     int slotX = (i % gridWidth);
                     int slotY = (i / gridWidth);
 
-                    slots.put(inventory.getSlot(i + start),
-                            new Point(gridX + slotX * (slotWidth + gapWidth), gridY + slotY * (slotWidth + gapHeight)));
+                    slots.put(inventory.getSlot(i + start), new SlotDisplay(gridX + slotX * (slotWidth + gapWidth),
+                            gridY + slotY * (slotWidth + gapHeight), slotIcon, selectedSlotIcon));
                 }
             }
 
@@ -2682,12 +2760,22 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             for (String namedSlot : namedOverlap) {
 
-                Point p = named.get(namedSlot);
+                NamedDisplay p = named.get(namedSlot);
+                int namedX = p.x();
+                int namedY = p.y();
 
-                maxSlotWidth = Math.max(maxSlotWidth, p.x + slotWidth);
-                maxSlotHeight = Math.max(maxSlotHeight, p.y + slotWidth);
+                String slotTexture = p.slotTexture();
+                ImageIcon slotIcon = slotTexture != null ? world.getTexture(slotTexture, random.next()) : null;
 
-                slots.put(inventory.getSlot(namedSlot), new Point(p));
+                String selectedSlotTexture = p.selectedSlotTexture();
+                ImageIcon selectedSlotIcon = selectedSlotTexture != null
+                        ? world.getTexture(selectedSlotTexture, random.next())
+                        : null;
+
+                maxSlotWidth = Math.max(maxSlotWidth, namedX + slotWidth);
+                maxSlotHeight = Math.max(maxSlotHeight, namedY + slotWidth);
+
+                slots.put(inventory.getSlot(namedSlot), new SlotDisplay(namedX, namedY, slotIcon, selectedSlotIcon));
             }
 
             return new Dimension(Math.max(headerWidth, maxSlotWidth), headerHeight + maxSlotHeight);
@@ -2711,40 +2799,48 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 headerHeight += gapHeight;
             }
 
+            if (headerHeight > 0) {
+
+                for (SlotDisplay slot : slots.values()) {
+
+                    slot.y += headerHeight;
+                }
+            }
+
             return new Dimension(Math.max(headerWidth, maxSlotWidth), headerHeight + maxSlotHeight);
         }
 
         @Override
         public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            int heightOffset = 0;
             if (!children.isEmpty()) {
 
                 ImageClip header = children.getFirst();
                 BufferedImage headerImage = header.image();
                 drawImage(g2d, headerImage, header.x(), header.y());
-                heightOffset += header.y() + headerImage.getHeight() + gapHeight;
             }
 
-            ImageIcon slotTexture = getWorld().getTexture(DataConstants.INVENTORY_SLOT_TEXTURE, getRandomComponentId());
-            ImageIcon selectedSlotTexture = getWorld().getTexture(DataConstants.INVENTORY_SLOT_SELECTED_TEXTURE,
-                    getRandomComponentId());
             TextureSize slotFit = Style.TextureSize.CONTAIN;
+
+            World world = getWorld();
+            ImageIcon defaultSlotIcon = world.getTexture(DataConstants.INVENTORY_SLOT_TEXTURE, getRandomComponentId());
+            ImageIcon defaultSelectedSlotIcon = world.getTexture(DataConstants.INVENTORY_SLOT_SELECTED_TEXTURE,
+                    getRandomComponentId());
 
             for (InventorySlotInstance slot : slots.sequencedKeySet()) {
 
-                Point p = slots.get(slot);
-                p.y += heightOffset;
+                SlotDisplay p = slots.get(slot);
+                ItemInstance item = slot.getItem();
 
-                if (slot != selectedSlot) {
+                boolean slotSelected = slot == selectedSlot;
+                ImageIcon slotIcon = slotSelected ? p.selectedSlotIcon : p.slotIcon;
+                if (slotIcon == null || item != null) {
 
-                    drawTexture(g2d, slotTexture, p.x, p.y, slotWidth, slotWidth, slotFit);
-                } else {
-
-                    drawTexture(g2d, selectedSlotTexture, p.x, p.y, slotWidth, slotWidth, slotFit);
+                    slotIcon = slotSelected ? defaultSelectedSlotIcon : defaultSlotIcon;
                 }
 
-                ItemInstance item = slot.getItem();
+                drawTexture(g2d, slotIcon, p.x, p.y, slotWidth, slotWidth, slotFit);
+
                 if (item == null) {
 
                     continue;

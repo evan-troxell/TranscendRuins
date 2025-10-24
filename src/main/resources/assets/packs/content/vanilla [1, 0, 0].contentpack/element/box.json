@@ -22,7 +22,7 @@
             },
             "named": {
                 "top": {
-                    "modelSocket": "topSocket"
+                    "modelAttachment": "topSocket"
                 }
             }
         },

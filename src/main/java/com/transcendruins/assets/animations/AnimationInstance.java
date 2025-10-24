@@ -235,8 +235,6 @@ public final class AnimationInstance extends AssetInstance {
             lowerIndex = cycleOnFinish ? timestampsSorted.size() - 1 : null;
         }
 
-        // TODO: Revise to allow different bones to interpolate between different
-        // keyframes.
         ImmutableMap<String, KeyFrame> higherKeyframes = higherIndex == null ? null : keyframes.get(higherIndex);
 
         ImmutableMap<String, KeyFrame> lowerKeyframes = lowerIndex == null ? null : keyframes.get(lowerIndex);

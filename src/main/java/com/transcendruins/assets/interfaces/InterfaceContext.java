@@ -119,11 +119,11 @@ public final class InterfaceContext extends AssetContext {
     }
 
     public static final InterfaceContext createLocationDisplayContext(World world, AssetInstance parent, long playerId,
-            String location, LocationDisplay locationDisplay) {
+            LocationDisplay locationDisplay) {
 
         InterfaceContext context = new InterfaceContext(DataConstants.LOCATION_DISPLAY_IDENTIFIER, world, parent,
                 playerId, null);
-        context.componentValues = List.of(location, locationDisplay);
+        context.componentValues = List.of(locationDisplay);
 
         return context;
     }

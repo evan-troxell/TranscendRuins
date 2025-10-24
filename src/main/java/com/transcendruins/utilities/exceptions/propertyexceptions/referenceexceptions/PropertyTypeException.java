@@ -16,6 +16,9 @@
 
 package com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions;
 
+import java.util.List;
+import java.util.Map;
+
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -32,8 +35,27 @@ public final class PropertyTypeException extends PropertyException {
      */
     public PropertyTypeException(TracedEntry<?> entry) {
 
-        super(propertyName(entry) + " is of the invalid type "
-                + (entry.containsValue() ? entry.getValue().getClass().getSimpleName() : "null") + ".", entry,
+        super(propertyName(entry) + " is of the invalid type " + getTypeString(entry.getValue()) + ".", entry,
                 "Property Type Exception");
+    }
+
+    private static String getTypeString(Object value) {
+
+        return switch (value) {
+
+        case Boolean _ -> "Boolean";
+
+        case Long _ -> "Integer";
+        case Double _ -> "Float";
+
+        case String _ -> "String";
+
+        case List<?> _ -> "List";
+        case Map<?, ?> _ -> "Map";
+
+        case null -> "null";
+
+        default -> value.getClass().getSimpleName();
+        };
     }
 }

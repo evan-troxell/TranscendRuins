@@ -37,11 +37,11 @@ public final class InventorySlotSchema extends Attributes {
         return acceptedTypes;
     }
 
-    public final String modelSocket;
+    public final String modelAttachment;
 
-    public final String getModelSocket() {
+    public final String getModelAttachment() {
 
-        return modelSocket;
+        return modelAttachment;
     }
 
     private InventorySlotSchema(boolean isBase) {
@@ -49,7 +49,7 @@ public final class InventorySlotSchema extends Attributes {
         super(isBase);
 
         acceptedTypes = null;
-        modelSocket = null;
+        modelAttachment = null;
     }
 
     public InventorySlotSchema(TracedDictionary json, boolean isBase) throws LoggedException {
@@ -80,7 +80,7 @@ public final class InventorySlotSchema extends Attributes {
                     return new ImmutableList<>(acceptedType);
                 }), json.nullCase(_ -> null)));
 
-        TracedEntry<String> modelSocketEntry = json.getAsString("modelSocket", true, null);
-        modelSocket = modelSocketEntry.getValue();
+        TracedEntry<String> modelAttachmentEntry = json.getAsString("modelAttachment", true, null);
+        modelAttachment = modelAttachmentEntry.getValue();
     }
 }

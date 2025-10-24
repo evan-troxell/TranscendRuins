@@ -36,6 +36,35 @@ public final class BoneActorSet {
      */
     private final ImmutableMap<String, BoneActor> boneActors;
 
+    public final BoneActor getBoneActor(String boneActor) {
+
+        return boneActors.get(boneActor);
+    }
+
+    /**
+     * Creates a new, empty instance of the <code>BoneActorSet</code> class.
+     */
+    public BoneActorSet() {
+
+        boneActors = new ImmutableMap<>();
+    }
+
+    /**
+     * Creates a new instance of the <code>BoneActorSet</code> class with duplicate
+     * bone actors from another, overridden by bone actors from yet a third.
+     * 
+     * @param base     <code>BoneActorSet</code>: The base bone actors of this
+     *                 <code>BoneActorSet</code> instance.
+     * @param override <code>BoneActorSet</code>: The bone actors to override.
+     */
+    public BoneActorSet(BoneActorSet base, BoneActorSet override) {
+
+        HashMap<String, BoneActor> boneActorsMap = new HashMap<>(base.boneActors);
+        boneActorsMap.putAll(override.boneActors);
+
+        boneActors = new ImmutableMap<>(boneActorsMap);
+    }
+
     /**
      * Creates a new instance of the <code>BoneActorSet</code> class.
      * 
@@ -45,16 +74,6 @@ public final class BoneActorSet {
     public BoneActorSet(Map<String, BoneActor> boneActors) {
 
         this.boneActors = new ImmutableMap<>(boneActors);
-    }
-
-    /**
-     * Creates a new instance of the <code>BoneActorSet</code> class.
-     * 
-     * @param sets <code>BoneActorSet...</code>: The bone actor sets to merge.
-     */
-    public BoneActorSet(BoneActorSet... sets) {
-
-        this(List.of(sets));
     }
 
     /**
@@ -106,46 +125,6 @@ public final class BoneActorSet {
         for (Vector vertex : vertices) {
 
             modifiedVertices.add(boneActor.transform(vertex, pivotPoint));
-        }
-
-        return modifiedVertices;
-    }
-
-    /**
-     * Applies a bone actor from this <code>BoneActorSet</code> instance to a set of
-     * vertices.
-     * 
-     * @param vertices   <code>HashMap&lt;Integer, HashMap&lt;Vector, Double&gt;&gt;</code>:
-     *                   The vertices to apply this <code>BoneActorSet</code>
-     *                   instance to.
-     * @param bone       <code>String</code>: The bone actor to apply.
-     * @param pivotPoint <code>Vector</code>: The origin about which to perform all
-     *                   relevant transformations.
-     * @return <code>ImmutableMap&lt;Integer, ImmutableMap&lt;Vector, Double&gt;&gt;</code>:
-     *         The transformed vertices.
-     */
-    public final HashMap<Integer, HashMap<Vector, Double>> apply(Map<Integer, ? extends Map<Vector, Double>> vertices,
-            String bone, Vector pivotPoint) {
-
-        // If the bone actor does not exist, a new set should still be created - create
-        // a default bone actor used only to copy over vertices.
-        BoneActor boneActor = boneActors.getOrDefault(bone, BoneActor.DEFAULT);
-        HashMap<Integer, HashMap<Vector, Double>> modifiedVertices = new HashMap<>();
-
-        for (Map.Entry<Integer, ? extends Map<Vector, Double>> boneWeightsEntry : vertices.entrySet()) {
-
-            int index = boneWeightsEntry.getKey();
-            HashMap<Vector, Double> verticesMap = new HashMap<>();
-
-            for (Map.Entry<Vector, Double> vertexEntry : boneWeightsEntry.getValue().entrySet()) {
-
-                double weight = vertexEntry.getValue();
-                Vector vertex = boneActor.transform(vertexEntry.getKey(), pivotPoint);
-
-                verticesMap.put(vertex, weight);
-            }
-
-            modifiedVertices.put(index, verticesMap);
         }
 
         return modifiedVertices;

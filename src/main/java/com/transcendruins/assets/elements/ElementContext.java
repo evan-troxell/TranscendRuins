@@ -19,6 +19,7 @@ package com.transcendruins.assets.elements;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.primaryassets.PrimaryAssetContext;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.world.World;
 
 /**
@@ -26,6 +27,18 @@ import com.transcendruins.world.World;
  * of an element.
  */
 public final class ElementContext extends PrimaryAssetContext {
+
+    private Vector tileOffset = Vector.IDENTITY_VECTOR;
+
+    public final void setTileOffset(Vector tileOffset) {
+
+        this.tileOffset = tileOffset;
+    }
+
+    public final Vector getTileOffset() {
+
+        return tileOffset;
+    }
 
     /**
      * Creates a new instance of the <code>ElementContext</code> class.

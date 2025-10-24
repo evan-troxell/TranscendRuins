@@ -24,31 +24,52 @@
                 "named": {
                     "mainhand": {
                         "x": 0,
-                        "y": 0
+                        "y": 0,
+
+                        "slotTexture": "interface.inventory.mainhandSlot",
+                        "selectedSlotTexture": "interface.inventory.mainhandSlotSelected"
                     },
                     "offhand": {
                         "x": 0,
-                        "y": 95
+                        "y": 95,
+
+                        "slotTexture": "interface.inventory.offhandSlot",
+                        "selectedSlotTexture": "interface.inventory.offhandSlotSelected"
                     },
                     "backpack": {
                         "x": 0,
-                        "y": 285
+                        "y": 285,
+
+                        "slotTexture": "interface.inventory.backpackSlot",
+                        "selectedSlotTexture": "interface.inventory.backpackSlotSelected"
                     },
                     "cap": {
                         "x": 320,
-                        "y": 0
+                        "y": 0,
+
+                        "slotTexture": "interface.inventory.capSlot",
+                        "selectedSlotTexture": "interface.inventory.capSlotSelected"
                     },
                     "top": {
                         "x": 320,
-                        "y": 95
+                        "y": 95,
+
+                        "slotTexture": "interface.inventory.topSlot",
+                        "selectedSlotTexture": "interface.inventory.topSlotSelected"
                     },
                     "pants": {
                         "x": 320,
-                        "y": 190
+                        "y": 190,
+
+                        "slotTexture": "interface.inventory.pantsSlot",
+                        "selectedSlotTexture": "interface.inventory.pantsSlotSelected"
                     },
                     "boots": {
                         "x": 320,
-                        "y": 285
+                        "y": 285,
+
+                        "slotTexture": "interface.inventory.bootsSlot",
+                        "selectedSlotTexture": "interface.inventory.bootsSlotSelected"
                     }
                 }
             },

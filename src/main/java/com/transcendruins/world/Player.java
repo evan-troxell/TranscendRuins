@@ -141,10 +141,10 @@ public final class Player {
         }
     }
 
-    public final void displayLocation(String location, LocationDisplay locationDisplay) {
+    public final void displayLocation(LocationDisplay locationDisplay) {
 
         InterfaceContext context = InterfaceContext.createLocationDisplayContext(entity.getWorld(), entity, playerId,
-                location, locationDisplay);
+                locationDisplay);
         replacePanels(List.of(context));
     }
 

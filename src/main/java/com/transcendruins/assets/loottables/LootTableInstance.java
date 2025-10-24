@@ -240,7 +240,7 @@ public final class LootTableInstance extends AssetInstance {
         @Override
         public List<ItemContext> evaluate(World world) {
 
-            return List.of(new ItemContext(item, getWorld(), LootTableInstance.this, getCount()));
+            return List.of(new ItemContext(item, getWorld(), null, getCount()));
         }
     }
 

@@ -55,6 +55,7 @@ import com.transcendruins.assets.items.ItemInstance;
 import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.recipes.RecipeContext;
 import com.transcendruins.assets.recipes.RecipeInstance;
+import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.resources.ResourceSet;
@@ -75,10 +76,32 @@ import com.transcendruins.utilities.sound.StoredSound;
  */
 public final class World extends PropertyHolder {
 
+    public enum LanguageType {
+
+        ENGLISH("en");
+
+        private final String key;
+
+        public final String getKey() {
+
+            return key;
+        }
+
+        LanguageType(String key) {
+
+            this.key = key;
+        }
+    }
+
     /**
      * <code>int</code>: The length and width of a unit tile.
      */
     public static final int UNIT_TILE = 20;
+
+    /**
+     * <code>int</code>: The 3D bounds of a unit tile.
+     */
+    public static final Vector UNIT_TILE_VECTOR = new Vector(UNIT_TILE, UNIT_TILE, UNIT_TILE);
 
     /**
      * <code>int</code>: An enum constant representing the cardinal direction
@@ -226,6 +249,17 @@ public final class World extends PropertyHolder {
      * instance.
      */
     private String language;
+
+    /**
+     * Sets the current language of this <code>World</code> instance.
+     * 
+     * @param language <code>LanguageType</code>: The language to apply to this
+     *                 <code>World</code> instance.
+     */
+    public final void setLanguage(LanguageType language) {
+
+        this.language = language.getKey();
+    }
 
     /**
      * Sets the current language of this <code>World</code> instance.
@@ -486,19 +520,20 @@ public final class World extends PropertyHolder {
                 .filter(location -> locationSchemas.get(location).getDuration().getStartTimestamp() == null).toList();
         queuedLocations.removeAll(newLocations);
 
-        for (String location : newLocations) {
+        synchronized (LOCATION_LOCK) {
 
-            GlobalLocationSchema schema = locationSchemas.get(location);
-            GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
-            locations.put(location, instance);
+            for (String location : newLocations) {
+
+                GlobalLocationSchema schema = locationSchemas.get(location);
+                GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
+                locations.put(location, instance);
+            }
         }
 
         mapSections = new ImmutableList<>(
                 catalogues.stream().flatMap(catalogue -> catalogue.getMapSections().stream()).toList());
 
         eventSchemas = compile(catalogues, AssetCatalogue::getEvents);
-
-        // TODO: Add overlays/menus to the global map
 
         overlays = compile(catalogues, AssetCatalogue::getOverlays);
         globalOverlays = compile(catalogues, AssetCatalogue::getGlobalOverlays);
@@ -579,11 +614,24 @@ public final class World extends PropertyHolder {
 
     private final LinkedHashMap<String, GlobalLocationInstance> locations = new LinkedHashMap<>();
 
+    public final GlobalLocationInstance getLocation(String location) {
+
+        synchronized (LOCATION_LOCK) {
+
+            return locations.get(location);
+        }
+    }
+
     public final Map<String, LocationRender> getLocationRenders() {
 
-        return locations.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getRender()));
+        synchronized (LOCATION_LOCK) {
+
+            return locations.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getRender()));
+        }
     }
+
+    private final Object LOCATION_LOCK = new Object();
 
     public final List<MapRender> getMapRenders() {
 
@@ -663,7 +711,7 @@ public final class World extends PropertyHolder {
 
     public final boolean travel(Player player, String location, String area) {
 
-        synchronized (PLAYER_LOCK) {
+        synchronized (LOCATION_LOCK) {
 
             // If a location is not specified, assume the current location.
             if (location == null) {
@@ -712,13 +760,16 @@ public final class World extends PropertyHolder {
 
         playerConsumer(playerId, player -> {
 
-            String locationKey = player.getLocation();
-            if (locationKey == null || !locations.containsKey(locationKey)) {
+            synchronized (LOCATION_LOCK) {
 
-                return;
+                String locationKey = player.getLocation();
+                if (locationKey == null || !locations.containsKey(locationKey)) {
+
+                    return;
+                }
+                GlobalLocationInstance location = locations.get(locationKey);
+                location.enter(player);
             }
-            GlobalLocationInstance location = locations.get(locationKey);
-            location.enter(player);
 
             player.exitGlobalMap();
             player.setPanels(overlays.values());
@@ -729,11 +780,14 @@ public final class World extends PropertyHolder {
 
         playerConsumer(playerId, player -> {
 
-            String locationKey = player.getLocation();
-            if (locationKey != null && locations.containsKey(locationKey)) {
+            synchronized (LOCATION_LOCK) {
 
-                GlobalLocationInstance location = locations.get(locationKey);
-                location.exit(player);
+                String locationKey = player.getLocation();
+                if (locationKey != null && locations.containsKey(locationKey)) {
+
+                    GlobalLocationInstance location = locations.get(locationKey);
+                    location.exit(player);
+                }
             }
 
             player.enterGlobalMap();
@@ -788,6 +842,8 @@ public final class World extends PropertyHolder {
 
         playerConsumer(playerId, player -> {
 
+            long time = System.currentTimeMillis();
+
             AssetPresets exampleAssetPresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:box", null), AssetType.ELEMENT);
             ElementContext exampleAssetContext = new ElementContext(exampleAssetPresets, this, null);
@@ -811,7 +867,7 @@ public final class World extends PropertyHolder {
                 return;
             }
 
-            boolean interacted = asset.interact(player);
+            boolean interacted = asset.interact(time, player);
 
             // If an interaction was not triggered.
             if (!interacted) {
@@ -821,13 +877,17 @@ public final class World extends PropertyHolder {
 
     public final PrimaryAssetInstance getNearestInteractable(Player player) {
 
-        String location = player.getLocation();
-        if (location == null || !locations.containsKey(location)) {
+        AreaGrid area;
+        synchronized (LOCATION_LOCK) {
+            String location = player.getLocation();
+            if (location == null || !locations.containsKey(location)) {
 
-            return null;
+                return null;
+            }
+
+            area = locations.get(location).getArea(player);
         }
 
-        AreaGrid area = locations.get(location).getArea(player);
         if (area == null) {
 
             return null;
@@ -971,8 +1031,7 @@ public final class World extends PropertyHolder {
                 }
             }
 
-            // System.out.println("Frame " + frame++ + " : " + (System.currentTimeMillis() -
-            // startMs) + "ms");
+            System.out.println("Frame " + frame++ + " : " + (System.currentTimeMillis() - startMs) + "ms");
         }
     }
 

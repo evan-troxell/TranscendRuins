@@ -18,19 +18,15 @@ package com.transcendruins.assets.models;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.transcendruins.assets.Attributes;
-import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.assets.models.ModelAttributes.IndexedPolygon;
-import com.transcendruins.graphics3d.geometry.Quaternion;
-import com.transcendruins.graphics3d.geometry.Triangle;
+import com.transcendruins.assets.models.ModelAttributes.Bone;
+import com.transcendruins.assets.models.ModelAttributes.WeightedVertex;
 import com.transcendruins.graphics3d.geometry.Vector;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -77,33 +73,29 @@ public final class ModelInstance extends AssetInstance {
     }
 
     /**
-     * <code>Vector</code>: The origin of this <code>ModelInstance</code> instance.
-     * This is the pivot point of the model, which is used to center the model at
-     * the origin when rendering.
+     * <code>ImmutableList&lt;WeightedVertex&gt;</code>: The vertices of this
+     * <code>ModelInstance</code> instance. These vertices are weighted by the bones
+     * of the model, allowing for smooth animations and deformations.
      */
-    private Vector origin;
+    private ImmutableList<WeightedVertex> vertices;
+
+    public final ImmutableList<WeightedVertex> getVertices() {
+
+        return vertices;
+    }
+
+    private Bone root;
+
+    public final Bone getRoot() {
+
+        return root;
+    }
 
     /**
-     * <code>ImmutableList&lt;ModelAttributes.WeightedVertex&gt;</code>: The
-     * vertices of this <code>ModelInstance</code> instance. These vertices are
-     * weighted by the bones of the model, allowing for smooth animations and
-     * deformations.
+     * <code>ImmutableSet&lt;String&gt;</code>: The bones of this
+     * <code>ModelInstance</code> instance.
      */
-    private ImmutableList<ModelAttributes.WeightedVertex> vertices;
-
-    /**
-     * <code>ImmutableList&lt;ModelAttributes.IndexedPolygon&gt;</code>: The
-     * polygons of this <code>ModelInstance</code> instance. These polygons are used
-     * to render the model, and are defined by the vertices of the model.
-     */
-    private ImmutableList<ModelAttributes.IndexedPolygon> polygons;
-
-    /**
-     * <code>ImmutableMap&lt;String, ModelAttributes.Bone&gt;</code>: The bones of
-     * this <code>ModelInstance</code> instance. These bones are used to animate the
-     * model, allowing for complex movements and deformations.
-     */
-    private ImmutableMap<String, ModelAttributes.Bone> bones;
+    private ImmutableMap<String, Bone> allBones;
 
     /**
      * Determines whether or not this <code>ModelInstance</code> instance has a bone
@@ -114,21 +106,38 @@ public final class ModelInstance extends AssetInstance {
      *         this <code>ModelInstance</code> instance contains a bone with the
      *         given name.
      */
-    public boolean hasBone(String bone) {
+    public final boolean containsBone(String bone) {
 
-        return bones.containsKey(bone);
+        return allBones.containsKey(bone);
+    }
+
+    public final Vector getPivotPoint(String bone) {
+
+        return allBones.get(bone).pivotPoint();
     }
 
     /**
-     * Retrieves a bone from this <code>ModelInstance</code> instance by its name.
-     * 
-     * @param bone <code>String</code>: The name of the bone to retrieve.
-     * @return <code>Bone</code>: The bone retrieved from this
-     *         <code>ModelInstance</code> instance.
+     * <code>ImmutableList&lt;Vector&gt;</code>: The uvs of this
+     * <code>ModelInstance</code> instance. Each UV vector corresponds to the
+     * respective vertex in the model.
      */
-    public ModelAttributes.Bone getBone(String bone) {
+    private ImmutableList<Vector> uvs;
 
-        return bones.get(bone);
+    public final ImmutableList<Vector> getUvs() {
+
+        return uvs;
+    }
+
+    /**
+     * <code>ImmutableList&lt;Integer</code>: The polygons of this
+     * <code>ModelInstance</code> instance. These polygons are used to render the
+     * model, and are defined by the vertices of the model.
+     */
+    private ImmutableList<Integer> polygons;
+
+    public final ImmutableList<Integer> getPolygons() {
+
+        return polygons;
     }
 
     /**
@@ -142,6 +151,44 @@ public final class ModelInstance extends AssetInstance {
      * rendering this <code>ModelInstance</code> instance.
      */
     private final ArrayList<String> disableByTag = new ArrayList<>();
+
+    public final HashSet<Integer> getDisabledVertices() {
+
+        HashSet<Integer> hideVertices = new HashSet<>();
+
+        // Find each vertex which is hidden by a bone or tag.
+        for (String boneName : disableByBone) {
+
+            if (allBones.containsKey(boneName)) {
+
+                Bone bone = allBones.get(boneName);
+                Set<Integer> boneVertices = bone.vertexWeights().keySet();
+
+                hideVertices.addAll(boneVertices);
+            }
+        }
+
+        // Find each vertex which is hidden by a tag.
+        for (Map.Entry<String, Bone> boneEntry : allBones.entrySet()) {
+
+            if (disableByBone.contains(boneEntry.getKey())) {
+
+                continue; // Skip hidden bones.
+            }
+
+            Bone bone = boneEntry.getValue();
+            ImmutableList<String> tags = bone.tags();
+
+            // If there any any hidden tags in this bone, hide the vertices.
+            if (!tags.isEmpty() && !Collections.disjoint(disableByTag, tags)) {
+
+                Set<Integer> boneVertices = bone.vertexWeights().keySet();
+                hideVertices.addAll(boneVertices);
+            }
+        }
+
+        return hideVertices;
+    }
 
     /**
      * Creates a new instance of the <code>ModelInstance</code> class.
@@ -158,253 +205,44 @@ public final class ModelInstance extends AssetInstance {
         ModelContext context = (ModelContext) assetContext;
     }
 
-    /**
-     * Retrieves the vertices of this <code>ModelInstance</code> instance.
-     * 
-     * @param boneActors <code>BoneActorSet</code>: The bone actors used to model
-     *                   the bones of this <code>ModelInstance</code> instance.
-     * @return <code>ArrayList&lt;Vector&gt;</code>: The retrieved vertices of this
-     *         <code>ModelSchema</code> instance.
-     */
-    public ArrayList<Vector> getVertices(BoneActorSet boneActors) {
-
-        HashMap<Integer, HashMap<Vector, Double>> boneWeights = new HashMap<>();
-        for (Map.Entry<String, ModelAttributes.Bone> bone : bones.entrySet()) {
-
-            for (Map.Entry<Integer, HashMap<Vector, Double>> indexEntry : bone.getValue().getVertexWeights(boneActors)
-                    .entrySet()) {
-
-                boneWeights.computeIfAbsent(indexEntry.getKey(), _ -> new HashMap<>()).putAll(indexEntry.getValue());
-            }
-        }
-
-        ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
-
-        for (int i = 0; i < vertices.size(); i++) {
-
-            verticesModified.add(vertices.get(i) // Retrieve the raw vertex.
-                    .getWeightedVertex(boneWeights.get(i)) // Apply the vertex weights.
-                    .subtract(origin) // Adjust so the pivot point of the model is the origin.
-            );
-        }
-
-        return verticesModified;
-    }
-
-    /**
-     * Retrieves the polygons of this <code>ModelInstance</code> instance and
-     * translates it to a specified position and orientation.
-     * 
-     * @param boneActors <code>BoneActorSet</code>: The bone actors to animate this
-     *                   <code>ModelInstance</code> with.
-     * @param position   <code>Vector</code>: The position to center the vertices
-     *                   at.
-     * @param rotation   <code>Quaternion</code>: The rotation to apply to the
-     *                   vertices.
-     * @return <code>HashMap&lt;Triangle, Triangle&gt;</code>: The generated
-     *         polygons.
-     */
-    public HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, Vector position, Quaternion rotation) {
-
-        return getPolygons(getVertices(boneActors), position, rotation);
-    }
-
-    /**
-     * Retrieves the polygons of this <code>ModelInstance</code> instance, adjusts
-     * it to the position of a parent asset (like a glove being adjusted to the
-     * position of a person's hand), and translates it to a specified position and
-     * orientation.
-     * 
-     * @param boneActors       <code>BoneActorSet</code>: The bone actors to animate
-     *                         this <code>ModelInstance</code> with.
-     * @param parentBoneActors <code>BoneActorSet</code>: The bone actors of the
-     *                         parent animation. These will <b>NOT</b>TODO clarify
-     *                         what this was supposed to do
-     * @param bone             <code>Bone</code>: The bone at which to position this
-     *                         <code>ModelInstance</code> instance.
-     * @param position         <code>Vector</code>: The position to center the
-     *                         vertices at. This should effectively be the position
-     *                         of the parent which this <code>ModelInstance</code>
-     *                         is being rendered off of. If this model is a glove
-     *                         and the parent bone is the hand of a person, then the
-     *                         glove will already be adjusted onto the person, so
-     *                         the position should be the spacial position of the
-     *                         person.
-     * @param rotation         <code>Quaternion</code>: The rotation to apply to the
-     *                         polygons. As with the position, this should be the
-     *                         rotation of the parent (as this model will already
-     *                         have been adjusted to the position of the parent
-     *                         model).
-     * @return <code>HashMap&lt;Triangle, Triangle&gt;</code>: The generated
-     *         polygons.
-     */
-    // TODO: operating strictly off of parents and relying on the child to have all
-    // of the animations won't work; for example, if the asset structure is horse ->
-    // person -> glove on hand, then the glove might render properly when placed on
-    // the person but will require all of the horse bones to render properly when
-    // riding.
-    public HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, List<BoneActorSet> parentsBoneActors,
-            List<ModelAttributes.Bone> parents, Vector position, Quaternion rotation) {
-
-        // If there is no parent, just return the polygons of this model.
-        if (parents.isEmpty() || parentsBoneActors.size() != parents.size()) {
-
-            return getPolygons(boneActors, position, rotation);
-        }
-
-        ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
-
-        // Iterate through each parent bone and adjust the vertices to the position of
-        // the parent bone actors.
-        for (int i = parents.size() - 1; i >= 0; i--) {
-
-            ModelAttributes.Bone parent = parents.get(i);
-            BoneActorSet parentBoneActors = parentsBoneActors.get(i);
-
-            Vector pivotPoint = parent.getPivotPoint();
-
-            // Center the vertices at the parent bone.
-            for (Vector vertex : getVertices(boneActors)) {
-
-                verticesModified.add(vertex.add(pivotPoint));
-            }
-
-            // Apply the parent bone actors to the vertices.
-            // This will adjust the vertices to the position of the parent bone actors,
-            // assuming this model has the same structure as the parent model.
-            // For example, if the parent has the structure 'chest' -> 'leftArm' ->
-            // 'leftHand' and this model represents a glove, then this model should have the
-            // same structure, and the vertices will be adjusted to the position of the
-            // 'leftHand' bone actor in the parent model.
-            for (String boneActor : parent.getBonePathway()) {
-
-                if (bones.containsKey(boneActor)) {
-
-                    verticesModified = parentBoneActors.apply(verticesModified, boneActor,
-                            bones.get(boneActor).getPivotPoint());
-                }
-            }
-        }
-
-        return getPolygons(verticesModified, position, rotation);
-    }
-
-    /**
-     * Retrieves the polygons of this <code>ModelInstance</code> from provided
-     * vertices.
-     * 
-     * @param vertices <code>List&lt;Vector&gt;</code>: The vertices to model using.
-     * @param position <code>Vector</code>: The position to center the polygons at.
-     * @param rotation <code>Quaternion</code>: The rotation to apply to the
-     *                 polygons.
-     * @return <code>HashMap&lt;Triangle, Triangle&gt;</code>: The generated map of
-     *         polygons and UVs.
-     */
-    private HashMap<Triangle, Triangle> getPolygons(List<Vector> vertices, Vector position, Quaternion rotation) {
-
-        // TODO: Verify that skipping vertices will not cause the finalized polygon
-        // indices to mess up
-        ArrayList<Vector> verticesModified = new ArrayList<>(vertices.size());
-
-        HashSet<Integer> hideVertices = new HashSet<>();
-
-        // Find each vertex which is hidden by a bone or tag.
-        for (String boneName : disableByBone) {
-
-            if (bones.containsKey(boneName)) {
-
-                ModelAttributes.Bone bone = bones.get(boneName);
-                Set<Integer> boneVertices = bone.getVertexWeights().keySet();
-
-                hideVertices.addAll(boneVertices);
-            }
-        }
-
-        // Find each vertex which is hidden by a tag.
-        for (Map.Entry<String, ModelAttributes.Bone> boneEntry : bones.entrySet()) {
-
-            if (disableByBone.contains(boneEntry.getKey())) {
-
-                continue; // Skip hidden bones.
-            }
-
-            ModelAttributes.Bone bone = boneEntry.getValue();
-
-            ImmutableList<String> tags = bone.getTags();
-
-            // If there any any hidden tags in this bone, hide the vertices.
-            if (!tags.isEmpty() && !Collections.disjoint(disableByTag, tags)) {
-
-                Set<Integer> boneVertices = bone.getVertexWeights().keySet();
-                hideVertices.addAll(boneVertices);
-            }
-        }
-
-        // Iterate through each vertex and apply the rotation and position.
-        for (Vector vertex : vertices) {
-
-            verticesModified.add(vertex.rotate(rotation) // Rotate the model to the input rotation.
-                    .add(position) // Adjust so the model is centered at the input position.
-            );
-        }
-
-        // Collect the render-ready polygons and filter out any which are hidden.
-        HashMap<Triangle, Triangle> finalizedPolygons = new HashMap<>(polygons.size());
-        for (IndexedPolygon polygon : polygons) {
-
-            Triangle rendered = polygon.getPolygon(verticesModified, hideVertices);
-
-            // Skip polygons which are hidden.
-            if (rendered != null) {
-
-                finalizedPolygons.put(rendered, polygon.getUvs());
-            }
-        }
-
-        return finalizedPolygons;
-    }
-
     @Override
-    public void applyAttributes(Attributes attributeSet) {
+    public final void applyAttributes(Attributes attributeSet) {
 
         ModelAttributes attributes = (ModelAttributes) attributeSet;
 
-        // Updates the textureWidth field.
-        textureWidth = calculateAttribute(attributes.getTextureWidth(), textureWidth);
-        setProperty("textureWidth", textureWidth);
-
-        // Updates the textureHeight field.
-        textureHeight = calculateAttribute(attributes.getTextureHeight(), textureHeight);
-        setProperty("textureHeight", textureHeight);
-
-        // Updates the origin field.
-        origin = calculateAttribute(attributes.getOrigin(), origin);
-        setProperty("origin", new ImmutableList<>(origin.getX(), origin.getY(), origin.getZ()));
-
-        // Updates the bones field.
-        bones = calculateAttribute(attributes.getBones(), bones);
-        setProperty("bones", bones);
-
-        polygons = calculateAttribute(attributes.getPolygons(), polygons);
-        vertices = calculateAttribute(attributes.getVertices(), vertices);
-
         if (attributes.isBase()) {
+
+            // Updates the textureWidth field.
+            textureWidth = attributes.getTextureWidth();
+            setProperty("textureWidth", textureWidth);
+
+            // Updates the textureHeight field.
+            textureHeight = attributes.getTextureHeight();
+            setProperty("textureHeight", textureHeight);
+
+            root = attributes.getRoot();
+
+            allBones = attributes.getAllBones();
+
+            vertices = attributes.getVertices();
+            uvs = attributes.getUvs();
+            polygons = attributes.getPolygons();
 
             disableByBone.clear();
             disableByTag.clear();
         }
 
-        computeAttribute(attributes.getdisableByBone(), disableByBone::addAll);
-        computeAttribute(attributes.getenableByBone(), disableByBone::removeAll);
+        computeAttribute(attributes.getDisableByBone(), disableByBone::addAll);
+        computeAttribute(attributes.getEnableByBone(), disableByBone::removeAll);
         setProperty("disableByBone", disableByBone);
 
-        computeAttribute(attributes.getdisableByTag(), disableByTag::addAll);
-        computeAttribute(attributes.getenableByTag(), disableByTag::removeAll);
+        computeAttribute(attributes.getDisableByTag(), disableByTag::addAll);
+        computeAttribute(attributes.getEnableByTag(), disableByTag::removeAll);
         setProperty("disableByTag", disableByTag);
     }
 
     @Override
-    protected void onUpdate(double time) {
+    protected final void onUpdate(double time) {
 
     }
 }

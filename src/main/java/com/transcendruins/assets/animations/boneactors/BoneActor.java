@@ -16,6 +16,9 @@
 
 package com.transcendruins.assets.animations.boneactors;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.Quaternion;
 import com.transcendruins.graphics3d.geometry.Vector;
@@ -72,13 +75,14 @@ public final class BoneActor {
      */
     public final BoneActor extend(BoneActor boneActor) {
 
-        if (isDefault()) {
+        if (this == DEFAULT) {
 
             return boneActor;
         }
 
-        return new BoneActor(boneActor.position.add(position), boneActor.rotation.multiply(rotation),
-                boneActor.scale.multiply(scale));
+        return new BoneActor(position == Vector.IDENTITY_VECTOR ? boneActor.position : boneActor.position.add(position),
+                rotation == Quaternion.IDENTITY_QUATERNION ? boneActor.rotation : boneActor.rotation.multiply(rotation),
+                scale == Matrix.IDENTITY_3X3 ? boneActor.scale : boneActor.scale.multiply(scale));
     }
 
     /**
@@ -93,7 +97,7 @@ public final class BoneActor {
      */
     public final Vector transform(Vector vector, Vector pivotPoint) {
 
-        if (isDefault()) {
+        if (this == DEFAULT) {
 
             return vector;
         }
@@ -101,9 +105,40 @@ public final class BoneActor {
         return vector.subtract(pivotPoint).multiply(scale).rotate(rotation).add(position).add(pivotPoint);
     }
 
-    public final boolean isDefault() {
+    /**
+     * Applies this <code>BoneActor</code> instance to a set of vertices.
+     * 
+     * @param vertices   <code>Map&lt;Integer, Map&lt;Vector, Double&gt;&gt;</code>:
+     *                   The vertices to apply this <code>BoneActor</code> instance
+     *                   to.
+     * @param pivotPoint <code>Vector</code>: The origin about which to perform all
+     *                   relevant transformations.
+     * @return <code>Map&lt;Integer, Map&lt;Vector, Double&gt;&gt;</code>: The
+     *         transformed vertices.
+     */
+    public final Map<Integer, Map<Vector, Double>> apply(Map<Integer, Map<Vector, Double>> vertices,
+            Vector pivotPoint) {
 
-        return position == Vector.IDENTITY_VECTOR && rotation == Quaternion.IDENTITY_QUATERNION
-                && scale == Matrix.IDENTITY_3X3;
+        // If the bone actor does not exist, a new set should still be created - create
+        // a default bone actor used only to copy over vertices.
+        HashMap<Integer, Map<Vector, Double>> modifiedVertices = new HashMap<>();
+
+        for (Map.Entry<Integer, Map<Vector, Double>> boneWeightsEntry : vertices.entrySet()) {
+
+            int index = boneWeightsEntry.getKey();
+            HashMap<Vector, Double> verticesMap = new HashMap<>();
+
+            for (Map.Entry<Vector, Double> vertexEntry : boneWeightsEntry.getValue().entrySet()) {
+
+                double weight = vertexEntry.getValue();
+                Vector vertex = transform(vertexEntry.getKey(), pivotPoint);
+
+                verticesMap.put(vertex, weight);
+            }
+
+            modifiedVertices.put(index, verticesMap);
+        }
+
+        return modifiedVertices;
     }
 }

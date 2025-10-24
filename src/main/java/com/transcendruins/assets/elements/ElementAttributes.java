@@ -16,9 +16,13 @@
 
 package com.transcendruins.assets.elements;
 
+import java.awt.Dimension;
+import java.util.List;
+
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
@@ -28,23 +32,11 @@ import com.transcendruins.utilities.json.TracedEntry;
  */
 public final class ElementAttributes extends PrimaryAssetAttributes {
 
-    /**
-     * <code>Boolean</code>: Whether or not the rotation of this
-     * <code>ElementAttributes</code> instance should snap to the four cardinal
-     * directions.
-     */
-    private final Boolean gridRotationSnap;
+    private final Dimension tileDimensions;
 
-    /**
-     * Retrieves whether or not the rotation of this <code>ElementAttributes</code>
-     * instance should snap to the four cardinal directions.
-     * 
-     * @return <code>Boolean</code>: The <code>gridRotationSnap</code> field of this
-     *         <code>ElementAttributes</code> instance.
-     */
-    public Boolean getGridRotationSnap() {
+    public final Dimension getTileDimensions() {
 
-        return gridRotationSnap;
+        return new Dimension(tileDimensions);
     }
 
     /**
@@ -65,7 +57,30 @@ public final class ElementAttributes extends PrimaryAssetAttributes {
 
         super(schema, json, isBase);
 
-        TracedEntry<Boolean> gridRotationSnapEntry = json.getAsBoolean("gridRotationSnap", true, isBase ? true : null);
-        gridRotationSnap = gridRotationSnapEntry.getValue();
+        tileDimensions = json.get("tileDimensions", List.of(
+
+                json.arrayCase(entry -> {
+
+                    TracedArray tileDimensionsJson = entry.getValue();
+
+                    TracedEntry<Integer> widthEntry = tileDimensionsJson.getAsInteger(0, false, null);
+                    int width = widthEntry.getValue();
+
+                    TracedEntry<Integer> lengthEntry = tileDimensionsJson.getAsInteger(1, false, null);
+                    int length = lengthEntry.getValue();
+
+                    return new Dimension(width, length);
+                }), json.dictCase(entry -> {
+
+                    TracedDictionary tileDimensionsJson = entry.getValue();
+
+                    TracedEntry<Integer> widthEntry = tileDimensionsJson.getAsInteger("width", false, null);
+                    int width = widthEntry.getValue();
+
+                    TracedEntry<Integer> lengthEntry = tileDimensionsJson.getAsInteger("length", false, null);
+                    int length = lengthEntry.getValue();
+
+                    return new Dimension(width, length);
+                }), json.nullCase(_ -> null)));
     }
 }

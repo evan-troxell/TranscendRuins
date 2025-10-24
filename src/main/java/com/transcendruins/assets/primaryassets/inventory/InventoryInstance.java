@@ -38,6 +38,18 @@ import com.transcendruins.utilities.immutable.ImmutableSet;
  */
 public final class InventoryInstance extends Instance {
 
+    private final PrimaryAssetInstance asset;
+
+    public final PrimaryAssetInstance getInventoryParent() {
+
+        return asset;
+    }
+
+    public InventoryInstance(PrimaryAssetInstance asset) {
+
+        this.asset = asset;
+    }
+
     public final int getItemCount(ItemInstance item) {
 
         int count = 0;

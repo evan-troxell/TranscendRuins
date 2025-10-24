@@ -16,16 +16,18 @@
 
 package com.transcendruins.assets.elements;
 
-import java.util.HashMap;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 
-import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
-import com.transcendruins.assets.models.ModelInstance;
+import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.assets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.graphics3d.geometry.Quaternion;
-import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.world.AreaGrid;
+import com.transcendruins.world.World;
 
 /**
  * <code>ElementInstance</code>: A class representing a generated element
@@ -33,29 +35,127 @@ import com.transcendruins.graphics3d.geometry.Vector;
  */
 public final class ElementInstance extends PrimaryAssetInstance {
 
-    // TODO: Implement element position/size
+    private int tileWidth;
+
+    private int tileLength;
+
+    private Point position = new Point();
+
+    public final void setTilePosition(int tileX, int tileZ) {
+
+        position = new Point(tileX, tileZ);
+        queueTileUpdate();
+    }
+
+    private int rotatedTileWidth;
+
+    private int rotatedTileLength;
+
+    private void updateTileRotation() {
+
+        if (heading == 90 || heading == 270) {
+
+            rotatedTileWidth = tileLength;
+            rotatedTileLength = tileWidth;
+        } else {
+
+            rotatedTileWidth = tileWidth;
+            rotatedTileLength = tileLength;
+        }
+
+        queueTileUpdate();
+    }
+
+    private int heading;
+
+    public final void rotate(int degrees, AreaGrid area) {
+
+        if (degrees == 0) {
+
+            return;
+        }
+
+        this.heading += degrees;
+        this.heading %= 360;
+        updateTileRotation();
+
+        int areaWidth = area.getWidth();
+        int areaLength = area.getLength();
+
+        position = switch (degrees) {
+
+        case 90 -> new Point(areaLength - position.y - tileLength, position.x);
+
+        case 180 -> new Point(areaWidth - position.x - tileWidth, areaLength - position.y - tileLength);
+
+        case 270 -> new Point(position.y, areaWidth - position.x - tileWidth);
+
+        default -> position;
+        };
+    };
+
+    @Override
+    public final Rectangle getTileBounds() {
+
+        return new Rectangle(position.x, position.y, rotatedTileWidth, rotatedTileLength);
+    }
+
+    private final Vector tileOffset;
+
     @Override
     public final Vector getPosition() {
 
-        return Vector.IDENTITY_VECTOR;
+        double x = position.x * World.UNIT_TILE + rotatedTileWidth / 2.0;
+        double y = position.y * World.UNIT_TILE + rotatedTileLength / 2.0;
+        double z = tileOffset.getZ();
+
+        if (tileOffset != Vector.IDENTITY_VECTOR) {
+
+            switch (heading) {
+
+            case 0 -> {
+
+                x += tileOffset.getX();
+                y += tileOffset.getY();
+            }
+
+            case 90 -> {
+
+                x -= tileOffset.getY();
+                y += tileOffset.getX();
+            }
+
+            case 180 -> {
+
+                x -= tileOffset.getY();
+                y -= tileOffset.getX();
+            }
+
+            case 270 -> {
+
+                x += tileOffset.getY();
+                y -= tileOffset.getX();
+            }
+            }
+        }
+
+        return new Vector(x, y, z);
     }
 
     @Override
     public final Quaternion getRotation() {
 
-        return Quaternion.IDENTITY_QUATERNION;
+        return Quaternion.fromEulerRotation(Math.toRadians(heading), new Vector(0, 1.0, 0));
     }
 
-    @Override
-    public int getTileWidth() {
+    public final boolean addModelChild(ElementInstance modelChild, String attachment) {
 
-        return 0;
+        return super.addModelChild(modelChild, attachment);
     }
 
-    @Override
-    public int getTileLength() {
+    public final boolean addModelChild(EntityInstance modelChild, String attachment) {
 
-        return 0;
+        return super.addModelChild(modelChild, attachment);
     }
 
     /**
@@ -71,22 +171,27 @@ public final class ElementInstance extends PrimaryAssetInstance {
         super(assetContext, key);
 
         ElementContext context = (ElementContext) assetContext;
+
+        tileOffset = context.getTileOffset();
     }
 
     @Override
     public final void applyPrimaryAssetAttributes(PrimaryAssetAttributes attributeSet) {
 
         ElementAttributes attributes = (ElementAttributes) attributeSet;
+
+        computeAttribute(attributes.getTileDimensions(), tileDimensions -> {
+
+            tileWidth = tileDimensions.width;
+            tileLength = tileDimensions.height;
+
+            queueTileUpdate();
+        }, attributes, new Dimension(1, 1));
+
+        updateTileRotation();
     }
 
     @Override
     protected final void onPrimaryAssetUpdate(double time) {
-    }
-
-    @Override
-    protected final HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, ModelInstance model,
-            Vector position, Quaternion rotation) {
-
-        return model.getPolygons(boneActors, position, rotation);
     }
 }

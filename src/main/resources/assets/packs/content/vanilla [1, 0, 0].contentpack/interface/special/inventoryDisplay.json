@@ -81,7 +81,7 @@
                                 "type": "texture",
                                 "id": "inventoryDisplayExitButtonX",
 
-                                "texture": "interface.inventoryDisplay.x"
+                                "texture": "interface.inventory.x"
                             },
                             {
                                 "type": "rotate",

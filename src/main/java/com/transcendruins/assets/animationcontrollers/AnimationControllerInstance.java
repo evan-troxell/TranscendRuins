@@ -208,17 +208,20 @@ public final class AnimationControllerInstance extends AssetInstance {
      */
     public final BoneActorSet evaluatePose() {
 
-        ArrayList<BoneActorSet> boneActors = new ArrayList<>();
+        // If there is not a current state or there are no animations, do not apply any
+        // animations.
+        if (state == null || animations.isEmpty()) {
 
-        //
-        if (state != null) {
-
-            for (AnimationInstance animation : animations) {
-
-                boneActors.add(animation.getKeyFrames(timestamp));
-            }
+            return new BoneActorSet();
         }
 
+        ArrayList<BoneActorSet> boneActors = new ArrayList<>();
+        for (AnimationInstance animation : animations) {
+
+            boneActors.add(animation.getKeyFrames(timestamp));
+        }
+
+        // Compile animations into a single set.
         return new BoneActorSet(boneActors);
     }
 }

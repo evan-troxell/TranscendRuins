@@ -166,7 +166,7 @@ public abstract class ComponentAction {
 
         case OPEN_INVENTORY -> new OpenInventoryComponentAction(json);
 
-        case null, default -> throw new UnexpectedValueException(typeEntry);
+        default -> throw new UnexpectedValueException(typeEntry);
         };
     }
 

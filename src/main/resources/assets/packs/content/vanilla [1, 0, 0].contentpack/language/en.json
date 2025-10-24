@@ -1,6 +1,7 @@
 {
     "language": "English",
 
+    "global.resetLabel": "Resets in:",
     "global.enter": "Enter",
     "global.travel": "Travel",
 
@@ -17,10 +18,13 @@
     "location.pineLarge.description": "An imposing grove of towering pines, their dense canopy and swirling fog concealing all but faint whispers.",
 
     "location.bunkerAlfa": "Bunker Alfa",
-    "location.bunkerAlfa.description": "A dilapidated bunker, its rusting doors and crumbling walls hinting at its recent demise. Though its many floors and thick walls are filled with weapons and supplies, maybe it is best to leave them be.",
+    "location.bunkerAlfa.description": "A dilapidated bunker, its rusting doors and crumbling walls hinting at a recent demise. Though its many floors and thick walls are filled with weapons and supplies, it might be best to leave them alone.",
+
+    "location.bunkerBravo": "Bunker Bravo",
+    "location.bunkerBravo.description": "___",
 
     "location.convoy": "Abandoned Convoy",
-    "location.convoy.description": "A distant roar cuts through the still air as you receive a distress signal on the radio.",
+    "location.convoy.description": "A distant roar cuts through the still air as you receive a distress signal over the radio.",
     
 
     "event.convoy": "Abandoned Convoy",

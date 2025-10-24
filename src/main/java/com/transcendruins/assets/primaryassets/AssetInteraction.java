@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.json.TracedArray;
@@ -24,7 +22,7 @@ public abstract class AssetInteraction {
     public static final AssetInteraction NONE = new AssetInteraction() {
 
         @Override
-        public final void onCall(PrimaryAssetInstance self, Player caller) {
+        public final void onCall(PrimaryAssetInstance self, long time, Player caller) {
         }
     };
 
@@ -56,7 +54,7 @@ public abstract class AssetInteraction {
         event = new ImmutableList<>();
     }
 
-    public AssetInteraction(TracedDictionary json, AssetSchema schema) throws LoggedException {
+    public AssetInteraction(TracedDictionary json) throws LoggedException {
 
         TracedEntry<Double> cooldownEntry = json.getAsDouble("cooldown", true, 0.0, num -> num >= 0.0 || num == -1.0);
         cooldown = cooldownEntry.getValue();
@@ -88,30 +86,17 @@ public abstract class AssetInteraction {
 
                 TracedEntry<String> eventEntry = eventsJson.getAsString(i, false, null);
                 String eventKey = eventEntry.getValue();
-
-                if (!schema.containsEvent(eventKey)) {
-
-                    throw new ReferenceWithoutDefinitionException(eventEntry, "Event");
-                }
-
                 eventsList.add(eventKey);
             }
             return new ImmutableList<>(eventsList);
         }), json.stringCase(entry -> {
 
             String eventKey = entry.getValue();
-
-            if (!schema.containsEvent(eventKey)) {
-
-                throw new ReferenceWithoutDefinitionException(entry, "Event");
-            }
             return new ImmutableList<>(eventKey);
-        })));
+        }), json.nullCase(_ -> new ImmutableList<>())));
     }
 
-    public final boolean call(PrimaryAssetInstance self, Player caller) {
-
-        long time = System.currentTimeMillis();
+    public final boolean canCall(PrimaryAssetInstance self, long time) {
 
         // If it has been previously called and the interaction has not reset, do not
         // call again.
@@ -120,7 +105,12 @@ public abstract class AssetInteraction {
             return false;
         }
 
-        if (!passes(self)) {
+        return passes(self);
+    }
+
+    public final boolean call(PrimaryAssetInstance self, long time, Player caller) {
+
+        if (!canCall(self, time)) {
 
             return false;
         }
@@ -132,11 +122,11 @@ public abstract class AssetInteraction {
             self.executeEvent(eventKey);
         }
 
-        onCall(self, caller);
+        onCall(self, time, caller);
         return true;
     }
 
-    protected abstract void onCall(PrimaryAssetInstance self, Player caller);
+    protected abstract void onCall(PrimaryAssetInstance self, long time, Player caller);
 
     public static final AssetInteraction createInteraction(TracedDictionary json) throws LoggedException {
 
@@ -162,6 +152,8 @@ public abstract class AssetInteraction {
         private final ImmutableList<AssetInteraction> interaction;
 
         public ExecuteInteractionAssetInteraction(TracedDictionary json) throws LoggedException {
+
+            super(json);
 
             interaction = json.get("interaction", List.of(
                     // Process a dictionary into a single interaction.
@@ -193,22 +185,24 @@ public abstract class AssetInteraction {
         }
 
         @Override
-        public final void onCall(PrimaryAssetInstance self, Player caller) {
+        public final void onCall(PrimaryAssetInstance self, long time, Player caller) {
 
             for (AssetInteraction action : interaction) {
 
-                action.call(self, caller);
+                action.call(self, time, caller);
             }
         }
     }
 
     public static final class InventoryAssetInteraction extends AssetInteraction {
 
-        public InventoryAssetInteraction(TracedDictionary json) {
+        public InventoryAssetInteraction(TracedDictionary json) throws LoggedException {
+
+            super(json);
         }
 
         @Override
-        public final void onCall(PrimaryAssetInstance self, Player caller) {
+        public final void onCall(PrimaryAssetInstance self, long time, Player caller) {
 
             caller.displayInventory(self);
         }
@@ -216,11 +210,13 @@ public abstract class AssetInteraction {
 
     public static final class PassagewayAssetInteraction extends AssetInteraction {
 
-        public PassagewayAssetInteraction(TracedDictionary json) {
+        public PassagewayAssetInteraction(TracedDictionary json) throws LoggedException {
+
+            super(json);
         }
 
         @Override
-        public final void onCall(PrimaryAssetInstance self, Player caller) {
+        public final void onCall(PrimaryAssetInstance self, long time, Player caller) {
         }
     }
 }

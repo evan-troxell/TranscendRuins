@@ -1,11 +1,16 @@
 {
     "globalOverlays": {
-        "utilityBar": "TranscendRuins:utilityBar"
+
+        "utilityBar": "TranscendRuins:utilityBar",
+        "description": "TranscendRuins:globalMapDescription"
     },
+
+
     "overlays": {
 
         "utilityBar": "TranscendRuins:utilityBar",
-        "actionBar": "TranscendRuins:actionBar"
+        "actionBar": "TranscendRuins:actionBar",
+        "description": "TranscendRuins:gameDescription"
     },
 
     "menus": {

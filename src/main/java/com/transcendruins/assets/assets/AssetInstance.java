@@ -20,6 +20,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -161,10 +162,14 @@ public abstract class AssetInstance extends Instance {
      * @param parent <code>AssetInstance</code>: The parent of this
      *               <code>AssetInstance</code> instance.
      */
-    public final void setParent(AssetInstance parent) {
+    protected final void setParent(AssetInstance parent) {
 
         super.setParent(parent == null ? parent : world);
     }
+
+    private final ArrayList<String> addPermutations = new ArrayList<>();
+
+    private final HashSet<String> removePermutations = new HashSet<>();
 
     /**
      * <code>ArrayList&lt;String&gt;</code>: The list of currently applied attribute
@@ -211,6 +216,11 @@ public abstract class AssetInstance extends Instance {
 
         assetSchema = world.getSchema(type, identifier);
 
+        if (assetSchema == null) {
+
+            throw new IllegalArgumentException("Missing schema passed to asset instance.");
+        }
+
         for (Map.Entry<String, Object> entry : assetSchema.getProperties().entrySet()) {
 
             String property = entry.getKey();
@@ -233,9 +243,9 @@ public abstract class AssetInstance extends Instance {
             return;
         }
 
+        updateAttributes();
         isInitialized = true;
 
-        updateAttributes();
         executeEvent(AssetEvent.ON_INITIALIZATION);
 
         for (String event : assetPresets.getEvents()) {
@@ -257,8 +267,9 @@ public abstract class AssetInstance extends Instance {
      */
     public final void addPermutations(List<String> permutations) {
 
-        appliedPermutations.removeAll(permutations);
-        appliedPermutations.addAll(permutations);
+        removePermutations.removeAll(permutations);
+        addPermutations.removeAll(permutations);
+        addPermutations.addAll(permutations);
     }
 
     /**
@@ -269,7 +280,8 @@ public abstract class AssetInstance extends Instance {
      */
     public final void removePermutations(List<String> permutations) {
 
-        appliedPermutations.removeAll(permutations);
+        addPermutations.removeAll(permutations);
+        removePermutations.addAll(permutations);
     }
 
     /**
@@ -309,8 +321,41 @@ public abstract class AssetInstance extends Instance {
      */
     public final void updateAttributes() {
 
+        // If there are no existing permutations to remove, only apply the added
+        // permutations
+        if (isInitialized
+                && (removePermutations.isEmpty() || Collections.disjoint(appliedPermutations, removePermutations))) {
+
+            for (String permutationKey : addPermutations) {
+
+                AssetAttributes permutation = assetSchema.getPermutation(permutationKey);
+                applyAttributes(permutation);
+            }
+
+            // Update the applied permutations.
+            appliedPermutations.removeAll(addPermutations);
+            appliedPermutations.addAll(addPermutations);
+
+            // Clear the permutation updates.
+            addPermutations.clear();
+            removePermutations.clear();
+
+            return;
+        }
+
+        // Update the applied permutations.
+        appliedPermutations.removeAll(removePermutations);
+        appliedPermutations.removeAll(addPermutations);
+        appliedPermutations.addAll(addPermutations);
+
+        // Clear the permutation updates.
+        removePermutations.clear();
+        addPermutations.clear();
+
+        // Apply the base attribute layer.
         applyAttributes(assetSchema.calculateAttributes());
 
+        // Update permutations
         for (String permutationKey : appliedPermutations) {
 
             AssetAttributes permutation = assetSchema.getPermutation(permutationKey);
@@ -325,8 +370,8 @@ public abstract class AssetInstance extends Instance {
      */
     public final void update(double time) {
 
-        onUpdate(time);
         executeEvent(AssetEvent.ON_TICK);
+        onUpdate(time);
     }
 
     /**
@@ -388,5 +433,23 @@ public abstract class AssetInstance extends Instance {
     public final boolean isLikeAsset(AssetInstance asset) {
 
         return type == asset.getType() && identifier == asset.getIdentifier();
+    }
+
+    @Override
+    public final int hashCode() {
+
+        return identifier.hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+
+        // If the object does not exist or is not an asset.
+        if (obj == null || !(obj instanceof AssetInstance)) {
+
+            return false;
+        }
+
+        return this == obj;
     }
 }

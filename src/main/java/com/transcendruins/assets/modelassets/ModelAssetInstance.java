@@ -16,10 +16,8 @@
 
 package com.transcendruins.assets.modelassets;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,19 +28,17 @@ import com.transcendruins.assets.animationcontrollers.AnimationControllerInstanc
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.assets.models.ModelAttributes;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
+import com.transcendruins.assets.models.ModelAttributes.WeightedVertex;
 import com.transcendruins.assets.models.ModelContext;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.assets.rendermaterials.RenderMaterialContext;
 import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
-import com.transcendruins.graphics3d.PolyGroup;
 import com.transcendruins.graphics3d.geometry.Quaternion;
-import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.rendering.RenderBuffer;
 import com.transcendruins.rendering.RenderInstance;
-import com.transcendruins.resources.textures.Texture;
 import com.transcendruins.utilities.immutable.ImmutableList;
-import com.transcendruins.utilities.immutable.ImmutableMap;
 
 /**
  * <code>ModelAssetInstance</code>: A class representing an
@@ -50,6 +46,49 @@ import com.transcendruins.utilities.immutable.ImmutableMap;
  * rendered using the standard <code>RenderInstance</code> method.
  */
 public abstract class ModelAssetInstance extends AssetInstance implements RenderInstance {
+
+    private GlobalLocationInstance location;
+
+    public final GlobalLocationInstance getLocation() {
+
+        return location;
+    }
+
+    public final void setLocation(GlobalLocationInstance location) {
+
+        this.location = location;
+    }
+
+    private ModelAssetInstance modelParent;
+
+    protected final void setModelParent(ModelAssetInstance modelParent) {
+
+        if (modelParent != null) {
+
+            location = modelParent.getLocation();
+            this.modelParent = modelParent;
+
+            setParent(modelParent);
+        } else {
+
+            this.modelParent = null;
+            setParent(location);
+        }
+    }
+
+    public abstract void removeModelParent();
+
+    public final boolean hasModelParent() {
+
+        return modelParent != null;
+    }
+
+    public final ModelAssetInstance getModelParent() {
+
+        return modelParent;
+    }
+
+    public abstract String getModelParentAttachment();
 
     /**
      * <code>String</code>: The pathway to the texture of this
@@ -63,16 +102,20 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
      */
     private BufferedImage texture;
 
+    public final BufferedImage getTexture() {
+
+        return texture;
+    }
+
     /**
      * <code>ModelInstance</code>: The model of this <code>ModelAssetInstance</code>
      * instance.
      */
     private ModelInstance model;
 
-    @Override
-    public final ModelInstance getModel() {
+    public final boolean containsBone(String bone) {
 
-        return model;
+        return model.containsBone(bone);
     }
 
     /**
@@ -80,12 +123,6 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
      * <code>ModelAssetInstance</code> instance.
      */
     private RenderMaterialInstance renderMaterial;
-
-    @Override
-    public final RenderMaterialInstance getRenderMaterial() {
-
-        return renderMaterial;
-    }
 
     /**
      * <code>AnimationControllerInstance</code>: The animation controller of this
@@ -111,176 +148,82 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         return categories;
     }
 
-    @Override
-    public final Color getRGB(double x, double y) {
+    private BoneActorSet boneActors;
 
-        if (texture == null || texture.getWidth() == 0 || texture.getHeight() == 0) {
+    private void computeBoneActors() {
 
-            return Texture.BLANK;
+        if (animationController == null) {
+
+            boneActors = new BoneActorSet();
+        } else {
+
+            boneActors = animationController.evaluatePose();
         }
-
-        x *= (double) texture.getWidth() / model.getTextureWidth();
-        y *= (double) texture.getHeight() / model.getTextureHeight();
-
-        if (x < 0 || x > texture.getWidth() || y < 0 || y > texture.getHeight()) {
-
-            return Texture.BLANK;
-        }
-
-        int boundedX = Math.min(texture.getWidth(), Math.max(0, (int) x));
-        int boundedY = Math.min(texture.getHeight(), Math.max(0, (int) y));
-
-        return new Color(texture.getRGB(boundedX, boundedY));
     }
 
-    @Override
     public final BoneActorSet getBoneActors() {
 
-        return animationController == null ? new BoneActorSet() : animationController.evaluatePose();
-    }
-
-    /**
-     * Retrieves the polygon groups of this <code>ModelAssetInstance</code>
-     * instance.
-     * 
-     * @param boneActors <code>BoneActorSet</code>: The bone actors to apply to this
-     *                   <code
-     * @param model      <code>ModelInstance</code>: The model of this
-     *                   <code>ModelAssetInstance</code> which should be rendered.
-     * @param position   <code>Vector</code>: The position at which to center the
-     *                   polygons of this <code>ModelAssetInstance</code> instance.
-     * @param rotation   <code>Quaternions</code>: The orientation to apply to the
-     *                   polygons of this <code>ModelAssetInstance</code> instance.
-     * @return
-     */
-    protected abstract HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, ModelInstance model,
-            Vector position, Quaternion rotation);
-
-    /**
-     * <code>HashMap&lt;ModelAssetInstance, String&gt;</code>: The children of this
-     * <code>ModelAssetInstance</code> instance. These represent pairs between child
-     * assets and the bone to which they are attached.
-     */
-    private final HashMap<ModelAssetInstance, String> children = new HashMap<>();
-
-    /**
-     * Adds a child model to this <code>ModelAssetInstance</code> instance. The
-     * child model will be attached to the bone with the specified name.
-     * 
-     * @param child    <code>ModelAssetInstance</code>: The child model to add to
-     *                 this <code>ModelAssetInstance</code> instance.
-     * @param boneName <code>String</code>: The name of the bone to which the child
-     *                 model will be attached.
-     * @return <code>boolean</code>: Whether or not the child was successfully
-     *         added.
-     */
-    protected final boolean addChild(ModelAssetInstance child, String boneName) {
-
-        // If the model does not have the bone, do not add the child.
-        if (!model.hasBone(boneName)) {
-
-            return false;
-        }
-
-        children.put(child, boneName);
-        child.setParent(this);
-
-        return true;
-    }
-
-    /**
-     * Removes a child model from this <code>ModelAssetInstance</code> instance.
-     * 
-     * @param child <code>ModelAssetInstance</code>: The child model to remove from
-     *              this <code>ModelAssetInstance</code> instance.
-     */
-    protected final void removeChild(ModelAssetInstance child) {
-
-        // If the child is a child of this model, remove it.
-        if (children.remove(child) != null) {
-
-            child.setParent(null);
-        }
-    }
-
-    /**
-     * Retrieves the children of this <code>ModelAssetInstance</code> instance.
-     * 
-     * @return <code>ImmutableMap&lt;ModelAssetInstance, String&gt;</code>: The
-     *         <code>children</code> field of this <code>ModelAssetInstance</code>
-     *         instance.
-     */
-    protected final ImmutableMap<ModelAssetInstance, String> getChildren() {
-
-        return new ImmutableMap<>(children);
+        return boneActors;
     }
 
     @Override
-    public final HashSet<PolyGroup> getPolygons() {
+    public final RenderBuffer getPolygons() {
 
-        return getPolygons(new ArrayList<>(), new ArrayList<>(), getPosition(), getRotation());
+        computeBoneActors();
+        return getParentPolygons(model, boneActors, getPosition(), getRotation());
     }
 
-    /**
-     * Retrieves the polygons of this <code>ModelAssetInstance</code> instance and
-     * its children. The polygons of children elements will not be directly
-     * retrieved by the rendering system, so this method recursively compiles each
-     * child element into a set of polygons to be rendered.
-     * 
-     * @param parentsBoneActors <code>List&lt;BoneActorSet&gt;</code>: The bone
-     *                          actors of the parent model asset instances.
-     * @param parents           <code>List&lt;ModelAttributes.Bone&gt;</code>: The
-     *                          bones of the parent model asset instances.
-     * @param position          <code>Vector</code>: The position at which to center
-     *                          the polygons of this <code>ModelAssetInstance</code>
-     *                          instance.
-     * @param rotation          <code>Quaternion</code>: The orientation to apply to
-     *                          the polygons of this <code>ModelAssetInstance</code>
-     *                          instance.
-     * @return <code>HashSet&lt;PolyGroup&gt;</code>: The polygons of this
-     *         <code>ModelAssetInstance</code> instance and its children.
-     */
-    private HashSet<PolyGroup> getPolygons(List<BoneActorSet> parentsBoneActors, List<ModelAttributes.Bone> parents,
-            Vector position, Quaternion rotation) {
+    public final RenderBuffer getPolygons(ModelAssetInstance parent) {
 
-        BoneActorSet boneActors = getBoneActors();
+        computeBoneActors();
+        return getChildPolygons(model, boneActors, modelParent, getModelParentAttachment());
+    }
 
-        // Retrieve the map of polygons to their uvs.
-        HashMap<Triangle, Triangle> polygonsAdjusted = model.getPolygons(boneActors, parentsBoneActors, parents,
-                position, rotation);
+    protected abstract RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector position,
+            Quaternion rotation);
 
-        // Recursively subdivides the polygon group until it is within the appropriate
-        // size.
-        HashSet<PolyGroup> subdividedPolygons = new PolyGroup(polygonsAdjusted, this).subDivide();
+    protected abstract RenderBuffer getChildPolygons(ModelInstance model, BoneActorSet boneActors,
+            ModelAssetInstance parent, String attachment);
 
-        // Extend this model asset as a parent of the children models.
-        ArrayList<BoneActorSet> childParentBoneActors = new ArrayList<>(parentsBoneActors);
-        childParentBoneActors.add(boneActors);
+    protected final RenderBuffer generatePolygons(Map<Integer, Map<Vector, Double>> vertexWeights) {
 
-        for (Map.Entry<ModelAssetInstance, String> childEntry : children.entrySet()) {
+        // Determine which vertices should be hidden.
+        HashSet<Integer> disabledVertices = model.getDisabledVertices();
 
-            ModelAssetInstance child = childEntry.getKey();
-            String boneName = childEntry.getValue();
+        // Form the vertices which describe the final mesh.
+        List<Vector> vertices = WeightedVertex.getWeightedVertices(model.getVertices(), vertexWeights);
 
-            // If the bone is not found, skip this child.
-            if (!model.hasBone(boneName)) {
+        // Form the polygon indices which describe the final mesh.
+        List<Integer> polygons = model.getPolygons();
+        ArrayList<Integer> indices = new ArrayList<>(polygons.size());
+
+        // Collect the render-ready polygons and filter out any which are hidden.
+        for (int i = 0; i < polygons.size() - 2; i += 3) {
+
+            int v1 = polygons.get(i);
+            if (disabledVertices.contains(v1)) {
 
                 continue;
             }
 
-            ModelAttributes.Bone bone = model.getBone(boneName);
+            int v2 = polygons.get(i + 1);
+            if (disabledVertices.contains(v2)) {
 
-            // Extend the bone as a parent of the child model.
-            ArrayList<ModelAttributes.Bone> childParentBones = new ArrayList<>(parents);
-            childParentBones.add(bone);
+                continue;
+            }
 
-            // Retrieve the polygons of the child model asset instance.
-            HashSet<PolyGroup> childPolygons = child.getPolygons(childParentBoneActors, childParentBones, position,
-                    rotation);
-            subdividedPolygons.addAll(childPolygons);
+            int v3 = polygons.get(i + 2);
+            if (disabledVertices.contains(v3)) {
+
+                continue;
+            }
+
+            indices.add(v1);
+            indices.add(v2);
+            indices.add(v3);
         }
 
-        return subdividedPolygons;
+        return new RenderBuffer(vertices, model.getUvs(), indices, texture, renderMaterial);
     }
 
     /**

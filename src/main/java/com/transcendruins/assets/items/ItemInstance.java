@@ -16,25 +16,40 @@
 
 package com.transcendruins.assets.items;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 
+import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
-import com.transcendruins.assets.models.ModelAttributes;
+import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelInstance;
+import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.primaryassets.inventory.InventorySlotInstance;
+import com.transcendruins.graphics3d.geometry.Matrix;
 import com.transcendruins.graphics3d.geometry.Quaternion;
-import com.transcendruins.graphics3d.geometry.Triangle;
 import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.rendering.RenderBuffer;
 
 /**
  * <code>ItemInstance</code>: A class representing a generated item instance.
  */
 public final class ItemInstance extends ModelAssetInstance {
+
+    @Override
+    public final Vector getPosition() {
+
+        return Vector.IDENTITY_VECTOR;
+    }
+
+    @Override
+    public final Quaternion getRotation() {
+
+        return Quaternion.IDENTITY_QUATERNION;
+    }
 
     /**
      * <code>int</code>: The maximum stack size of this <code>ItemInstance</code>
@@ -115,41 +130,54 @@ public final class ItemInstance extends ModelAssetInstance {
     }
 
     /**
-     * <code>PrimaryAssetInstance</code>: The parent inventory to this
-     * <code>ItemInstance</code> instance.
-     */
-    private ModelAssetInstance parent;
-
-    /**
      * <code>InventorySlotInstance</code>: The inventory slot containing this
      * <code>ItemInstance</code> instance.
      */
     private InventorySlotInstance slot;
 
-    /**
-     * Sets the inventory slot of this <code>ItemInstance</code> instance.
-     * 
-     * @param inventory <code>PrimaryAssetInstance</code>: The parent inventory to
-     *                  this <code>ItemInstance</code> instance.
-     * @param slot      <code>InventorySlotInstance</code>: The inventory slot
-     *                  containing this <code>ItemInstance</code> instance.
-     */
-    public final void setSlot(ModelAssetInstance inventory, InventorySlotInstance slot) {
+    public final void setModelParent(PrimaryAssetInstance parent, InventorySlotInstance slot) {
 
-        setParent(inventory);
-
-        this.parent = inventory;
+        setModelParent(parent);
         this.slot = slot;
     }
 
-    /**
-     * Retrieves the bone socket of this <code>ItemInstance</code> instance.
-     * 
-     * @return <code>Bone</code>: The retrieved model socket.
-     */
-    public final ModelAttributes.Bone getSocket() {
+    @Override
+    public final void removeModelParent() {
 
-        return parent.getModel().getBone(slot.getModelSocket());
+        setModelParent(null);
+        slot = null;
+    }
+
+    @Override
+    public String getModelParentAttachment() {
+
+        return slot.getModelAttachment();
+    }
+
+    @Override
+    protected RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector position,
+            Quaternion rotation) {
+
+        return new RenderBuffer();
+    }
+
+    @Override
+    protected RenderBuffer getChildPolygons(ModelInstance model, BoneActorSet boneActors, ModelAssetInstance parent,
+            String attachment) {
+
+        Vector position = model.getPivotPoint(getModelParentAttachment());
+        boneActors = new BoneActorSet(boneActors, parent.getBoneActors());
+
+        Bone root = model.getRoot();
+        BoneActor boneActor = new BoneActor(position.subtract(root.pivotPoint()), Quaternion.IDENTITY_QUATERNION,
+                Matrix.IDENTITY_3X3);
+
+        Map<Integer, Map<Vector, Double>> vertices = root.computeVertexWeights(boneActors, boneActor,
+                model.getVertices(), null);
+
+        RenderBuffer render = generatePolygons(vertices);
+
+        return render;
     }
 
     /**
@@ -223,32 +251,5 @@ public final class ItemInstance extends ModelAssetInstance {
 
         item.setStackSize(difference);
         return item;
-    }
-
-    @Override
-    public final Vector getPosition() {
-
-        return parent.getPosition();
-    }
-
-    @Override
-    public final Quaternion getRotation() {
-
-        return parent.getRotation();
-    }
-
-    @Override
-    protected final HashMap<Triangle, Triangle> getPolygons(BoneActorSet boneActors, ModelInstance model,
-            Vector position, Quaternion rotation) {
-
-        // BoneActorSet parentBoneActors = parent.getBoneActors();
-        // BoneActorSet mergedBoneActors = new BoneActorSet(boneActors,
-        // parentBoneActors);
-
-        // TODO this part should be rebuilt, focus on model to figure out what
-        // parameters are necessary to draw children assets.
-        // model.getPolygons(mergedBoneActors, parentBoneActors, getSocket(), position,
-        // rotation)
-        return model.getPolygons(boneActors, position, rotation);
     }
 }
