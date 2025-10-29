@@ -17,7 +17,7 @@
 package com.transcendruins.assets.animations.interpolation;
 
 import com.transcendruins.assets.animations.AnimationAttributes.KeyFrame;
-import com.transcendruins.graphics3d.geometry.Matrix;
+import com.transcendruins.geometry.Matrix;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 
@@ -38,10 +38,10 @@ public final class ScaleFrame extends ScaleModifier {
 
         double inter = Interpolation.getInter(interpolation, next.interpolation, t, animationLength);
 
-        com.transcendruins.graphics3d.geometry.Vector scale = Interpolation.lerp(getScale(), next.getScale(), inter);
+        com.transcendruins.geometry.Vector scale = Interpolation.lerp(getScale(), next.getScale(), inter);
 
         double rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
-        com.transcendruins.graphics3d.geometry.Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(),
+        com.transcendruins.geometry.Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(),
                 next.getRotation().getAxis(), inter);
 
         return new ScaleModifier(scale, new RotationModifier(rotationAngle, rotationAxis));
@@ -50,10 +50,8 @@ public final class ScaleFrame extends ScaleModifier {
     /**
      * Interpolates between two <code>KeyFrame</code> instances.
      * 
-     * @param lastFrame <code>KeyFrame</code>: The last frame to
-     *                  interpolate at.
-     * @param nextFrame <code>KeyFrame</code>: The next frame to
-     *                  interpolate at.
+     * @param lastFrame <code>KeyFrame</code>: The last frame to interpolate at.
+     * @param nextFrame <code>KeyFrame</code>: The next frame to interpolate at.
      * @param timestamp <code>double</code>: The timestamp to interpolate at.
      * @return <code>Matrix</code>: The resulting scale modifier.
      */

@@ -16,16 +16,15 @@
 
 package com.transcendruins.assets.animations.interpolation;
 
-import com.transcendruins.graphics3d.geometry.Quaternion;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Quaternion;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
  * <code>PositionModifier</code>: A class representing a position vector rotated
- * in space
- * about the origin.
+ * in space about the origin.
  */
 sealed public class PositionModifier permits PositionFrame {
 
@@ -100,8 +99,8 @@ sealed public class PositionModifier permits PositionFrame {
      * @param position <code>Vector</code>: The position of this
      *                 <code>PositionModifier</code> instance.
      * @param rotation <code>RotationModifier</code>: The rotation modifier to be
-     *                 applied to
-     *                 the position of this <code>PositionModifier</code> instance.
+     *                 applied to the position of this <code>PositionModifier</code>
+     *                 instance.
      */
     public PositionModifier(Vector position, RotationModifier rotation) {
 

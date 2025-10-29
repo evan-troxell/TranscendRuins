@@ -18,10 +18,12 @@
                     }
                 }
             },
-            "entities": {}
+            "entities": {
+                "player": "TranscendRuins:player"
+            }
         },
 
-        "type": "blueprint",
-        "components": {}
+        "type": "entity",
+        "entity": "player"
     }
 }

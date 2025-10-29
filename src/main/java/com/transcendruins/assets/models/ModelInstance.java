@@ -28,9 +28,8 @@ import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelAttributes.WeightedVertex;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.renderBuffer.LightData;
-import com.transcendruins.utilities.immutable.Immutable;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 

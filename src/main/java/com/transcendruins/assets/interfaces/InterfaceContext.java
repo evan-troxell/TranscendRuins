@@ -24,7 +24,7 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceInstance.ComponentInstance;
 import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponentInstance.LocationDisplay;
-import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.utilities.files.DataConstants;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.world.World;

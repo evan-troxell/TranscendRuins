@@ -28,9 +28,9 @@ import com.transcendruins.assets.animations.interpolation.RotationFrame;
 import com.transcendruins.assets.animations.interpolation.ScaleFrame;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.graphics3d.geometry.Matrix;
-import com.transcendruins.graphics3d.geometry.Quaternion;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Matrix;
+import com.transcendruins.geometry.Quaternion;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 

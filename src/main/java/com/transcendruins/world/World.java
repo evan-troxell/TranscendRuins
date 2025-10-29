@@ -44,18 +44,15 @@ import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationSchema;
 import com.transcendruins.assets.catalogue.locations.LocationTriggerType;
-import com.transcendruins.assets.elements.ElementContext;
-import com.transcendruins.assets.elements.ElementInstance;
-import com.transcendruins.assets.entities.EntityContext;
-import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.assets.interfaces.map.LocationRender;
 import com.transcendruins.assets.interfaces.map.MapRender;
-import com.transcendruins.assets.items.ItemContext;
-import com.transcendruins.assets.items.ItemInstance;
-import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
+import com.transcendruins.assets.modelassets.entities.EntityContext;
+import com.transcendruins.assets.modelassets.entities.EntityInstance;
+import com.transcendruins.assets.modelassets.items.ItemContext;
+import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.recipes.RecipeContext;
 import com.transcendruins.assets.recipes.RecipeInstance;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.resources.ResourceSet;
@@ -96,7 +93,7 @@ public final class World extends PropertyHolder {
     /**
      * <code>int</code>: The length and width of a unit tile.
      */
-    public static final int UNIT_TILE = 20;
+    public static final int UNIT_TILE = 24;
 
     /**
      * <code>int</code>: The 3D bounds of a unit tile.
@@ -520,13 +517,16 @@ public final class World extends PropertyHolder {
                 .filter(location -> locationSchemas.get(location).getDuration().getStartTimestamp() == null).toList();
         queuedLocations.removeAll(newLocations);
 
-        synchronized (LOCATION_LOCK) {
+        if (!newLocations.isEmpty()) {
 
-            for (String location : newLocations) {
+            synchronized (LOCATION_LOCK) {
 
-                GlobalLocationSchema schema = locationSchemas.get(location);
-                GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
-                locations.put(location, instance);
+                for (String location : newLocations) {
+
+                    GlobalLocationSchema schema = locationSchemas.get(location);
+                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
+                    locations.put(location, instance);
+                }
             }
         }
 
@@ -656,11 +656,11 @@ public final class World extends PropertyHolder {
             EntityContext playerContext = new EntityContext(DataConstants.PLAYER_IDENTIFIER, this, null);
             EntityInstance playerEntity = playerContext.instantiate();
 
-            AssetPresets ropeItemPresets = new AssetPresets(
-                    Identifier.createTestIdentifier("TranscendRuins:rope", null), AssetType.ITEM);
-            ItemContext ropeItemContext = new ItemContext(ropeItemPresets, world, playerEntity, 10);
-            ItemInstance ropeItem = ropeItemContext.instantiate();
-            playerEntity.getInventory().getSlot(1).putItem(ropeItem);
+            AssetPresets bootsItemPresets = new AssetPresets(
+                    Identifier.createTestIdentifier("TranscendRuins:leatherBoots", null), AssetType.ITEM);
+            ItemContext bootsItemContext = new ItemContext(bootsItemPresets, world, playerEntity, 10);
+            ItemInstance bootsItem = bootsItemContext.instantiate();
+            playerEntity.getInventory().getSlot(1).putItem(bootsItem);
 
             AssetPresets ironPickaxePresets = new AssetPresets(
                     Identifier.createTestIdentifier("TranscendRuins:ironPickaxe", null), AssetType.ITEM);
@@ -838,64 +838,6 @@ public final class World extends PropertyHolder {
         });
     }
 
-    public final void interact(long playerId) {
-
-        playerConsumer(playerId, player -> {
-
-            long time = System.currentTimeMillis();
-
-            AssetPresets exampleAssetPresets = new AssetPresets(
-                    Identifier.createTestIdentifier("TranscendRuins:box", null), AssetType.ELEMENT);
-            ElementContext exampleAssetContext = new ElementContext(exampleAssetPresets, this, null);
-            ElementInstance asset = exampleAssetContext.instantiate();
-            // PrimaryAssetInstance asset = getNearestInteractable(player);
-
-            AssetPresets clothItemPresets = new AssetPresets(
-                    Identifier.createTestIdentifier("TranscendRuins:cloth", null), AssetType.ITEM);
-            ItemContext clothItemContext = new ItemContext(clothItemPresets, world, asset, 10);
-            ItemInstance clothItem = clothItemContext.instantiate();
-            asset.getInventory().getSlot(1).putItem(clothItem);
-
-            AssetPresets ropeItemPresets = new AssetPresets(
-                    Identifier.createTestIdentifier("TranscendRuins:rope", null), AssetType.ITEM);
-            ItemContext ropeItemContext = new ItemContext(ropeItemPresets, world, asset, 10);
-            ItemInstance ropeItem = ropeItemContext.instantiate();
-            asset.getInventory().getSlot(5).putItem(ropeItem);
-
-            if (asset == null) {
-
-                return;
-            }
-
-            boolean interacted = asset.interact(time, player);
-
-            // If an interaction was not triggered.
-            if (!interacted) {
-            }
-        });
-    }
-
-    public final PrimaryAssetInstance getNearestInteractable(Player player) {
-
-        AreaGrid area;
-        synchronized (LOCATION_LOCK) {
-            String location = player.getLocation();
-            if (location == null || !locations.containsKey(location)) {
-
-                return null;
-            }
-
-            area = locations.get(location).getArea(player);
-        }
-
-        if (area == null) {
-
-            return null;
-        }
-
-        return area.getNearestInteractable(player.getEntity());
-    }
-
     public final ItemInstance consumeSlot(long playerId, int slot) {
 
         return playerFunction(playerId, player -> player.getEntity().getInventory().getSlot(slot).putItem(null));
@@ -1015,10 +957,26 @@ public final class World extends PropertyHolder {
                     locations.get(location).update(time);
                 }
 
-                // Update the UIs.
+                // Update the UIs and recompute interacts.
                 for (Player player : players.values()) {
 
                     player.updateUiPanels(time);
+
+                    String playerLocation = player.getLocation();
+                    boolean inLocation = !player.onGlobalMap() && locations.containsKey(playerLocation);
+
+                    if (inLocation) {
+
+                        GlobalLocationInstance location = locations.get(playerLocation);
+                        AreaGrid area = location.getArea(player);
+
+                        player.setInteraction(area.getNearestInteraction(player));
+                        player.setAttack(area.getNearestTarget(player));
+                    } else {
+
+                        player.setInteraction(null);
+                        player.setAttack(null);
+                    }
                 }
             }
 
@@ -1031,11 +989,12 @@ public final class World extends PropertyHolder {
                 }
             }
 
-            System.out.println("Frame " + frame++ + " : " + (System.currentTimeMillis() - startMs) + "ms");
+            // System.out.println("Frame " + frame++ + " : " + (System.currentTimeMillis() -
+            // startMs) + "ms");
         }
     }
 
-    private final class StopWatch {
+    public static final class StopWatch {
 
         private long start = -1;
 

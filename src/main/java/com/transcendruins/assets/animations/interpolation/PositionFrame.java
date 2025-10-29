@@ -17,7 +17,7 @@
 package com.transcendruins.assets.animations.interpolation;
 
 import com.transcendruins.assets.animations.AnimationAttributes.KeyFrame;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 
@@ -38,12 +38,10 @@ public final class PositionFrame extends PositionModifier {
 
         double inter = Interpolation.getInter(interpolation, next.interpolation, t, animationLength);
 
-        Vector position = Interpolation.lerp(getPosition(), next.getPosition(),
-                inter);
+        Vector position = Interpolation.lerp(getPosition(), next.getPosition(), inter);
 
         double rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
-        Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(),
-                next.getRotation().getAxis(), inter);
+        Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(), next.getRotation().getAxis(), inter);
 
         return new PositionModifier(position, new RotationModifier(rotationAngle, rotationAxis));
     }
@@ -51,10 +49,9 @@ public final class PositionFrame extends PositionModifier {
     /**
      * Interpolates between two <code>KeyFrame</code> instances.
      * 
-     * @param lastFrame <code>KeyFrame</code>: The last frame to
-     *                  interpolate at.
-     * @param nextFrame <code>KeyFrame</code>: The next frame to
-     *                  interpolate between.
+     * @param lastFrame <code>KeyFrame</code>: The last frame to interpolate at.
+     * @param nextFrame <code>KeyFrame</code>: The next frame to interpolate
+     *                  between.
      * @param timestamp <code>double</code>: The timestamp to interpolate at.
      * @return <code>Vector</code>: The resulting position modifier.
      */

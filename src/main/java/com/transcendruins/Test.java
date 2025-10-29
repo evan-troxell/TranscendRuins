@@ -16,9 +16,11 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
+import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -31,34 +33,37 @@ public class Test extends SimpleApplication {
     private final int uiWidth = 400, uiHeight = 200;
 
     // Use AtomicReference for thread-safe image swapping
-    private final AtomicReference<BufferedImage> uiImageRef = new AtomicReference<>();
+    private final AtomicReference<BufferedImage> uiImageRef = new AtomicReference<>(generateUI("Initial UI"));
 
     @Override
     public void simpleInitApp() {
 
-        BufferedImage initialUI = generateUI("Initial UI");
-        uiImageRef.set(initialUI);
-
-        // 2️⃣ Create a quad to display the UI
         Quad quad = new Quad(uiWidth, uiHeight);
         uiQuad = new Geometry("UIOverlay", quad);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 
-        Texture2D tex = toTexture(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB));
+        Texture2D tex = toTexture(uiImageRef.get());
         mat.setTexture("ColorMap", tex);
-        mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+        mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
         uiQuad.setMaterial(mat);
         uiQuad.setQueueBucket(RenderQueue.Bucket.Gui); // overlay
 
-        uiQuad.setLocalTranslation(50, 50, 0);
+        // uiQuad.setLocalTranslation(50, 50, 0);
         guiNode.attachChild(uiQuad);
 
-        setupInputMappings();
+        // setupInputMappings();
 
-        inputManager.setCursorVisible(true);
-        flyCam.setEnabled(false);
+        // inputManager.setCursorVisible(true);
+        // flyCam.setEnabled(false);
 
-        new Thread(this::hostSimulationLoop).start();
+        // new Thread(this::hostSimulationLoop).start();
+
+        Box b = new Box(1, 1, 1); // create cube shape
+        Geometry geom = new Geometry("Box", b); // create cube geometry from the shape
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"); // create a simple material
+        material.setColor("Color", ColorRGBA.Blue); // set color of material to blue
+        geom.setMaterial(material); // set the cube's material
+        rootNode.attachChild(geom); // make the cube appear in the scene
     }
 
     // Host simulation loop updates the UI BufferedImage
@@ -87,8 +92,12 @@ public class Test extends SimpleApplication {
     // Simple dynamic UI generator
     private BufferedImage generateUI(String text) {
         BufferedImage img = new BufferedImage(uiWidth, uiHeight, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = img.createGraphics();
-        g2d.setColor(Color.DARK_GRAY);
+        Graphics2D g2d = (Graphics2D) img.getGraphics();
+        g2d.rotate(Math.toRadians(180), uiWidth / 2, uiHeight / 2);
+        g2d.translate(uiWidth / 2, uiHeight / 2);
+        g2d.scale(-1, 1);
+        g2d.translate(-uiWidth / 2, -uiHeight / 2);
+        g2d.setColor(Color.RED);
         g2d.fillRect(0, 0, uiWidth, uiHeight);
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 20));
@@ -142,6 +151,7 @@ public class Test extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         // Optional: per-frame updates can go here
         // For example, check mouse hover over UI quad
+        // enqueue()
     }
 
     public static final Texture2D toTexture(BufferedImage awtImage) {

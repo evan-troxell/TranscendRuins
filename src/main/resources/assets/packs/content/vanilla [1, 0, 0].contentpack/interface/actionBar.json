@@ -121,8 +121,9 @@
                         }
                     },
 
-                    "select": 1,
-                    "action": []
+                    "action": {
+                        "type": "attack"
+                    }
                 },
                 {
                     "type": "button",

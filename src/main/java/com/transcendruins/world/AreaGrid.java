@@ -18,10 +18,18 @@ package com.transcendruins.world;
 
 import java.awt.Dimension;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import com.transcendruins.assets.layouts.shape.GenerationShapeInstance;
-import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
+import com.transcendruins.assets.modelassets.attack.AttackInstance;
+import com.transcendruins.assets.modelassets.elements.ElementInstance;
+import com.transcendruins.assets.modelassets.entities.EntityInstance;
+import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
+import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionInstance;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.renderBuffer.RenderBuffer;
+import com.transcendruins.world.calls.AttackCall;
+import com.transcendruins.world.calls.InteractionCall;
 
 /**
  * <code>AreaGrid</code>: A class representing a grid of tiles which a location
@@ -151,6 +159,57 @@ public final class AreaGrid {
         return copy;
     }
 
+    private final HashSet<ElementInstance> elements = new HashSet<>();
+
+    public final void addElement(ElementInstance element) {
+
+        if (elements.contains(element)) {
+
+            return;
+        }
+
+        elements.add(element);
+        element.updateArea(this);
+    }
+
+    public final void removeElement(ElementInstance element) {
+
+        if (!elements.contains(element)) {
+
+            return;
+        }
+
+        elements.remove(element);
+        element.clearTiles();
+    }
+
+    private final HashSet<EntityInstance> entities = new HashSet<>();
+
+    public final void addEntity(EntityInstance entity) {
+
+        if (entities.contains(entity)) {
+
+            return;
+        }
+
+        entities.add(entity);
+        entity.updateArea(this);
+    }
+
+    public final void removeEntity(EntityInstance entity) {
+
+        if (!entities.contains(entity)) {
+
+            return;
+        }
+
+        entities.remove(entity);
+    }
+
+    public final void updateEntity(EntityInstance entitiy) {
+
+    }
+
     /**
      * Creates a new, blank instance of the <code>AreaGrid</code> class.
      * 
@@ -183,106 +242,103 @@ public final class AreaGrid {
         }
     }
 
-    /**
-     * Determines whether or not another area can be applied onto this
-     * <code>AreaGrid</code> instance at a certain position. This requires the area
-     * to be free from other obstructions.
-     * 
-     * @param startX <code>int</code>: The leftmost coordinate in the grid at which
-     *               to check the new area at.
-     * @param startZ <code>int</code>: The topmost coordinate in the grid at which
-     *               to check the new area at.
-     * @param area   <code>AreaGrid</code>: The area to compare to this
-     *               <code>AreaGrid</code> instance.
-     * @return <code>boolean</code>: If the new area can be placed at the input
-     *         coordinate.
-     */
-    public final boolean canApply(int startX, int startZ, AreaGrid area) {
+    public final InteractionCall getNearestInteraction(Player player) {
 
-        if (area.getWidth() <= 0 || area.getLength() <= 0) {
+        HashSet<PrimaryAssetInstance> assets = new HashSet<>();
 
-            return false;
+        EntityInstance playerEntity = player.getEntity();
+        Vector position = playerEntity.getPosition();
+        double x = position.getX();
+        double y = position.getY();
+
+        double range = player.getInteractionRange();
+        if (range < 0) {
+
+            return null;
         }
 
-        if (startX < 0 || width < startX + area.getWidth()) {
+        double sqr_r = range * range;
 
-            return false;
+        // Handle tiles (elements).
+        for (int i = Math.max(0, (int) Math.ceil(x - range)); i <= Math.min(width - 1,
+                (int) Math.floor(x + range)); i++) {
+
+            double x_offset = i - range;
+
+            double y_range = Math.sqrt(sqr_r - x_offset * x_offset);
+
+            for (int j = Math.max(0, (int) Math.ceil(y - y_range)); j <= Math.min(length - 1,
+                    (int) Math.floor(y + y_range)); j++) {
+
+                AreaTile tile = getTile(i, j);
+                assets.addAll(tile.getElements());
+            }
         }
 
-        if (startZ < 0 || length < startZ + area.getLength()) {
+        // Handle quadtrees (entities).
+        // TODO: implement entity quadtree separation.
+        assets.addAll(entities);
 
-            return false;
-        }
+        assets.remove(playerEntity);
 
-        for (int x = startX; x < startX + area.getWidth(); x++) {
+        double distance_sqr = Double.POSITIVE_INFINITY;
+        InteractionCall interaction = null;
 
-            for (int z = startZ; z < startZ + area.getLength(); z++) {
+        for (PrimaryAssetInstance assetOption : assets) {
 
-                AreaTile tile = getTile(x, z);
-                AreaTile newTile = area.getTile(x - startX, z - startZ);
+            for (AssetInteractionInstance interactionOption : assetOption.getInteraction()) {
 
-                if (newTile == null) {
+                Vector displacement = interactionOption.getPosition(assetOption.getRotation(),
+                        assetOption.getPosition().subtract(position));
+                double newDist_sqr = displacement.dot(displacement);
 
-                    continue;
-                }
+                if (newDist_sqr <= sqr_r && newDist_sqr < distance_sqr) {
 
-                if (tile == null || !tile.canApply(newTile)) {
-
-                    return false;
+                    distance_sqr = newDist_sqr;
+                    interaction = new InteractionCall(interactionOption, player, assetOption);
                 }
             }
         }
 
-        return true;
+        return interaction;
     }
 
-    /**
-     * Applies each of the tiles from another <code>AreaGrid</code> instance onto
-     * this <code>AreaGrid</code> instance. If the area is not fully contained
-     * within the coordinate grid of this <code>AreaGrid</code> instance, the
-     * extruding portions will be cut off.
-     * 
-     * @param startX <code>int</code>: The leftmost coordinate in the grid to apply
-     *               the new area at.
-     * @param startZ <code>int</code>: The topmost coordinate in the grid to apply
-     *               the new area at.
-     * @param area   <code>AreaGrid</code>: The area to apply to this
-     *               <code>AreaGrid</code> instance.
-     */
-    public final void apply(int startX, int startZ, AreaGrid area) {
+    public final AttackCall getNearestTarget(Player player) {
 
-        if (!canApply(startX, startZ, area)) {
+        EntityInstance playerEntity = player.getEntity();
+        Vector position = playerEntity.getPosition();
 
-            return;
+        AttackInstance attackData = playerEntity.getAttack();
+        double range = attackData.getRange();
+        if (range < 0) {
+
+            return null;
         }
 
-        for (int x = 0; x < area.getWidth(); x++) {
+        double sqr_r = range * range;
 
-            for (int z = 0; z < area.getLength(); z++) {
+        HashSet<EntityInstance> assets = new HashSet<>();
 
-                AreaTile tile = getTile(x + startX, z + startZ);
-                AreaTile newTile = area.getTile(x, z);
+        assets.addAll(entities);
 
-                if (tile == null || newTile == null) {
+        assets.remove(playerEntity);
 
-                    continue;
-                }
+        double distance_sqr = Double.POSITIVE_INFINITY;
+        AttackCall attack = null;
 
-                tile.apply(newTile);
+        for (EntityInstance assetOption : assets) {
+
+            Vector displacement = assetOption.getPosition().subtract(position);
+            double newDist_sqr = displacement.dot(displacement);
+
+            if (newDist_sqr <= sqr_r && newDist_sqr < distance_sqr) {
+
+                distance_sqr = newDist_sqr;
+                attack = new AttackCall(attackData, playerEntity, assetOption);
             }
         }
-    }
 
-    /**
-     * Retrieves the nearest other asset to a specific one from this
-     * <code>AreaGrid</code> instance.
-     * 
-     * @return <code>PrimaryAssetInstance</code>: The retrieved asset.
-     */
-    public final PrimaryAssetInstance getNearestInteractable(PrimaryAssetInstance asset) {
-
-        // TODO retrieve nearest asset
-        return null;
+        return attack;
     }
 
     /**

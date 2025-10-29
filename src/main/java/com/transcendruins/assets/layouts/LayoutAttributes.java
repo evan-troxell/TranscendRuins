@@ -32,7 +32,7 @@ import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.extra.Range;
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.layouts.shape.GenerationShapeSchema;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;

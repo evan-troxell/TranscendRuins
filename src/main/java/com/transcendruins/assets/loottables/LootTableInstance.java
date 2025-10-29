@@ -29,7 +29,7 @@ import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.Range;
 import com.transcendruins.assets.extra.WeightedRoll;
-import com.transcendruins.assets.items.ItemContext;
+import com.transcendruins.assets.modelassets.items.ItemContext;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;

@@ -26,7 +26,7 @@ import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.renderBuffer.LightData;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;

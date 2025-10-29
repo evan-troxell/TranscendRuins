@@ -43,6 +43,32 @@ public final class OperatorSet {
                 return conditional ? args.get(1).evaluate(asset) : args.get(2).evaluate(asset);
             }, argsLength -> argsLength != 3),
 
+            entry("switch", (args, asset) -> {
+
+                String operand = args.get(0).evaluateString(asset);
+                int argsSize = args.size();
+                boolean hasDefault = argsSize % 2 == 0;
+
+                if (operand != null && argsSize > 2) {
+
+                    for (int i = 1; i < argsSize; i += 2) {
+
+                        String matcher = args.get(i).evaluateString(asset);
+                        if (matcher != null && matcher.equals(operand)) {
+
+                            return args.get(i + 1).evaluate(asset);
+                        }
+                    }
+                }
+
+                if (hasDefault) {
+
+                    return args.getLast().evaluate(asset);
+                }
+
+                return null;
+            }, argsLength -> argsLength < 2),
+
             entry("!", (args, asset) -> {
 
                 return !args.get(0).evaluateBoolean(asset);

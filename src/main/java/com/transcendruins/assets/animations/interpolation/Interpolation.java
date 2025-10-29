@@ -18,7 +18,7 @@ package com.transcendruins.assets.animations.interpolation;
 
 import java.util.List;
 
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.json.TracedCollection;

@@ -3,6 +3,7 @@ package com.transcendruins.rendering.renderBuffer;
 import java.util.List;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -12,6 +13,8 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 
 public final record ModelData(Vector2f[] uvs, int[] indices, MaterialData materialData, List<LightData> lights) {
+
+    private static long quadCount = 0;
 
     public final int getVertexCount() {
 
@@ -26,11 +29,16 @@ public final record ModelData(Vector2f[] uvs, int[] indices, MaterialData materi
         mesh.setBuffer(Type.Index, 3, BufferUtils.createIntBuffer(indices()));
         mesh.updateBound();
 
-        Geometry quad = new Geometry("CustomQuad", mesh);
+        Geometry quad = new Geometry("Quad" + (quadCount++), mesh);
 
         Material material = materialData.createMaterial(assetManager);
         quad.setMaterial(material);
 
         return quad;
+    }
+
+    public final List<Light> getLights(Vector3f[] vertices) {
+
+        return lights.stream().map(light -> light.createLight(vertices)).toList();
     }
 }

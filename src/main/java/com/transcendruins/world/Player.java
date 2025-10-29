@@ -9,15 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.entities.EntityInstance;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceContext;
 import com.transcendruins.assets.interfaces.InterfaceInstance;
 import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponentInstance.LocationDisplay;
 import com.transcendruins.assets.interfaces.UIComponent;
-import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
-import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
+import com.transcendruins.assets.modelassets.entities.EntityInstance;
+import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.resources.styles.Style;
+import com.transcendruins.world.calls.AttackCall;
+import com.transcendruins.world.calls.InteractionCall;
 
 public final class Player {
 
@@ -284,13 +286,13 @@ public final class Player {
 
     private void calculateHovered() {
 
-        long timestamp = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
 
         ArrayList<UIComponent> newHovered = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            if (!panel.hover(mouseX, mouseY, newHovered, timestamp)) {
+            if (!panel.hover(mouseX, mouseY, newHovered, time)) {
 
                 break;
             }
@@ -303,11 +305,11 @@ public final class Player {
 
     private void exitAll() {
 
-        long timestamp = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
 
         for (UIComponent exited : hovered) {
 
-            exited.onExit(mouseX, mouseY, timestamp);
+            exited.onExit(mouseX, mouseY);
         }
 
         hovered.clear();
@@ -354,13 +356,13 @@ public final class Player {
 
     private void calculatePressed() {
 
-        long timestamp = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
 
         ArrayList<UIComponent> newPressed = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            if (!panel.press(mouseX, mouseY, newPressed, timestamp)) {
+            if (!panel.press(mouseX, mouseY, newPressed, time)) {
 
                 break;
             }
@@ -373,11 +375,11 @@ public final class Player {
 
     private void releaseAll() {
 
-        long timestamp = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
 
         for (UIComponent exited : pressed) {
 
-            exited.onRelease(mouseX, mouseY, timestamp);
+            exited.onRelease(mouseX, mouseY);
         }
 
         pressed.clear();
@@ -388,13 +390,13 @@ public final class Player {
     private void calculateTriggerPress() {
 
         pressFocus = null;
-        long timestamp = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
 
         ArrayList<UIComponent> clicked = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            pressFocus = panel.triggerPress(mouseX, mouseY, clicked, timestamp);
+            pressFocus = panel.triggerPress(mouseX, mouseY, clicked, time);
 
             if (pressFocus != null) {
 
@@ -405,13 +407,13 @@ public final class Player {
 
     private void calculateTriggerRelease() {
 
-        long timestamp = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
 
         ArrayList<UIComponent> clicked = new ArrayList<>();
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            if (panel.triggerRelease(mouseX, mouseY, clicked, timestamp) != null) {
+            if (panel.triggerRelease(mouseX, mouseY, clicked, time) != null) {
 
                 break;
             }
@@ -425,7 +427,7 @@ public final class Player {
             return;
         }
 
-        long timestamp = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
         Point displacement = new Point(dx, dy);
 
         ArrayList<UIComponent> scrolled = new ArrayList<>();
@@ -435,7 +437,7 @@ public final class Player {
 
                 InterfaceInstance panel = uiPanels.get(i);
 
-                if (!panel.scroll(mouseX, mouseY, displacement, scrolled, timestamp)) {
+                if (!panel.scroll(mouseX, mouseY, displacement, scrolled, time)) {
 
                     resizePanel(panel);
                     break;
@@ -480,7 +482,50 @@ public final class Player {
         }
     }
 
-    public final void interact() {
+    private InteractionCall interaction;
+
+    private final double interactionRange = World.UNIT_TILE * 2.5;
+
+    public final void setInteraction(InteractionCall interaction) {
+
+        this.interaction = interaction;
+    }
+
+    public final double getInteractionRange() {
+
+        return interactionRange;
+    }
+
+    public final void interact(long time) {
+
+        if (interaction == null) {
+
+            return;
+        }
+
+        System.out.println("INTERACT");
+        System.out.println(interaction.interaction().getClass().getSimpleName());
+
+        interaction.call(time);
+    }
+
+    private AttackCall attack;
+
+    public final void setAttack(AttackCall attack) {
+
+        this.attack = attack;
+    }
+
+    public final void attack(long time) {
+
+        if (attack == null) {
+
+            return;
+        }
+
+        System.out.println("ATTACK");
+
+        attack.call(time);
     }
 
     public Player(long playerId, EntityInstance entity) {

@@ -16,16 +16,29 @@
 
 package com.transcendruins.world;
 
+import java.util.HashSet;
+
+import com.transcendruins.assets.modelassets.elements.ElementInstance;
+
 public final class AreaTile {
 
+    private final HashSet<ElementInstance> elements = new HashSet<>();
+
+    public final void addElement(ElementInstance element) {
+
+        elements.add(element);
+    }
+
+    public final void removeElement(ElementInstance element) {
+
+        elements.remove(element);
+    }
+
+    public final HashSet<ElementInstance> getElements() {
+
+        return new HashSet<>(elements);
+    }
+
     public AreaTile() {
-    }
-
-    public final boolean canApply(AreaTile tile) {
-
-        return true;
-    }
-
-    public final void apply(AreaTile tile) {
     }
 }

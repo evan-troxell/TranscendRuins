@@ -25,6 +25,7 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationSchema;
 import com.transcendruins.assets.interfaces.map.MapRender;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.Style.TextureSize;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.FileException;
@@ -294,8 +295,8 @@ public final class AssetCatalogue {
                                         false);
                                 TracedDictionary mapSectionJson = mapSectionEntry.getValue();
 
-                                TracedEntry<String> iconEntry = mapSectionJson.getAsString("icon", false, null);
-                                String icon = iconEntry.getValue();
+                                TracedEntry<TRScript> iconEntry = mapSectionJson.getAsScript("icon", false);
+                                TRScript icon = iconEntry.getValue();
 
                                 TracedEntry<Double> xEntry = mapSectionJson.getAsDouble("x", false, null);
                                 double x = xEntry.getValue();

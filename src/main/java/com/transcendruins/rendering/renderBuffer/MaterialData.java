@@ -16,6 +16,11 @@ import com.jme3.util.BufferUtils;
 public final record MaterialData(BufferedImage image, int textureWidth, int textureHeight, int materialBitMask,
         ColorRGBA diffuse, ColorRGBA ambient, int shininess, ColorRGBA specular, BufferedImage specularMap) {
 
+    public final boolean isTransparent() {
+
+        return getMaterialBit(5);
+    }
+
     public final Material createMaterial(AssetManager assetManager) {
 
         boolean lit = getMaterialBit(0);

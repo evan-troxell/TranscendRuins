@@ -34,9 +34,8 @@ import javax.swing.JPanel;
 
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.elements.ElementContext;
-import com.transcendruins.assets.elements.ElementInstance;
-import com.transcendruins.graphics3d.Camera3D;
+import com.transcendruins.assets.modelassets.elements.ElementContext;
+import com.transcendruins.assets.modelassets.elements.ElementInstance;
 import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
@@ -58,6 +57,10 @@ public final class App {
      * @param args <code>String[]</code> The arguments of the program.
      */
     public static void main(String[] args) throws Exception {
+
+        // new SimpleApp().start();
+
+        // new Test().start();
 
         PackProcessor packProcessor = PackProcessor.getProcessor();
         // packProcessor.addRoot();
@@ -128,8 +131,6 @@ public final class App {
 
         ArrayList<RenderInstance> models;
 
-        Camera3D camera = new Camera3D();
-
         // DisplayFrame frame = new DisplayFrame(camera);
         // Render3DPanel renderer = (Render3DPanel)
         // frame.getScreen(DisplayFrame.RENDER_DISPLAY_SCREEN);
@@ -164,7 +165,11 @@ public final class App {
             @Override
             public void paint(Graphics graphics) {
 
+                // StopWatch watch = new StopWatch();
+                // watch.start();
+
                 BufferedImage image = world.renderUi(playerId);
+                // watch.stop("Render time: ");
 
                 float hue = (float) ((System.currentTimeMillis() * 0.0002) % 1.0f);
                 Color rainbow = Color.getHSBColor(hue, 1.0f, 1.0f);

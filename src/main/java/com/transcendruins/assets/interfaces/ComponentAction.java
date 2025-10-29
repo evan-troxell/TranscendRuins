@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
-import com.transcendruins.assets.primaryassets.inventory.InventorySlotInstance;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
@@ -26,6 +26,7 @@ public abstract class ComponentAction {
     public static final String CLOSE_MENU = "closeMenu";
     public static final String SWAP_SLOTS = "swapSlots";
     public static final String INTERACT = "interact";
+    public static final String ATTACK = "attack";
     public static final String OPEN_INVENTORY = "openInventory";
 
     /**
@@ -163,6 +164,8 @@ public abstract class ComponentAction {
         case SWAP_SLOTS -> new SwapSlotsComponentAction(json);
 
         case INTERACT -> new InteractComponentAction(json);
+
+        case ATTACK -> new AttackComponentAction(json);
 
         case OPEN_INVENTORY -> new OpenInventoryComponentAction(json);
 
@@ -324,7 +327,23 @@ public abstract class ComponentAction {
         @Override
         protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
 
-            asset.getWorld().interact(playerId);
+            long time = System.currentTimeMillis();
+            asset.getWorld().playerConsumer(playerId, player -> player.interact(time));
+        }
+    }
+
+    public static final class AttackComponentAction extends ComponentAction {
+
+        public AttackComponentAction(TracedDictionary json) throws LoggedException {
+
+            super(json);
+        }
+
+        @Override
+        protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
+
+            long time = System.currentTimeMillis();
+            asset.getWorld().playerConsumer(playerId, player -> player.attack(time));
         }
     }
 

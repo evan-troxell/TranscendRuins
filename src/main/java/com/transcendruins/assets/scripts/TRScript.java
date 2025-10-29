@@ -175,7 +175,7 @@ public final class TRScript {
 
         case String stringVal -> stringVal;
 
-        case null, default -> "";
+        case null, default -> null;
         };
     }
 

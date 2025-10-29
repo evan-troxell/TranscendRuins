@@ -28,7 +28,7 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.items.ItemInstance;
+import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.Style;
 import com.transcendruins.resources.styles.Style.Size;
@@ -161,18 +161,17 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         return collection.get(key, List.of(
 
-                // Handle a string literal.
-                collection.stringCase(entry -> {
-
-                    String string = entry.getValue();
-                    return new StringComponentSchema(string);
-                }),
-
                 // Handle a dictionary component.
                 collection.dictCase(entry -> {
 
                     TracedDictionary json = entry.getValue();
                     return createDictComponent(json, dependencyAdder);
+                }),
+                // Handle a string literal.
+                collection.scriptCase(entry -> {
+
+                    TRScript string = entry.getValue();
+                    return new StringComponentSchema(string);
                 })));
     }
 
@@ -352,15 +351,15 @@ public final class InterfaceAttributes extends AssetAttributes {
          * Creates a new instance of the <code>ComponentSchema</code> class from a
          * string literal.
          * 
-         * @param string <code>String</code>: The string value to use.
+         * @param script <code>TRScript</code>: The script value to use.
          */
-        public ComponentSchema(String string) {
+        public ComponentSchema(TRScript script) {
 
             type = STRING;
             id = null;
             classes = new ImmutableSet<>();
             style = Style.STRING_STYLE;
-            value = new TRScript(string);
+            value = script;
         }
 
         /**
@@ -407,19 +406,19 @@ public final class InterfaceAttributes extends AssetAttributes {
     public static final class StringComponentSchema extends ComponentSchema {
 
         /**
-         * <code>String</code>: The string value of this
+         * <code>TRScript</code>: The string value of this
          * <code>StringComponentSchema</code> instance.
          */
-        private final String key;
+        private final TRScript key;
 
         /**
          * Retrieves the string value of this <code>StringComponentSchema</code>
          * instance.
          * 
-         * @return <code>String</code>: The <code>string</code> field of this
+         * @return <code>TRScript</code>: The <code>string</code> field of this
          *         <code>StringComponentSchema</code> instance.
          */
-        public final String getKey() {
+        public final TRScript getKey() {
 
             return key;
         }
@@ -427,9 +426,9 @@ public final class InterfaceAttributes extends AssetAttributes {
         /**
          * Creates a new instance of the <code>StringComponentSchema</code> class.
          * 
-         * @param string <code>String</code>: The string value to use.
+         * @param string <code>TRScript</code>: The string value to use.
          */
-        public StringComponentSchema(String string) {
+        public StringComponentSchema(TRScript string) {
 
             super(string);
 
@@ -453,7 +452,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             super(json, TEXT);
 
-            TracedEntry<String> textEntry = json.getAsString("text", true, null);
+            TracedEntry<TRScript> textEntry = json.getAsScript("text", true);
             if (textEntry.containsValue()) {
 
                 StringComponentSchema text = new StringComponentSchema(textEntry.getValue());
@@ -497,19 +496,18 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             texture = json.get("texture", List.of(
 
-                    // Process a string literal texture.
-                    json.stringCase(entry -> new StringTextureType(entry.getValue())),
-
                     // Process a dictionary texture.
-                    json.dictCase(entry -> TextureType.createTextureType(entry.getValue()))));
+                    json.dictCase(entry -> TextureType.createTextureType(entry.getValue())),
+                    // Process a string literal texture.
+                    json.scriptCase(entry -> new StringTextureType(entry.getValue()))));
         }
     }
 
     public static abstract class TextureType {
 
-        private final String backup;
+        private final TRScript backup;
 
-        public TextureType(String backup) {
+        public TextureType(TRScript backup) {
 
             this.backup = backup;
         }
@@ -517,7 +515,8 @@ public final class InterfaceAttributes extends AssetAttributes {
         public final ImageIcon getTexture(InterfaceInstance component, long componentId) {
 
             ImageIcon instanceTexture = getInstanceTexture(component, componentId);
-            return instanceTexture == null && backup != null ? component.getWorld().getTexture(backup, componentId)
+            return instanceTexture == null && backup != null
+                    ? component.getWorld().getTexture(backup.evaluateString(component), componentId)
                     : instanceTexture;
         }
 
@@ -532,14 +531,14 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             case "texture" -> {
 
-                TracedEntry<String> textureEntry = json.getAsString("texture", false, null);
+                TracedEntry<TRScript> textureEntry = json.getAsScript("texture", false);
                 yield new StringTextureType(textureEntry.getValue());
             }
 
             case "inventorySlot" -> {
 
-                TracedEntry<String> textureEntry = json.getAsString("texture", true, null);
-                String texture = textureEntry.getValue();
+                TracedEntry<TRScript> textureEntry = json.getAsScript("texture", true);
+                TRScript texture = textureEntry.getValue();
 
                 yield json.get("slot",
                         List.of(json.intCase(entry -> new GridSlotTextureType(entry.getValue(), texture)),
@@ -553,7 +552,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
     public static final class StringTextureType extends TextureType {
 
-        public StringTextureType(String texture) {
+        public StringTextureType(TRScript texture) {
 
             super(texture);
         }
@@ -569,9 +568,9 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         private final int slot;
 
-        private final String texture;
+        private final TRScript texture;
 
-        public GridSlotTextureType(int slot, String texture) {
+        public GridSlotTextureType(int slot, TRScript texture) {
 
             super(null);
             this.slot = slot;
@@ -586,7 +585,9 @@ public final class InterfaceAttributes extends AssetAttributes {
                 ItemInstance item = player.getEntity().getInventory().getItem(slot);
                 if (item == null) {
 
-                    return texture != null ? component.getWorld().getTexture(texture, componentId) : null;
+                    return texture != null
+                            ? component.getWorld().getTexture(texture.evaluateString(component), componentId)
+                            : null;
                 }
 
                 return item.getIcon();
@@ -598,9 +599,9 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         private final String slot;
 
-        private final String texture;
+        private final TRScript texture;
 
-        public NamedSlotTextureType(String slot, String texture) {
+        public NamedSlotTextureType(String slot, TRScript texture) {
 
             super(null);
             this.slot = slot;
@@ -615,7 +616,9 @@ public final class InterfaceAttributes extends AssetAttributes {
                 ItemInstance item = player.getEntity().getInventory().getItem(slot);
                 if (item == null) {
 
-                    return texture != null ? component.getWorld().getTexture(texture, componentId) : null;
+                    return texture != null
+                            ? component.getWorld().getTexture(texture.evaluateString(component), componentId)
+                            : null;
                 }
 
                 return item.getIcon();

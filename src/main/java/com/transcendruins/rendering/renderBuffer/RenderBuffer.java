@@ -11,7 +11,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.RenderPacket;
 
 public final class RenderBuffer {
@@ -74,7 +74,8 @@ public final class RenderBuffer {
                 .map(v -> new Vector3f((float) v.getX(), (float) v.getY(), (float) v.getZ()))
                 .toArray(i -> new Vector3f[i]);
 
-        ArrayList<Geometry> meshes = new ArrayList<>();
+        ArrayList<Geometry> opaqueMeshes = new ArrayList<>();
+        ArrayList<Geometry> transparentMeshes = new ArrayList<>();
         ArrayList<Light> lights = new ArrayList<>();
 
         for (ModelData model : models) {
@@ -83,12 +84,22 @@ public final class RenderBuffer {
             Vector3f[] meshVertices = new Vector3f[vertexCount];
             System.arraycopy(vertexArray, offset, meshVertices, 0, vertexCount);
 
-            meshes.add(model.getMesh(assetManager, meshVertices));
-            lights.addAll(model.lights().stream().map(light -> light.createLight(meshVertices)).toList());
+            boolean isTransparent = model.materialData().isTransparent();
+            Geometry geometry = model.getMesh(assetManager, meshVertices);
+
+            if (isTransparent) {
+
+                transparentMeshes.add(geometry);
+            } else {
+
+                opaqueMeshes.add(geometry);
+            }
+
+            lights.addAll(model.getLights(meshVertices));
 
             offset += vertexCount;
         }
 
-        return new RenderPacket(meshes, lights);
+        return new RenderPacket(opaqueMeshes, transparentMeshes, lights);
     }
 }

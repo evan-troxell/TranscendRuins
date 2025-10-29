@@ -99,6 +99,8 @@
                     "acceptedTypes": ["weapon", "medicine", "consumable", "useable"]
                 }
             }
-        }
+        },
+        "damage": 6,
+        "attackRange": 60
     }
 }

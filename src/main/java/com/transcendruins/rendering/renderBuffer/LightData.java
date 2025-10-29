@@ -5,7 +5,7 @@ import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;

@@ -11,14 +11,35 @@
         "model": "TranscendRuins:box",
         "animationController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
-        "texture": "element.crate"
+        "texture": "element.crate",
+
+        "inventory": {
+            "ui": {
+                "slotSize": 80,
+                "grid": {
+                    "x": 0,
+                    "y": 0,
+                    "rows": 1,
+                    "cols": 1
+                }
+            },
+            "grid": {
+                "slots": 1
+            }
+        }
     },
 
     "permutations": {
         "passagewayInteract": {
-            "interaction": {
-                "type": "passageway"
-            }
+            "interaction": [
+                {
+                    "type": "inventory"
+                },
+                {
+                    "type": "passageway",
+                    "position": [1, 1, 1]
+                }
+            ]
         },
 
         "destroy": {

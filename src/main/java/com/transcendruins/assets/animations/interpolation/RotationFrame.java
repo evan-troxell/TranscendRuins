@@ -17,7 +17,7 @@
 package com.transcendruins.assets.animations.interpolation;
 
 import com.transcendruins.assets.animations.AnimationAttributes.KeyFrame;
-import com.transcendruins.graphics3d.geometry.Quaternion;
+import com.transcendruins.geometry.Quaternion;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 
@@ -40,7 +40,7 @@ public final class RotationFrame extends RotationModifier {
 
         double angle = Interpolation.lerp(getAngle(), next.getAngle(), inter);
 
-        com.transcendruins.graphics3d.geometry.Vector axis = Interpolation.slerp(getAxis(), next.getAxis(), inter);
+        com.transcendruins.geometry.Vector axis = Interpolation.slerp(getAxis(), next.getAxis(), inter);
 
         return new RotationModifier(angle, axis);
     }
@@ -48,10 +48,8 @@ public final class RotationFrame extends RotationModifier {
     /**
      * Interpolates between two <code>KeyFrame</code> instances.
      * 
-     * @param lastFrame <code>KeyFrame</code>: The last frame to
-     *                  interpolate at.
-     * @param nextFrame <code>KeyFrame</code>: The next frame to
-     *                  interpolate at.
+     * @param lastFrame <code>KeyFrame</code>: The last frame to interpolate at.
+     * @param nextFrame <code>KeyFrame</code>: The next frame to interpolate at.
      * @param timestamp <code>double</code>: The timestamp to interpolate at.
      * @return <code>Quaternion</code>: The resulting rotation modifier.
      */

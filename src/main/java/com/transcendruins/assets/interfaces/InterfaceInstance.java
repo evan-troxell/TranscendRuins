@@ -66,9 +66,9 @@ import com.transcendruins.assets.interfaces.InterfaceAttributes.TextureType;
 import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponentInstance.LocationDisplay;
 import com.transcendruins.assets.interfaces.map.LocationRender;
 import com.transcendruins.assets.interfaces.map.MapRender;
-import com.transcendruins.assets.items.ItemInstance;
-import com.transcendruins.assets.primaryassets.inventory.InventoryInstance;
-import com.transcendruins.assets.primaryassets.inventory.InventorySlotInstance;
+import com.transcendruins.assets.modelassets.items.ItemInstance;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.ComponentProperties;
 import com.transcendruins.resources.styles.Style;
@@ -1246,13 +1246,13 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public void onHover(int mouseX, int mouseY, long timestamp) {
+        public void onHover(int mouseX, int mouseY) {
 
             addState("hover");
         }
 
         @Override
-        public void onExit(int mouseX, int mouseY, long timestamp) {
+        public void onExit(int mouseX, int mouseY) {
 
             removeState("hover");
         }
@@ -1260,7 +1260,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         protected boolean pressed = false;
 
         @Override
-        public boolean onPress(int mouseX, int mouseY, long timestamp) {
+        public boolean onPress(int mouseX, int mouseY) {
 
             pressed = true;
             addState("active");
@@ -1274,18 +1274,18 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public void onRelease(int mouseX, int mouseY, long timestamp) {
+        public void onRelease(int mouseX, int mouseY) {
 
             pressed = false;
             removeState("active");
         }
 
         @Override
-        public boolean onTriggerPress(int mouseX, int mouseY, TRScript value, long timestamp) {
+        public boolean onTriggerPress(int mouseX, int mouseY, TRScript value, long time) {
 
             if (triggerPhase == Style.TriggerPhase.PRESS) {
 
-                onComponentClick(mouseX, mouseY, value, timestamp);
+                onComponentClick(mouseX, mouseY, value, time);
             }
 
             if (propagateEvents == null) {
@@ -1297,11 +1297,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public boolean onTriggerRelease(int mouseX, int mouseY, TRScript value, long timestamp) {
+        public boolean onTriggerRelease(int mouseX, int mouseY, TRScript value, long time) {
 
             if (triggerPhase == Style.TriggerPhase.RELEASE) {
 
-                onComponentClick(mouseX, mouseY, value, timestamp);
+                onComponentClick(mouseX, mouseY, value, time);
             }
 
             if (propagateEvents == null) {
@@ -1312,11 +1312,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return propagateEvents;
         }
 
-        public void onComponentClick(int mouseX, int mouseY, TRScript value, long timestamp) {
+        public void onComponentClick(int mouseX, int mouseY, TRScript value, long time) {
         }
 
         @Override
-        public void onScroll(int mouseX, int mouseY, Point displacement, long timestamp) {
+        public void onScroll(int mouseX, int mouseY, Point displacement) {
 
             // Calculate the adjustment to scroll.
             int newScrollX = overflowX == Overflow.CLIP || contentSize.width <= width ? scrollX
@@ -1345,7 +1345,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
     public final class StringComponentInstance extends ComponentInstance {
 
-        private final String key;
+        private final TRScript key;
 
         private String string;
 
@@ -1359,7 +1359,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
-            string = getWorld().getText(key);
+            string = getWorld().getText(key.evaluateString(InterfaceInstance.this));
             return calculateTextSize(string, 0, 0, width);
         }
 
@@ -1385,7 +1385,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         public TextComponentInstance(TextComponentSchema schema, ComponentInstance parent, DeterministicRandom random,
-                String text) {
+                TRScript text) {
 
             super(schema, parent, true, random);
 
@@ -1548,7 +1548,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final void onComponentClick(int mouseX, int mouseY, TRScript value, long timestamp) {
+        public final void onComponentClick(int mouseX, int mouseY, TRScript value, long time) {
 
             action.call(InterfaceInstance.this, playerId, value);
         }
@@ -1894,13 +1894,15 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private LinkedHashMap<String, LocationDisplay> locationRenders;
 
-        public final record LocationDisplay(String name, String description, ImageIcon icon, Rectangle bounds,
+        public final record LocationDisplay(TRScript name, TRScript description, ImageIcon icon, Rectangle bounds,
                 ImageIcon pin, Rectangle pinBounds) {
         }
 
         private String pressedLocation;
 
         private String currentLocation;
+
+        private long prevPress;
 
         public GlobalMapComponentInstance(GlobalMapComponentSchema schema, ComponentInstance parent,
                 DeterministicRandom random) {
@@ -1941,7 +1943,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                     continue;
                 }
 
-                ImageIcon icon = world.getTexture(render.icon(), random.next());
+                ImageIcon icon = world.getTexture(render.icon().evaluateString(InterfaceInstance.this), random.next());
                 double cX = render.x();
                 double cY = render.y();
                 double scale = 1 / (H - h);
@@ -2053,11 +2055,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             Graphics2D init = (Graphics2D) g2d.create();
 
-            if (pressedLocation != null) {
+            if (pressedLocation != null && System.currentTimeMillis() < prevPress + 2500) {
 
                 Rectangle target = locationRenders.get(pressedLocation).bounds();
 
-                double adjust = 0.99;
+                double adjust = 0.98;
                 zoom = Math.pow(adjust, 2) * (zoom - 50) + 50;
 
                 double targetX = width / 4.0 + target.getCenterX();
@@ -2089,7 +2091,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 Rectangle bounds = locationDisplay.bounds();
                 drawTexture(g2d, icon, bounds.x, bounds.y, bounds.width, bounds.height, size);
 
-                int centerX = (int) bounds.getCenterX();
+                int boundsCenterX = (int) bounds.getCenterX();
                 int top = bounds.y;
 
                 ImageIcon pin = locationDisplay.pin();
@@ -2112,7 +2114,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                     Dimension endCounterSize = calculateTextSize(endCounter, 0, 0, width);
 
-                    int endCounterX = centerX - endCounterSize.width / 2;
+                    int endCounterX = boundsCenterX - endCounterSize.width / 2;
                     int endCounterY = top - endCounterSize.height - gapHeight;
 
                     g2d.setColor(new Color(128, 128, 128, 128));
@@ -2129,14 +2131,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                     Dimension resetCounterSize = calculateTextSize(resetCounter, 0, 0, width);
 
-                    int resetCounterX = centerX - resetCounterSize.width / 2;
+                    int resetCounterX = boundsCenterX - resetCounterSize.width / 2;
                     int resetCounterY = top - resetCounterSize.height - gapHeight;
                     top = resetCounterY;
 
                     String resetLabel = getWorld().getText("global.resetLabel");
                     Dimension resetLabelSize = calculateTextSize(resetLabel, 0, 0, width);
 
-                    int resetLabelX = centerX - resetLabelSize.width / 2;
+                    int resetLabelX = boundsCenterX - resetLabelSize.width / 2;
                     int resetLabelY = top - resetLabelSize.height;
 
                     g2d.setColor(new Color(80, 200, 220));
@@ -2184,7 +2186,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final boolean onPress(int mouseX, int mouseY, long timestamp) {
+        public final boolean onPress(int mouseX, int mouseY) {
 
             if (pressedLocation == null) {
 
@@ -2203,13 +2205,16 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             prevMouseX = mouseX;
             prevMouseY = mouseY;
 
-            return super.onPress(mouseX, mouseY, timestamp);
+            return super.onPress(mouseX, mouseY);
         }
 
         @Override
-        public final void onScroll(int mouseX, int mouseY, Point displacement, long timestamp) {
+        public final void onScroll(int mouseX, int mouseY, Point displacement) {
 
-            unselectLocation();
+            if (pressedLocation != null) {
+
+                unselectLocation();
+            }
 
             double newZoom = Math.clamp(zoom + displacement.y, -200, 200);
 
@@ -2220,9 +2225,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
-        public final void onComponentClick(int mouseX, int mouseY, TRScript value, long timestamp) {
+        public final void onComponentClick(int mouseX, int mouseY, TRScript value, long time) {
 
-            unselectLocation();
+            prevPress = time;
+
+            if (pressedLocation != null) {
+
+                unselectLocation();
+            }
             mouseX -= width / 2;
             mouseY -= height / 2;
 
@@ -2326,18 +2336,18 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private final ArrayList<ItemTransfer> transfers = new ArrayList<>();
 
-        private void addTransfer(long timestamp, InventorySlotInstance start, boolean startIsPrimary,
+        private void addTransfer(long time, InventorySlotInstance start, boolean startIsPrimary,
                 InventorySlotInstance end, boolean endIsPrimary, ImageIcon item) {
 
-            transfers.add(new ItemTransfer(timestamp, start, startIsPrimary, end, endIsPrimary, item));
+            transfers.add(new ItemTransfer(time, start, startIsPrimary, end, endIsPrimary, item));
         }
 
-        private final record ItemTransfer(long timestamp, InventorySlotInstance start, boolean startIsPrimary,
+        private final record ItemTransfer(long time, InventorySlotInstance start, boolean startIsPrimary,
                 InventorySlotInstance end, boolean endIsPrimary, ImageIcon item) {
 
         }
 
-        private boolean displayTransfer(ItemTransfer transfer, Graphics2D g2d, long timestamp) {
+        private boolean displayTransfer(ItemTransfer transfer, Graphics2D g2d, long time) {
 
             InventoryComponentInstance firstUi = transfer.startIsPrimary() ? primaryUi : secondaryUi;
             InventoryComponentInstance.SlotDisplay first = firstUi.slots.get(transfer.start());
@@ -2362,7 +2372,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             int slotWidth = firstUi.slotWidth;
             ImageIcon item = transfer.item();
 
-            long dt = timestamp - transfer.timestamp();
+            long dt = time - transfer.time();
             double distance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
 
             double speed = Math.sqrt(distance) / 5;
@@ -2462,12 +2472,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 drawImage(g2d, child.image(), child.x(), child.y());
             }
 
-            long timestamp = System.currentTimeMillis();
+            long time = System.currentTimeMillis();
 
             for (int i = 0; i < transfers.size(); i++) {
 
                 ItemTransfer transfer = transfers.get(i);
-                boolean keep = displayTransfer(transfer, g2d, timestamp);
+                boolean keep = displayTransfer(transfer, g2d, time);
                 if (!keep) {
 
                     transfers.remove(i);
@@ -2479,7 +2489,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private boolean primaryInventorySelected = true;
 
         @Override
-        public void onComponentClick(int mouseX, int mouseY, TRScript value, long timestamp) {
+        public void onComponentClick(int mouseX, int mouseY, TRScript value, long time) {
 
             InventorySlotInstance newSlot = null;
             boolean newPrimaryInventorySelected = true;
@@ -2511,8 +2521,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             }
 
             // Update the timestamp.
-            long dt = timestamp - prevClick;
-            prevClick = timestamp;
+            long dt = time - prevClick;
+            prevClick = time;
 
             // If the player did not select a slot before, set the selection.
             if (selectedSlot == null || selectedSlot.isEmpty() && selectedSlot != newSlot) {
@@ -2559,16 +2569,16 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                             && secondItem.getStackSize() < secondItem.getMaxStackSize()) {
 
                         ImageIcon firstItemIcon = firstItem.getIcon();
-                        addTransfer(timestamp, selectedSlot, primaryInventorySelected, newSlot,
-                                newPrimaryInventorySelected, firstItemIcon);
+                        addTransfer(time, selectedSlot, primaryInventorySelected, newSlot, newPrimaryInventorySelected,
+                                firstItemIcon);
                     }
 
                     // If the second item is different, register the transfer.
                     if (secondItem != null && !secondItem.isLikeAsset(firstItem)) {
 
                         ImageIcon secondItemIcon = secondItem.getIcon();
-                        addTransfer(timestamp, newSlot, newPrimaryInventorySelected, selectedSlot,
-                                primaryInventorySelected, secondItemIcon);
+                        addTransfer(time, newSlot, newPrimaryInventorySelected, selectedSlot, primaryInventorySelected,
+                                secondItemIcon);
                     }
 
                     newSlot.transfer(selectedSlot);
@@ -2596,8 +2606,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 ItemInstance leftover = item;
                 for (InventorySlotInstance slot : matches) {
 
-                    addTransfer(timestamp, selectedSlot, newPrimaryInventorySelected, slot,
-                            !newPrimaryInventorySelected, itemIcon);
+                    addTransfer(time, selectedSlot, newPrimaryInventorySelected, slot, !newPrimaryInventorySelected,
+                            itemIcon);
                     leftover = slot.putItem(item);
                     if (leftover == null) {
 
@@ -2611,8 +2621,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                             .toList();
                     for (InventorySlotInstance slot : matches) {
 
-                        addTransfer(timestamp, selectedSlot, newPrimaryInventorySelected, slot,
-                                !newPrimaryInventorySelected, itemIcon);
+                        addTransfer(time, selectedSlot, newPrimaryInventorySelected, slot, !newPrimaryInventorySelected,
+                                itemIcon);
                         leftover = slot.putItem(item);
                         if (leftover == null) {
                             break;
@@ -2859,35 +2869,35 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
     }
 
     @Override
-    public final void onExit(int mouseX, int mouseY, long timestamp) {
+    public final void onExit(int mouseX, int mouseY) {
     }
 
     @Override
-    public final void onHover(int mouseX, int mouseY, long timestamp) {
+    public final void onHover(int mouseX, int mouseY) {
     }
 
     @Override
-    public final void onScroll(int mouseX, int mouseY, Point displacement, long timestamp) {
+    public final void onScroll(int mouseX, int mouseY, Point displacement) {
     }
 
     @Override
-    public final void onRelease(int mouseX, int mouseY, long timestamp) {
+    public final void onRelease(int mouseX, int mouseY) {
     }
 
     @Override
-    public final boolean onPress(int mouseX, int mouseY, long timestamp) {
+    public final boolean onPress(int mouseX, int mouseY) {
 
         return true;
     }
 
     @Override
-    public final boolean onTriggerPress(int mouseX, int mouseY, TRScript value, long timestamp) {
+    public final boolean onTriggerPress(int mouseX, int mouseY, TRScript value, long time) {
 
         return true;
     }
 
     @Override
-    public final boolean onTriggerRelease(int mouseX, int mouseY, TRScript value, long timestamp) {
+    public final boolean onTriggerRelease(int mouseX, int mouseY, TRScript value, long time) {
 
         return true;
     }

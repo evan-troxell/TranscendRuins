@@ -37,7 +37,7 @@ public interface UIComponent {
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
      */
-    public void onExit(int mouseX, int mouseY, long timestamp);
+    public void onExit(int mouseX, int mouseY);
 
     /**
      * Adds the hover status to this <code>UIComponent</code> instance.
@@ -45,7 +45,7 @@ public interface UIComponent {
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
      */
-    public void onHover(int mouseX, int mouseY, long timestamp);
+    public void onHover(int mouseX, int mouseY);
 
     /**
      * Propagates the hover status to all children of this <code>UIComponent</code>
@@ -58,13 +58,13 @@ public interface UIComponent {
      * @return <code>boolean</code>: Whether or not to continue propagating the
      *         hover event, if applicable.
      */
-    public default boolean hover(int mouseX, int mouseY, List<UIComponent> stack, long timestamp) {
+    public default boolean hover(int mouseX, int mouseY, List<UIComponent> stack, long time) {
 
-        return propagateAction(mouseX, mouseY, (component, x, y, time) -> {
+        return propagateAction(mouseX, mouseY, (component, x, y) -> {
 
-            component.onHover(x, y, time);
+            component.onHover(x, y);
             return true;
-        }, stack, timestamp);
+        }, stack, time);
     }
 
     /**
@@ -75,7 +75,7 @@ public interface UIComponent {
      * @param displacement <code>Point</code>: The distance which the mouse
      *                     scrolled.
      */
-    public void onScroll(int mouseX, int mouseY, Point displacement, long timestamp);
+    public void onScroll(int mouseX, int mouseY, Point displacement);
 
     /**
      * Propagates scroll to the topmost children of this <code>UIComponent</code>
@@ -88,13 +88,13 @@ public interface UIComponent {
      * @return <code>boolean</code>: Whether or not to continue propagating the
      *         scroll event, if applicable.
      */
-    public default boolean scroll(int mouseX, int mouseY, Point displacement, List<UIComponent> stack, long timestamp) {
+    public default boolean scroll(int mouseX, int mouseY, Point displacement, List<UIComponent> stack, long time) {
 
-        return propagateAction(mouseX, mouseY, (component, x, y, time) -> {
+        return propagateAction(mouseX, mouseY, (component, x, y) -> {
 
-            component.onScroll(x, y, displacement, time);
+            component.onScroll(x, y, displacement);
             return displacement.x != 0 || displacement.y != 0;
-        }, stack, timestamp);
+        }, stack, time);
     }
 
     /**
@@ -103,7 +103,7 @@ public interface UIComponent {
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
      */
-    public void onRelease(int mouseX, int mouseY, long timestamp);
+    public void onRelease(int mouseX, int mouseY);
 
     /**
      * Adds the press status to this <code>UIComponent</code> instance.
@@ -111,7 +111,7 @@ public interface UIComponent {
      * @param mouseX <code>int</code>: The X coordinate of the mouse event.
      * @param mouseY <code>int</code>: The Y coordinate of the mouse event.
      */
-    public boolean onPress(int mouseX, int mouseY, long timestamp);
+    public boolean onPress(int mouseX, int mouseY);
 
     /**
      * Propagates the press status to the topmost children of this
@@ -124,9 +124,9 @@ public interface UIComponent {
      * @return <code>boolean</code>: Whether or not to continue propagating the
      *         press event, if applicable.
      */
-    public default boolean press(int mouseX, int mouseY, List<UIComponent> stack, long timestamp) {
+    public default boolean press(int mouseX, int mouseY, List<UIComponent> stack, long time) {
 
-        return propagateAction(mouseX, mouseY, UIComponent::onPress, stack, timestamp);
+        return propagateAction(mouseX, mouseY, UIComponent::onPress, stack, time);
     }
 
     /**
@@ -140,7 +140,7 @@ public interface UIComponent {
      * @return <code>boolean</code>: Whether or not the event should continue to
      *         propogate.
      */
-    public boolean onTriggerPress(int mouseX, int mouseY, TRScript value, long timestamp);
+    public boolean onTriggerPress(int mouseX, int mouseY, TRScript value, long time);
 
     /**
      * Propagates the click status to the topmost children of this
@@ -152,11 +152,11 @@ public interface UIComponent {
      *               which have been clicked to add to.
      * @return <code>UIComponent</code>: The component which consumed the press.
      */
-    public default UIComponent triggerPress(int mouseX, int mouseY, List<UIComponent> stack, long timestamp) {
+    public default UIComponent triggerPress(int mouseX, int mouseY, List<UIComponent> stack, long time) {
 
         UIComponent[] consumer = new UIComponent[1];
 
-        propagateAction(mouseX, mouseY, (component, x, y, time) -> {
+        propagateAction(mouseX, mouseY, (component, x, y) -> {
             if (!component.onTriggerPress(x, y, component.getValue(), time)) {
 
                 consumer[0] = component;
@@ -164,7 +164,7 @@ public interface UIComponent {
             }
 
             return true;
-        }, stack, timestamp);
+        }, stack, time);
 
         return consumer[0];
     }
@@ -180,7 +180,7 @@ public interface UIComponent {
      * @return <code>boolean</code>: Whether or not the event should continue to
      *         propogate.
      */
-    public boolean onTriggerRelease(int mouseX, int mouseY, TRScript value, long timestamp);
+    public boolean onTriggerRelease(int mouseX, int mouseY, TRScript value, long time);
 
     /**
      * Propagates the click status to the topmost children of this
@@ -192,11 +192,11 @@ public interface UIComponent {
      *               which have been clicked to add to.
      * @return <code>UIComponent</code>: The component which consumed the release.
      */
-    public default UIComponent triggerRelease(int mouseX, int mouseY, List<UIComponent> stack, long timestamp) {
+    public default UIComponent triggerRelease(int mouseX, int mouseY, List<UIComponent> stack, long time) {
 
         UIComponent[] consumer = new UIComponent[1];
 
-        propagateAction(mouseX, mouseY, (component, x, y, time) -> {
+        propagateAction(mouseX, mouseY, (component, x, y) -> {
             if (!component.onTriggerRelease(x, y, component.getValue(), time)) {
 
                 consumer[0] = component;
@@ -204,7 +204,7 @@ public interface UIComponent {
             }
 
             return true;
-        }, stack, timestamp);
+        }, stack, time);
 
         return consumer[0];
     }
@@ -239,10 +239,9 @@ public interface UIComponent {
          *                  propagation function to.
          * @param mouseX    <code>int</code>: The X coordinate of the mouse event.
          * @param mouseY    <code>int</code>: The Y coordinate of the mouse event.
-         * @param timestamp <code>long</code>: The timestamp of the mouse event.
          * @return <code>boolean</code>: Whether or not to continue propagating.
          */
-        public boolean apply(UIComponent component, int mouseX, int mouseY, long timestamp);
+        public boolean apply(UIComponent component, int mouseX, int mouseY);
     }
 
     /**
@@ -262,7 +261,7 @@ public interface UIComponent {
      *         through the next elements.
      */
     private boolean propagateAction(int mouseX, int mouseY, PropagationAction action, List<UIComponent> stack,
-            long timestamp) {
+            long time) {
 
         mouseX -= getContentOffsetX();
         mouseY -= getContentOffsetY();
@@ -283,7 +282,7 @@ public interface UIComponent {
                 int adjustedY = mouseY - child.getY();
 
                 // If the child does not propagate, end propagation.
-                if (!child.propagateAction(adjustedX, adjustedY, action, stack, timestamp)) {
+                if (!child.propagateAction(adjustedX, adjustedY, action, stack, time)) {
 
                     propagate = false;
                     break;
@@ -296,7 +295,7 @@ public interface UIComponent {
         if (propagate) {
 
             stack.add(this);
-            return action.apply(this, mouseX, mouseY, timestamp);
+            return action.apply(this, mouseX, mouseY);
         }
 
         return false;

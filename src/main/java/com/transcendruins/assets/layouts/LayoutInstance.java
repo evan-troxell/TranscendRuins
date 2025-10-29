@@ -24,8 +24,10 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.elements.ElementContext;
-import com.transcendruins.assets.entities.EntityContext;
+import com.transcendruins.assets.modelassets.elements.ElementContext;
+import com.transcendruins.assets.modelassets.elements.ElementInstance;
+import com.transcendruins.assets.modelassets.entities.EntityContext;
+import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.extra.Range;
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.layouts.LayoutAttributes.AssetGenerationSchema;
@@ -34,7 +36,7 @@ import com.transcendruins.assets.layouts.LayoutAttributes.DistributionGeneration
 import com.transcendruins.assets.layouts.LayoutAttributes.GenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.GridGenerationSchema;
 import com.transcendruins.assets.layouts.LayoutAttributes.LayoutGenerationSchema;
-import com.transcendruins.assets.primaryassets.PrimaryAssetInstance;
+import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.world.AreaGrid;
 import com.transcendruins.world.World;
@@ -131,7 +133,7 @@ public final class LayoutInstance extends AssetInstance {
             return new AreaGrid(getDimensions());
         }
 
-        public abstract void generate(AreaGrid area);
+        public abstract AreaGrid generate();
     }
 
     public final class AssetGenerationInstance extends GenerationInstance {
@@ -195,23 +197,34 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public final void generate(AreaGrid area) {
+        public final AreaGrid generate() {
 
-            switch (asset) {
+            return switch (asset) {
 
-            case PrimaryAssetInstance primary -> {
+            case ElementInstance element -> {
 
-                // area.apply(primary);
+                AreaGrid area = createArea();
+                area.addElement(element);
+
+                yield area;
+            }
+
+            case EntityInstance entity -> {
+
+                AreaGrid area = createArea();
+                area.addEntity(entity);
+
+                yield area;
             }
 
             case LayoutInstance layout -> {
 
-                // area.apply(layout);
+                AreaGrid area = layout.generate();
+                yield area;
             }
 
-            default -> {
-            }
-            }
+            default -> createArea();
+            };
         }
     }
 
@@ -229,7 +242,9 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public void generate(AreaGrid area) {
+        public final AreaGrid generate() {
+
+            return createArea();
         }
     }
 
@@ -247,7 +262,9 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public void generate(AreaGrid area) {
+        public final AreaGrid generate() {
+
+            return createArea();
         }
     }
 
@@ -274,7 +291,9 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public void generate(AreaGrid area) {
+        public final AreaGrid generate() {
+
+            return createArea();
         }
     }
 
@@ -292,16 +311,15 @@ public final class LayoutInstance extends AssetInstance {
         }
 
         @Override
-        public void generate(AreaGrid area) {
+        public final AreaGrid generate() {
+
+            return createArea();
         }
     }
 
     public final AreaGrid generate() {
 
-        AreaGrid area = generation.createArea();
-        generation.generate(area);
-
-        return area;
+        return generation.generate();
     }
 
     @Override

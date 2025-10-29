@@ -16,8 +16,8 @@
 
 package com.transcendruins.assets.animations.interpolation;
 
-import com.transcendruins.graphics3d.geometry.Quaternion;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Quaternion;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;

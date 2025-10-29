@@ -30,7 +30,7 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.scripts.TRScript;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
@@ -1527,7 +1527,13 @@ public abstract class TracedCollection {
     public final TracedEntry<TRScript> getAsScript(Object key, boolean nullCaseAllowed) throws LoggedException {
 
         TracedEntry<?> entry = get(key, nullCaseAllowed, null);
-        return entry.cast(new TRScript(this, key));
+        if (entry.containsValue()) {
+
+            return entry.cast(new TRScript(this, key));
+        } else {
+
+            return entry.cast(null);
+        }
     }
 
     /**

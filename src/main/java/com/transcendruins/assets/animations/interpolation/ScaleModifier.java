@@ -16,8 +16,8 @@
 
 package com.transcendruins.assets.animations.interpolation;
 
-import com.transcendruins.graphics3d.geometry.Matrix;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Matrix;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
@@ -27,8 +27,8 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>ScaleModifier</code>: A class representing a scaling in space about
- * an axis.
+ * <code>ScaleModifier</code>: A class representing a scaling in space about an
+ * axis.
  */
 sealed public class ScaleModifier permits ScaleFrame {
 
@@ -51,8 +51,7 @@ sealed public class ScaleModifier permits ScaleFrame {
 
     /**
      * <code>RotationModifier</code>: The rotation modifier to be applied to the
-     * scale of
-     * this <code>ScaleModifier</code> instance.
+     * scale of this <code>ScaleModifier</code> instance.
      */
     private final RotationModifier rotation;
 
@@ -101,8 +100,8 @@ sealed public class ScaleModifier permits ScaleFrame {
      * @param scale    <code>Vector</code>: The scale values of this
      *                 <code>ScaleModifier</code> instance.
      * @param rotation <code>RotationModifier</code>: The rotation modifier to be
-     *                 applied to the scale of
-     *                 this <code>ScaleModifier</code> instance.
+     *                 applied to the scale of this <code>ScaleModifier</code>
+     *                 instance.
      */
     public ScaleModifier(Vector scale, RotationModifier rotation) {
 

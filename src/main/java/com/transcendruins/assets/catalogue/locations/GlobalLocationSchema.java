@@ -22,6 +22,7 @@ import java.util.HashMap;
 import static com.transcendruins.assets.AssetType.LAYOUT;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.extra.WeightedRoll;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -31,33 +32,33 @@ import com.transcendruins.utilities.json.TracedEntry;
 
 public final class GlobalLocationSchema {
 
-    private final String name;
+    private final TRScript name;
 
     /**
-     * <code>String</code>: The description of this
+     * <code>TRScript</code>: The description of this
      * <code>GlobalLocationSchema</code> instance.
      * 
-     * @return <code>String</code>: The <code>name</code> field of this
+     * @return <code>TRScript</code>: The <code>name</code> field of this
      *         <code>GlobalLocationSchema</code> instance.
      */
-    public final String getName() {
+    public final TRScript getName() {
 
         return name;
     }
 
     /**
-     * <code>String</code>: The description of this
+     * <code>TRScript</code>: The description of this
      * <code>GlobalLocationSchema</code> instance.
      */
-    private final String description;
+    private final TRScript description;
 
     /**
      * Retrieves the description of this <code>GlobalLocationSchema</code> instance.
      * 
-     * @return <code>String</code>: The <code>description</code> field of this
+     * @return <code>TRScript</code>: The <code>description</code> field of this
      *         <code>GlobalLocationSchema</code> instance.
      */
-    public final String getDescription() {
+    public final TRScript getDescription() {
 
         return description;
     }
@@ -195,10 +196,10 @@ public final class GlobalLocationSchema {
 
     public GlobalLocationSchema(TracedCollection json) throws LoggedException {
 
-        TracedEntry<String> nameEntry = json.getAsString("name", false, null);
+        TracedEntry<TRScript> nameEntry = json.getAsScript("name", false);
         name = nameEntry.getValue();
 
-        TracedEntry<String> descriptionEntry = json.getAsString("description", false, null);
+        TracedEntry<TRScript> descriptionEntry = json.getAsScript("description", false);
         description = descriptionEntry.getValue();
 
         TracedEntry<String> iconEntry = json.getAsString("icon", false, null);

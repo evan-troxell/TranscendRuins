@@ -31,6 +31,7 @@ import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.interfaces.map.LocationRender;
 import com.transcendruins.assets.layouts.LayoutContext;
 import com.transcendruins.assets.layouts.LayoutInstance;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.rendering.renderBuffer.RenderBuffer;
 import com.transcendruins.resources.styles.Style.TextureSize;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -48,34 +49,34 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
     private final DeterministicRandom random;
 
-    private final String name;
+    private final TRScript name;
 
     /**
-     * <code>String</code>: The description of this
+     * <code>TRScript</code>: The description of this
      * <code>GlobalLocationInstance</code> instance.
      * 
-     * @return <code>String</code>: The <code>name</code> field of this
+     * @return <code>TRScript</code>: The <code>name</code> field of this
      *         <code>GlobalLocationInstance</code> instance.
      */
-    public final String getName() {
+    public final TRScript getName() {
 
         return name;
     }
 
     /**
-     * <code>String</code>: The description of this
+     * <code>TRScript</code>: The description of this
      * <code>GlobalLocationInstance</code> instance.
      */
-    private final String description;
+    private final TRScript description;
 
     /**
      * Retrieves the description of this <code>GlobalLocationInstance</code>
      * instance.
      * 
-     * @return <code>String</code>: The <code>description</code> field of this
+     * @return <code>TRScript</code>: The <code>description</code> field of this
      *         <code>GlobalLocationInstance</code> instance.
      */
-    public final String getDescription() {
+    public final TRScript getDescription() {
 
         return description;
     }

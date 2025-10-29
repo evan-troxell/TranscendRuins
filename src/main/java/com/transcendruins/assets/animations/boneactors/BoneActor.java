@@ -19,9 +19,9 @@ package com.transcendruins.assets.animations.boneactors;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.transcendruins.graphics3d.geometry.Matrix;
-import com.transcendruins.graphics3d.geometry.Quaternion;
-import com.transcendruins.graphics3d.geometry.Vector;
+import com.transcendruins.geometry.Matrix;
+import com.transcendruins.geometry.Quaternion;
+import com.transcendruins.geometry.Vector;
 
 /**
  * <code>BoneActor</code>: A class representing the transformations to apply to
