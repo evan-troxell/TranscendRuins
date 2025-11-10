@@ -50,6 +50,7 @@ for subdir, _, files in os.walk(root_dir):
 
 print(f"{count} java files checked.")
 print(f"{lines} lines of code+comments")
+print(f"Average file length: {round(lines / count)}")
 
 # Print the files missing the license header
 if files_missing_license:

@@ -36,9 +36,11 @@ import com.transcendruins.utilities.json.TracedEntry;
  */
 public final class AssetEvent {
 
-    public static final String ON_INITIALIZATION = "TranscendRuins:onInitialized";
+    public static final String ON_INITIALIZATION = "onInitialized";
 
-    public static final String ON_TICK = "TranscendRuins:onTick";
+    public static final String ON_TICK = "onTick";
+
+    public static final String ON_INTERACT = "onInteract";
 
     public static final String ON_DESTRUCTION = "TranscendRuins:onDestroyed";
 

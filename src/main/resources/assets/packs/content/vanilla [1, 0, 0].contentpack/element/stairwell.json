@@ -4,12 +4,12 @@
     },
     "attributes": {
         "modelX": "TranscendRuins:stairwell",
-        "animationControllerX": "TranscendRuins:stairwell",
+        "stateControllerX": "TranscendRuins:stairwell",
         "renderMaterialX": "TranscendRuins:opaque",
         "textureX": "element.stairwell",
 
         "model": "TranscendRuins:box",
-        "animationController": "TranscendRuins:box",
+        "stateController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
         "texture": "element.crate",
 
@@ -53,14 +53,14 @@
             }
         },
 
-        "TranscendRuins:onInteract": {
-            "run": [ "destroy" ]
-        },
-
-        "TranscendRuins:onInitialized": {
+        "onInitialized": {
             "permutations": {
                 "add": [ "passagewayInteract" ]
             }
+        },
+
+        "onInteract": {
+            "run": [ "destroy" ]
         }
     }
 }

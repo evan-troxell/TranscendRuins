@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.transcendruins.assets.AssetType;
-import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.catalogue.AssetCatalogue;
 import com.transcendruins.packs.Pack;
@@ -32,6 +31,7 @@ import com.transcendruins.resources.ResourceSet;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.immutable.ImmutableSet;
+import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.metadata.Identifier;
 
 /**
@@ -320,42 +320,47 @@ public final class ContentPack extends Pack {
         AssetSchema asset = unvalidated.get(type).remove(identifier);
 
         // Iterate through each asset dependency.
-        for (AssetPresets dependencyPresets : asset.getAssetDependencies()) {
+        for (Map.Entry<AssetType, ImmutableSet<TracedEntry<Identifier>>> typeEntry : asset.getAssetDependencies()
+                .entrySet()) {
 
-            Identifier dependency = dependencyPresets.getIdentifier();
-            AssetType dependencyType = dependencyPresets.getType();
+            AssetType dependencyType = typeEntry.getKey();
 
-            if (validated.get(dependencyType).containsKey(dependency)) { // If the dependency has already been
-                                                                         // validated, the match is found.
-                continue;
-            }
+            for (TracedEntry<Identifier> dependencyEntry : typeEntry.getValue()) {
 
-            if (unvalidated.get(dependencyType).containsKey(dependency)) { // Validate the dependency if it is
-                                                                           // unvalidated.
-                try {
+                Identifier dependency = dependencyEntry.getValue();
 
-                    validateAsset(dependency, dependencyType, unvalidated, validated, dependencyAssets, missingAssets);
+                if (validated.get(dependencyType).containsKey(dependency)) { // If the dependency has already been
+                    // validated, the match is found.
                     continue;
-                } catch (ReferenceWithoutDefinitionException _) {
                 }
+
+                if (unvalidated.get(dependencyType).containsKey(dependency)) { // Validate the dependency if it is
+                                                                               // unvalidated.
+                    try {
+
+                        validateAsset(dependency, dependencyType, unvalidated, validated, dependencyAssets,
+                                missingAssets);
+                        continue;
+                    } catch (ReferenceWithoutDefinitionException _) {
+                    }
+                }
+
+                if (dependencyAssets.get(dependencyType).contains(dependency)) { // If necessary, check if
+                                                                                 // the pack
+                    // dependencies contains the
+                    // dependency. If so, add it as a
+                    // required dependency.
+
+                    missingAssets.get(type).add(dependency);
+                    continue;
+                }
+
+                // If a match was not found, throw an exception.
+
+                // Raise the exception with the definition code of the sentence-case asset type
+                // (e.g 'Animation Controller', 'Element', 'Render Material').
+                throw new ReferenceWithoutDefinitionException(dependencyEntry, dependencyType.toSentenceString());
             }
-
-            if (dependencyAssets.get(dependencyType).contains(dependency)) { // If necessary, check if
-                                                                             // the pack
-                // dependencies contains the
-                // dependency. If so, add it as a
-                // required dependency.
-
-                missingAssets.get(type).add(dependency);
-                continue;
-            }
-
-            // If a match was not found, throw an exception.
-
-            // Raise the exception with the definition code of the sentence-case asset type
-            // (e.g 'Animation Controller', 'Element', 'Render Material').
-            throw new ReferenceWithoutDefinitionException(dependencyPresets.getIdentifierEntry(),
-                    dependencyType.toSentenceString());
         }
 
         validated.get(asset.getType()).put(asset.getIdentifier(), asset);

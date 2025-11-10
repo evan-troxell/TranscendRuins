@@ -16,30 +16,27 @@
 
 package com.transcendruins.assets.modelassets.primaryassets;
 
-import com.transcendruins.assets.assets.AssetContext;
-import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.world.World;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
+import com.transcendruins.assets.modelassets.ModelAssetContext;
 
 /**
  * <code>PrimaryAssetContext</code>: A class representing the instantiation
  * context of a primary asset.
  */
-public abstract class PrimaryAssetContext extends AssetContext {
+public abstract class PrimaryAssetContext extends ModelAssetContext {
 
     /**
      * Creates a new instance of the <code>PrimaryAssetContext</code> class.
      * 
-     * @param presets <code>AssetPresets</code>: The presets containing schema and
-     *                instantiation information of this
-     *                <code>PrimaryAssetContext</code> instance.
-     * @param world   <code>World</code>: The world copy of this
-     *                <code>PrimaryAssetContext</code> instance.
-     * @param parent  <code>AssetInstance</code>: The parent to assign to this
-     *                <code>PrimaryAssetContext</code> instance.
+     * @param presets  <code>AssetPresets</code>: The presets containing schema and
+     *                 instantiation information of this
+     *                 <code>PrimaryAssetContext</code> instance.
+     * @param location <code>GlobalLocationInstance</code>: The location of this
+     *                 <code>PrimaryAssetContext</code> instance.
      */
-    public PrimaryAssetContext(AssetPresets presets, World world, AssetInstance parent) {
+    public PrimaryAssetContext(AssetPresets presets, GlobalLocationInstance location) {
 
-        super(presets, world, parent);
+        super(presets, location);
     }
 }

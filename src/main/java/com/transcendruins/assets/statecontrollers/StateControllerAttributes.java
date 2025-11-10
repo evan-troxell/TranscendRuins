@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.animationcontrollers;
+package com.transcendruins.assets.statecontrollers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,14 +34,14 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>AnimationControllerAttributes</code>: A class which represents the
- * attributes of an <code>AnimationControllerSchema</code> instance.
+ * <code>StateControllerAttributes</code>: A class which represents the
+ * attributes of an <code>StateControllerSchema</code> instance.
  */
-public final class AnimationControllerAttributes extends AssetAttributes {
+public final class StateControllerAttributes extends AssetAttributes {
 
     /**
      * <code>ImmutableMap&lt;String, AnimationStateSchema&gt;</code>: The map of all
-     * animation states of this <code>AnimationControllerAttributes</code> instance.
+     * animation states of this <code>StateControllerAttributes</code> instance.
      */
     private final ImmutableMap<String, AnimationStateSchema> states;
 
@@ -60,16 +60,16 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
     /**
      * <code>String</code>: The default state of this
-     * <code>AnimationControllerAttributes</code> instance.
+     * <code>StateControllerAttributes</code> instance.
      */
     private final String defaultState;
 
     /**
-     * Retrieves the default state of this
-     * <code>AnimationControllerAttributes</code> instance.
+     * Retrieves the default state of this <code>StateControllerAttributes</code>
+     * instance.
      * 
      * @return <code>String</code>: The <code>defaultState</code> field of this
-     *         <code>AnimationControllerAttributes</code> instance.
+     *         <code>StateControllerAttributes</code> instance.
      */
     public String getDefaultState() {
 
@@ -77,22 +77,20 @@ public final class AnimationControllerAttributes extends AssetAttributes {
     }
 
     /**
-     * Compiles this <code>AnimationControllerAttributes</code> instance into a
+     * Compiles this <code>StateControllerAttributes</code> instance into a
      * completed instance.
      * 
      * @param schema <code>AssetSchema</code>: The schema which created this
-     *               <code>AnimationControllerAttributes</code> instance.
+     *               <code>StateControllerAttributes</code> instance.
      * @param json   <code>TracedDictionary</code>: The schema JSON used to compile
-     *               this <code>AnimationControllerAttributes</code> instance.
+     *               this <code>StateControllerAttributes</code> instance.
      * @param isBase <code>boolean</code>: Whether or not this
-     *               <code>AnimationControllerAttributes</code> instance is the base
+     *               <code>StateControllerAttributes</code> instance is the base
      *               attribute set of an <code>AnimationSchema</code> instance.
      * @throws LoggedException Thrown if an exception is raised while processing
-     *                         this <code>AnimationControllerAttributes</code>
-     *                         instance.
+     *                         this <code>StateControllerAttributes</code> instance.
      */
-    public AnimationControllerAttributes(AssetSchema schema, TracedDictionary json, boolean isBase)
-            throws LoggedException {
+    public StateControllerAttributes(AssetSchema schema, TracedDictionary json, boolean isBase) throws LoggedException {
 
         super(schema, json, isBase);
 
@@ -159,7 +157,7 @@ public final class AnimationControllerAttributes extends AssetAttributes {
 
     /**
      * <code>AnimationStateSchema</code>: A class representing a specific state of
-     * this <code>AnimationControllerAttributes</code> instance.
+     * this <code>StateControllerAttributes</code> instance.
      */
     public final class AnimationStateSchema {
 

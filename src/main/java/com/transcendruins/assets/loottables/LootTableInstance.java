@@ -20,21 +20,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.extra.Range;
-import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.modelassets.items.ItemContext;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.random.DeterministicRandom;
+import com.transcendruins.utilities.selection.DiscreteRange;
+import com.transcendruins.utilities.selection.SelectionType;
 import com.transcendruins.world.World;
 
 public final class LootTableInstance extends AssetInstance {
@@ -45,7 +44,7 @@ public final class LootTableInstance extends AssetInstance {
 
     public final List<ItemContext> evaluateLoot() {
 
-        return loot.evaluate(getWorld());
+        return loot.evaluate(getWorld(), getRandom());
     }
 
     private final ArrayList<String> disableByComponentId = new ArrayList<>();
@@ -108,12 +107,7 @@ public final class LootTableInstance extends AssetInstance {
 
         case LootTableAttributes.LootValueSchema value -> new LootValueInstance(value);
 
-        case LootTableAttributes.LootPoolSchema pool -> switch (pool.getSelectionType()) {
-
-        case SEQUENCE -> new LootSelectionInstance(pool);
-
-        case SELECT -> new LootPoolInstance(pool);
-        };
+        case LootTableAttributes.LootPoolSchema pool -> new LootPoolInstance(pool);
 
         default -> null;
         };
@@ -184,20 +178,22 @@ public final class LootTableInstance extends AssetInstance {
         }
 
         /**
-         * <code>Range</code>: The count range of this <code>LootInstance</code>
+         * <code>DiscreteRange</code>: The count range of this <code>LootInstance</code>
          * instance, which is used to determine how many items to generate.
          */
-        private final Range count;
+        private final DiscreteRange count;
 
         /**
          * Retrieves the count range of this <code>LootInstance</code> instance.
          * 
+         * @param random <code>DeterministicRandom</code>: The random number generator
+         *               used to calculate the item count.
          * @return <code>Range</code>: The <code>count</code> field of this
          *         <code>LootInstance</code> instance.
          */
-        public final int getCount() {
+        public final int getCount(DeterministicRandom random) {
 
-            return count.getIntegerValue(nextRandom());
+            return count.get(random.next());
         }
 
         /**
@@ -220,10 +216,12 @@ public final class LootTableInstance extends AssetInstance {
          * Evaluates this <code>LootInstance</code> instance into a set of item
          * contexts.
          * 
-         * @param world <code>World</code>: The world to use processing item preset(s).
+         * @param world  <code>World</code>: The world used to generate item presets.
+         * @param random <code>DeterministicRandom</code>: The random number generater
+         *               used to generate item presets.
          * @return <code>List&lt;ItemContext&gt;</code>: The generated item contexts.
          */
-        public abstract List<ItemContext> evaluate(World world);
+        public abstract List<ItemContext> evaluate(World world, DeterministicRandom random);
     }
 
     public final class LootValueInstance extends LootInstance {
@@ -238,15 +236,17 @@ public final class LootTableInstance extends AssetInstance {
         }
 
         @Override
-        public List<ItemContext> evaluate(World world) {
+        public List<ItemContext> evaluate(World world, DeterministicRandom random) {
 
-            return List.of(new ItemContext(item, getWorld(), null, getCount()));
+            return List.of(new ItemContext(item, getWorld(), null, getCount(random)));
         }
     }
 
     public final class LootPoolInstance extends LootInstance {
 
-        private final ImmutableMap<LootInstance, Integer> pools;
+        private final ImmutableMap<LootInstance, DiscreteRange> pools;
+
+        private final SelectionType iterationType;
 
         public LootPoolInstance(LootTableAttributes.LootPoolSchema schema) {
 
@@ -255,98 +255,21 @@ public final class LootTableInstance extends AssetInstance {
             pools = new ImmutableMap<>(
                     schema.getPools().entrySet().stream().collect(Collectors.toMap(entry -> createLoot(entry.getKey()),
                             entry -> entry.getValue(), (previous, _) -> previous, HashMap::new)));
+
+            iterationType = schema.getIterationType();
         }
 
         @Override
-        public ArrayList<ItemContext> evaluate(World world) {
+        public final ArrayList<ItemContext> evaluate(World world, DeterministicRandom random) {
 
             ArrayList<ItemContext> items = new ArrayList<>();
 
-            HashMap<LootInstance, Integer> available = new HashMap<>(pools);
+            int rolled = getCount(random);
+            iterationType.generate(pools.keySet(), rolled, loot -> {
 
-            int rolled = getCount();
-
-            for (int i = 0; i < rolled; i++) {
-
-                if (available.isEmpty()) {
-
-                    break;
-                }
-
-                items.addAll(available.entrySet().stream() // Map through all available entries.
-                        .map(Map.Entry::getKey) // Retrieve the loot.
-                        .filter(loot -> loot.passes() && available.get(loot) > 0 // Ensure the loot passes input
-                                                                                 // conditions.
-                                && 100.0 * DeterministicRandom.toDouble(nextRandom()) < loot.chance) // Randomly select
-                                                                                                     // the loot with
-                                                                                                     // its input
-                        // percentage.
-                        .flatMap(loot -> { // Compute loot values, subtract 1 from the loot.
-
-                            int remainder = available.computeIfPresent(loot, (_, val) -> val - 1);
-                            if (remainder == 0) {
-
-                                available.remove(loot);
-                            }
-                            return loot.evaluate(world).stream();
-                        }).toList());
-            }
-
-            return items;
-        }
-    }
-
-    public final class LootSelectionInstance extends LootInstance {
-
-        private final ImmutableMap<LootInstance, Integer> pools;
-
-        public LootSelectionInstance(LootTableAttributes.LootPoolSchema schema) {
-
-            super(schema);
-
-            HashMap<LootInstance, Integer> poolsMap = new HashMap<>();
-
-            for (Map.Entry<LootTableAttributes.LootSchema, Integer> lootEntry : schema.getPools().entrySet()) {
-
-                poolsMap.put(createLoot(lootEntry.getKey()), lootEntry.getValue());
-            }
-
-            this.pools = new ImmutableMap<>(poolsMap);
-        }
-
-        @Override
-        public ArrayList<ItemContext> evaluate(World world) {
-
-            ArrayList<ItemContext> items = new ArrayList<>();
-
-            HashMap<LootInstance, Integer> available = new HashMap<>(pools);
-
-            int rolled = getCount();
-
-            for (int i = 0; i < rolled; i++) {
-
-                if (available.isEmpty()) {
-
-                    break;
-                }
-
-                WeightedRoll<LootInstance> selector = new WeightedRoll<>(
-                        available.keySet().stream().filter(LootInstance::passes), LootInstance::getChance);
-
-                if (selector.isEmpty()) {
-
-                    break;
-                }
-
-                LootInstance loot = selector.get(nextRandom());
-
-                int remainder = available.computeIfPresent(loot, (_, val) -> val - 1);
-                if (remainder == 0) {
-
-                    available.remove(loot);
-                }
-                items.addAll(loot.evaluate(world));
-            }
+                items.addAll(loot.evaluate(world, random));
+                return new int[] { 1, 0 };
+            }, LootInstance::getChance, loot -> pools.get(loot).get(random.next()), random, 1.0, -1);
 
             return items;
         }

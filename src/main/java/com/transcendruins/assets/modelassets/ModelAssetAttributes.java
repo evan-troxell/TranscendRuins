@@ -95,18 +95,18 @@ public abstract class ModelAssetAttributes extends AssetAttributes {
      * <code>AssetPresets</code>: The animation controller presets of this
      * <code>ModelAssetAttributes</code> instance.
      */
-    private final AssetPresets animationController;
+    private final AssetPresets stateController;
 
     /**
      * Retrieves the animation controller presets of this
      * <code>ModelAssetAttributes</code> instance.
      * 
-     * @return <code>AssetPresets</code>: The <code>animationController</code> field
-     *         of this <code>ModelAssetAttributes</code> instance.
+     * @return <code>AssetPresets</code>: The <code>stateController</code> field of
+     *         this <code>ModelAssetAttributes</code> instance.
      */
-    public final AssetPresets getAnimationController() {
+    public final AssetPresets getStateController() {
 
-        return animationController;
+        return stateController;
     }
 
     /**
@@ -162,12 +162,12 @@ public abstract class ModelAssetAttributes extends AssetAttributes {
             addAssetDependency(renderMaterial);
         }
 
-        TracedEntry<AssetPresets> animationControllerEntry = json.getAsPresets("animationController", true,
+        TracedEntry<AssetPresets> stateControllerEntry = json.getAsPresets("stateController", true,
                 ANIMATION_CONTROLLER);
-        animationController = animationControllerEntry.getValue();
-        if (animationControllerEntry.containsValue()) {
+        stateController = stateControllerEntry.getValue();
+        if (stateControllerEntry.containsValue()) {
 
-            addAssetDependency(animationController);
+            addAssetDependency(stateController);
         }
 
         TracedEntry<TracedArray> categoriesEntry = json.getAsArray("categories", true);

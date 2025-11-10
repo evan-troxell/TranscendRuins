@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:bunkerAlfaMain"
+        "identifier": "TranscendRuins:bunkerBravoMain"
     },
     "attributes": {
 
@@ -23,11 +23,12 @@
             }
         },
 
-        "width": 400,
-        "length": 400,
-
-        "type": "distributed",
-        "iterationType": "sequential",
-        "components": []
+        "type": "entity",
+        "entity": "player",
+        "connection": {
+            "type": "entity",
+            "entity": "player",
+            "connection": "test"
+        }
     }
 }

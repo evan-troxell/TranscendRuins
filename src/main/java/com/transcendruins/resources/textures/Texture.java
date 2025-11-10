@@ -17,18 +17,14 @@
 package com.transcendruins.resources.textures;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.files.TracedPath;
-import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
-import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.selection.WeightedRoll;
 
 /**
  * <code>Texture</code>: A class representing a single texture entry.
@@ -56,60 +52,10 @@ public final class Texture {
      */
     public Texture(TracedDictionary json, String key) throws LoggedException {
 
-        entries = json.get(key, List.of(
+        String regExp = "^/+";
 
-                json.arrayCase(entry -> {
-
-                    TracedArray textureJson = entry.getValue();
-
-                    ArrayList<WeightedRoll.Entry<String>> jsonEntries = new ArrayList<>();
-
-                    for (int i : textureJson) {
-
-                        TracedEntry<String> pathEntry = textureJson.getAsString(i, false, null);
-                        String path = pathEntry.getValue();
-                        if (path.startsWith("/")) {
-
-                            path = path.substring(1);
-                        }
-
-                        jsonEntries.add(new WeightedRoll.Entry<>(path));
-                    }
-
-                    return new WeightedRoll<>(entry, textureJson, jsonEntries);
-                }),
-
-                json.dictCase(entry -> {
-
-                    TracedDictionary textureJson = entry.getValue();
-
-                    ArrayList<WeightedRoll.Entry<String>> jsonEntries = new ArrayList<>();
-
-                    for (String pathString : textureJson) {
-
-                        String path = pathString;
-                        if (path.startsWith("/")) {
-
-                            path = path.substring(1);
-                        }
-                        TracedEntry<Double> weightEntry = textureJson.getAsDouble(pathString, false, null,
-                                num -> num > 0);
-
-                        jsonEntries.add(new WeightedRoll.Entry<>(path, weightEntry.getValue()));
-                    }
-
-                    return new WeightedRoll<>(entry, textureJson, jsonEntries);
-                }),
-
-                json.stringCase(entry -> {
-
-                    String path = entry.getValue();
-                    if (path.startsWith("/")) {
-
-                        path = path.substring(1);
-                    }
-                    return new WeightedRoll<>(path);
-                })));
+        entries = json.getAsStringRoll(key, false, null, entry -> entry.getValue().replaceFirst(regExp, ""),
+                (_, stringKey) -> stringKey.replaceFirst(regExp, ""));
     }
 
     /**

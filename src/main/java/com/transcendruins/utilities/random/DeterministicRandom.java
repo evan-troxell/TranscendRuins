@@ -15,6 +15,8 @@
  */
 package com.transcendruins.utilities.random;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -62,6 +64,38 @@ public final class DeterministicRandom {
         Random r = new Random(state);
         state = r.nextLong(); // update state
         return state;
+    }
+
+    /**
+     * Retrieves a random element from a list using this
+     * <code>DeterministicRandom</code> instance.
+     * 
+     * @param <K>  The object type to retrieve from the list.
+     * @param list <code>List&lt;K&gt</code>: The list to retrieve from.
+     * @return <code>K</code>: The produced element.
+     */
+    public final <K> K next(List<K> list) {
+
+        if (list.isEmpty()) {
+
+            return null;
+        }
+
+        return list.get((int) (DeterministicRandom.toDouble(next()) * list.size()));
+    }
+
+    /**
+     * Shuffles a list using this <code>DeterministicRandom</code> instance.
+     * 
+     * @param list <code>List&lt;?&gt;</code>: The list to shuffle.
+     */
+    public final void shuffle(List<?> list) {
+
+        for (int i = list.size() - 1; i > 0; i--) {
+
+            int j = (int) (DeterministicRandom.toDouble(next()) * (i + 1));
+            Collections.swap(list, i, j);
+        }
     }
 
     /**

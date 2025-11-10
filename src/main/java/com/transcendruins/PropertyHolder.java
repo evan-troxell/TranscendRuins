@@ -210,13 +210,13 @@ public abstract class PropertyHolder {
                 nextIndex = Integer.parseInt(next);
             } catch (NumberFormatException e) {
 
-                yield null;
+                yield new TRScript(null);
             }
 
             yield getProperty(listVal.get(nextIndex), Arrays.copyOfRange(tokens, 1, tokens.length));
         }
 
-        default -> null;
+        default -> new TRScript(null);
 
         };
     }

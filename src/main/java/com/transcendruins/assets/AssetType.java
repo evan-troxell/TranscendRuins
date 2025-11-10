@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.transcendruins.App;
-import com.transcendruins.assets.animationcontrollers.AnimationControllerAttributes;
-import com.transcendruins.assets.animationcontrollers.AnimationControllerInstance;
+import com.transcendruins.assets.statecontrollers.StateControllerAttributes;
+import com.transcendruins.assets.statecontrollers.StateControllerInstance;
 import com.transcendruins.assets.animations.AnimationAttributes;
 import com.transcendruins.assets.animations.AnimationInstance;
 import com.transcendruins.assets.assets.AssetContext;
@@ -71,7 +71,7 @@ public enum AssetType {
     /**
      * <code>AssetType</code>: An asset type representing animation controllers.
      */
-    ANIMATION_CONTROLLER(AnimationControllerAttributes::new, AnimationControllerInstance::new),
+    ANIMATION_CONTROLLER(StateControllerAttributes::new, StateControllerInstance::new),
 
     /**
      * <code>AssetType</code>: An asset type representing animations.

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.transcendruins.assets.AssetEvent;
 import com.transcendruins.assets.AssetType;
@@ -179,10 +181,11 @@ public final class AssetSchema {
     }
 
     /**
-     * <code>HashSet&lt;AssetPresets&gt;</code>: The collection of asset
-     * dependencies in this <code>AssetSchema</code> instance.
+     * <code>HashMap&lt;AssetType, HashSet&lt;TracedEntry&lt;Identifier&gt;&gt;&gt;</code>:
+     * The collection of asset dependencies in this <code>AssetSchema</code>
+     * instance.
      */
-    private final HashSet<AssetPresets> assetDependencies = new HashSet<>();
+    private final HashMap<AssetType, HashSet<TracedEntry<Identifier>>> assetDependencies = new HashMap<>();
 
     /**
      * Adds an asset dependency to the map of dependencies present in this
@@ -193,20 +196,35 @@ public final class AssetSchema {
      */
     protected final void addAssetDependency(AssetPresets dependency) {
 
-        assetDependencies.add(dependency);
+        addAssetDependency(dependency.getType(), dependency.getIdentifierEntry());
+    }
+
+    /**
+     * Adds an asset dependency to the map of dependencies present in this
+     * <code>AssetSchema</code> instance.
+     * 
+     * @param type       <code>AssetType</code>: The type of the dependency to be
+     *                   added.
+     * @param identifier <code>TracedEntry&lt;Identifier&gt;</code>: The identifier
+     *                   of the dependency to be added.
+     */
+    protected final void addAssetDependency(AssetType type, TracedEntry<Identifier> identifier) {
+
+        assetDependencies.computeIfAbsent(type, _ -> new HashSet<>()).add(identifier);
     }
 
     /**
      * Retrieves he collection of asset dependencies in this
      * <code>AssetSchema</code> instance.
      * 
-     * @return <code>ImmutableSet&lt;AssetPresets&gt;</code>: An immutable copy of
-     *         the <code>assetDependencies</code> field of this
+     * @return <code>ImmutableMap&lt;AssetType, ImmutableSet&lt;TracedEntry&lt;Identifier&gt;&gt;&gt;</code>:
+     *         An immutable copy of the <code>assetDependencies</code> field of this
      *         <code>AssetSchema</code> instance.
      */
-    public ImmutableSet<AssetPresets> getAssetDependencies() {
+    public ImmutableMap<AssetType, ImmutableSet<TracedEntry<Identifier>>> getAssetDependencies() {
 
-        return new ImmutableSet<>(assetDependencies);
+        return new ImmutableMap<>(assetDependencies.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+                entry -> new ImmutableSet<>(entry.getValue()), (a, b) -> a, HashMap::new)));
     }
 
     /**

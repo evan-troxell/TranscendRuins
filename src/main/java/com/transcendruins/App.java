@@ -32,10 +32,6 @@ import java.util.stream.Collectors;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import com.transcendruins.assets.AssetType;
-import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.modelassets.elements.ElementContext;
-import com.transcendruins.assets.modelassets.elements.ElementInstance;
 import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
@@ -113,16 +109,6 @@ public final class App {
         // World.getWorld(), 0, 0, World.EAST,
         // Vector.IDENTITY_VECTOR);
 
-        Identifier axesId = Identifier.createTestIdentifier("TranscendRuins:axes", null);
-
-        Identifier boxId = Identifier.createTestIdentifier("TranscendRuins:box", null);
-
-        AssetPresets examplePresets = new AssetPresets(boxId, AssetType.ELEMENT);
-        ElementContext exampleContext = new ElementContext(examplePresets, world, null);
-
-        ElementInstance example = exampleContext.instantiate();
-        example.update(world.getRuntimeSeconds());
-
         // ElementInstance ex2 = new ElementInstance(examplePresets, world, 0, 0, //
 
         double startTime = world.getRuntimeSeconds();
@@ -154,7 +140,13 @@ public final class App {
         // }
 
         long playerId = 0;
-        world.addPlayer(playerId);
+        boolean added = world.addPlayer(playerId);
+        if (!added) {
+
+            System.out.println("HOST COULD NOT START: PLAYER WAS NOT ADDED");
+            return;
+        }
+
         world.startHost();
 
         JFrame uiFrame = new JFrame();

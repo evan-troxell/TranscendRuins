@@ -16,17 +16,33 @@
 
 package com.transcendruins.assets.modelassets.entities;
 
+import java.util.List;
+
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.modelassets.attack.AttackSchema;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
+import com.transcendruins.utilities.json.TracedEntry;
 
 /**
  * <code>EntityAttributes</code>: A class which represents the attributes of an
  * <code>EntitySchema</code> instance.
  */
 public final class EntityAttributes extends PrimaryAssetAttributes {
+
+    public final record DoubleDimension(double width, double length) {
+
+        public static final DoubleDimension DEFAULT = new DoubleDimension(1.0, 1.0);
+    }
+
+    private final DoubleDimension tileDimensions;
+
+    public final DoubleDimension getTileDimensions() {
+
+        return tileDimensions;
+    }
 
     private final AttackSchema attack;
 
@@ -52,6 +68,30 @@ public final class EntityAttributes extends PrimaryAssetAttributes {
     public EntityAttributes(AssetSchema schema, TracedDictionary json, boolean isBase) throws LoggedException {
 
         super(schema, json, isBase);
+
+        tileDimensions = json.get("tileDimensions", List.of(json.arrayCase(entry -> {
+
+            TracedArray tileDimensionsJson = entry.getValue();
+
+            TracedEntry<Double> widthEntry = tileDimensionsJson.getAsDouble(0, false, null, num -> num > 0);
+            double width = widthEntry.getValue();
+
+            TracedEntry<Double> lengthEntry = tileDimensionsJson.getAsDouble(1, false, null, num -> num > 0);
+            double length = lengthEntry.getValue();
+
+            return new DoubleDimension(width, length);
+        }), json.dictCase(entry -> {
+
+            TracedDictionary tileDimensionsJson = entry.getValue();
+
+            TracedEntry<Double> widthEntry = tileDimensionsJson.getAsDouble("width", false, null, num -> num > 0);
+            double width = widthEntry.getValue();
+
+            TracedEntry<Double> lengthEntry = tileDimensionsJson.getAsDouble("length", false, null, num -> num > 0);
+            double length = lengthEntry.getValue();
+
+            return new DoubleDimension(width, length);
+        }), json.nullCase(_ -> null)));
 
         attack = AttackSchema.createAttack(json, isBase);
     }

@@ -48,7 +48,6 @@ import com.transcendruins.assets.interfaces.map.LocationRender;
 import com.transcendruins.assets.interfaces.map.MapRender;
 import com.transcendruins.assets.modelassets.entities.EntityContext;
 import com.transcendruins.assets.modelassets.entities.EntityInstance;
-import com.transcendruins.assets.modelassets.items.ItemContext;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.recipes.RecipeContext;
 import com.transcendruins.assets.recipes.RecipeInstance;
@@ -96,7 +95,7 @@ public final class World extends PropertyHolder {
     public static final int UNIT_TILE = 24;
 
     /**
-     * <code>int</code>: The 3D bounds of a unit tile.
+     * <code>Vector</code>: The 3D bounds of a unit tile.
      */
     public static final Vector UNIT_TILE_VECTOR = new Vector(UNIT_TILE, UNIT_TILE, UNIT_TILE);
 
@@ -104,25 +103,25 @@ public final class World extends PropertyHolder {
      * <code>int</code>: An enum constant representing the cardinal direction
      * <code>East</code>.
      */
-    public static final int NORTH = 0;
+    public static final int EAST = 0;
 
     /**
      * <code>int</code>: An enum constant representing the cardinal direction
      * <code>North</code>.
      */
-    public static final int EAST = 90;
+    public static final int NORTH = 1;
 
     /**
      * <code>int</code>: An enum constant representing the cardinal direction
      * <code>West</code>.
      */
-    public static final int SOUTH = 180;
+    public static final int WEST = 2;
 
     /**
      * <code>int</code>: An enum constant representing the cardinal direction
      * <code>South</code>.
      */
-    public static final int WEST = 270;
+    public static final int SOUTH = 3;
 
     /**
      * <code>World</code>: The current world of the program.
@@ -162,15 +161,14 @@ public final class World extends PropertyHolder {
     private final DeterministicRandom random;
 
     /**
-     * Retreives the next random value from the RNG of this <code>World</code>
-     * instance.
+     * Retreives the random number generater of this <code>World</code> instance.
      * 
-     * @return <code>long</code>: The next value of the <code>random</code> field of
+     * @return <code>DeterministicRandom</code>: The <code>random</code> field of
      *         this <code>World</code> instance.
      */
-    public final long nextRandom() {
+    public final DeterministicRandom getRandom() {
 
-        return random.next();
+        return random;
     }
 
     /**
@@ -524,7 +522,7 @@ public final class World extends PropertyHolder {
                 for (String location : newLocations) {
 
                     GlobalLocationSchema schema = locationSchemas.get(location);
-                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
+                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this, location);
                     locations.put(location, instance);
                 }
             }
@@ -651,57 +649,54 @@ public final class World extends PropertyHolder {
 
     public final boolean addPlayer(long playerId, String location) {
 
+        // If there is already a player with the same id, do not add.
         synchronized (PLAYER_LOCK) {
 
-            EntityContext playerContext = new EntityContext(DataConstants.PLAYER_IDENTIFIER, this, null);
-            EntityInstance playerEntity = playerContext.instantiate();
-
-            AssetPresets bootsItemPresets = new AssetPresets(
-                    Identifier.createTestIdentifier("TranscendRuins:leatherBoots", null), AssetType.ITEM);
-            ItemContext bootsItemContext = new ItemContext(bootsItemPresets, world, playerEntity, 10);
-            ItemInstance bootsItem = bootsItemContext.instantiate();
-            playerEntity.getInventory().getSlot(1).putItem(bootsItem);
-
-            AssetPresets ironPickaxePresets = new AssetPresets(
-                    Identifier.createTestIdentifier("TranscendRuins:ironPickaxe", null), AssetType.ITEM);
-            ItemContext ironPickaxeContext = new ItemContext(ironPickaxePresets, world, playerEntity, 1);
-            ItemInstance ironPickaxeItem = ironPickaxeContext.instantiate();
-            playerEntity.getInventory().getSlot("mainhand").putItem(ironPickaxeItem);
-
-            AssetPresets ironHatchetPresets = new AssetPresets(
-                    Identifier.createTestIdentifier("TranscendRuins:ironHatchet", null), AssetType.ITEM);
-            ItemContext ironHatchetContext = new ItemContext(ironHatchetPresets, world, playerEntity, 1);
-            ItemInstance ironHatchetItem = ironHatchetContext.instantiate();
-            playerEntity.getInventory().getSlot("offhand").putItem(ironHatchetItem);
-
-            // If there is already a player with the same id, do not add.
             if (players.containsKey(playerId)) {
 
                 return false;
             }
+        }
 
-            // Initiate the player with the default UIs.
-            Player player = new Player(playerId, playerEntity);
+        GlobalLocationInstance locationInstance;
+        synchronized (LOCATION_LOCK) {
 
-            // If the new player cannot travel to the default area of the default location,
-            // do not add.
-            if (!travel(player, location, null)) {
+            location = locations.containsKey(location) ? location : defaultLocation;
+            locationInstance = locations.get(location);
+        }
 
-                return false;
-            }
+        if (locationInstance == null) {
+
+            return false;
+        }
+
+        EntityContext playerContext = new EntityContext(DataConstants.PLAYER_IDENTIFIER, locationInstance);
+        EntityInstance playerEntity = playerContext.instantiate();
+        Player player = new Player(playerId, playerEntity);
+
+        boolean added = locationInstance.add(player, null);
+        if (!added) {
+
+            return false;
+        }
+
+        player.setGlobalMapCoordinates(locationInstance.getCoordinates());
+        synchronized (PLAYER_LOCK) {
 
             players.put(playerId, player);
-
-            if (false/* location.equals(defaultLocation) */) {
-
-                enterLocation(playerId);
-            } else {
-
-                exitLocation(playerId);
-            }
-
-            return true;
         }
+
+        player.setLocation(location);
+
+        if (!location.equals(defaultLocation)) {
+
+            enterLocation(player, locationInstance);
+        } else {
+
+            exitLocation(playerId);
+        }
+
+        return true;
     }
 
     public final boolean travel(long playerId, String location) {
@@ -709,7 +704,7 @@ public final class World extends PropertyHolder {
         return playerFunction(playerId, player -> travel(player, location, null));
     }
 
-    public final boolean travel(Player player, String location, String area) {
+    public final boolean travel(Player player, String location, PlayerSpawn spawn) {
 
         synchronized (LOCATION_LOCK) {
 
@@ -749,10 +744,13 @@ public final class World extends PropertyHolder {
             }
 
             GlobalLocationInstance locationInstance = locations.get(location);
-            player.setGlobalMapCoordinates(locationInstance.getCoordinates());
-            locationInstance.add(player, area);
+            if (locationInstance.add(player, spawn)) {
 
-            return true;
+                player.setGlobalMapCoordinates(locationInstance.getCoordinates());
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -760,6 +758,7 @@ public final class World extends PropertyHolder {
 
         playerConsumer(playerId, player -> {
 
+            GlobalLocationInstance location;
             synchronized (LOCATION_LOCK) {
 
                 String locationKey = player.getLocation();
@@ -767,13 +766,23 @@ public final class World extends PropertyHolder {
 
                     return;
                 }
-                GlobalLocationInstance location = locations.get(locationKey);
-                location.enter(player);
+                location = locations.get(locationKey);
             }
 
-            player.exitGlobalMap();
-            player.setPanels(overlays.values());
+            enterLocation(player, location);
         });
+    }
+
+    public final void enterLocation(Player player, GlobalLocationInstance location) {
+
+        if (!location.enter(player)) {
+
+            // If the player could not enter the location, do not proceed.
+            return;
+        }
+
+        player.exitGlobalMap();
+        player.setPanels(overlays.values());
     }
 
     public final void exitLocation(long playerId) {
@@ -943,7 +952,7 @@ public final class World extends PropertyHolder {
                 for (String location : newLocations) {
 
                     GlobalLocationSchema schema = locationSchemas.get(location);
-                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
+                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this, location);
                     locations.put(location, instance);
                 }
 

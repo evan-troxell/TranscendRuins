@@ -16,34 +16,50 @@
 
 package com.transcendruins.assets.catalogue.locations;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 
 import com.transcendruins.PropertyHolder;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.AssetCatalogue.PinIcon;
-import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.interfaces.map.LocationRender;
 import com.transcendruins.assets.layouts.LayoutContext;
 import com.transcendruins.assets.layouts.LayoutInstance;
+import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.rendering.renderBuffer.RenderBuffer;
 import com.transcendruins.resources.styles.Style.TextureSize;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.random.DeterministicRandom;
+import com.transcendruins.utilities.selection.WeightedRoll;
 import com.transcendruins.world.AreaGrid;
 import com.transcendruins.world.Player;
+import com.transcendruins.world.PlayerSpawn;
 import com.transcendruins.world.World;
 
 public final class GlobalLocationInstance extends PropertyHolder {
 
     private final World world;
+
+    public final World getWorld() {
+
+        return world;
+    }
+
+    private final String key;
+
+    public final String getKey() {
+
+        return key;
+    }
 
     private final long randomId;
 
@@ -52,7 +68,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
     private final TRScript name;
 
     /**
-     * <code>TRScript</code>: The description of this
+     * <code>TRScript</code>: Retrieves the description of this
      * <code>GlobalLocationInstance</code> instance.
      * 
      * @return <code>TRScript</code>: The <code>name</code> field of this
@@ -184,6 +200,26 @@ public final class GlobalLocationInstance extends PropertyHolder {
     }
 
     /**
+     * Retrieves the name of the area a specific player is in from this
+     * <code>LocationInstance</code> instance.
+     * 
+     * @param player <code>Player</code>: The id of the player whose area name to
+     *               retrieve.
+     * @return <code>String</code>: The location name retrieved from the
+     *         <code>players</code> field of this <code>LocationInstance</code>
+     *         instance.
+     */
+    public final String getAreaName(Player player) {
+
+        if (!players.containsKey(player)) {
+
+            return null;
+        }
+
+        return players.get(player).area();
+    }
+
+    /**
      * Retrieves the area a specific player is in from this
      * <code>LocationInstance</code> instance.
      * 
@@ -200,7 +236,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
             return null;
         }
 
-        return areas.get(players.get(player));
+        return areas.get(players.get(player).area());
     }
 
     /**
@@ -250,7 +286,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     private ZonedDateTime prevEntranceTimestamp;
 
-    private final HashMap<Player, String> players = new HashMap<>();
+    private final HashMap<Player, PlayerSpawn> players = new HashMap<>();
 
     public final boolean isEmpty() {
 
@@ -265,13 +301,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
     private boolean active;
 
-    public final void add(Player player, String area) {
-
-        // If the area cannot be assigned, use the primary area.
-        if (area == null || !areas.containsKey(area)) {
-
-            area = primary;
-        }
+    public final boolean add(Player player, PlayerSpawn spawn) {
 
         // If there are no players in the location, check if it needs to be generated.
         if (isEmpty()) {
@@ -298,7 +328,21 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
             prevEntranceTimestamp = now;
         }
-        players.put(player, area);
+
+        // If the area cannot be assigned, use the primary area.
+        if (spawn == null) {
+
+            Point spawnPoint = getArea(primary).getSpawnPoint(player.getEntity(), player.getRandom());
+            if (spawnPoint == null) {
+
+                return false;
+            }
+            spawn = new PlayerSpawn(primary, spawnPoint.x, spawnPoint.y);
+        }
+
+        players.put(player, spawn);
+
+        return true;
     }
 
     public final void remove(Player player) {
@@ -318,18 +362,45 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
             prevEntranceTimestamp = null;
         }
+
+        exit(player);
     }
 
-    public final void enter(Player player) {
+    public final boolean enter(Player player) {
 
-        AreaGrid area = getArea(player);
-        // TODO update the area with the player entity
+        PlayerSpawn spawn = players.get(player);
+        if (spawn == null) {
+
+            return false;
+        }
+
+        AreaGrid area = getArea(spawn.area());
+        if (area == null) {
+
+            return false;
+        }
+
+        EntityInstance playerEntity = player.getEntity();
+
+        int spawnX = spawn.x();
+        int spawnZ = spawn.z();
+
+        playerEntity.setPosition(spawnX, spawnZ);
+        area.addEntity(playerEntity, Set.of("player"));
+
+        return true;
     }
 
     public final void exit(Player player) {
 
         AreaGrid area = getArea(player);
-        // TODO update the area with the player entity
+        if (area == null) {
+
+            return;
+        }
+
+        EntityInstance playerEntity = player.getEntity();
+        area.removeEntity(playerEntity);
     }
 
     public final RenderBuffer getPolygons(Player player) {
@@ -339,7 +410,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
             return new RenderBuffer();
         }
 
-        return areas.get(players.get(player)).getPolygons();
+        return getArea(player).getPolygons();
     }
 
     /**
@@ -425,18 +496,13 @@ public final class GlobalLocationInstance extends PropertyHolder {
         return formatMinutes(remaining);
     }
 
-    /**
-     * Creates a new instance of the <code>LocationInstance</code> class.
-     * 
-     * @param assetContext <code>AssetContext</code>: The context used to generate
-     *                     this <code>LocationInstance</code> instance.
-     * @param key          <code>Object</code>: The instantiation key, which is
-     *                     required to match <code>AssetType.KEY</code>.
-     */
-    public GlobalLocationInstance(GlobalLocationSchema schema, World world) {
+    public GlobalLocationInstance(GlobalLocationSchema schema, World world, String key) {
 
         this.world = world;
-        randomId = world.nextRandom();
+        setParent(world);
+
+        this.key = key;
+        randomId = world.getRandom().next();
         random = new DeterministicRandom(randomId);
 
         name = schema.getName();
@@ -484,7 +550,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
             WeightedRoll<AssetPresets> presetsRoll = areaEntry.getValue();
             AssetPresets areaPresets = presetsRoll.get(random.next());
 
-            LayoutContext areaContext = new LayoutContext(areaPresets, world, this);
+            LayoutContext areaContext = new LayoutContext(areaPresets, this);
             LayoutInstance areaLayout = areaContext.instantiate();
 
             AreaGrid area = areaLayout.generate();

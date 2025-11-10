@@ -56,7 +56,7 @@ public final class RenderMaterialInstance extends AssetInstance {
 
     private int createMaterialBitMask() {
 
-        byte mask = 0;
+        int mask = 0;
         boolean[] bits = { lit, diffuses, hasAmbient, hasSpecular, hasSpecularMap, transparent, hasBackfaceCulling };
 
         for (int i = 0; i < bits.length; i++) {

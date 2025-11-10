@@ -18,6 +18,7 @@ import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.resources.styles.Style;
+import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.world.calls.AttackCall;
 import com.transcendruins.world.calls.InteractionCall;
 
@@ -28,6 +29,13 @@ public final class Player {
     public final long getPlayerId() {
 
         return playerId;
+    }
+
+    private final DeterministicRandom random;
+
+    public final DeterministicRandom getRandom() {
+
+        return random;
     }
 
     private final EntityInstance entity;
@@ -305,8 +313,6 @@ public final class Player {
 
     private void exitAll() {
 
-        long time = System.currentTimeMillis();
-
         for (UIComponent exited : hovered) {
 
             exited.onExit(mouseX, mouseY);
@@ -374,8 +380,6 @@ public final class Player {
     }
 
     private void releaseAll() {
-
-        long time = System.currentTimeMillis();
 
         for (UIComponent exited : pressed) {
 
@@ -496,9 +500,18 @@ public final class Player {
         return interactionRange;
     }
 
+    private long interactEnd = -1;
+
+    private boolean interacting = false;
+
+    public final boolean isInteracting() {
+
+        return interacting;
+    }
+
     public final void interact(long time) {
 
-        if (interaction == null) {
+        if (interaction == null || interactEnd > -1 && time < interactEnd) {
 
             return;
         }
@@ -506,7 +519,8 @@ public final class Player {
         System.out.println("INTERACT");
         System.out.println(interaction.interaction().getClass().getSimpleName());
 
-        interaction.call(time);
+        interactEnd = interaction.call(time);
+        interacting = interactEnd != -1;
     }
 
     private AttackCall attack;
@@ -531,6 +545,8 @@ public final class Player {
     public Player(long playerId, EntityInstance entity) {
 
         this.playerId = playerId;
+        random = new DeterministicRandom(playerId);
+
         this.entity = entity;
     }
 

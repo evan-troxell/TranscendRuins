@@ -44,21 +44,32 @@ public final class ElementInstance extends PrimaryAssetInstance {
 
     private int tileLength;
 
-    private Point position = new Point();
+    private final Point position = new Point();
 
-    public final void setTilePosition(int tileX, int tileZ) {
+    @Override
+    public final void setPosition(int x, int z) {
 
-        position = new Point(tileX, tileZ);
+        position.x = x;
+        position.y = z;
+
         queueAreaUpdate();
+    }
+
+    @Override
+    public final void translate(int dx, int dz) {
+
+        setPosition(position.x + dx, position.y + dz);
     }
 
     private int rotatedTileWidth;
 
     private int rotatedTileLength;
 
+    private int heading;
+
     private void updateTileRotation() {
 
-        if (heading == 90 || heading == 270) {
+        if (heading == World.NORTH || heading == World.SOUTH) {
 
             rotatedTileWidth = tileLength;
             rotatedTileLength = tileWidth;
@@ -71,38 +82,74 @@ public final class ElementInstance extends PrimaryAssetInstance {
         queueAreaUpdate();
     }
 
-    private int heading;
+    public final void rotate(int direction) {
 
-    public final void rotate(int degrees, AreaGrid area) {
-
-        if (degrees == 0) {
+        if (direction == World.EAST) {
 
             return;
         }
 
-        this.heading += degrees;
-        this.heading %= 360;
+        heading += direction;
+        heading %= 4;
+        updateTileRotation();
+    }
+
+    @Override
+    public final void rotate(int direction, int areaWidth, int areaLength) {
+
+        if (direction == World.EAST) {
+
+            return;
+        }
+
+        heading += direction;
+        heading %= 4;
         updateTileRotation();
 
-        int areaWidth = area.getWidth();
-        int areaLength = area.getLength();
+        int x = position.x;
+        int z = position.y;
 
-        position = switch (degrees) {
+        switch (direction) {
 
-        case 90 -> new Point(areaLength - position.y - tileLength, position.x);
+        // 90 degrees.
+        case World.NORTH -> {
 
-        case 180 -> new Point(areaWidth - position.x - tileWidth, areaLength - position.y - tileLength);
+            position.x = z;
+            position.y = areaLength - x - rotatedTileLength;
+        }
 
-        case 270 -> new Point(position.y, areaWidth - position.x - tileWidth);
+        // 180 degrees.
+        case World.WEST -> {
 
-        default -> position;
-        };
+            position.x = areaWidth - x - rotatedTileWidth;
+            position.y = areaLength - z - rotatedTileLength;
+        }
+
+        // 270 degrees.
+        case World.SOUTH -> {
+
+            position.x = areaWidth - z - rotatedTileWidth;
+            position.y = x;
+        }
+        }
     };
 
     @Override
     protected final Rectangle getInternalTileBounds() {
 
         return new Rectangle(position.x, position.y, rotatedTileWidth, rotatedTileLength);
+    }
+
+    @Override
+    public final Rectangle getInternalTileBoundsTranslated(int dx, int dz) {
+
+        return new Rectangle(position.x + dx, position.y + dz, rotatedTileWidth, rotatedTileLength);
+    }
+
+    @Override
+    public final Rectangle getInternalTileBoundsAt(int tileX, int tileZ) {
+
+        return new Rectangle(tileX, tileZ, rotatedTileWidth, rotatedTileLength);
     }
 
     private ImmutableSet<AreaTile> tiles = new ImmutableSet<>();
@@ -112,6 +159,21 @@ public final class ElementInstance extends PrimaryAssetInstance {
 
         AreaTile[] areaTiles = getArea(area);
         setTiles(Arrays.stream(areaTiles).toList());
+    }
+
+    public final void clearTiles() {
+
+        if (tiles.isEmpty()) {
+
+            return;
+        }
+
+        for (AreaTile tile : tiles) {
+
+            tile.removeElement(this);
+        }
+
+        tiles = new ImmutableSet<>();
     }
 
     public final AreaTile[] getArea(AreaGrid area) {
@@ -154,56 +216,41 @@ public final class ElementInstance extends PrimaryAssetInstance {
         tiles = new ImmutableSet<>(newTiles);
     }
 
-    public final void clearTiles() {
-
-        if (tiles.isEmpty()) {
-
-            return;
-        }
-
-        for (AreaTile tile : tiles) {
-
-            tile.removeElement(this);
-        }
-
-        tiles = new ImmutableSet<>();
-    }
-
     private final Vector tileOffset;
 
     @Override
     public final Vector getPosition() {
 
-        double x = position.x * World.UNIT_TILE + rotatedTileWidth / 2.0;
-        double y = position.y * World.UNIT_TILE + rotatedTileLength / 2.0;
-        double z = tileOffset.getZ();
+        double x = (position.x + rotatedTileWidth / 2.0) * World.UNIT_TILE;
+        double y = tileOffset.getY(); // TODO adjust for tile height
+        double z = (position.y + rotatedTileLength / 2.0) * World.UNIT_TILE;
 
         if (tileOffset != Vector.IDENTITY_VECTOR) {
 
             switch (heading) {
 
-            case 0 -> {
+            case World.EAST -> {
 
                 x += tileOffset.getX();
-                y += tileOffset.getY();
+                z += tileOffset.getZ();
             }
 
-            case 90 -> {
+            case World.NORTH -> {
 
-                x -= tileOffset.getY();
-                y += tileOffset.getX();
+                x -= tileOffset.getZ();
+                z += tileOffset.getX();
             }
 
-            case 180 -> {
+            case World.WEST -> {
 
-                x -= tileOffset.getY();
-                y -= tileOffset.getX();
+                x -= tileOffset.getX();
+                z -= tileOffset.getZ();
             }
 
-            case 270 -> {
+            case World.SOUTH -> {
 
-                x += tileOffset.getY();
-                y -= tileOffset.getX();
+                x += tileOffset.getZ();
+                z -= tileOffset.getX();
             }
             }
         }
@@ -214,7 +261,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
     @Override
     public final Quaternion getRotation() {
 
-        return Quaternion.fromEulerRotation(Math.toRadians(heading), new Vector(0, 1.0, 0));
+        return Quaternion.fromEulerRotation(heading * Math.PI / 2.0, new Vector(0, 1.0, 0));
     }
 
     public final boolean addModelChild(ElementInstance modelChild, String attachment) {
@@ -254,9 +301,9 @@ public final class ElementInstance extends PrimaryAssetInstance {
             tileWidth = tileDimensions.width;
             tileLength = tileDimensions.height;
 
-        }, attributes, new Dimension(1, 1));
+            updateTileRotation();
 
-        updateTileRotation();
+        }, attributes, new Dimension(1, 1));
     }
 
     @Override

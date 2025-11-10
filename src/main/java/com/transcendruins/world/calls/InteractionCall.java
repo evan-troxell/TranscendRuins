@@ -6,8 +6,8 @@ import com.transcendruins.world.Player;
 
 public final record InteractionCall(AssetInteractionInstance interaction, Player player, PrimaryAssetInstance target) {
 
-    public final void call(long time) {
+    public final long call(long time) {
 
-        interaction.call(target, time, player);
+        return interaction.call(target, time, player);
     }
 }

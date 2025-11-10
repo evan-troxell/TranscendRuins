@@ -16,13 +16,16 @@
 
 package com.transcendruins.assets.assets.schema;
 
+import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.utilities.json.TracedDictionary;
+import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.metadata.Identifier;
 
 /**
- * <code>AssetAttributes</code>: A class which represents the attributes
- * of an <code>AssetSchema</code> instance.
+ * <code>AssetAttributes</code>: A class which represents the attributes of an
+ * <code>AssetSchema</code> instance.
  */
 public abstract class AssetAttributes extends Attributes {
 
@@ -37,11 +40,11 @@ public abstract class AssetAttributes extends Attributes {
      * 
      * @param schema <code>AssetSchema</code>: The schema which created this
      *               <code>AssetAttributes</code> instance.
-     * @param json   <code>TracedDictionary</code>: The schema JSON used to
-     *               compile this <code>AssetAttributes</code> instance.
+     * @param json   <code>TracedDictionary</code>: The schema JSON used to compile
+     *               this <code>AssetAttributes</code> instance.
      * @param isBase <code>boolean</code>: Whether or not this
-     *               <code>AssetAttributes</code> instance is the base
-     *               attribute set of an <code>AssetSchema</code> instance.
+     *               <code>AssetAttributes</code> instance is the base attribute set
+     *               of an <code>AssetSchema</code> instance.
      */
     public AssetAttributes(AssetSchema schema, TracedDictionary json, boolean isBase) {
 
@@ -59,5 +62,19 @@ public abstract class AssetAttributes extends Attributes {
     protected final void addAssetDependency(AssetPresets dependency) {
 
         schema.addAssetDependency(dependency);
+    }
+
+    /**
+     * Adds an asset dependency to the <code>AssetSchema</code> instance which
+     * created this <code>AssetAttributes</code> instance.
+     * 
+     * @param type       <code>AssetType</code>: The type of the dependency to be
+     *                   added.
+     * @param identifier <code>TracedEntry&lt;Identifier&gt;</code>: The identifier
+     *                   of the dependency to be added.
+     */
+    protected final void addAssetDependency(AssetType type, TracedEntry<Identifier> identifier) {
+
+        schema.addAssetDependency(type, identifier);
     }
 }

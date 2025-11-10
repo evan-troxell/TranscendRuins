@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.animationcontrollers;
+package com.transcendruins.assets.statecontrollers;
 
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
@@ -22,30 +22,30 @@ import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.world.World;
 
 /**
- * <code>AnimationControllerContext</code>: A class representing the
- * instantiation context of an animation controller.
+ * <code>StateControllerContext</code>: A class representing the instantiation
+ * context of an animation controller.
  */
-public final class AnimationControllerContext extends AssetContext {
+public final class StateControllerContext extends AssetContext {
 
     /**
-     * Creates a new instance of the <code>AnimationControllerContext</code> class.
+     * Creates a new instance of the <code>StateControllerContext</code> class.
      * 
      * @param presets <code>AssetPresets</code>: The presets containing schema and
      *                instantiation information of this
-     *                <code>AnimationControllerContext</code> instance.
+     *                <code>StateControllerContext</code> instance.
      * @param world   <code>World</code>: The world copy of this
-     *                <code>AnimationControllerContext</code> instance.
+     *                <code>StateControllerContext</code> instance.
      * @param parent  <code>AssetInstance</code>: The parent to assign to this
-     *                <code>AnimationControllerContext</code> instance.
+     *                <code>StateControllerContext</code> instance.
      */
-    public AnimationControllerContext(AssetPresets presets, World world, AssetInstance parent) {
+    public StateControllerContext(AssetPresets presets, World world, AssetInstance parent) {
 
         super(presets, world, parent);
     }
 
     @Override
-    public final AnimationControllerInstance instantiate() {
+    public final StateControllerInstance instantiate() {
 
-        return (AnimationControllerInstance) instantiate(this);
+        return (StateControllerInstance) instantiate(this);
     }
 }

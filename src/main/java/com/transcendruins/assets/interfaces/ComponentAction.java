@@ -175,7 +175,7 @@ public abstract class ComponentAction {
 
     public static final class ExecuteActionComponentAction extends ComponentAction {
 
-        private final int select;
+        private final int count;
 
         private final ImmutableList<ComponentAction> action;
 
@@ -183,8 +183,8 @@ public abstract class ComponentAction {
 
             super(json);
 
-            TracedEntry<Integer> selectEntry = json.getAsInteger("select", true, -1, num -> num > 0 || num == -1);
-            select = selectEntry.getValue();
+            TracedEntry<Integer> selectEntry = json.getAsInteger("count", true, -1, num -> num > 0 || num == -1);
+            count = selectEntry.getValue();
 
             action = json.get("action", List.of(
 
@@ -219,14 +219,14 @@ public abstract class ComponentAction {
         @Override
         protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
 
-            int count = select;
+            int num = count;
 
             for (ComponentAction subAction : action) {
 
                 subAction.call(asset, playerId, value);
 
-                count--;
-                if (count == 0) {
+                num--;
+                if (num == 0) {
 
                     break;
                 }

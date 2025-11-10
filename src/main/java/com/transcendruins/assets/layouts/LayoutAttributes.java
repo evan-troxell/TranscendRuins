@@ -16,35 +16,56 @@
 
 package com.transcendruins.assets.layouts;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import com.transcendruins.assets.AssetType;
 import static com.transcendruins.assets.AssetType.ELEMENT;
 import static com.transcendruins.assets.AssetType.ENTITY;
 import static com.transcendruins.assets.AssetType.LAYOUT;
-import com.transcendruins.assets.SelectionType;
-import static com.transcendruins.assets.SelectionType.parseSelectionType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.extra.Range;
-import com.transcendruins.assets.extra.WeightedRoll;
-import com.transcendruins.assets.layouts.shape.GenerationShapeSchema;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
+import com.transcendruins.assets.layouts.placement.GenerationPlacement;
+import com.transcendruins.assets.layouts.placement.GenerationShapeInstance;
+import com.transcendruins.assets.layouts.placement.PlacementArea;
+import com.transcendruins.assets.modelassets.elements.ElementContext;
+import com.transcendruins.assets.modelassets.elements.ElementInstance;
+import com.transcendruins.assets.modelassets.entities.EntityContext;
+import com.transcendruins.assets.modelassets.entities.EntityInstance;
+import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.KeyNameException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.PropertyTypeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
+import com.transcendruins.utilities.immutable.ImmutableSet;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedCollection;
+import static com.transcendruins.utilities.json.TracedCollection.JSONType.STRING;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.metadata.Identifier;
+import com.transcendruins.utilities.random.DeterministicRandom;
+import com.transcendruins.utilities.selection.ContinuousRange;
+import com.transcendruins.utilities.selection.DiscreteRange;
+import com.transcendruins.utilities.selection.EliminationRoll;
+import com.transcendruins.utilities.selection.SelectionType;
+import static com.transcendruins.utilities.selection.SelectionType.createSelectionType;
+import com.transcendruins.utilities.selection.WeightedRoll;
+import com.transcendruins.world.AreaGrid;
 import com.transcendruins.world.World;
 
 /**
@@ -55,9 +76,33 @@ public final class LayoutAttributes extends AssetAttributes {
 
     private final ImmutableMap<AssetType, ImmutableMap<String, AssetPresets>> definitions;
 
-    private final GenerationSchema generation;
+    private AssetPresets getDefinition(TracedCollection collection, Object key, AssetType type) throws LoggedException {
 
-    public GenerationSchema getGeneration() {
+        if (collection.getType(key) == TracedCollection.JSONType.STRING) {
+
+            TracedEntry<String> assetEntry = collection.getAsString(key, false, null);
+            String asset = assetEntry.getValue();
+
+            if (definitions.get(type).containsKey(asset)) {
+
+                return definitions.get(type).get(asset);
+            }
+        }
+
+        TracedEntry<AssetPresets> presetsEntry = collection.getAsPresets(key, false, type);
+        return presetsEntry.getValue();
+    }
+
+    private final WeightedRoll<GenerationPlacement> spawn;
+
+    public final WeightedRoll<GenerationPlacement> getSpawn() {
+
+        return spawn;
+    }
+
+    private final GenerationLayout generation;
+
+    public final GenerationLayout getGeneration() {
 
         return generation;
     }
@@ -80,261 +125,393 @@ public final class LayoutAttributes extends AssetAttributes {
 
         super(schema, json, isBase);
 
-        // The definitions and generation should only be defined once.
-        if (isBase) {
+        HashMap<AssetType, ImmutableMap<String, AssetPresets>> definitionsMap = new HashMap<>();
+        Map<AssetType, String> categories = Map.of(ELEMENT, "elements", ENTITY, "entities", LAYOUT, "layouts");
 
-            HashMap<AssetType, ImmutableMap<String, AssetPresets>> definitionsMap = new HashMap<>();
+        TracedEntry<TracedDictionary> definitionsEntry = json.getAsDict("definitions", true);
+        if (definitionsEntry.containsValue()) {
 
-            HashMap<String, AssetPresets> layouts = new HashMap<>();
-            HashMap<String, AssetPresets> elements = new HashMap<>();
-            HashMap<String, AssetPresets> entities = new HashMap<>();
-
-            TracedEntry<TracedDictionary> definitionsEntry = json.getAsDict("definitions", false);
             TracedDictionary definitionsJson = definitionsEntry.getValue();
+            for (Map.Entry<AssetType, String> category : categories.entrySet()) {
 
-            TracedEntry<TracedDictionary> layoutsEntry = definitionsJson.getAsDict("layouts", true);
-            if (layoutsEntry.containsValue()) {
+                AssetType type = category.getKey();
+                String categoryKey = category.getValue();
 
-                TracedDictionary layoutsJson = layoutsEntry.getValue();
-                for (String key : layoutsJson) {
+                HashMap<String, AssetPresets> categoryMap = new HashMap<>();
 
-                    TracedEntry<AssetPresets> layoutEntry = layoutsJson.getAsPresets(key, false, LAYOUT);
-                    AssetPresets layout = layoutEntry.getValue();
-                    addAssetDependency(layout);
+                TracedEntry<TracedDictionary> categoryEntry = definitionsJson.getAsDict(categoryKey, true);
+                if (categoryEntry.containsValue()) {
 
-                    layouts.put(key, layout);
+                    TracedDictionary categoryJson = categoryEntry.getValue();
+                    for (String key : categoryJson) {
+
+                        TracedEntry<AssetPresets> assetEntry = categoryJson.getAsPresets(key, false, type);
+                        AssetPresets asset = assetEntry.getValue();
+                        addAssetDependency(asset);
+
+                        categoryMap.put(key, asset);
+                    }
                 }
+
+                definitionsMap.put(type, new ImmutableMap<>(categoryMap));
             }
-
-            TracedEntry<TracedDictionary> elementsEntry = definitionsJson.getAsDict("elements", true);
-            if (elementsEntry.containsValue()) {
-
-                TracedDictionary elementsJson = elementsEntry.getValue();
-                for (String key : elementsJson) {
-
-                    TracedEntry<AssetPresets> elementEntry = elementsJson.getAsPresets(key, false, ELEMENT);
-                    AssetPresets element = elementEntry.getValue();
-                    addAssetDependency(element);
-
-                    elements.put(key, element);
-                }
-            }
-
-            TracedEntry<TracedDictionary> entitiesEntries = definitionsJson.getAsDict("entities", true);
-            if (entitiesEntries.containsValue()) {
-
-                TracedDictionary entitiesJson = entitiesEntries.getValue();
-                for (String key : entitiesJson) {
-
-                    TracedEntry<AssetPresets> entityEntry = entitiesJson.getAsPresets(key, false, ENTITY);
-                    AssetPresets entity = entityEntry.getValue();
-                    addAssetDependency(entity);
-
-                    entities.put(key, entity);
-                }
-            }
-
-            definitionsMap.put(LAYOUT, new ImmutableMap<>(layouts));
-            definitionsMap.put(ELEMENT, new ImmutableMap<>(elements));
-            definitionsMap.put(ENTITY, new ImmutableMap<>(entities));
-            definitions = new ImmutableMap<>(definitionsMap);
-
-            generation = createGeneration(json);
         } else {
 
-            definitions = null;
-            generation = null;
+            categories.keySet().forEach(type -> definitionsMap.put(type, new ImmutableMap<>()));
         }
+
+        definitions = new ImmutableMap<>(definitionsMap);
+
+        spawn = GenerationPlacement.createPlacement(json, "spawn");
+        generation = createGenerationLayout(json);
     }
 
-    public GenerationSchema createGeneration(TracedDictionary json) throws LoggedException {
+    public final GenerationLayout createGenerationLayout(TracedDictionary json) throws LoggedException {
 
         TracedEntry<String> typeEntry = json.getAsString("type", false, null);
         String type = typeEntry.getValue();
-
-        // TODO: finish implementing layout types
         return switch (type) {
 
-        case "element" -> new AssetGenerationSchema(json, ELEMENT);
+        case "element" -> new AssetGenerationLayout(json, ELEMENT);
 
-        case "entity" -> new AssetGenerationSchema(json, ENTITY);
+        case "entity" -> new AssetGenerationLayout(json, ENTITY);
 
-        case "layout" -> new LayoutGenerationSchema(json);
+        case "layout" -> new LayoutGenerationLayout(json);
 
-        case "distributed" -> new DistributionGenerationSchema(json);
+        case "distributed" -> new DistributionGenerationLayout(json);
 
-        case "grid" -> new GridGenerationSchema(json);
+        case "grid" -> new GridGenerationLayout(json);
 
-        case "blueprint" -> new BlueprintGenerationSchema(json);
+        case "blueprint" -> new BlueprintGenerationLayout(json);
 
         default -> throw new UnexpectedValueException(typeEntry);
         };
     }
 
-    /**
-     * <code>GenerationSchema</code>: A class representing any generation schema.
-     */
-    public abstract class GenerationSchema {
+    public static final WeightedRoll<Integer> getDirection(TracedCollection collection, Object key)
+            throws LoggedException {
 
-        /**
-         * <code>String</code>: The component id of this <code>GenerationSchema</code>
-         * instance.
-         */
-        private final String componentId;
+        return collection.getAsStringRoll(key, true, World.EAST, entry -> switch (entry.getValue()) {
 
-        /**
-         * Retrieves the component id of this <code>GenerationSchema</code> instance.
-         * 
-         * @return <code>String</code>: The <code>componentId</code> field of this
-         *         <code>GenerationSchema</code> instance.
-         */
-        public final String getComponentId() {
+        case "east" -> World.EAST;
+        case "north" -> World.NORTH;
+        case "west" -> World.WEST;
+        case "south" -> World.SOUTH;
+        default -> throw new UnexpectedValueException(entry);
+        }, (stringJson, stringKey) -> switch (stringKey) {
 
-            return componentId;
-        }
-
-        /**
-         * <code>ImmutableList&lt;String&gt;</code>: The component tags of this
-         * <code>GenerationSchema</code> instance.
-         */
-        private final ImmutableList<String> componentTags;
-
-        /**
-         * Retrieves the component tags of this <code>GenerationSchema</code> instance.
-         * 
-         * @return <code>ImmutableList&lt;String&gt;</code>: The
-         *         <code>componentTags</code> field of this
-         *         <code>GenerationSchema</code> instance.
-         */
-        public final ImmutableList<String> getComponentTags() {
-
-            return componentTags;
-        }
-
-        /**
-         * <code>Range</code>: The count of this <code>GenerationSchema</code> instance.
-         * This value represents the range of how many times this
-         * <code>GenerationSchema</code> instance can be selected in a limited
-         * selection, but a fixed count in a full selection.
-         */
-        private final Range count;
-
-        /**
-         * Retrieves the count of this <code>GenerationSchema</code> instance.
-         * 
-         * @return <code>Range</code>: The <code>count</code> field of this
-         *         <code>GenerationSchema</code> instance.
-         */
-        public final Range getCount() {
-
-            return count;
-        }
-
-        private final WeightedRoll<GenerationPlacementSchema> placement;
-
-        public WeightedRoll<GenerationPlacementSchema> getPlacement() {
-
-            return placement;
-        }
-
-        public GenerationSchema(TracedDictionary json) throws LoggedException {
-
-            count = Range.createRange(json, "count", true, num -> num >= 1);
-
-            placement = GenerationPlacementSchema.createPlacement(json, "placement");
-
-            TracedEntry<String> componentIdEntry = json.getAsString("componentId", true, null);
-            if (componentIdEntry.containsValue()) {
-
-                componentId = componentIdEntry.getValue();
-            } else {
-
-                componentId = null;
-            }
-
-            TracedEntry<TracedArray> componentTagsEntry = json.getAsArray("componentTags", true);
-            if (componentTagsEntry.containsValue()) {
-
-                TracedArray componentTagsJson = componentTagsEntry.getValue();
-                ArrayList<String> componentTagsList = new ArrayList<>(componentTagsJson.size());
-
-                for (int i : componentTagsJson) {
-
-                    TracedEntry<String> tagEntry = componentTagsJson.getAsString(i, false, null);
-                    componentTagsList.add(tagEntry.getValue());
-                }
-
-                componentTags = new ImmutableList<>(componentTagsList);
-            } else {
-
-                componentTags = new ImmutableList<>();
-            }
-        }
+        case "east" -> World.EAST;
+        case "north" -> World.NORTH;
+        case "west" -> World.WEST;
+        case "south" -> World.SOUTH;
+        default -> throw new KeyNameException(stringJson, stringKey);
+        });
     }
 
-    public final class AssetGenerationSchema extends GenerationSchema {
+    /**
+     * <code>GenerationLayout</code>: A class representing any generation layout.
+     */
+    public static abstract class GenerationLayout {
 
-        private final AssetPresets asset;
+        /**
+         * <code>DiscreteRange</code>: The count of this <code>GenerationLayout</code>
+         * instance. This value represents the range of how many times this
+         * <code>GenerationLayout</code> instance can be selected in a limited
+         * selection, but a fixed count in a full selection.
+         */
+        private final DiscreteRange count;
 
-        public AssetPresets getAsset() {
+        private final WeightedRoll<GenerationPlacement> placement;
 
-            return asset;
+        private final WeightedRoll<Integer> rotation;
+
+        public GenerationLayout(TracedDictionary json) throws LoggedException {
+
+            count = DiscreteRange.createRange(json, "count", true, 1, num -> num > 0);
+
+            placement = GenerationPlacement.createPlacement(json, "placement");
+
+            rotation = getDirection(json, "rotation");
         }
+
+        public final int[] generate(AreaGrid parent, DeterministicRandom random, GlobalLocationInstance location) {
+
+            int num = count.get(random.next());
+            int failures = 0;
+
+            for (int i = 0; i < num; i++) {
+
+                AreaGrid area = generateContent(parent, random, location, null);
+                if (area == null) {
+
+                    continue;
+                }
+
+                int direction = rotation.get(random.next());
+                area.rotate(direction);
+
+                GenerationPlacement placementOption = placement.get(random.next());
+                GenerationShapeInstance shape = placementOption.generateShape(parent, area.getWidth(), area.getLength(),
+                        random);
+
+                Point point = shape.getPoint(p -> parent.canAddAt(area, p.x, p.y), random);
+                if (point == null) {
+
+                    failures++;
+                    continue;
+                }
+
+                parent.addArea(area, point.x, point.y);
+            }
+
+            return new int[] { num, failures };
+        }
+
+        public abstract AreaGrid generateContent(AreaGrid parent, DeterministicRandom random,
+                GlobalLocationInstance location, GenerationPlacement spawn);
+    }
+
+    public static final record AssetConnection(AssetType type, Identifier identifier, WeightedRoll<String> connection) {
+
+    }
+
+    public final AssetConnection createAssetConnection(TracedDictionary json, AssetType type, String typeKey)
+            throws LoggedException {
+
+        Identifier identifier = null;
+        if (json.getType(typeKey) == STRING) {
+
+            TracedEntry<String> definitionEntry = json.getAsString(typeKey, false, null);
+            String definitionString = definitionEntry.getValue();
+            if (definitions.get(type).containsKey(definitionString)) {
+
+                identifier = definitions.get(type).get(definitionString).getIdentifier();
+            }
+        }
+
+        if (identifier == null) {
+
+            TracedEntry<Identifier> identifierEntry = json.getAsMetadata(typeKey, false, false);
+            addAssetDependency(type, identifierEntry);
+            identifier = identifierEntry.getValue();
+        }
+
+        WeightedRoll<String> connection = json.getAsStringRoll("connection", false, null, entry -> entry.getValue(),
+                (dict, string) -> string);
+
+        return new AssetConnection(type, identifier, connection);
+    }
+
+    public final class AssetGenerationLayout extends GenerationLayout {
+
+        private final AssetPresets presets;
 
         private final Vector tileOffset;
 
-        public Vector getTileOffset() {
+        private final ContinuousRange heading;
 
-            return tileOffset;
-        }
+        private final ImmutableSet<String> tag;
 
-        public AssetGenerationSchema(TracedDictionary json, AssetType type) throws LoggedException {
+        private final WeightedRoll<AssetConnection> connection;
+
+        public AssetGenerationLayout(TracedDictionary json, AssetType type) throws LoggedException {
 
             super(json);
 
-            String key = type.toString().toLowerCase();
+            String typeKey = type.name().toLowerCase();
+            presets = getDefinition(json, typeKey, type);
 
-            // Attempt to build the asset presets from the definitions.
-            AssetPresets existing = json.get(key, List.of(
+            TracedEntry<Vector> tileOffsetEntry = json.getAsVector("tileOffset", true, 3, null, null);
+            tileOffset = tileOffsetEntry.containsValue() ? tileOffsetEntry.getValue() : Vector.IDENTITY_VECTOR;
 
-                    json.stringCase(entry -> definitions.get(type).get(entry.getValue())),
-                    json.defaultCase(_ -> null)));
+            heading = ContinuousRange.createRange(json, "heading", true, 0, num -> 0 <= num && num < 360);
 
-            // If the asset presets are not found in the definitions, create them from the
-            // JSON definitions.
-            if (existing == null) {
+            tag = json.get("tag",
+                    List.of(json.stringCase(entry -> new ImmutableSet<>(entry.getValue())), json.arrayCase(entry -> {
 
-                TracedEntry<AssetPresets> assetEntry = json.getAsPresets(key, false, type);
-                asset = assetEntry.getValue();
-                addAssetDependency(asset);
+                        HashSet<String> tagSet = new HashSet<>();
+
+                        TracedArray tagJson = entry.getValue();
+                        for (int i : tagJson) {
+
+                            TracedEntry<String> tagEntry = tagJson.getAsString(i, false, null);
+                            tagSet.add(tagEntry.getValue());
+                        }
+
+                        return new ImmutableSet<>(tagSet);
+                    }), json.nullCase(_ -> null)));
+
+            connection = json.getAsRoll("connection", true, null, entry -> {
+
+                TracedDictionary connectionJson = entry.getValue();
+
+                TracedEntry<String> connectionTypeEntry = connectionJson.getAsString("type", false, null);
+
+                String connectionTypeKey = connectionTypeEntry.getValue();
+
+                AssetType connectionType = switch (connectionTypeKey) {
+
+                case "element" -> ELEMENT;
+                case "entity" -> ENTITY;
+                default -> throw new UnexpectedValueException(connectionTypeEntry);
+                };
+
+                if (type == ELEMENT && connectionType == ENTITY) {
+
+                    throw new UnexpectedValueException(connectionTypeEntry);
+                }
+
+                return createAssetConnection(connectionJson, connectionType, connectionTypeKey);
+            });
+        }
+
+        @Override
+        public final AreaGrid generateContent(AreaGrid parent, DeterministicRandom random,
+                GlobalLocationInstance location, GenerationPlacement spawn) {
+
+            PrimaryAssetInstance asset;
+
+            AssetType type = presets.getType();
+            if (type == ELEMENT) {
+
+                ElementContext context = new ElementContext(presets, location, tileOffset);
+                ElementInstance element = context.instantiate();
+
+                asset = element;
             } else {
 
-                asset = existing;
+                EntityContext context = new EntityContext(presets, location);
+                EntityInstance entity = context.instantiate();
+
+                double degrees = heading.get(random.next());
+                entity.rotate(degrees);
+
+                entity.setPosition(0, 0);
+                entity.translate(tileOffset);
+
+                asset = entity;
             }
 
-            // Creates the boundaries to constrain the tile offset to a 1-tile square.
-            Vector upperBounds = new Vector(1, Integer.MAX_VALUE, 1);
-            Vector lowerBounds = new Vector(-1, Integer.MIN_VALUE, -1);
+            if (asset == null) {
 
-            TracedEntry<Vector> tileOffsetEntry = json.getAsVector("tileOffset", true, 3, lowerBounds, upperBounds);
-            tileOffset = tileOffsetEntry.containsValue() ? tileOffsetEntry.getValue() : Vector.IDENTITY_VECTOR;
+                return null;
+            }
+
+            if (connection == null) {
+
+                return new AreaGrid(asset, tag, spawn);
+            }
+
+            boolean selected = false;
+            EliminationRoll<AssetConnection> assetConnectionOptions = new EliminationRoll<>(connection, random);
+            for (AssetConnection assetOption : assetConnectionOptions) {
+
+                Identifier identifier = assetOption.identifier();
+                AssetType assetOptionType = assetOption.type();
+
+                EliminationRoll<String> connectionOptions = new EliminationRoll<>(assetOption.connection(), random);
+
+                if (assetOptionType == ELEMENT) {
+
+                    ArrayList<ElementInstance> elementOptions = new ArrayList<>(parent.getElements(identifier));
+                    random.shuffle(elementOptions);
+
+                    for (String connectionOption : connectionOptions) {
+
+                        for (ElementInstance elementOption : elementOptions) {
+
+                            if (!elementOption.containsBone(connectionOption)) {
+
+                                continue;
+                            }
+
+                            if (!elementOption.containsPrimaryAssetChild(connectionOption)) {
+
+                                continue;
+                            }
+
+                            switch (asset) {
+
+                            case ElementInstance element -> {
+
+                                parent.addElement(element, tag);
+                                elementOption.addModelChild(element, connectionOption);
+                            }
+
+                            case EntityInstance entity -> {
+
+                                parent.addEntity(entity, tag);
+                                elementOption.addModelChild(entity, connectionOption);
+                            }
+
+                            default -> {
+                            }
+                            }
+
+                            selected = true;
+                            break;
+                        }
+
+                        if (selected) {
+
+                            break;
+                        }
+                    }
+                } else {
+
+                    ArrayList<EntityInstance> entityOptions = new ArrayList<>(parent.getEntities(identifier));
+                    random.shuffle(entityOptions);
+
+                    for (String connectionOption : connectionOptions) {
+
+                        for (EntityInstance entityOption : entityOptions) {
+
+                            if (!entityOption.containsBone(connectionOption)) {
+
+                                continue;
+                            }
+
+                            if (!entityOption.containsPrimaryAssetChild(connectionOption)) {
+
+                                continue;
+                            }
+
+                            if (asset instanceof EntityInstance entity) {
+
+                                parent.addEntity(entity, tag);
+                                entityOption.addModelChild(entity, connectionOption);
+                            }
+
+                            selected = true;
+                            break;
+                        }
+
+                        if (selected) {
+
+                            break;
+                        }
+                    }
+                }
+
+                if (selected) {
+
+                    break;
+                }
+            }
+
+            return null;
         }
     }
 
-    public final class LayoutGenerationSchema extends GenerationSchema {
+    public final class LayoutGenerationLayout extends GenerationLayout {
 
-        private final AssetPresets layout;
+        private final AssetPresets presets;
 
-        public AssetPresets getLayout() {
-
-            return layout;
-        }
-
-        public LayoutGenerationSchema(TracedDictionary json) throws LoggedException {
+        public LayoutGenerationLayout(TracedDictionary json) throws LoggedException {
 
             super(json);
 
-            layout = json.get("layout", List.of(
+            presets = json.get("layout", List.of(
 
                     // Attempt to retrieve the layout from the definitions.
                     json.stringCase(entry -> {
@@ -353,193 +530,356 @@ public final class LayoutAttributes extends AssetAttributes {
                     // Construct the presets.
                     json.presetsCase(TracedEntry::getValue, LAYOUT)));
         }
+
+        @Override
+        public final AreaGrid generateContent(AreaGrid parent, DeterministicRandom random,
+                GlobalLocationInstance location, GenerationPlacement spawn) {
+
+            LayoutContext context = new LayoutContext(presets, location);
+            LayoutInstance layout = context.instantiate();
+
+            AreaGrid area = layout.generate();
+            AreaGrid wrapper = new AreaGrid(new Dimension(area.getWidth(), area.getLength()), spawn);
+
+            wrapper.addArea(area, 0, 0);
+
+            return wrapper;
+        }
     }
 
-    public final class DistributionGenerationSchema extends GenerationSchema {
+    public final class DistributionGenerationLayout extends GenerationLayout {
 
-        private final WeightedRoll<GenerationShapeSchema> size;
+        private final DiscreteRange width;
 
-        public WeightedRoll<GenerationShapeSchema> getSize() {
+        private final DiscreteRange length;
 
-            return size;
-        }
+        private final DiscreteRange rolls;
 
         private final SelectionType iterationType;
 
-        public SelectionType getIterationType() {
+        private final ImmutableList<DistributionComponent> components;
 
-            return iterationType;
-        }
-
-        private final WeightedRoll<GenerationSchema> components;
-
-        public WeightedRoll<GenerationSchema> getComponents() {
-
-            return components;
-        }
-
-        public DistributionGenerationSchema(TracedDictionary json) throws LoggedException {
+        public DistributionGenerationLayout(TracedDictionary json) throws LoggedException {
 
             super(json);
 
-            size = GenerationShapeSchema.createShape(json, "size");
+            width = DiscreteRange.createRange(json, "width", false, -1, num -> num > 0);
+            length = DiscreteRange.createRange(json, "length", false, -1, num -> num > 0);
 
-            iterationType = parseSelectionType(json, "iterationType");
+            rolls = DiscreteRange.createRange(json, "rolls", true, 1, num -> num > 0);
+            iterationType = createSelectionType(json, "iterationType");
 
-            components = json.getAsRoll("components", false, null, entry -> createGeneration(entry.getValue()));
+            ArrayList<DistributionComponent> componentsList = new ArrayList<>();
+
+            TracedEntry<TracedArray> componentsEntry = json.getAsArray("components", false);
+            TracedArray componentsJson = componentsEntry.getValue();
+            for (int i : componentsJson) {
+
+                TracedEntry<TracedDictionary> componentEntry = componentsJson.getAsDict(i, false);
+                TracedDictionary componentJson = componentEntry.getValue();
+
+                componentsList.add(createDistributionComponent(componentJson));
+            }
+            components = new ImmutableList<>(componentsList);
+        }
+
+        private final record DistributionComponent(GenerationLayout component, double chance, DiscreteRange limit) {
+        }
+
+        private DistributionComponent createDistributionComponent(TracedDictionary json) throws LoggedException {
+
+            TracedEntry<TracedDictionary> componentEntry = json.getAsDict("component", false);
+            TracedDictionary componentJson = componentEntry.getValue();
+
+            GenerationLayout component = createGenerationLayout(componentJson);
+
+            TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
+            double chance = chanceEntry.getValue();
+
+            DiscreteRange limit = DiscreteRange.createRange(componentJson, "limit", true, -1, num -> num > 0);
+
+            return new DistributionComponent(component, chance, limit);
+        }
+
+        @Override
+        public final AreaGrid generateContent(AreaGrid parent, DeterministicRandom random,
+                GlobalLocationInstance location, GenerationPlacement spawn) {
+
+            Dimension size = new Dimension(width.get(random.next()), length.get(random.next()));
+            AreaGrid area = new AreaGrid(size, spawn);
+
+            int rollCount = rolls.get(random.next());
+
+            iterationType.generate(components, rollCount,
+                    component -> component.component().generate(area, random, location), DistributionComponent::chance,
+                    component -> component.limit().get(random.next()), random, 0.5, 5);
+
+            return area;
         }
     }
 
-    public final class GridGenerationSchema extends GenerationSchema {
+    public final class GridGenerationLayout extends GenerationLayout {
 
-        private final WeightedRoll<GenerationShapeSchema> gridSize;
+        private final DiscreteRange gridWidth;
 
-        public WeightedRoll<GenerationShapeSchema> getGridSize() {
+        private final DiscreteRange gridLength;
 
-            return gridSize;
-        }
+        private final DiscreteRange cellWidth;
 
-        private final LayoutDimension cellDimensions;
+        private final DiscreteRange cellLength;
 
-        public LayoutDimension getCellDimensions() {
+        private final DiscreteRange borderWidth;
 
-            return cellDimensions;
-        }
+        private final DiscreteRange rolls;
 
         private final SelectionType iterationType;
 
-        public SelectionType getIterationType() {
+        private final ImmutableList<GridComponent> components;
 
-            return iterationType;
-        }
-
-        private final WeightedRoll<GenerationSchema> components;
-
-        public WeightedRoll<GenerationSchema> getComponents() {
-
-            return components;
-        }
-
-        public GridGenerationSchema(TracedDictionary json) throws MissingPropertyException, PropertyTypeException,
+        public GridGenerationLayout(TracedDictionary json) throws MissingPropertyException, PropertyTypeException,
                 UnexpectedValueException, CollectionSizeException, NumberBoundsException, LoggedException {
 
             super(json);
 
-            gridSize = GenerationShapeSchema.createShape(json, "gridSize");
+            gridWidth = DiscreteRange.createRange(json, "gridWidth", false, -1, num -> num > 0);
+            gridLength = DiscreteRange.createRange(json, "gridLength", false, -1, num -> num > 0);
+            cellWidth = DiscreteRange.createRange(json, "cellWidth", false, -1, num -> num > 0);
+            cellLength = DiscreteRange.createRange(json, "cellLength", false, -1, num -> num > 0);
 
-            cellDimensions = new LayoutDimension(json, "cellDimensions", false);
+            borderWidth = DiscreteRange.createRange(json, "borderWidth", true, 0, num -> num >= 0);
 
-            iterationType = parseSelectionType(json, "iterationType");
+            rolls = DiscreteRange.createRange(json, "rolls", false, -1, num -> num > 0);
+            iterationType = createSelectionType(json, "iterationType");
 
-            components = json.getAsRoll("components", false, null, entry -> createGeneration(entry.getValue()));
+            ArrayList<GridComponent> componentsList = new ArrayList<>();
+
+            TracedEntry<TracedArray> componentsEntry = json.getAsArray("components", false);
+            TracedArray componentsJson = componentsEntry.getValue();
+            for (int i : componentsJson) {
+
+                TracedEntry<TracedDictionary> componentEntry = componentsJson.getAsDict(i, false);
+                TracedDictionary componentJson = componentEntry.getValue();
+
+                componentsList.add(createGridComponent(componentJson));
+            }
+            components = new ImmutableList<>(componentsList);
+        }
+
+        private final record GridComponent(GenerationLayout component, DiscreteRange width, DiscreteRange length,
+                ImmutableSet<String> tag, WeightedRoll<GenerationPlacement> placement, DiscreteRange count,
+                double chance, DiscreteRange limit) {
+
+            public final Dimension getSize(DeterministicRandom random) {
+
+                return new Dimension(width.get(random.next()), length.get(random.next()));
+            }
+
+            public final AreaGrid generateContent(Dimension size, Dimension cellSize, int borderWidth,
+                    DeterministicRandom random, GlobalLocationInstance location) {
+
+                AreaGrid area = new AreaGrid(new Dimension(size.width * (cellSize.width + borderWidth) - borderWidth,
+                        size.height * (cellSize.height + borderWidth) - borderWidth), null);
+                component.generate(area, random, location);
+
+                return area;
+            }
+        }
+
+        private GridComponent createGridComponent(TracedDictionary json) throws LoggedException {
+
+            TracedEntry<TracedDictionary> componentEntry = json.getAsDict("component", false);
+            TracedDictionary componentJson = componentEntry.getValue();
+
+            GenerationLayout component = createGenerationLayout(componentJson);
+
+            DiscreteRange width = DiscreteRange.createRange(json, "width", true, 1, num -> num > 0);
+            DiscreteRange length = DiscreteRange.createRange(json, "length", true, 1, num -> num > 0);
+
+            WeightedRoll<GenerationPlacement> placement = GenerationPlacement.createPlacement(json, "placement");
+
+            ImmutableSet<String> tag = json.get("tag",
+                    List.of(json.stringCase(entry -> new ImmutableSet<>(entry.getValue())), json.arrayCase(entry -> {
+
+                        HashSet<String> tagSet = new HashSet<>();
+
+                        TracedArray tagJson = entry.getValue();
+                        for (int i : tagJson) {
+
+                            TracedEntry<String> tagEntry = tagJson.getAsString(i, false, null);
+                            tagSet.add(tagEntry.getValue());
+                        }
+
+                        return new ImmutableSet<>(tagSet);
+                    }), json.nullCase(_ -> null)));
+
+            DiscreteRange count = DiscreteRange.createRange(json, "count", true, 1, num -> num > 0);
+
+            TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
+            double chance = chanceEntry.getValue();
+
+            DiscreteRange limit = DiscreteRange.createRange(componentJson, "limit", true, -1, num -> num > 0);
+
+            return new GridComponent(component, width, length, tag, placement, count, chance, limit);
+        }
+
+        private final class GridPlacementArea implements PlacementArea {
+
+            private final Rectangle gridBounds;
+
+            @Override
+            public final int getWidth() {
+
+                return gridBounds.width;
+            }
+
+            @Override
+            public final int getLength() {
+
+                return gridBounds.height;
+            }
+
+            private final Dimension cellSize;
+
+            private final int borderWidth;
+
+            private final AreaGrid area;
+
+            private final boolean[] cells;
+
+            private final ArrayList<Rectangle> components = new ArrayList<>();
+
+            private final HashMap<String, ArrayList<Rectangle>> tagged = new HashMap<>();
+
+            @Override
+            public final List<Rectangle> getMatches(String tag) {
+
+                return tagged.getOrDefault(tag, new ArrayList<>());
+            }
+
+            public final boolean add(GridComponent component, DeterministicRandom random,
+                    GlobalLocationInstance location) {
+
+                Dimension componentSize = component.getSize(random);
+
+                GenerationPlacement placement = component.placement.get(random.next());
+                GenerationShapeInstance placementShape = placement.generateShape(this, componentSize.width,
+                        componentSize.height, random);
+                Point point = placementShape.getPoint(p -> {
+
+                    Rectangle bounds = new Rectangle(p, componentSize);
+                    if (!gridBounds.contains(bounds)) {
+
+                        return false;
+                    }
+
+                    if (bounds.width * bounds.height > components.size()) {
+
+                        for (Rectangle rect : components) {
+
+                            if (rect.intersects(bounds)) {
+
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+
+                    for (int j = 0; j < bounds.width * bounds.height; j++) {
+
+                        int x = bounds.x + j % bounds.width;
+                        int z = bounds.y + j / bounds.width;
+
+                        if (cells[x + z * gridBounds.width]) {
+
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }, random);
+                if (point == null) {
+
+                    return false;
+                }
+
+                Rectangle bounds = new Rectangle(point, componentSize);
+                components.add(bounds);
+
+                for (int j = 0; j < bounds.width * bounds.height; j++) {
+
+                    int x = bounds.x + j % bounds.width;
+                    int z = bounds.y + j / bounds.width;
+
+                    cells[x + z * gridBounds.width] = true;
+                }
+
+                AreaGrid componentArea = component.generateContent(componentSize, cellSize, borderWidth, random,
+                        location);
+
+                int x = componentSize.width * (cellSize.width + borderWidth);
+                int z = componentSize.height * (cellSize.height + borderWidth);
+
+                area.addArea(componentArea, x, z);
+
+                if (component.tag != null) {
+
+                    for (String tag : component.tag) {
+
+                        tagged.computeIfAbsent(tag, _ -> new ArrayList<>()).add(bounds);
+                    }
+                }
+
+                return true;
+            }
+
+            public GridPlacementArea(Dimension gridSize, Dimension cellSize, int borderWidth,
+                    GenerationPlacement spawn) {
+
+                this.gridBounds = new Rectangle(gridSize);
+
+                cells = new boolean[gridSize.width * gridSize.height];
+
+                this.cellSize = cellSize;
+                this.borderWidth = borderWidth;
+
+                area = new AreaGrid(new Dimension(gridBounds.width * (cellSize.width + borderWidth) - borderWidth,
+                        gridBounds.height * (cellSize.height + borderWidth) - borderWidth), spawn);
+            }
+        }
+
+        @Override
+        public final AreaGrid generateContent(AreaGrid parent, DeterministicRandom random,
+                GlobalLocationInstance location, GenerationPlacement spawn) {
+
+            Dimension gridSize = new Dimension(gridWidth.get(random.next()), gridLength.get(random.next()));
+            Dimension cellSize = new Dimension(cellWidth.get(random.next()), cellLength.get(random.next()));
+
+            GridPlacementArea area = new GridPlacementArea(gridSize, cellSize, borderWidth.get(random.next()), spawn);
+
+            int rollCount = rolls.get(random.next());
+
+            iterationType.generate(components, rollCount,
+                    SelectionType.apply(component -> area.add(component, random, location),
+                            component -> component.count().get(random.next())),
+                    GridComponent::chance, component -> component.limit().get(random.next()), random, 0.5, 5);
+
+            return area.area;
         }
     }
 
-    public final class BlueprintGenerationSchema extends GenerationSchema {
+    public final class BlueprintGenerationLayout extends GenerationLayout {
 
-        public BlueprintGenerationSchema(TracedDictionary json) throws LoggedException {
+        public BlueprintGenerationLayout(TracedDictionary json) throws LoggedException {
 
             super(json);
         }
-    }
 
-    public static final class GenerationPlacementSchema {
+        @Override
+        public final AreaGrid generateContent(AreaGrid parent, DeterministicRandom random,
+                GlobalLocationInstance location, GenerationPlacement spawn) {
 
-        public static final GenerationPlacementSchema DEFAULT = new GenerationPlacementSchema();
-
-        private GenerationPlacementSchema() {
-
-            shape = new WeightedRoll<>(GenerationShapeSchema.DEFAULT);
-            center = new WeightedRoll<>(GenerationPlacementCenterSchema.DEFAULT);
-        }
-
-        private final WeightedRoll<GenerationShapeSchema> shape;
-
-        public WeightedRoll<GenerationShapeSchema> getShape(World world) {
-
-            return shape;
-        }
-
-        // TODO implement generation placement distribution
-        // private final GenerationPlacementDistributionSchema distribution;
-
-        // public GenerationPlacementDistributionSchema getDistribution() {
-
-        // return distribution;
-        // }
-
-        private final WeightedRoll<GenerationPlacementCenterSchema> center;
-
-        public WeightedRoll<GenerationPlacementCenterSchema> getCenter() {
-
-            return center;
-        }
-
-        private GenerationPlacementSchema(TracedDictionary json) throws LoggedException {
-
-            shape = GenerationShapeSchema.createShape(json, "shape");
-
-            // distribution = createDistribution(json, "distribution");
-
-            center = createCenter(json, "center");
-        }
-
-        public final WeightedRoll<GenerationPlacementCenterSchema> createCenter(TracedCollection collection, Object key)
-                throws LoggedException {
-
-            return collection.getAsRoll(key, true, GenerationPlacementCenterSchema.DEFAULT,
-                    entry -> createCenter(entry.getValue()));
-        }
-
-        private GenerationPlacementCenterSchema createCenter(TracedDictionary dict) throws LoggedException {
-
-            TracedEntry<String> typeEntry = dict.getAsString("type", false, null);
-            String type = typeEntry.getValue();
-
-            // TODO implement center types
-            return switch (type) {
-
-            // case "element", "entity", "layout" -> new AssetCenterSchem(dict, type);
-
-            // case "id", "tag" -> new SelecterCenterSchema(dict, type);
-
-            // case "coordinate", "relative" -> new PositionCenterSchema(dict, type);
-
-            case "placeholder" -> null;
-
-            default -> throw new UnexpectedValueException(typeEntry);
-
-            };
-        }
-
-        public static abstract class GenerationPlacementCenterSchema {
-
-            public static final GenerationPlacementCenterSchema DEFAULT = new GenerationPlacementCenterSchema() {
-            };
-
-            private GenerationPlacementCenterSchema() {
-
-            }
-
-            public GenerationPlacementCenterSchema(TracedDictionary dict) throws LoggedException {
-            }
-        }
-
-        /**
-         * Parses a value from a collection into a generation placement schema.
-         * 
-         * @param json <code>TracedCollection</code>: The collection to parse.
-         * @param key  <code>Object</code>: The key from the collection to parse.
-         * @return <code>WeightedRoll&lt;GenerationPlacementSchema&gt;</code>: The
-         *         resulting set of available generation placements.
-         * @throws LoggedException Thrown if an error is raised while processing the
-         *                         collection.
-         */
-        public static WeightedRoll<GenerationPlacementSchema> createPlacement(TracedCollection json, Object key)
-                throws LoggedException {
-
-            return json.getAsRoll(key, true, GenerationPlacementSchema.DEFAULT,
-                    entry -> new GenerationPlacementSchema(entry.getValue()));
+            return null;
         }
     }
 }

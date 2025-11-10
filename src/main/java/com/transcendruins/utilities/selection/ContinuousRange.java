@@ -14,8 +14,9 @@
  *
  */
 
-package com.transcendruins.assets.extra;
+package com.transcendruins.utilities.selection;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -29,90 +30,80 @@ import com.transcendruins.utilities.json.TracedEntry;
 import com.transcendruins.utilities.random.DeterministicRandom;
 
 /**
- * <code>Range</code>: A class representing a range of values which may be
- * picked from.
+ * <code>ContinuousRange</code>: A class representing a continuous range of
+ * values which may be picked from.
  */
-public final class Range {
+public final class ContinuousRange {
 
     /**
-     * <code>double</code>: The minimum value of this <code>Range</code> instance.
+     * <code>double</code>: The minimum value of this <code>ContinuousRange</code>
+     * instance.
      */
     private final double min;
 
     /**
-     * Retrieves the minimum value of this <code>Range</code> instance.
+     * Retrieves the minimum value of this <code>ContinuousRange</code> instance.
      * 
      * @return <code>double</code>: The <code>min</code> field of this
-     *         <code>Range</code> instance.
+     *         <code>ContinuousRange</code> instance.
      */
-    public double getMin() {
+    public final double getMin() {
 
         return min;
     }
 
     /**
-     * <code>double</code>: The maximum value of this <code>Range</code> instance.
+     * <code>double</code>: The maximum value of this <code>ContinuousRange</code>
+     * instance.
      */
     private final double max;
 
     /**
-     * Retrieves the maximum value of this <code>Range</code> instance.
+     * Retrieves the maximum value of this <code>ContinuousRange</code> instance.
      * 
      * @return <code>double</code>: The <code>max</code> field of this
-     *         <code>Range</code> instance.
+     *         <code>ContinuousRange</code> instance.
      */
-    public double getMax() {
+    public final double getMax() {
 
         return max;
     }
 
     /**
-     * Creates a new instance of the <code>Range</code> class.
-     */
-    public Range() {
-
-        min = 1;
-        max = 1;
-    }
-
-    /**
-     * Creates a new instance of the <code>Range</code> class.
+     * Creates a new instance of the <code>ContinuousRange</code> class.
      * 
-     * @param entry <code>TracedEntry&lt;Double&gt;</code>: The entry to assign to
-     *              the range.
+     * @param value <code>double</code>: The value to assign to this
+     *              <code>ContinuousRange</code> instance.
      */
-    private Range(TracedEntry<Double> entry) {
+    public ContinuousRange(double value) {
 
-        min = entry.getValue();
-        max = entry.getValue();
+        min = value;
+        max = value;
     }
 
     /**
-     * Creates a new instance of the <code>Range</code> class.
+     * Creates a new instance of the <code>ContinuousRange</code> class.
      * 
      * @param json <code>TracedDictionary</code>: The JSON whose value to parse into
      *             a range.
      * @param min  <code>Double</code>: The minimum allowed value for this
-     *             <code>Range</code> instance.
+     *             <code>ContinuousRange</code> instance.
      * @param max  <code>Double</code>: The maximum allowed value for this
-     *             <code>Range</code> instance.
+     *             <code>ContinuousRange</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  expected type.
      * @throws NumberBoundsException    Thrown if the retrieved field is out of the
      *                                  specified bounds.
      */
-    private Range(TracedDictionary json, Function<Double, Boolean> inRange)
+    private ContinuousRange(TracedDictionary json, Function<Double, Boolean> inRange)
             throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
         TracedEntry<Double> minEntry = json.getAsDouble("min", false, null, inRange);
-        double minValue = minEntry.getValue();
+        min = minEntry.getValue();
 
-        TracedEntry<Double> maxEntry = json.getAsDouble("max", false, null, inRange);
-        double maxValue = maxEntry.getValue();
-
-        this.min = Math.min(minValue, maxValue);
-        this.max = Math.max(minValue, maxValue);
+        TracedEntry<Double> maxEntry = json.getAsDouble("max", false, null, num -> inRange.apply(num) && min <= num);
+        max = maxEntry.getValue();
     }
 
     /**
@@ -121,53 +112,54 @@ public final class Range {
      * @param collection      <code>TracedCollection</code>: The collection to
      *                        retrieve from.
      * @param key             <code>Object</code>: The key from the collection to
-     *                        parse into a new <code>Range</code> instance.
-     * @param nullCaseAllowed <code>boolean</code>: Whether or not a null case is
-     *                        allowed when creating the new <code>Range</code>
+     *                        parse into a new <code>ContinuousRange</code>
      *                        instance.
+     * @param nullCaseAllowed <code>boolean</code>: Whether or not a null case is
+     *                        allowed when creating the new
+     *                        <code>ContinuousRange</code> instance.
      * @param min             <code>Double</code>: The minimum allowed value for the
-     *                        new <code>Range</code> instance.
+     *                        new <code>ContinuousRange</code> instance.
      * @param max             <code>Double</code>: The maximum allowed value for the
-     *                        new <code>Range</code> instance.
+     *                        new <code>ContinuousRange</code> instance.
      * @param inclusiveMax    <code>boolean</code>: Whether the maximum value is
      *                        inclusive.
-     * @return <code>Range</code>: The generated range.
+     * @return <code>ContinuousRange</code>: The generated range.
      * @throws LoggedException Thrown if any exception is raised while creating the
-     *                         new <code>Range</code> instance.
+     *                         new <code>ContinuousRange</code> instance.
      */
-    public static Range createRange(TracedCollection collection, Object key, boolean nullCaseAllowed,
-            Function<Double, Boolean> inRange) throws LoggedException {
+    public static final ContinuousRange createRange(TracedCollection collection, Object key, boolean nullCaseAllowed,
+            double ifNull, Function<Double, Boolean> inRange) throws LoggedException {
 
-        return collection.get(key, List.of(
-
-                collection.dictCase(entry -> {
+        ArrayList<TracedCollection.TypeCase<?, ContinuousRange>> cases = new ArrayList<>(
+                List.of(collection.dictCase(entry -> {
 
                     TracedDictionary json = entry.getValue();
-                    return new Range(json, inRange);
+                    return new ContinuousRange(json, inRange);
                 }),
 
-                collection.doubleCase(entry -> {
+                        collection.doubleCase(entry -> {
 
-                    return new Range(entry);
-                }, (_, _) -> collection.getAsDouble(key, false, null, inRange)),
+                            return new ContinuousRange(entry.getValue());
+                        }, inRange)));
 
-                collection.nullCase(entry -> {
+        if (nullCaseAllowed) {
 
-                    if (!nullCaseAllowed) {
+            cases.add(collection.nullCase(entry -> {
 
-                        throw new MissingPropertyException(entry);
-                    }
-                    return new Range();
-                })));
+                return new ContinuousRange(ifNull);
+            }));
+        }
+
+        return collection.get(key, cases);
     }
 
     /**
-     * Retrieves a double value from this <code>Range</code> instance.
+     * Retrieves a double value from this <code>ContinuousRange</code> instance.
      * 
      * @param random <code>long</code>: The random value to use.
      * @return <code>long</code>: The retrieved <code>double</code> value.
      */
-    public double getDoubleValue(long random) {
+    public final double get(long random) {
 
         if (min == max) {
 
@@ -175,16 +167,5 @@ public final class Range {
         }
 
         return min + (max - min) * DeterministicRandom.toDouble(random);
-    }
-
-    /**
-     * Retrieves an integer value from this <code>Range</code> instance.
-     * 
-     * @param random <code>long</code>: The random value to use.
-     * @return <code>int</code>: The retrieved <code>int</code> value.
-     */
-    public int getIntegerValue(long random) {
-
-        return (int) getDoubleValue(random);
     }
 }

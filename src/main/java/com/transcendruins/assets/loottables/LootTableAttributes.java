@@ -17,17 +17,15 @@
 package com.transcendruins.assets.loottables;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
 import static com.transcendruins.assets.AssetType.ITEM;
-import com.transcendruins.assets.SelectionType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.extra.Range;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
@@ -38,6 +36,8 @@ import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.selection.DiscreteRange;
+import com.transcendruins.utilities.selection.SelectionType;
 
 /**
  * <code>LootTableAttributes</code>: A class which represents the attributes of
@@ -291,7 +291,7 @@ public final class LootTableAttributes extends AssetAttributes {
 
         case "item" -> new LootValueSchema(json, componentIdList);
 
-        default -> new LootPoolSchema(json, SelectionType.parseSelectionType(json, "type"), componentIdList);
+        default -> new LootPoolSchema(json, SelectionType.createSelectionType(json, "type"), componentIdList);
         };
     }
 
@@ -367,14 +367,14 @@ public final class LootTableAttributes extends AssetAttributes {
          * @return <code>double</code>: The <code>chance</code> field of this
          *         <code>LootSchema</code> instance.
          */
-        public double getChance() {
+        public final double getChance() {
 
             return chance;
         }
 
-        private final Range count;
+        private final DiscreteRange count;
 
-        public Range getCount() {
+        public final DiscreteRange getCount() {
 
             return count;
         }
@@ -449,7 +449,7 @@ public final class LootTableAttributes extends AssetAttributes {
             TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
             chance = chanceEntry.getValue();
 
-            count = Range.createRange(json, "count", true, num -> num >= 1);
+            count = DiscreteRange.createRange(json, "count", true, 1, num -> num > 0);
         }
 
         public abstract List<AssetPresets> getItems();
@@ -482,28 +482,28 @@ public final class LootTableAttributes extends AssetAttributes {
 
     public final class LootPoolSchema extends LootSchema {
 
-        private final SelectionType SelectionType;
+        private final SelectionType iterationType;
 
-        public SelectionType getSelectionType() {
+        public final SelectionType getIterationType() {
 
-            return SelectionType;
+            return iterationType;
         }
 
-        private final ImmutableMap<LootSchema, Integer> pools;
+        private final ImmutableMap<LootSchema, DiscreteRange> pools;
 
-        public ImmutableMap<LootSchema, Integer> getPools() {
+        public final ImmutableMap<LootSchema, DiscreteRange> getPools() {
 
             return pools;
         }
 
-        public LootPoolSchema(TracedDictionary json, SelectionType SelectionType, Set<String> componentIdList)
+        public LootPoolSchema(TracedDictionary json, SelectionType iterationType, Set<String> componentIdList)
                 throws LoggedException {
 
             super(json, componentIdList);
 
-            this.SelectionType = SelectionType;
+            this.iterationType = iterationType;
 
-            HashMap<LootSchema, Integer> poolsMap = new HashMap<>();
+            LinkedHashMap<LootSchema, DiscreteRange> poolsMap = new LinkedHashMap<>();
 
             TracedEntry<TracedArray> poolsEntry = json.getAsArray("components", false);
             TracedArray poolsJson = poolsEntry.getValue();
@@ -516,8 +516,7 @@ public final class LootTableAttributes extends AssetAttributes {
                 // Retrieve the maximum number of times a pool can be rolled in a single check.
                 // A value of -1 means there is no limit to the number of times a pool can be
                 // rolled.
-                TracedEntry<Integer> poolLimitEntry = poolJson.getAsInteger("limit", true, -1, num -> num >= 1);
-                int poolLimit = poolLimitEntry.getValue();
+                DiscreteRange poolLimit = DiscreteRange.createRange(poolJson, "limit", true, -1, num -> num > 0);
 
                 poolsMap.put(createLoot(poolJson, componentIdList), poolLimit);
             }

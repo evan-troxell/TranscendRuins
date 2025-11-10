@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.extra;
+package com.transcendruins.utilities.selection;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +43,17 @@ public final class WeightedRoll<K> {
     private final ImmutableList<K> entries;
 
     /**
+     * Retrieves the entries of this <code>WeightedRoll</code> instance.
+     * 
+     * @return <code>ImmutableList&lt;Double&gt;</code>: The <code>entries</code>
+     *         field of this <code>WeightedRoll</code> instance.
+     */
+    public final ImmutableList<K> getEntries() {
+
+        return entries;
+    }
+
+    /**
      * <code>ImmutableList&lt;Double&gt;</code>: The cumulative weights of the
      * entries in this <code>WeightedRoll</code> instance. Each entry's weight
      * position is greater than the last, such that picking any random number
@@ -53,10 +64,21 @@ public final class WeightedRoll<K> {
     private final ImmutableList<Double> weights;
 
     /**
+     * Retrieves the cumulative weights of this <code>WeightedRoll</code> instance.
+     * 
+     * @return <code>ImmutableList&lt;Double&gt;</code>: The <code>weights</code>
+     *         field of this <code>WeightedRoll</code> instance.
+     */
+    public final ImmutableList<Double> getWeights() {
+
+        return weights;
+    }
+
+    /**
      * <code>double</code>: The sum of the weights of this <code>WeightedRoll</code>
      * instance.
      */
-    private double weightSum = 0;
+    private final double weightSum;
 
     /**
      * Creates a new instance of the <code>WeightedRoll</code> class with a single
@@ -67,7 +89,7 @@ public final class WeightedRoll<K> {
      */
     public WeightedRoll(K entry) {
 
-        weightSum += 1;
+        weightSum = 1;
 
         entries = new ImmutableList<>(entry);
         weights = new ImmutableList<>(weightSum);
@@ -85,11 +107,13 @@ public final class WeightedRoll<K> {
     public WeightedRoll(Stream<K> entries, Function<K, Double> getWeight) {
 
         this.entries = new ImmutableList<>(entries.toList());
-        weights = new ImmutableList<>(entries.map(getWeight).map(weight -> {
+        double[] sum = new double[] { 0.0 };
+        weights = new ImmutableList<>(this.entries.stream().map(entry -> {
 
-            weightSum += weight;
-            return weightSum;
+            return (sum[0] += getWeight.apply(entry));
         }).toList());
+
+        weightSum = sum[0];
     }
 
     /**
@@ -104,16 +128,20 @@ public final class WeightedRoll<K> {
         ArrayList<K> entryList = new ArrayList<>();
         ArrayList<Double> weightList = new ArrayList<>();
 
+        double sum = 0.0;
+
         for (Entry<K> entry : entries) {
 
-            weightSum += entry.weight;
+            sum += entry.weight;
 
             entryList.add(entry.val);
-            weightList.add(weightSum);
+            weightList.add(sum);
         }
 
         this.entries = new ImmutableList<>(entryList);
         weights = new ImmutableList<>(weightList);
+
+        weightSum = sum;
     }
 
     /**
@@ -167,14 +195,20 @@ public final class WeightedRoll<K> {
     }
 
     /**
-     * Determines whether or not this <code>WeightedRoll</code> instance is empty.
+     * Creates a new instance of the <code>WeightedRoll</code> class from a list of
+     * entries and a list of weights.
      * 
-     * @return <code>boolean</code>: Whether or not the <code>entries</code> field
-     *         of this <code>WeightedRoll</code> instance is empty.
+     * @param entries <code>List&lt;K&gt;</code>: The entries to add to this
+     *                <code>WeightedRoll</code> instance.
+     * @param weights <code>List&lt;Double&gt;</code>: The weights to add to this
+     *                <code>WeightedRoll</code> instance.
      */
-    public final boolean isEmpty() {
+    public WeightedRoll(List<K> entries, List<Double> weights) {
 
-        return entries.isEmpty();
+        this.entries = new ImmutableList<>(entries);
+        this.weights = new ImmutableList<>(weights);
+
+        weightSum = weights.getLast();
     }
 
     /**

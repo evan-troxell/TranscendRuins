@@ -141,7 +141,7 @@
                         }
                     },
 
-                    "select": 1,
+                    "count": 1,
                     "action": {
                         "type": "swapSlots",
                         "first": "mainhand",

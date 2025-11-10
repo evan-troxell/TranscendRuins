@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.transcendruins.assets.Attributes;
-import com.transcendruins.assets.animationcontrollers.AnimationControllerContext;
-import com.transcendruins.assets.animationcontrollers.AnimationControllerInstance;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
@@ -35,6 +33,8 @@ import com.transcendruins.assets.models.ModelContext;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.assets.rendermaterials.RenderMaterialContext;
 import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
+import com.transcendruins.assets.statecontrollers.StateControllerContext;
+import com.transcendruins.assets.statecontrollers.StateControllerInstance;
 import com.transcendruins.geometry.Quaternion;
 import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.RenderInstance;
@@ -59,21 +59,23 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
     public final void setLocation(GlobalLocationInstance location) {
 
         this.location = location;
+        if (!hasModelParent()) {
+
+            setParent(location);
+        }
     }
 
     private PrimaryAssetInstance modelParent;
 
     protected final void setModelParent(PrimaryAssetInstance modelParent) {
 
-        if (modelParent != null) {
+        this.modelParent = modelParent;
+        if (hasModelParent()) {
 
             location = modelParent.getLocation();
-            this.modelParent = modelParent;
-
             setParent(modelParent);
         } else {
 
-            this.modelParent = null;
             setParent(location);
         }
     }
@@ -127,10 +129,10 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
     private RenderMaterialInstance renderMaterial;
 
     /**
-     * <code>AnimationControllerInstance</code>: The animation controller of this
+     * <code>StateControllerInstance</code>: The animation controller of this
      * <code>ModelAssetInstance</code> instance.
      */
-    private AnimationControllerInstance animationController;
+    private StateControllerInstance stateController;
 
     /**
      * <code>ImmutableList&lt;String&gt;</code>: The asset category types of this
@@ -154,12 +156,12 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
 
     private void computeBoneActors() {
 
-        if (animationController == null) {
+        if (stateController == null) {
 
             boneActors = new BoneActorSet();
         } else {
 
-            boneActors = animationController.evaluatePose();
+            boneActors = stateController.evaluatePose();
         }
     }
 
@@ -243,6 +245,10 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
     public ModelAssetInstance(AssetContext assetContext, Object key) {
 
         super(assetContext, key);
+
+        ModelAssetContext context = (ModelAssetContext) assetContext;
+
+        setLocation(context.getLocation());
     }
 
     @Override
@@ -273,13 +279,12 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
             return renderMaterialContext.instantiate();
         }, renderMaterial);
 
-        // Updates the animationController field.
-        animationController = calculateAttribute(attributes.getAnimationController(), val -> {
+        // Updates the stateController field.
+        stateController = calculateAttribute(attributes.getStateController(), val -> {
 
-            AnimationControllerContext animationControllerContext = new AnimationControllerContext(val, getWorld(),
-                    this);
-            return animationControllerContext.instantiate();
-        }, animationController, attributes, null);
+            StateControllerContext stateControllerContext = new StateControllerContext(val, getWorld(), this);
+            return stateControllerContext.instantiate();
+        }, stateController, attributes, null);
 
         categories = calculateAttribute(attributes.getCategories(), categories, attributes, new ImmutableList<>());
         setProperty("categories", categories);
@@ -298,9 +303,9 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
     @Override
     protected final void onUpdate(double time) {
 
-        if (animationController != null) {
+        if (stateController != null) {
 
-            animationController.update(time);
+            stateController.update(time);
         }
 
         model.update(time);

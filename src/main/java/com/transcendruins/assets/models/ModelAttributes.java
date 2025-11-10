@@ -256,11 +256,11 @@ public final class ModelAttributes extends AssetAttributes {
             TracedDictionary modelJson = modelEntry.getValue();
 
             TracedEntry<Integer> textureWidthEntry = modelJson.getAsInteger("textureWidth", false, null,
-                    num -> num >= 1);
+                    num -> num > 0);
             textureWidth = textureWidthEntry.getValue();
 
             TracedEntry<Integer> textureHeightEntry = modelJson.getAsInteger("textureHeight", false, null,
-                    num -> num >= 1);
+                    num -> num > 0);
             textureHeight = textureHeightEntry.getValue();
 
             // Create the vertices which the polygons of this model will be created from.

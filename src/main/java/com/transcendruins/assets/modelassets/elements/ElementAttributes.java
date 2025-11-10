@@ -63,10 +63,10 @@ public final class ElementAttributes extends PrimaryAssetAttributes {
 
                     TracedArray tileDimensionsJson = entry.getValue();
 
-                    TracedEntry<Integer> widthEntry = tileDimensionsJson.getAsInteger(0, false, null);
+                    TracedEntry<Integer> widthEntry = tileDimensionsJson.getAsInteger(0, false, null, num -> num > 0);
                     int width = widthEntry.getValue();
 
-                    TracedEntry<Integer> lengthEntry = tileDimensionsJson.getAsInteger(1, false, null);
+                    TracedEntry<Integer> lengthEntry = tileDimensionsJson.getAsInteger(1, false, null, num -> num > 0);
                     int length = lengthEntry.getValue();
 
                     return new Dimension(width, length);
@@ -74,10 +74,12 @@ public final class ElementAttributes extends PrimaryAssetAttributes {
 
                     TracedDictionary tileDimensionsJson = entry.getValue();
 
-                    TracedEntry<Integer> widthEntry = tileDimensionsJson.getAsInteger("width", false, null);
+                    TracedEntry<Integer> widthEntry = tileDimensionsJson.getAsInteger("width", false, null,
+                            num -> num > 0);
                     int width = widthEntry.getValue();
 
-                    TracedEntry<Integer> lengthEntry = tileDimensionsJson.getAsInteger("length", false, null);
+                    TracedEntry<Integer> lengthEntry = tileDimensionsJson.getAsInteger("length", false, null,
+                            num -> num > 0);
                     int length = lengthEntry.getValue();
 
                     return new Dimension(width, length);

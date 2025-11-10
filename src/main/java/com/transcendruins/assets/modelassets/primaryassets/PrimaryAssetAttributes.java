@@ -24,13 +24,11 @@ import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryCompone
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionSchema;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySchema;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
-import com.transcendruins.world.World;
 
 /**
  * <code>PrimaryAssetAttributes</code>: A class which represents the attributes
@@ -76,13 +74,6 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
     public final ImmutableList<AssetInteractionSchema> getInteraction() {
 
         return interaction;
-    }
-
-    private final Vector hitbox;
-
-    public final Vector getHitbox() {
-
-        return hitbox;
     }
 
     /**
@@ -155,26 +146,5 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
 
             return new ImmutableList<>(interactionList);
         }), json.nullCase(_ -> null)));
-
-        hitbox = json.get("hitbox",
-                List.of(json.vectorCase(TracedEntry::getValue,
-                        (collection, key) -> collection.getAsVector(key, false, 3, Vector.IDENTITY_VECTOR, null)),
-                        json.dictCase(entry -> {
-
-                            TracedDictionary hitboxJson = entry.getValue();
-
-                            double tile = World.UNIT_TILE;
-
-                            TracedEntry<Double> widthEntry = hitboxJson.getAsDouble("width", true, tile);
-                            double width = widthEntry.getValue();
-
-                            TracedEntry<Double> heightEntry = hitboxJson.getAsDouble("height", true, tile);
-                            double height = heightEntry.getValue();
-
-                            TracedEntry<Double> lengthEntry = hitboxJson.getAsDouble("length", true, tile);
-                            double length = lengthEntry.getValue();
-
-                            return new Vector(width, height, length);
-                        }), json.nullCase(_ -> null)));
     }
 }

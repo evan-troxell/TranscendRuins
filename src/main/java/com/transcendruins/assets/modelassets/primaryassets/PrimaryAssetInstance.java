@@ -43,7 +43,6 @@ import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.renderBuffer.RenderBuffer;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.world.AreaGrid;
-import com.transcendruins.world.World;
 
 /**
  * <code>PrimaryAsset</code>: A class representing an <code>AssetInstance</code>
@@ -101,6 +100,18 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
     private final HashSet<PrimaryAssetInstance> primaryModelChildren = new HashSet<>();
 
+    private final HashMap<String, HashSet<PrimaryAssetInstance>> primaryModelConnections = new HashMap<>();
+
+    public final boolean containsPrimaryAssetChild(String connection) {
+
+        if (!primaryModelConnections.containsKey(connection)) {
+
+            return false;
+        }
+
+        return !primaryModelConnections.get(connection).isEmpty();
+    }
+
     protected final void queueAreaUpdate() {
 
         hasTileUpdate = true;
@@ -117,6 +128,12 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
     public abstract void updateArea(AreaGrid area);
 
+    public abstract void setPosition(int tileX, int tileZ);
+
+    public abstract void translate(int dx, int dz);
+
+    public abstract void rotate(int direction, int areaWidth, int areaLength);
+
     public final Rectangle getTileBounds() {
 
         if (hasModelParent()) {
@@ -129,12 +146,29 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
     protected abstract Rectangle getInternalTileBounds();
 
-    private Vector hitbox;
+    public final Rectangle getTileBoundsTranslated(int dx, int dz) {
 
-    public final Vector getHitbox() {
+        if (hasModelParent()) {
 
-        return hitbox;
+            return getModelParent().getTileBoundsTranslated(dx, dz);
+        }
+
+        return getInternalTileBoundsAt(dx, dz);
     }
+
+    protected abstract Rectangle getInternalTileBoundsTranslated(int dx, int dz);
+
+    public final Rectangle getTileBoundsAt(int tileX, int tileZ) {
+
+        if (hasModelParent()) {
+
+            return getModelParent().getTileBoundsAt(tileX, tileZ);
+        }
+
+        return getInternalTileBoundsAt(tileX, tileZ);
+    }
+
+    protected abstract Rectangle getInternalTileBoundsAt(int tileX, int tileZ);
 
     private String modelParentAttachment;
 
@@ -173,14 +207,14 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
      * 
      * @param modelChild <code>PrimaryAssetInstance</code>: The child model to add
      *                   to this <code>PrimaryAssetInstance</code> instance.
-     * @param attachment <code>String</code>: The name of the bone to which the
+     * @param connection <code>String</code>: The name of the bone to which the
      *                   child model will be attached.
      * @return <code>boolean</code>: Whether or not the child was successfully
      *         added.
      */
-    protected final boolean addModelChild(PrimaryAssetInstance modelChild, String attachment) {
+    protected final boolean addModelChild(PrimaryAssetInstance modelChild, String connection) {
 
-        if (!containsBone(attachment)) {
+        if (!containsBone(connection)) {
 
             return false;
         }
@@ -188,11 +222,18 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         if (this != modelChild.getModelParent()) {
 
             modelChild.removeModelParent();
+        } else {
+
+            String prevConnection = modelChild.getModelParentAttachment();
+            primaryModelConnections.get(prevConnection).remove(modelChild);
         }
 
-        modelChild.setModelParent(this, attachment);
+        modelChild.setModelParent(this, connection);
         modelChildren.add(modelChild);
+
         primaryModelChildren.add(modelChild);
+        primaryModelConnections.computeIfAbsent(connection, _ -> new HashSet<>()).add(modelChild);
+
         return true;
     }
 
@@ -201,7 +242,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
      * 
      * @param modelChild <code>ItemInstance</code>: The child model to add to this
      *                   <code>PrimaryAssetInstance</code> instance.
-     * @param attachment <code>String</code>: The name of the bone to which the
+     * @param slot       <code>InventorySlotInstance</code>: The slot to which the
      *                   child model will be attached.
      * @return <code>boolean</code>: Whether or not the child was successfully
      *         added.
@@ -224,16 +265,19 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
      * @param modelChild <code>ModelAssetInstance</code>: The child model to remove
      *                   from this <code>PrimaryAssetInstance</code> instance.
      */
-    protected final void removeModelChild(ModelAssetInstance modelChild) {
+    public final void removeModelChild(ModelAssetInstance modelChild) {
 
         // If the child is a child of this model, remove it.
-        if (modelChildren.remove(modelChild)) {
+        if (modelChild != null && modelChildren.remove(modelChild)) {
 
-            modelChild.removeModelParent();
             if (modelChild instanceof PrimaryAssetInstance primaryModelChild) {
 
+                String prevConnection = modelChild.getModelParentAttachment();
+                primaryModelConnections.get(prevConnection).remove(primaryModelChild);
                 primaryModelChildren.remove(primaryModelChild);
             }
+
+            modelChild.removeModelParent();
         }
     }
 
@@ -319,8 +363,6 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
                         _ -> new ImmutableList<>(
                                 schemas.stream().map(AssetInteractionInstance::createInteraction).toList())),
                 interaction, attributes, new ImmutableList<>());
-
-        hitbox = calculateAttribute(attributes.getHitbox(), hitbox, attributes, World.UNIT_TILE_VECTOR);
 
         applyPrimaryAssetAttributes(attributes);
     }

@@ -97,7 +97,7 @@ public abstract class AssetContext {
 
         this.world = world;
         this.parent = parent;
-        this.randomId = world.nextRandom();
+        this.randomId = world.getRandom().next();
 
         this.runtimeSeconds = world.getRuntimeSeconds();
     }

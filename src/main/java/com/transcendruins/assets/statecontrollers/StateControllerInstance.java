@@ -14,7 +14,7 @@
  *
  */
 
-package com.transcendruins.assets.animationcontrollers;
+package com.transcendruins.assets.statecontrollers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.transcendruins.assets.Attributes;
-import com.transcendruins.assets.animationcontrollers.AnimationControllerAttributes.AnimationStateSchema;
+import com.transcendruins.assets.statecontrollers.StateControllerAttributes.AnimationStateSchema;
 import com.transcendruins.assets.animations.AnimationContext;
 import com.transcendruins.assets.animations.AnimationInstance;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
@@ -34,51 +34,51 @@ import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 
 /**
- * <code>AnimationControllerInstance</code>: A class representing a generated
+ * <code>StateControllerInstance</code>: A class representing a generated
  * animation controller instance.
  */
-public final class AnimationControllerInstance extends AssetInstance {
+public final class StateControllerInstance extends AssetInstance {
 
     /**
      * <code>ImmutableMap&lt;String, AnimationStateSchema&gt;</code>: All animation
-     * states of this <code>AnimationControllerInstance</code> instance.
+     * states of this <code>StateControllerInstance</code> instance.
      */
     private ImmutableMap<String, AnimationStateSchema> states;
 
     /**
      * <code>String</code>: The default animation state of this
-     * <code>AnimationControllerInstance</code> instance.
+     * <code>StateControllerInstance</code> instance.
      */
     private String defaultState;
 
     /**
      * <code>String</code>: The current state of this
-     * <code>AnimationControllerInstance</code> instance.
+     * <code>StateControllerInstance</code> instance.
      */
     private String state;
 
     /**
      * <code>double</code>: The time of creation of the current state of this
-     * <code>AnimationControllerInstance</code> instance in seconds.
+     * <code>StateControllerInstance</code> instance in seconds.
      */
     private double timeOfCreation;
 
     /**
      * <code>double</code>: The current timestamp of this
-     * <code>AnimationControllerInstance</code> instance in seconds.
+     * <code>StateControllerInstance</code> instance in seconds.
      */
     private double timestamp;
 
     /**
      * <code>ArrayList&lt;AnimationInstance&gt;</code>: The list animations
-     * currently playing in this <code>AnimationControllerInstance</code> instance.
+     * currently playing in this <code>StateControllerInstance</code> instance.
      */
     private final ArrayList<AnimationInstance> animations = new ArrayList<>();
 
     /**
      * <code>HashMap&lt;String, ImmutableList&lt;TRScript&gt;&gt;</code>: The map of
-     * transitions of the current state of this
-     * <code>AnimationControllerInstance</code> instance.
+     * transitions of the current state of this <code>StateControllerInstance</code>
+     * instance.
      */
     private final HashMap<String, ImmutableList<TRScript>> transitions = new HashMap<>();
 
@@ -86,21 +86,21 @@ public final class AnimationControllerInstance extends AssetInstance {
      * Creates a new instance of the <code>AnimationInstance</code> class.
      * 
      * @param assetContext <code>AssetContext</code>: The context used to generate
-     *                     this <code>AnimationControllerInstance</code> instance.
+     *                     this <code>StateControllerInstance</code> instance.
      * @param key          <code>Object</code>: The instantiation key, which is
      *                     required to match <code>AssetType.KEY</code>.
      */
-    public AnimationControllerInstance(AssetContext assetContext, Object key) {
+    public StateControllerInstance(AssetContext assetContext, Object key) {
 
         super(assetContext, key);
 
-        AnimationControllerContext context = (AnimationControllerContext) assetContext;
+        StateControllerContext context = (StateControllerContext) assetContext;
     }
 
     @Override
     public final void applyAttributes(Attributes attributeSet) {
 
-        AnimationControllerAttributes attributes = (AnimationControllerAttributes) attributeSet;
+        StateControllerAttributes attributes = (StateControllerAttributes) attributeSet;
 
         states = calculateAttribute(attributes.getStates(), states);
         setProperty("states", new ImmutableList<>(states.keySet()));
@@ -162,7 +162,7 @@ public final class AnimationControllerInstance extends AssetInstance {
 
         animations.clear();
 
-        AnimationControllerAttributes.AnimationStateSchema schema = states.get(state);
+        StateControllerAttributes.AnimationStateSchema schema = states.get(state);
         for (AssetPresets animationPresets : schema.getStateAnimations()) {
 
             AnimationContext animationContext = new AnimationContext(animationPresets, getWorld(), this);
@@ -176,7 +176,7 @@ public final class AnimationControllerInstance extends AssetInstance {
     }
 
     /**
-     * Evaluates the transitions of this <code>AnimationControllerInstance</code>
+     * Evaluates the transitions of this <code>StateControllerInstance</code>
      * instance.
      * 
      * @return <code>String</code>: The first applicable state transition, or
@@ -190,7 +190,7 @@ public final class AnimationControllerInstance extends AssetInstance {
 
             for (TRScript key : transition.getValue()) {
 
-                if (key.evaluateBoolean(AnimationControllerInstance.this)) {
+                if (key.evaluateBoolean(StateControllerInstance.this)) {
 
                     return newState;
                 }
@@ -201,7 +201,7 @@ public final class AnimationControllerInstance extends AssetInstance {
     }
 
     /**
-     * Evaluates the animations of this <code>AnimationControllerInstance</code>
+     * Evaluates the animations of this <code>StateControllerInstance</code>
      * instance, generating a set of bone actors.
      * 
      * @return <code>BoneActorSet</code>: The constructed map of bone actors.

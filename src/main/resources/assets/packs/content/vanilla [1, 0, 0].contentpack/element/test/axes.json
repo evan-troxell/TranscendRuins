@@ -8,6 +8,6 @@
             "events": []
         },
         "renderMaterial": "TranscendRuins:opaque",
-        "animationController": "TranscendRuins:box"
+        "stateController": "TranscendRuins:box"
     }
 }

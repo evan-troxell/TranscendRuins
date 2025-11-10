@@ -16,11 +16,10 @@
 
 package com.transcendruins.assets.modelassets.elements;
 
-import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetContext;
 import com.transcendruins.geometry.Vector;
-import com.transcendruins.world.World;
 
 /**
  * <code>ElementContext</code>: A class representing the instantiation context
@@ -28,12 +27,7 @@ import com.transcendruins.world.World;
  */
 public final class ElementContext extends PrimaryAssetContext {
 
-    private Vector tileOffset = Vector.IDENTITY_VECTOR;
-
-    public final void setTileOffset(Vector tileOffset) {
-
-        this.tileOffset = tileOffset;
-    }
+    private final Vector tileOffset;
 
     public final Vector getTileOffset() {
 
@@ -43,17 +37,17 @@ public final class ElementContext extends PrimaryAssetContext {
     /**
      * Creates a new instance of the <code>ElementContext</code> class.
      * 
-     * @param presets <code>AssetPresets</code>: The presets containing schema and
-     *                instantiation information of this <code>ElementContext</code>
-     *                instance.
-     * @param world   <code>World</code>: The world copy of this
-     *                <code>ElementContext</code> instance.
-     * @param parent  <code>AssetInstance</code>: The parent to assign to this
-     *                <code>ElementContext</code> instance.
+     * @param presets  <code>AssetPresets</code>: The presets containing schema and
+     *                 instantiation information of this <code>ElementContext</code>
+     *                 instance.
+     * @param location <code>GlobalLocationInstance</code>: The location of this
+     *                 <code>ElementContext</code> instance.
      */
-    public ElementContext(AssetPresets presets, World world, AssetInstance parent) {
+    public ElementContext(AssetPresets presets, GlobalLocationInstance location, Vector tileOffset) {
 
-        super(presets, world, parent);
+        super(presets, location);
+
+        this.tileOffset = tileOffset != null ? tileOffset : Vector.IDENTITY_VECTOR;
     }
 
     @Override

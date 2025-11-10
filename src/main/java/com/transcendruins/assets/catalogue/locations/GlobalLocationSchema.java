@@ -21,7 +21,6 @@ import java.util.HashMap;
 
 import static com.transcendruins.assets.AssetType.LAYOUT;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.ReferenceWithoutDefinitionException;
@@ -29,6 +28,7 @@ import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.selection.WeightedRoll;
 
 public final class GlobalLocationSchema {
 

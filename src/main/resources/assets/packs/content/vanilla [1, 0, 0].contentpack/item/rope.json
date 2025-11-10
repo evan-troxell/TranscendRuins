@@ -5,7 +5,7 @@
     "attributes": {
         "texture": "item.rope.texture",
         "model": "TranscendRuins:box",
-        "animationController": "TranscendRuins:box",
+        "stateController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
 
         "stackSize": 20,

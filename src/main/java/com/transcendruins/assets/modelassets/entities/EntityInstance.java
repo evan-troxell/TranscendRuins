@@ -17,12 +17,11 @@
 package com.transcendruins.assets.modelassets.entities;
 
 import java.awt.Rectangle;
-import java.awt.geom.Point2D;
-import java.util.List;
 
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.modelassets.attack.AttackInstance;
 import com.transcendruins.assets.modelassets.attack.AttackSchema;
+import com.transcendruins.assets.modelassets.entities.EntityAttributes.DoubleDimension;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
@@ -30,6 +29,7 @@ import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryIn
 import com.transcendruins.geometry.Quaternion;
 import com.transcendruins.geometry.Vector;
 import com.transcendruins.world.AreaGrid;
+import com.transcendruins.world.World;
 
 /**
  * <code>EntityInstance</code>: A class representing a generated entity
@@ -37,15 +37,62 @@ import com.transcendruins.world.AreaGrid;
  */
 public final class EntityInstance extends PrimaryAssetInstance {
 
+    private double tileWidth;
+
+    public final double getTileWidth() {
+
+        return tileWidth;
+    }
+
+    private double tileLength;
+
+    public final double getTileLength() {
+
+        return tileLength;
+    }
+
     private Vector position = Vector.IDENTITY_VECTOR;
 
-    public final void setTilePosition(int tileX, int tileZ) {
+    public final void setPosition(Vector position) {
 
-        position = new Vector(tileX, tileZ);
+        this.position = position;
         queueAreaUpdate();
     }
 
+    @Override
+    public final void setPosition(int tileX, int tileZ) {
+
+        setPosition(new Vector(tileX, 0.0, tileZ).multiply(World.UNIT_TILE));
+    }
+
+    public final void translate(Vector dv) {
+
+        setPosition(position.add(dv));
+    }
+
+    @Override
+    public final void translate(int dx, int dz) {
+
+        setPosition(position.add(new Vector(dx, 0, dz).multiply(World.UNIT_TILE)));
+    }
+
+    private double rotatedTileWidth;
+
+    private double rotatedTileLength;
+
     private double heading;
+
+    private void updateTileRotation() {
+
+        double theta = Math.toRadians(heading);
+        double C = Math.abs(Math.cos(theta));
+        double S = Math.abs(Math.sin(theta));
+
+        rotatedTileWidth = C * tileWidth + S * tileLength;
+        rotatedTileLength = C * tileLength + S * tileWidth;
+
+        queueAreaUpdate();
+    }
 
     public final void rotate(double degrees) {
 
@@ -54,15 +101,54 @@ public final class EntityInstance extends PrimaryAssetInstance {
             return;
         }
 
+        double dx = rotatedTileWidth;
+        double dz = rotatedTileLength;
+
         heading += degrees;
         heading %= 360;
-        queueAreaUpdate();
+        updateTileRotation();
+
+        dx -= rotatedTileWidth;
+        dz -= rotatedTileLength;
+
+        // Recenter the entity on the previous center.
+        translate(new Vector(dx, 0, dz).multiply(World.UNIT_TILE / 2.0));
+    }
+
+    @Override
+    public final void rotate(int direction, int areaWidth, int areaLength) {
+
+        if (direction == World.EAST) {
+
+            return;
+        }
+
+        heading += direction * 90;
+        heading %= 360;
+        updateTileRotation();
+
+        double x = position.getX();
+        double y = position.getY();
+        double z = position.getZ();
+
+        position = switch (direction) {
+
+        case World.NORTH -> new Vector(z, y, areaLength * World.UNIT_TILE - x - rotatedTileLength * World.UNIT_TILE);
+
+        case World.WEST -> new Vector(areaWidth * World.UNIT_TILE - x - rotatedTileWidth * World.UNIT_TILE, y,
+                areaLength * World.UNIT_TILE - z - rotatedTileLength * World.UNIT_TILE);
+
+        case World.SOUTH -> new Vector(areaWidth * World.UNIT_TILE - z - rotatedTileWidth * World.UNIT_TILE, y, x);
+
+        default -> position;
+        };
     }
 
     @Override
     public final Vector getPosition() {
 
-        return position;
+        // TODO adjust for tile height
+        return position.add(new Vector(rotatedTileWidth / 2.0, 0.0, rotatedTileLength / 2.0).multiply(World.UNIT_TILE));
     }
 
     @Override
@@ -71,53 +157,33 @@ public final class EntityInstance extends PrimaryAssetInstance {
         return Quaternion.fromEulerRotation(Math.toRadians(heading), new Vector(0, 1.0, 0));
     }
 
+    private Rectangle getTileBoundsAt(double left, double top) {
+
+        int minTileX = (int) Math.floor(left);
+        int minTileZ = (int) Math.floor(top);
+
+        int maxTileX = (int) Math.ceil(left + rotatedTileWidth);
+        int maxTileZ = (int) Math.ceil(top + rotatedTileLength);
+
+        return new Rectangle(minTileX, minTileZ, maxTileX - minTileX, maxTileZ - minTileZ);
+    }
+
     @Override
     protected final Rectangle getInternalTileBounds() {
 
-        double C = Math.cos(Math.toRadians(heading));
-        double S = Math.sin(Math.toRadians(heading));
+        return getTileBoundsAt(position.getX() / World.UNIT_TILE, position.getZ() / World.UNIT_TILE);
+    }
 
-        Vector hitbox = getHitbox();
+    @Override
+    public final Rectangle getInternalTileBoundsTranslated(int dx, int dz) {
 
-        double halfWidth = hitbox.getX() / 2.0;
-        double halfLength = hitbox.getZ() / 2.0;
+        return getTileBoundsAt(position.getX() / World.UNIT_TILE + dx, position.getZ() / World.UNIT_TILE + dz);
+    }
 
-        Point2D.Double pos = new Point2D.Double(position.getX(), position.getZ());
+    @Override
+    public final Rectangle getInternalTileBoundsAt(int tileX, int tileZ) {
 
-        List<Point2D.Double> v = List.of(new Point2D.Double(halfWidth, halfLength),
-                new Point2D.Double(-halfWidth, halfLength), new Point2D.Double(-halfWidth, -halfLength),
-                new Point2D.Double(halfWidth, -halfLength));
-
-        // Initiate the bounds at the entity's position.
-        double minX = pos.getX();
-        double minY = pos.getY();
-        double maxX = minX;
-        double maxY = minY;
-
-        for (Point2D.Double p : v) {
-
-            double newX = C * p.x - S * p.y + pos.x;
-            double newY = C * p.y + S * p.x + pos.y;
-
-            if (newX < minX) {
-
-                minX = newX;
-            } else if (newX > maxX) {
-
-                maxX = newX;
-            }
-
-            if (newY < minY) {
-
-                minY = newY;
-            } else if (newY > maxY) {
-
-                maxY = newY;
-            }
-        }
-
-        return new Rectangle((int) Math.floor(minX), (int) Math.floor(minY), (int) Math.floor(maxX - minX),
-                (int) Math.floor(maxY - minY));
+        return getTileBoundsAt((double) tileX, (double) tileZ);
     }
 
     @Override
@@ -135,6 +201,11 @@ public final class EntityInstance extends PrimaryAssetInstance {
     private long attackEnd = -1;
 
     private boolean attacking = false;
+
+    public final boolean isAttacking() {
+
+        return attacking;
+    }
 
     private final AttackInstance attack = new AttackInstance();
 
@@ -183,10 +254,13 @@ public final class EntityInstance extends PrimaryAssetInstance {
 
         EntityAttributes attributes = (EntityAttributes) attributeSet;
 
-        if (attributes.getHitbox() != null) {
+        computeAttribute(attributes.getTileDimensions(), dim -> {
 
-            queueAreaUpdate();
-        }
+            tileWidth = dim.width();
+            tileLength = dim.length();
+
+            updateTileRotation();
+        }, attributes, DoubleDimension.DEFAULT);
 
         computeAttribute(attributes.getAttack(), attack::applyAttributes, attributes, AttackSchema.DEFAULT);
     }

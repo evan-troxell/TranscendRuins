@@ -7,7 +7,7 @@
     "attributes": {
         "texture": "entity.player",
         "model": "TranscendRuins:box",
-        "animationController": "TranscendRuins:box",
+        "stateController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
         "inventory": {
             "privateUi": {

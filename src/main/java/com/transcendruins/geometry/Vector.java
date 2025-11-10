@@ -23,9 +23,14 @@ package com.transcendruins.geometry;
 public final class Vector extends Matrix {
 
     /**
-     * <code>Vector</code>: A vector with no magnitude or orientation.
+     * <code>Vector</code>: A 3D vector with no magnitude or orientation.
      */
     public static final Vector IDENTITY_VECTOR = new Vector(0, 0, 0);
+
+    /**
+     * <code>Vector</code>: A 3D vector with all dimensions set to one.
+     */
+    public static final Vector ONE_VECTOR = new Vector(1, 1, 1);
 
     /**
      * <code>int</code>: The dimensions of this <code>Vector</code> instance.

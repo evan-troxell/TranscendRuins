@@ -16,10 +16,9 @@
 
 package com.transcendruins.assets.modelassets.entities;
 
-import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetContext;
-import com.transcendruins.world.World;
 
 /**
  * <code>EntityContext</code>: A class representing the instantiation context of
@@ -30,17 +29,15 @@ public final class EntityContext extends PrimaryAssetContext {
     /**
      * Creates a new instance of the <code>EntityContext</code> class.
      * 
-     * @param presets <code>AssetPresets</code>: The presets containing schema and
-     *                instantiation information of this <code>EntityContext</code>
-     *                instance.
-     * @param world   <code>World</code>: The world copy of this
-     *                <code>EntityContext</code> instance.
-     * @param parent  <code>AssetInstance</code>: The parent to assign to this
-     *                <code>EntityContext</code> instance.
+     * @param presets  <code>AssetPresets</code>: The presets containing schema and
+     *                 instantiation information of this <code>EntityContext</code>
+     *                 instance.
+     * @param location <code>GlobalLocationInstance</code>: The location of this
+     *                 <code>EntityContext</code> instance.
      */
-    public EntityContext(AssetPresets presets, World world, AssetInstance parent) {
+    public EntityContext(AssetPresets presets, GlobalLocationInstance location) {
 
-        super(presets, world, parent);
+        super(presets, location);
     }
 
     @Override

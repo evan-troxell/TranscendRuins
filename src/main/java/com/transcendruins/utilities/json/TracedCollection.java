@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import com.jme3.math.ColorRGBA;
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -50,6 +49,7 @@ import static com.transcendruins.utilities.json.TracedCollection.JSONType.NULL;
 import static com.transcendruins.utilities.json.TracedCollection.JSONType.STRING;
 import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.utilities.metadata.Version;
+import com.transcendruins.utilities.selection.WeightedRoll;
 
 /**
  * <code>TracedCollection</code>: A parent class representing a collection whose
@@ -162,7 +162,7 @@ public abstract class TracedCollection {
      * @param <K> <code>Object</code>: The type of the key.
      * @param <T> <code>Object</code>: The type of the value.
      */
-    public final class TypeCase<K, T> {
+    public static final class TypeCase<K, T> {
 
         private final EntryOperator<K, T> onCall;
         private final EntryBuilder<K> getEntry;
@@ -221,22 +221,6 @@ public abstract class TracedCollection {
     }
 
     /**
-     * Creates a boolean type case.
-     * 
-     * @param <T>      <code>Object</code>: The type of the value.
-     * @param onCall   <code>EntryOperator&lt;Boolean, T&gt;</code>: The operator to
-     *                 apply to the entry.
-     * @param getEntry <code>EntryBuilder&lt;Boolean&gt;</code>: The builder to
-     *                 create the entry.
-     * @return <code>TypeCase&lt;Boolean, T&gt;</code>: The created boolean type
-     *         case.
-     */
-    public <T> TypeCase<Boolean, T> booleanCase(EntryOperator<Boolean, T> onCall, EntryBuilder<Boolean> getEntry) {
-
-        return new TypeCase<>(onCall, getEntry, BOOLEAN);
-    }
-
-    /**
      * Creates a boolean type case with a default entry builder.
      * 
      * @param <T>    <code>Object</code>: The type of the value.
@@ -245,24 +229,9 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;Boolean, T&gt;</code>: The created boolean type
      *         case.
      */
-    public <T> TypeCase<Boolean, T> booleanCase(EntryOperator<Boolean, T> onCall) {
+    public final <T> TypeCase<Boolean, T> booleanCase(EntryOperator<Boolean, T> onCall) {
 
-        return booleanCase(onCall, (collection, key) -> collection.getAsBoolean(key, false, null));
-    }
-
-    /**
-     * Creates a double type case.
-     * 
-     * @param <T>      <code>Object</code>: The type of the value.
-     * @param onCall   <code>EntryOperator&lt;Double, T&gt;</code>: The operator to
-     *                 apply to the entry.
-     * @param getEntry <code>EntryBuilder&lt;Double&gt;</code>: The builder to
-     *                 create the entry.
-     * @return <code>TypeCase&lt;Double, T&gt;</code>: The created double type case.
-     */
-    public <T> TypeCase<Double, T> doubleCase(EntryOperator<Double, T> onCall, EntryBuilder<Double> getEntry) {
-
-        return new TypeCase<>(onCall, getEntry, DOUBLE, LONG);
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsBoolean(key, false, null), BOOLEAN);
     }
 
     /**
@@ -273,24 +242,26 @@ public abstract class TracedCollection {
      *               apply to the entry.
      * @return <code>TypeCase&lt;Double, T&gt;</code>: The created double type case.
      */
-    public <T> TypeCase<Double, T> doubleCase(EntryOperator<Double, T> onCall) {
+    public final <T> TypeCase<Double, T> doubleCase(EntryOperator<Double, T> onCall) {
 
-        return doubleCase(onCall, (collection, key) -> collection.getAsDouble(key, false, null));
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsDouble(key, false, null), LONG, DOUBLE);
     }
 
     /**
-     * Creates a float type case.
+     * Creates a double type case with a default entry builder.
      * 
-     * @param <T>      <code>Object</code>: The type of the value.
-     * @param onCall   <code>EntryOperator&lt;Float, T&gt;</code>: The operator to
-     *                 apply to the entry.
-     * @param getEntry <code>EntryBuilder&lt;Float&gt;</code>: The builder to create
-     *                 the entry.
-     * @return <code>TypeCase&lt;Float, T&gt;</code>: The created float type case.
+     * @param <T>       <code>Object</code>: The type of the value.
+     * @param onCall    <code>EntryOperator&lt;Double, T&gt;</code>: The operator to
+     *                  apply to the entry.
+     * @param isInRange <code>Function&lt;Double, Boolean&gt;</code>: The filter to
+     *                  determine if a number is valid.
+     * @return <code>TypeCase&lt;Double, T&gt;</code>: The created double type case.
      */
-    public <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall, EntryBuilder<Float> getEntry) {
+    public final <T> TypeCase<Double, T> doubleCase(EntryOperator<Double, T> onCall,
+            Function<Double, Boolean> isInRange) {
 
-        return new TypeCase<>(onCall, getEntry, DOUBLE, LONG);
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsDouble(key, false, null, isInRange), LONG,
+                DOUBLE);
     }
 
     /**
@@ -303,22 +274,23 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall) {
 
-        return floatCase(onCall, (collection, key) -> collection.getAsFloat(key, false, null));
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsFloat(key, false, null), LONG, DOUBLE);
     }
 
     /**
-     * Creates a long type case.
+     * Creates a float type case with a default entry builder.
      * 
-     * @param <T>      <code>Object</code>: The type of the value.
-     * @param onCall   <code>EntryOperator&lt;Long, T&gt;</code>: The operator to
-     *                 apply to the entry.
-     * @param getEntry <code>EntryBuilder&lt;Long&gt;</code>: The builder to create
-     *                 the entry.
-     * @return <code>TypeCase&lt;Long, T&gt;</code>: The created long type case.
+     * @param <T>       <code>Object</code>: The type of the value.
+     * @param onCall    <code>EntryOperator&lt;Float, T&gt;</code>: The operator to
+     *                  apply to the entry.
+     * @param isInRange <code>Function&lt;Float, Boolean&gt;</code>: The filter to
+     *                  determine if a number is valid.
+     * @return <code>TypeCase&lt;Float, T&gt;</code>: The created float type case.
      */
-    public <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall, EntryBuilder<Long> getEntry) {
+    public <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall, Function<Float, Boolean> isInRange) {
 
-        return new TypeCase<>(onCall, getEntry, LONG);
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsFloat(key, false, null, isInRange), LONG,
+                DOUBLE);
     }
 
     /**
@@ -331,23 +303,22 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall) {
 
-        return longCase(onCall, (collection, key) -> collection.getAsLong(key, false, null));
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsLong(key, false, null), LONG);
     }
 
     /**
-     * Creates an integer type case.
+     * Creates a long type case with a default entry builder.
      * 
-     * @param <T>      <code>Object</code>: The type of the value.
-     * @param onCall   <code>EntryOperator&lt;Integer, T&gt;</code>: The operator to
-     *                 apply to the entry.
-     * @param getEntry <code>EntryBuilder&lt;Integer&gt;</code>: The builder to
-     *                 create the entry.
-     * @return <code>TypeCase&lt;Integer, T&gt;</code>: The created integer type
-     *         case.
+     * @param <T>       <code>Object</code>: The type of the value.
+     * @param onCall    <code>EntryOperator&lt;Long, T&gt;</code>: The operator to
+     *                  apply to the entry.
+     * @param isInRange <code>Function&lt;Long, Boolean&gt;</code>: The filter to
+     *                  determine if a number is valid.
+     * @return <code>TypeCase&lt;Long, T&gt;</code>: The created long type case.
      */
-    public <T> TypeCase<Integer, T> intCase(EntryOperator<Integer, T> onCall, EntryBuilder<Integer> getEntry) {
+    public <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall, Function<Long, Boolean> isInRange) {
 
-        return new TypeCase<>(onCall, getEntry, LONG);
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsLong(key, false, null, isInRange), LONG);
     }
 
     /**
@@ -361,7 +332,23 @@ public abstract class TracedCollection {
      */
     public <T> TypeCase<Integer, T> intCase(EntryOperator<Integer, T> onCall) {
 
-        return intCase(onCall, (collection, key) -> collection.getAsInteger(key, false, null));
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsInteger(key, false, null), LONG);
+    }
+
+    /**
+     * Creates an integer type case with a default entry builder.
+     * 
+     * @param <T>       <code>Object</code>: The type of the value.
+     * @param onCall    <code>EntryOperator&lt;Integer, T&gt;</code>: The operator
+     *                  to apply to the entry.
+     * @param isInRange <code>Function&lt;Integer, Boolean&gt;</code>: The filter to
+     *                  determine if a number is valid.
+     * @return <code>TypeCase&lt;Integer, T&gt;</code>: The created integer type
+     *         case.
+     */
+    public <T> TypeCase<Integer, T> intCase(EntryOperator<Integer, T> onCall, Function<Integer, Boolean> isInRange) {
+
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsInteger(key, false, null, isInRange), LONG);
     }
 
     /**
@@ -374,7 +361,7 @@ public abstract class TracedCollection {
      *                 create the entry.
      * @return <code>TypeCase&lt;String, T&gt;</code>: The created string type case.
      */
-    public <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall, EntryBuilder<String> getEntry) {
+    public static <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall, EntryBuilder<String> getEntry) {
 
         return new TypeCase<>(onCall, getEntry, STRING);
     }
@@ -928,10 +915,17 @@ public abstract class TracedCollection {
     }
 
     public final <T extends Number> TracedEntry<T> getAsNumber(Object key, boolean nullCaseAllowed, T ifNull,
-            Function<Number, T> generator, Function<T, Boolean> isInRange)
+            Function<Number, T> generator, Function<T, Boolean> isInRange, boolean doubleValueAllowed)
             throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
-        TracedEntry<?> entry = get(key, nullCaseAllowed, null, JSONType.LONG, JSONType.DOUBLE);
+        TracedEntry<?> entry;
+        if (doubleValueAllowed) {
+
+            entry = get(key, nullCaseAllowed, null, JSONType.LONG, JSONType.DOUBLE);
+        } else {
+
+            entry = get(key, nullCaseAllowed, null, JSONType.LONG);
+        }
 
         if (!entry.containsValue()) {
 
@@ -949,41 +943,10 @@ public abstract class TracedCollection {
         return entry.cast(val);
     }
 
-    /**
-     * Retrieves a field from this <code>TracedCollection</code> instance and parses
-     * it into a <code>Number</code> value.
-     * 
-     * @param <T>             <code>Number</code>: The type of number to retrieve.
-     * @param key             <code>Object</code>: The key whose entry to retrieve
-     *                        in this <code>TracedCollection</code> instance.
-     * @param nullCaseAllowed <code>boolean</code>: Whether or not a
-     *                        <code>null</code> case should cause an exception.
-     * @param ifNull          <code>T</code>: The value to return if the value
-     *                        retrieved from this <code>TracedCollection</code>
-     *                        instance is <code>null</code>.
-     * @param generator       <code>Function&lt;Number, T&gt;</code>: The function
-     *                        to generate the number.
-     * @return <code>TracedEntry&lt;T&gt;</code>: The number retrieved from this
-     *         <code>TracedCollection</code> instance.
-     * @throws MissingPropertyException Thrown if the retrieved field is missing and
-     *                                  the <code>nullCaseAllowed</code> parameter
-     *                                  is <code>false</code>.
-     * @throws PropertyTypeException    Thrown if the retrieved field is not of the
-     *                                  expected type.
-     * @throws NumberBoundsException    Thrown if the retrieved field is out of the
-     *                                  specified bounds.
-     */
-    public final <T extends Number> TracedEntry<T> getAsNumber(Object key, boolean nullCaseAllowed, T ifNull,
-            Function<Number, T> generator)
-            throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
-
-        return getAsNumber(key, nullCaseAllowed, ifNull, generator, _ -> true);
-    }
-
     public final TracedEntry<Integer> getAsByte(Object key, boolean nullCaseAllowed, Integer ifNull)
             throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
-        return getAsInteger(key, nullCaseAllowed, ifNull, num -> 0 <= num && num < 256);
+        return getAsNumber(key, nullCaseAllowed, ifNull, num -> num.intValue(), num -> 0 <= num && num < 256, false);
     }
 
     /**
@@ -1017,7 +980,7 @@ public abstract class TracedCollection {
             Function<Long, Boolean> isInRange)
             throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
-        return getAsNumber(key, nullCaseAllowed, ifNull, num -> num.longValue(), isInRange);
+        return getAsNumber(key, nullCaseAllowed, ifNull, num -> num.longValue(), isInRange, false);
     }
 
     /**
@@ -1051,7 +1014,7 @@ public abstract class TracedCollection {
             Function<Integer, Boolean> isInRange)
             throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
-        return getAsNumber(key, nullCaseAllowed, ifNull, num -> num.intValue(), isInRange);
+        return getAsNumber(key, nullCaseAllowed, ifNull, num -> num.intValue(), isInRange, false);
     }
 
     /**
@@ -1085,7 +1048,7 @@ public abstract class TracedCollection {
             Function<Float, Boolean> isInRange)
             throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
-        return getAsNumber(key, nullCaseAllowed, ifNull, num -> num.floatValue(), isInRange);
+        return getAsNumber(key, nullCaseAllowed, ifNull, num -> num.floatValue(), isInRange, true);
     }
 
     /**
@@ -1119,7 +1082,7 @@ public abstract class TracedCollection {
             Function<Double, Boolean> isInRange)
             throws MissingPropertyException, PropertyTypeException, NumberBoundsException {
 
-        return getAsNumber(key, nullCaseAllowed, ifNull, num -> num.doubleValue(), isInRange);
+        return getAsNumber(key, nullCaseAllowed, ifNull, num -> num.doubleValue(), isInRange, true);
     }
 
     /**
@@ -1396,7 +1359,8 @@ public abstract class TracedCollection {
     public final TracedEntry<AssetPresets> getAsPresets(Object key, boolean nullCaseAllowed, AssetType type)
             throws LoggedException {
 
-        AssetPresets presets = (nullCaseAllowed && !containsKey(key)) ? null : new AssetPresets(this, key, type);
+        AssetPresets presets = (nullCaseAllowed && !containsKey(key)) ? null
+                : AssetPresets.createPresets(this, key, type);
 
         return getEntry(key).cast(presets);
     }
@@ -1438,16 +1402,23 @@ public abstract class TracedCollection {
                     TracedArray json = entry.getValue();
                     for (int i : json) {
 
-                        TracedEntry<TracedDictionary> indexEntry = json.getAsDict(i, false);
-                        TracedDictionary indexJson = indexEntry.getValue();
+                        entries.add(json.get(i, List.of(
 
-                        T val = indexJson.get(subKey, List.of(operator));
+                                json.dictCase(indexEntry -> {
 
-                        TracedEntry<Double> chanceEntry = indexJson.getAsDouble("chance", true, 100.0,
-                                num -> num > 0.0);
-                        double chance = chanceEntry.getValue();
+                                    TracedDictionary indexJson = indexEntry.getValue();
 
-                        entries.add(new WeightedRoll.Entry<>(val, chance));
+                                    T val = indexJson.get(subKey, List.of(operator));
+
+                                    TracedEntry<Double> chanceEntry = indexJson.getAsDouble("chance", true, 100.0,
+                                            num -> num > 0.0);
+                                    double chance = chanceEntry.getValue();
+
+                                    return new WeightedRoll.Entry<>(val, chance);
+                                }),
+                                new TypeCase<>(
+                                        indexEntry -> new WeightedRoll.Entry<>(operator.onCall.apply(indexEntry)),
+                                        operator.getEntry, operator.types))));
                     }
 
                     return new WeightedRoll<>(entry, json, entries);
@@ -1459,8 +1430,78 @@ public abstract class TracedCollection {
 
         if (nullCaseAllowed) {
 
-            cases.add(nullCase(_ -> new WeightedRoll<>(ifNull)));
+            if (ifNull == null) {
+
+                cases.add(nullCase(_ -> null));
+            } else {
+
+                cases.add(nullCase(_ -> new WeightedRoll<>(ifNull)));
+            }
         }
+
+        return get(key, cases);
+    }
+
+    @FunctionalInterface
+    public static interface StringKeyOperator<T> {
+
+        public T apply(TracedDictionary stringJson, String stringKey) throws LoggedException;
+    }
+
+    public final <T> WeightedRoll<T> getAsStringRoll(Object key, boolean nullCaseAllowed, T ifNull,
+            EntryOperator<String, T> operator, StringKeyOperator<T> keyOperator) throws LoggedException {
+
+        ArrayList<TypeCase<?, WeightedRoll<T>>> cases = new ArrayList<>(List.of(
+
+                // Process an array of values.
+                arrayCase(entry -> {
+
+                    ArrayList<WeightedRoll.Entry<T>> entries = new ArrayList<>();
+
+                    TracedArray json = entry.getValue();
+                    for (int i : json) {
+
+                        TracedEntry<String> indexEntry = json.getAsString(i, false, null);
+                        T val = operator.apply(indexEntry);
+
+                        entries.add(new WeightedRoll.Entry<>(val));
+                    }
+
+                    return new WeightedRoll<>(entry, json, entries);
+                }),
+
+                // Process a dictionary of values.
+                dictCase(entry -> {
+
+                    ArrayList<WeightedRoll.Entry<T>> entries = new ArrayList<>();
+                    TracedDictionary json = entry.getValue();
+
+                    for (String stringKey : json) {
+
+                        TracedEntry<Double> weightEntry = json.getAsDouble(stringKey, false, null, num -> num > 0);
+                        double weight = weightEntry.getValue();
+
+                        T value = keyOperator.apply(json, stringKey);
+                        entries.add(new WeightedRoll.Entry<>(value, weight));
+                    }
+
+                    return new WeightedRoll<>(entry, json, entries);
+                }),
+
+                // Process a single value.
+                stringCase(entry -> new WeightedRoll<>(operator.apply(entry)))));
+
+        if (nullCaseAllowed) {
+
+            if (ifNull == null) {
+
+                cases.add(nullCase(_ -> null));
+            } else {
+
+                cases.add(nullCase(_ -> new WeightedRoll<>(ifNull)));
+            }
+        }
+
         return get(key, cases);
     }
 
@@ -1518,7 +1559,13 @@ public abstract class TracedCollection {
 
         if (nullCaseAllowed) {
 
-            cases.add(nullCase(_ -> new WeightedRoll<>(ifNull)));
+            if (ifNull == null) {
+
+                cases.add(nullCase(_ -> null));
+            } else {
+
+                cases.add(nullCase(_ -> new WeightedRoll<>(ifNull)));
+            }
         }
 
         return get(key, cases);

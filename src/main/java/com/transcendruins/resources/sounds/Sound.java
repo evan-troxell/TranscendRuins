@@ -16,16 +16,12 @@
 
 package com.transcendruins.resources.sounds;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import com.transcendruins.assets.extra.WeightedRoll;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.files.TracedPath;
-import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
-import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.selection.WeightedRoll;
 import com.transcendruins.utilities.sound.StoredSound;
 
 /**
@@ -49,62 +45,10 @@ public final class Sound {
      */
     public Sound(TracedDictionary json, String key) throws LoggedException {
 
-        entries = json.get(key, List.of(
+        String regExp = "^/+";
 
-                json.arrayCase(entry -> {
-
-                    TracedArray soundJson = entry.getValue();
-
-                    ArrayList<WeightedRoll.Entry<String>> jsonEntries = new ArrayList<>();
-
-                    for (int i : soundJson) {
-
-                        TracedEntry<String> pathEntry = soundJson.getAsString(i, false, null);
-                        String path = pathEntry.getValue();
-                        if (path.startsWith("/")) {
-
-                            path = path.substring(1);
-                        }
-
-                        jsonEntries.add(new WeightedRoll.Entry<>(path));
-                    }
-
-                    return new WeightedRoll<>(entry, soundJson, jsonEntries);
-                }),
-
-                json.dictCase(entry -> {
-
-                    TracedDictionary soundJson = entry.getValue();
-
-                    ArrayList<WeightedRoll.Entry<String>> jsonEntries = new ArrayList<>();
-
-                    for (String pathString : soundJson) {
-
-                        String path = pathString;
-                        if (path.startsWith("/")) {
-
-                            path = path.substring(1);
-                        }
-                        TracedEntry<Double> weightEntry = soundJson.getAsDouble(pathString, false, null,
-                                num -> num > 0);
-
-                        jsonEntries.add(new WeightedRoll.Entry<>(path, weightEntry.getValue()));
-                    }
-
-                    return new WeightedRoll<>(entry, soundJson, jsonEntries);
-                }),
-
-                json.stringCase(entry -> {
-
-                    String path = entry.getValue();
-                    if (path.startsWith("/")) {
-
-                        path = path.substring(1);
-                    }
-
-                    return new WeightedRoll<>(path);
-                })));
-
+        entries = json.getAsStringRoll(key, false, null, entry -> entry.getValue().replaceFirst(regExp, ""),
+                (_, stringKey) -> stringKey.replaceFirst(regExp, ""));
     }
 
     /**

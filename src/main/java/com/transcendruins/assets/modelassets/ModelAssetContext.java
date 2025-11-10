@@ -14,17 +14,17 @@
  *
  */
 
-package com.transcendruins.assets.layouts;
+package com.transcendruins.assets.modelassets;
 
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 
 /**
- * <code>LayoutContext</code>: A class representing the instantiation context of
- * an layout.
+ * <code>ModelAssetContext</code>: A class representing the instantiation
+ * context of a model asset.
  */
-public final class LayoutContext extends AssetContext {
+public abstract class ModelAssetContext extends AssetContext {
 
     private final GlobalLocationInstance location;
 
@@ -34,26 +34,18 @@ public final class LayoutContext extends AssetContext {
     }
 
     /**
-     * Creates a new instance of the <code>LayoutContext</code> class.
+     * Creates a new instance of the <code>ModelAssetContext</code> class.
      * 
-     * @param presets <code>AssetPresets</code>: The presets containing schema and
-     *                instantiation information of this <code>LayoutContext</code>
-     *                instance.
-     * @param world   <code>World</code>: The world copy of this
-     *                <code>LayoutContext</code> instance.
-     * @param parent  <code>PropertyHolder</code>: The parent to assign to this
-     *                <code>LayoutContext</code> instance.
+     * @param presets  <code>AssetPresets</code>: The presets containing schema and
+     *                 instantiation information of this
+     *                 <code>ModelAssetContext</code> instance.
+     * @param location <code>GlobalLocationInstance</code>: The location of this
+     *                 <code>ModelAssetContext</code> instance.
      */
-    public LayoutContext(AssetPresets presets, GlobalLocationInstance location) {
+    public ModelAssetContext(AssetPresets presets, GlobalLocationInstance location) {
 
         super(presets, location.getWorld(), location);
 
         this.location = location;
-    }
-
-    @Override
-    public final LayoutInstance instantiate() {
-
-        return (LayoutInstance) instantiate(this);
     }
 }

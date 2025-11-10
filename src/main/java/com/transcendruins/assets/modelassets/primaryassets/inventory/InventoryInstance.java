@@ -360,7 +360,7 @@ public final class InventoryInstance extends Instance {
         ArrayList<InventorySlotInstance> availableSlots = new ArrayList<>(List.of(grid));
         if (randomize) {
 
-            asset.shuffle(availableSlots);
+            asset.getRandom().shuffle(availableSlots);
         }
 
         ListIterator<ItemInstance> itemIt = items.listIterator();

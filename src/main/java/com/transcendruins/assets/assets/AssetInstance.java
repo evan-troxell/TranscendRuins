@@ -95,29 +95,15 @@ public abstract class AssetInstance extends Instance {
     private final DeterministicRandom random;
 
     /**
-     * Retreives the next random value from the RNG of this
-     * <code>AssetInstance</code> instance.
+     * Retreives the random number generater of this <code>AssetInstance</code>
+     * instance.
      * 
-     * @return <code>long</code>: The next value of the <code>random</code> field of
+     * @return <code>DeterministicRandom</code>: The <code>random</code> field of
      *         this <code>AssetInstance</code> instance.
      */
-    public final long nextRandom() {
+    public final DeterministicRandom getRandom() {
 
-        return random.next();
-    }
-
-    /**
-     * Shuffles a list using the RNG of this <code>AssetInstance</code> instance.
-     * 
-     * @param list <code>List&lt;?&gt;</code>: The list to shuffle.
-     */
-    public final void shuffle(List<?> list) {
-
-        for (int i = list.size() - 1; i > 0; i--) {
-
-            int j = (int) (DeterministicRandom.toDouble(nextRandom()) * (i + 1));
-            Collections.swap(list, i, j);
-        }
+        return random;
     }
 
     /**

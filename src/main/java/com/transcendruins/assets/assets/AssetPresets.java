@@ -56,12 +56,6 @@ public final class AssetPresets {
     }
 
     /**
-     * <code>Identifier</code>: The identifier of this <code>AssetPresets</code>
-     * instance.
-     */
-    private final Identifier identifier;
-
-    /**
      * Retrieves the identifier of this <code>AssetPresets</code> instance.
      * 
      * @return <code>Identifier</code>: The value of the
@@ -70,7 +64,7 @@ public final class AssetPresets {
      */
     public Identifier getIdentifier() {
 
-        return identifier;
+        return identifierEntry.getValue();
     }
 
     /**
@@ -117,12 +111,53 @@ public final class AssetPresets {
     @Deprecated
     public AssetPresets(Identifier identifier, AssetType type) {
 
+        this(new TracedEntry<>(null, identifier), type);
+    }
+
+    @Deprecated
+    public AssetPresets(TracedEntry<Identifier> identifierEntry, AssetType type) {
+
         this.type = type;
-        this.identifierEntry = new TracedEntry<>(null, identifier);
-        this.identifier = identifierEntry.getValue();
+        this.identifierEntry = identifierEntry;
 
         events = new ImmutableList<>();
         properties = new ImmutableMap<>();
+    }
+
+    public AssetPresets(TracedDictionary json, TracedEntry<Identifier> identifierEntry, AssetType type)
+            throws LoggedException {
+
+        this.type = type;
+        this.identifierEntry = identifierEntry;
+
+        ArrayList<String> eventsList = new ArrayList<>();
+
+        TracedEntry<TracedArray> eventsEntry = json.getAsArray("events", true);
+        if (eventsEntry.containsValue()) {
+
+            TracedArray eventsJson = eventsEntry.getValue();
+
+            for (int i : eventsJson) {
+
+                TracedEntry<String> eventEntry = eventsJson.getAsString(i, false, null);
+                eventsList.add(eventEntry.getValue());
+            }
+        }
+        events = new ImmutableList<>(eventsList);
+
+        HashMap<String, Object> propertiesMap = new HashMap<>();
+
+        TracedEntry<TracedDictionary> propertiesEntry = json.getAsDict("properties", true);
+        if (propertiesEntry.containsValue()) {
+
+            TracedDictionary propertiesJson = propertiesEntry.getValue();
+            for (String property : propertiesJson) {
+
+                TracedEntry<Object> propertyEntry = propertiesJson.getAsScalar(property, true, null);
+                propertiesMap.put(property, propertyEntry.getValue());
+            }
+        }
+        properties = new ImmutableMap<>(propertiesMap);
     }
 
     /**
@@ -137,45 +172,20 @@ public final class AssetPresets {
      * @throws LoggedException Thrown if any exception is raised while creating this
      *                         <code>AssetPresets</code> instance.
      */
-    public AssetPresets(TracedCollection collection, Object key, AssetType type) throws LoggedException {
-
-        this.type = type;
-        this.identifierEntry = collection.getAsMetadata(key, false, false);
-        this.identifier = identifierEntry.getValue();
-
-        ArrayList<String> eventsList = new ArrayList<>();
-        HashMap<String, Object> propertiesMap = new HashMap<>();
+    public static final AssetPresets createPresets(TracedCollection collection, Object key, AssetType type)
+            throws LoggedException {
 
         if (collection.getType(key) == JSONType.DICT) {
 
             TracedEntry<TracedDictionary> assetEntry = collection.getAsDict(key, false);
             TracedDictionary json = assetEntry.getValue();
 
-            TracedEntry<TracedArray> eventsEntry = json.getAsArray("events", true);
-            if (eventsEntry.containsValue()) {
+            TracedEntry<Identifier> identifierEntry = collection.getAsMetadata(key, false, false);
 
-                TracedArray eventsJson = eventsEntry.getValue();
-
-                for (int i : eventsJson) {
-
-                    TracedEntry<String> eventEntry = eventsJson.getAsString(i, false, null);
-                    eventsList.add(eventEntry.getValue());
-                }
-            }
-
-            TracedEntry<TracedDictionary> propertiesEntry = json.getAsDict("properties", true);
-            if (propertiesEntry.containsValue()) {
-
-                TracedDictionary propertiesJson = propertiesEntry.getValue();
-                for (String property : propertiesJson) {
-
-                    TracedEntry<Object> propertyEntry = propertiesJson.getAsScalar(property, true, null);
-                    propertiesMap.put(property, propertyEntry.getValue());
-                }
-            }
+            return new AssetPresets(json, identifierEntry, type);
         }
 
-        events = new ImmutableList<>(eventsList);
-        properties = new ImmutableMap<>(propertiesMap);
+        TracedEntry<Identifier> identifierEntry = collection.getAsIdentifier(key, false, null);
+        return new AssetPresets(identifierEntry, type);
     }
 }

@@ -5,7 +5,7 @@
     "attributes": {
         "texture": "item.cloth.texture",
         "model": "TranscendRuins:box",
-        "animationController": "TranscendRuins:box",
+        "stateController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
 
         "stackSize": 20,
