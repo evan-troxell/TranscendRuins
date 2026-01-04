@@ -27,8 +27,6 @@ import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
 import com.transcendruins.assets.modelassets.attack.AttackInstance;
 import com.transcendruins.assets.modelassets.attack.AttackSchema;
-import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
-import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.geometry.Matrix;
@@ -131,31 +129,6 @@ public final class ItemInstance extends ModelAssetInstance {
         return icon;
     }
 
-    /**
-     * <code>InventorySlotInstance</code>: The inventory slot containing this
-     * <code>ItemInstance</code> instance.
-     */
-    private InventorySlotInstance slot;
-
-    public final void setModelParent(PrimaryAssetInstance parent, InventorySlotInstance slot) {
-
-        setModelParent(parent);
-        this.slot = slot;
-    }
-
-    @Override
-    public final void removeModelParent() {
-
-        setModelParent(null);
-        slot = null;
-    }
-
-    @Override
-    public final String getModelParentAttachment() {
-
-        return slot.getModelAttachment();
-    }
-
     @Override
     protected final RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector position,
             Quaternion rotation) {
@@ -168,7 +141,7 @@ public final class ItemInstance extends ModelAssetInstance {
     protected final RenderBuffer getChildPolygons(ModelInstance model, BoneActorSet boneActors,
             ModelAssetInstance parent, String attachment) {
 
-        Vector position = model.getPivotPoint(getModelParentAttachment());
+        Vector position = model.getPivotPoint(attachment);
         boneActors = new BoneActorSet(boneActors, parent.getBoneActors());
 
         Bone root = model.getRoot();

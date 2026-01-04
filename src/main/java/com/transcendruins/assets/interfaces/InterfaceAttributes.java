@@ -22,13 +22,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.swing.ImageIcon;
-
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.resources.styles.Style;
 import com.transcendruins.resources.styles.Style.Size;
@@ -53,7 +50,7 @@ public final class InterfaceAttributes extends AssetAttributes {
     // Primative component types.
     public static final String STRING = "string";
     public static final String TEXT = "text";
-    public static final String TEXTURE = "texture";
+    public static final String ICON = "icon";
 
     // Traditional input component types.
     public static final String BUTTON = "button"; // Button input
@@ -159,35 +156,8 @@ public final class InterfaceAttributes extends AssetAttributes {
     public static final ComponentSchema createComponent(TracedCollection collection, Object key,
             Consumer<AssetPresets> dependencyAdder) throws LoggedException {
 
-        return collection.get(key, List.of(
-
-                // Handle a dictionary component.
-                collection.dictCase(entry -> {
-
-                    TracedDictionary json = entry.getValue();
-                    return createDictComponent(json, dependencyAdder);
-                }),
-                // Handle a string literal.
-                collection.scriptCase(entry -> {
-
-                    TRScript string = entry.getValue();
-                    return new StringComponentSchema(string);
-                })));
-    }
-
-    /**
-     * Creates a UI component schema from a dictionary.
-     * 
-     * @param json            <code>TracedDictionary</code>: The dictionary to
-     *                        parse.
-     * @param dependencyAdder <code>Consumer&lt;AssetPresets&gt;</code>: The method
-     *                        used to add dependencies to this
-     *                        <code>InterfaceAttributes</code> instance.
-     * @return <code>ComponentSchema</code>: The generated schema.
-     * @throws LoggedException Thrown if the dictionary could not be parsed.
-     */
-    public static final ComponentSchema createDictComponent(TracedDictionary json,
-            Consumer<AssetPresets> dependencyAdder) throws LoggedException {
+        TracedEntry<TracedDictionary> entry = collection.getAsDict(key, false);
+        TracedDictionary json = entry.getValue();
 
         TracedEntry<String> typeEntry = json.getAsString("type", false, null);
         String type = typeEntry.getValue();
@@ -197,7 +167,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         case TEXT -> new TextComponentSchema(json);
 
-        case TEXTURE -> new TextureComponentSchema(json);
+        case ICON -> new IconComponentSchema(json);
 
         case BUTTON -> new ButtonComponentSchema(json, dependencyAdder);
 
@@ -400,47 +370,17 @@ public final class InterfaceAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>StringComponentSchema</code>: A class representing the schema of a
-     * string literal UI component.
-     */
-    public static final class StringComponentSchema extends ComponentSchema {
-
-        /**
-         * <code>TRScript</code>: The string value of this
-         * <code>StringComponentSchema</code> instance.
-         */
-        private final TRScript key;
-
-        /**
-         * Retrieves the string value of this <code>StringComponentSchema</code>
-         * instance.
-         * 
-         * @return <code>TRScript</code>: The <code>string</code> field of this
-         *         <code>StringComponentSchema</code> instance.
-         */
-        public final TRScript getKey() {
-
-            return key;
-        }
-
-        /**
-         * Creates a new instance of the <code>StringComponentSchema</code> class.
-         * 
-         * @param string <code>TRScript</code>: The string value to use.
-         */
-        public StringComponentSchema(TRScript string) {
-
-            super(string);
-
-            this.key = string;
-        }
-    }
-
-    /**
      * <code>TextComponentSchema</code>: A class representing the schema of a text
      * UI component.
      */
     public static final class TextComponentSchema extends ComponentSchema {
+
+        private final TRScript text;
+
+        public final TRScript getText() {
+
+            return text;
+        }
 
         /**
          * Creates a new instance of the <code>TextComponentSchema</code> class.
@@ -453,96 +393,86 @@ public final class InterfaceAttributes extends AssetAttributes {
             super(json, TEXT);
 
             TracedEntry<TRScript> textEntry = json.getAsScript("text", true);
-            if (textEntry.containsValue()) {
-
-                StringComponentSchema text = new StringComponentSchema(textEntry.getValue());
-                addChild(text);
-            }
+            text = textEntry.getValue();
         }
     }
 
     /**
-     * <code>TextureComponentSchema</code>: A class representing the schema of a
-     * texture UI component.
+     * <code>IconComponentSchema</code>: A class representing the schema of a icon
+     * UI component.
      */
-    public static final class TextureComponentSchema extends ComponentSchema {
+    public static final class IconComponentSchema extends ComponentSchema {
 
         /**
-         * <code>TextureType</code>: The texture of this
-         * <code>TextureComponentSchema</code> instance.
+         * <code>IconType</code>: The icon of this <code>IconComponentSchema</code>
+         * instance.
          */
-        private final TextureType texture;
+        private final IconType icon;
 
         /**
-         * Retrieves the texture of this <code>TextureComponentSchema</code> instance.
+         * Retrieves the icon of this <code>IconComponentSchema</code> instance.
          * 
-         * @return <code>TextureType</code>: The <code>texture</code> field of this
-         *         <code>TextureComponentSchema</code> instance.
+         * @return <code>IconType</code>: The <code>icon</code> field of this
+         *         <code>IconComponentSchema</code> instance.
          */
-        public final TextureType getTexture() {
+        public final IconType getIcon() {
 
-            return texture;
+            return icon;
         }
 
         /**
-         * Creates a new instance of the <code>TextureComponentSchema</code> class.
+         * Creates a new instance of the <code>IconComponentSchema</code> class.
          * 
          * @param json <code>TracedDictionary</code>: The dictionary to parse.
          * @throws LoggedException Thrown if the dictionary could not be parsed.
          */
-        public TextureComponentSchema(TracedDictionary json) throws LoggedException {
+        public IconComponentSchema(TracedDictionary json) throws LoggedException {
 
-            super(json, TEXTURE);
+            super(json, ICON);
 
-            texture = json.get("texture", List.of(
+            icon = json.get("icon", List.of(
 
-                    // Process a dictionary texture.
-                    json.dictCase(entry -> TextureType.createTextureType(entry.getValue())),
-                    // Process a string literal texture.
-                    json.scriptCase(entry -> new StringTextureType(entry.getValue()))));
+                    // Process a dictionary icon.
+                    json.dictCase(entry -> IconType.createIconType(entry.getValue())),
+                    // Process a string literal icon.
+                    json.scriptCase(entry -> new StringIconType(entry.getValue()))));
         }
     }
 
-    public static abstract class TextureType {
+    public static abstract class IconType {
 
         private final TRScript backup;
 
-        public TextureType(TRScript backup) {
+        public final String getIcon(InterfaceInstance component) {
+
+            return backup != null ? backup.evaluateString(component) : null;
+        }
+
+        public IconType(TRScript backup) {
 
             this.backup = backup;
         }
 
-        public final ImageIcon getTexture(InterfaceInstance component, long componentId) {
-
-            ImageIcon instanceTexture = getInstanceTexture(component, componentId);
-            return instanceTexture == null && backup != null
-                    ? component.getWorld().getTexture(backup.evaluateString(component), componentId)
-                    : instanceTexture;
-        }
-
-        protected abstract ImageIcon getInstanceTexture(InterfaceInstance component, long componentId);
-
-        public static final TextureType createTextureType(TracedDictionary json) throws LoggedException {
+        public static final IconType createIconType(TracedDictionary json) throws LoggedException {
 
             TracedEntry<String> typeEntry = json.getAsString("type", false, null);
             String type = typeEntry.getValue();
 
             return switch (type) {
 
-            case "texture" -> {
+            case "icon" -> {
 
-                TracedEntry<TRScript> textureEntry = json.getAsScript("texture", false);
-                yield new StringTextureType(textureEntry.getValue());
+                TracedEntry<TRScript> iconEntry = json.getAsScript("icon", false);
+                yield new StringIconType(iconEntry.getValue());
             }
 
             case "inventorySlot" -> {
 
-                TracedEntry<TRScript> textureEntry = json.getAsScript("texture", true);
-                TRScript texture = textureEntry.getValue();
+                TracedEntry<TRScript> iconEntry = json.getAsScript("icon", true);
+                TRScript icon = iconEntry.getValue();
 
-                yield json.get("slot",
-                        List.of(json.intCase(entry -> new GridSlotTextureType(entry.getValue(), texture)),
-                                json.stringCase(entry -> new NamedSlotTextureType(entry.getValue(), texture))));
+                yield json.get("slot", List.of(json.intCase(entry -> new GridSlotIconType(entry.getValue(), icon)),
+                        json.stringCase(entry -> new NamedSlotIconType(entry.getValue(), icon))));
             }
 
             default -> throw new UnexpectedValueException(typeEntry);
@@ -550,79 +480,43 @@ public final class InterfaceAttributes extends AssetAttributes {
         }
     }
 
-    public static final class StringTextureType extends TextureType {
+    public static final class StringIconType extends IconType {
 
-        public StringTextureType(TRScript texture) {
+        public StringIconType(TRScript icon) {
 
-            super(texture);
-        }
-
-        @Override
-        protected ImageIcon getInstanceTexture(InterfaceInstance component, long componentId) {
-
-            return null;
+            super(icon);
         }
     }
 
-    public static final class GridSlotTextureType extends TextureType {
+    public static final class GridSlotIconType extends IconType {
 
         private final int slot;
 
-        private final TRScript texture;
+        public final int getSlot() {
 
-        public GridSlotTextureType(int slot, TRScript texture) {
-
-            super(null);
-            this.slot = slot;
-            this.texture = texture;
+            return slot;
         }
 
-        @Override
-        protected ImageIcon getInstanceTexture(InterfaceInstance component, long componentId) {
+        public GridSlotIconType(int slot, TRScript icon) {
 
-            return component.getWorld().playerFunction(component.getPlayerId(), player -> {
-
-                ItemInstance item = player.getEntity().getInventory().getItem(slot);
-                if (item == null) {
-
-                    return texture != null
-                            ? component.getWorld().getTexture(texture.evaluateString(component), componentId)
-                            : null;
-                }
-
-                return item.getIcon();
-            });
+            super(icon);
+            this.slot = slot;
         }
     }
 
-    public static final class NamedSlotTextureType extends TextureType {
+    public static final class NamedSlotIconType extends IconType {
 
         private final String slot;
 
-        private final TRScript texture;
+        public final String getSlot() {
 
-        public NamedSlotTextureType(String slot, TRScript texture) {
-
-            super(null);
-            this.slot = slot;
-            this.texture = texture;
+            return slot;
         }
 
-        @Override
-        protected ImageIcon getInstanceTexture(InterfaceInstance component, long componentId) {
+        public NamedSlotIconType(String slot, TRScript icon) {
 
-            return component.getWorld().playerFunction(component.getPlayerId(), player -> {
-
-                ItemInstance item = player.getEntity().getInventory().getItem(slot);
-                if (item == null) {
-
-                    return texture != null
-                            ? component.getWorld().getTexture(texture.evaluateString(component), componentId)
-                            : null;
-                }
-
-                return item.getIcon();
-            });
+            super(icon);
+            this.slot = slot;
         }
     }
 
@@ -884,8 +778,8 @@ public final class InterfaceAttributes extends AssetAttributes {
             return grid;
         }
 
-        public static final record GridDisplay(int x, int y, int width, int height, int start, String slotTexture,
-                String selectedSlotTexture) {
+        public static final record GridDisplay(int x, int y, int width, int height, int start, String slotIcon,
+                String selectedSlotIcon) {
         }
 
         private final ImmutableMap<String, NamedDisplay> named;
@@ -895,7 +789,7 @@ public final class InterfaceAttributes extends AssetAttributes {
             return named;
         }
 
-        public static final record NamedDisplay(int x, int y, String slotTexture, String selectedSlotTexture) {
+        public static final record NamedDisplay(int x, int y, String slotIcon, String selectedSlotIcon) {
         }
 
         private final Size slotSize;
@@ -933,14 +827,13 @@ public final class InterfaceAttributes extends AssetAttributes {
                 TracedEntry<Integer> startEntry = slotsJson.getAsInteger("start", true, 0, rows -> rows >= 0);
                 int start = startEntry.getValue();
 
-                TracedEntry<String> slotTextureEntry = slotsJson.getAsString("slotTexture", true, null);
-                String slotTexture = slotTextureEntry.getValue();
+                TracedEntry<String> slotIconEntry = slotsJson.getAsString("slotIcon", true, null);
+                String slotIcon = slotIconEntry.getValue();
 
-                TracedEntry<String> selectedSlotTextureEntry = slotsJson.getAsString("selectedSlotTexture", true, null);
-                String selectedSlotTexture = selectedSlotTextureEntry.getValue();
+                TracedEntry<String> selectedSlotIconEntry = slotsJson.getAsString("selectedSlotIcon", true, null);
+                String selectedSlotIcon = selectedSlotIconEntry.getValue();
 
-                return new ImmutableList<>(
-                        new GridDisplay(x, y, width, height, start, slotTexture, selectedSlotTexture));
+                return new ImmutableList<>(new GridDisplay(x, y, width, height, start, slotIcon, selectedSlotIcon));
             }), json.arrayCase(entry -> {
 
                 ArrayList<GridDisplay> gridList = new ArrayList<>();
@@ -966,14 +859,13 @@ public final class InterfaceAttributes extends AssetAttributes {
                     TracedEntry<Integer> startEntry = slotsJson.getAsInteger("start", true, 0, rows -> rows >= 0);
                     int start = startEntry.getValue();
 
-                    TracedEntry<String> slotTextureEntry = slotsJson.getAsString("slotTexture", true, null);
-                    String slotTexture = slotTextureEntry.getValue();
+                    TracedEntry<String> slotIconEntry = slotsJson.getAsString("slotIcon", true, null);
+                    String slotIcon = slotIconEntry.getValue();
 
-                    TracedEntry<String> selectedSlotTextureEntry = slotsJson.getAsString("selectedSlotTexture", true,
-                            null);
-                    String selectedSlotTexture = selectedSlotTextureEntry.getValue();
+                    TracedEntry<String> selectedSlotIconEntry = slotsJson.getAsString("selectedSlotIcon", true, null);
+                    String selectedSlotIcon = selectedSlotIconEntry.getValue();
 
-                    gridList.add(new GridDisplay(x, y, width, height, start, slotTexture, selectedSlotTexture));
+                    gridList.add(new GridDisplay(x, y, width, height, start, slotIcon, selectedSlotIcon));
                 }
 
                 return new ImmutableList<>(gridList);
@@ -1013,14 +905,14 @@ public final class InterfaceAttributes extends AssetAttributes {
                         TracedEntry<Integer> yEntry = pointJson.getAsInteger("y", false, null, y -> y >= 0);
                         int y = yEntry.getValue();
 
-                        TracedEntry<String> slotTextureEntry = pointJson.getAsString("slotTexture", true, null);
-                        String slotTexture = slotTextureEntry.getValue();
+                        TracedEntry<String> slotIconEntry = pointJson.getAsString("slotIcon", true, null);
+                        String slotIcon = slotIconEntry.getValue();
 
-                        TracedEntry<String> selectedSlotTextureEntry = pointJson.getAsString("selectedSlotTexture",
-                                true, null);
-                        String selectedSlotTexture = selectedSlotTextureEntry.getValue();
+                        TracedEntry<String> selectedSlotIconEntry = pointJson.getAsString("selectedSlotIcon", true,
+                                null);
+                        String selectedSlotIcon = selectedSlotIconEntry.getValue();
 
-                        return new NamedDisplay(x, y, slotTexture, selectedSlotTexture);
+                        return new NamedDisplay(x, y, slotIcon, selectedSlotIcon);
                     })));
 
                     namedMap.put(name, namedSlot);

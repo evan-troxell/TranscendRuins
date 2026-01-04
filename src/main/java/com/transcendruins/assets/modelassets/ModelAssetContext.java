@@ -16,36 +16,29 @@
 
 package com.transcendruins.assets.modelassets;
 
+import com.transcendruins.PropertyHolder;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetPresets;
-import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
+import com.transcendruins.world.World;
 
 /**
  * <code>ModelAssetContext</code>: A class representing the instantiation
  * context of a model asset.
  */
 public abstract class ModelAssetContext extends AssetContext {
-
-    private final GlobalLocationInstance location;
-
-    public final GlobalLocationInstance getLocation() {
-
-        return location;
-    }
-
     /**
      * Creates a new instance of the <code>ModelAssetContext</code> class.
      * 
-     * @param presets  <code>AssetPresets</code>: The presets containing schema and
-     *                 instantiation information of this
-     *                 <code>ModelAssetContext</code> instance.
-     * @param location <code>GlobalLocationInstance</code>: The location of this
-     *                 <code>ModelAssetContext</code> instance.
+     * @param presets <code>AssetPresets</code>: The presets containing schema and
+     *                instantiation information of this
+     *                <code>ModelAssetContext</code> instance.
+     * @param world   <code>World</code>: The world copy of this
+     *                <code>ModelAssetContext</code> instance.
+     * @param parent  <code>PropertyHolder</code>: The parent to assign to this
+     *                <code>ModelAssetContext</code> instance.
      */
-    public ModelAssetContext(AssetPresets presets, GlobalLocationInstance location) {
+    public ModelAssetContext(AssetPresets presets, World world, PropertyHolder parent) {
 
-        super(presets, location.getWorld(), location);
-
-        this.location = location;
+        super(presets, world, parent);
     }
 }

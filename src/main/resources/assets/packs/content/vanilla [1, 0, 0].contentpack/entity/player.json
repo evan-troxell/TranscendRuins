@@ -1,7 +1,5 @@
 {
-
     "metadata": {
-
         "identifier": "TranscendRuins:player"
     },
     "attributes": {
@@ -9,8 +7,24 @@
         "model": "TranscendRuins:box",
         "stateController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
+        "mapIcon": "entity.playerMapIcon",
         "inventory": {
             "privateUi": {
+                "header": {
+                    "type": "text",
+                    "text": "interface.example",
+
+                    "style": {
+                        "width": "100%",
+                        "fontSize": "40px",
+                        "textAlign": "center",
+                        "border": {
+                            "style": "solid",
+                            "width": "2px",
+                            "color": "#AAAAAA"
+                        }
+                    }
+                },
                 "slotSize": 80,
                 "grid": {
                     "x": 0,
@@ -25,51 +39,44 @@
                     "mainhand": {
                         "x": 0,
                         "y": 0,
-
-                        "slotTexture": "interface.inventory.mainhandSlot",
-                        "selectedSlotTexture": "interface.inventory.mainhandSlotSelected"
+                        "slotIcon": "interface.inventory.mainhandSlot",
+                        "selectedSlotIcon": "interface.inventory.mainhandSlotSelected"
                     },
                     "offhand": {
                         "x": 0,
                         "y": 95,
-
-                        "slotTexture": "interface.inventory.offhandSlot",
-                        "selectedSlotTexture": "interface.inventory.offhandSlotSelected"
+                        "slotIcon": "interface.inventory.offhandSlot",
+                        "selectedSlotIcon": "interface.inventory.offhandSlotSelected"
                     },
                     "backpack": {
                         "x": 0,
                         "y": 285,
-
-                        "slotTexture": "interface.inventory.backpackSlot",
-                        "selectedSlotTexture": "interface.inventory.backpackSlotSelected"
+                        "slotIcon": "interface.inventory.backpackSlot",
+                        "selectedSlotIcon": "interface.inventory.backpackSlotSelected"
                     },
                     "cap": {
                         "x": 320,
                         "y": 0,
-
-                        "slotTexture": "interface.inventory.capSlot",
-                        "selectedSlotTexture": "interface.inventory.capSlotSelected"
+                        "slotIcon": "interface.inventory.capSlot",
+                        "selectedSlotIcon": "interface.inventory.capSlotSelected"
                     },
                     "top": {
                         "x": 320,
                         "y": 95,
-
-                        "slotTexture": "interface.inventory.topSlot",
-                        "selectedSlotTexture": "interface.inventory.topSlotSelected"
+                        "slotIcon": "interface.inventory.topSlot",
+                        "selectedSlotIcon": "interface.inventory.topSlotSelected"
                     },
                     "pants": {
                         "x": 320,
                         "y": 190,
-
-                        "slotTexture": "interface.inventory.pantsSlot",
-                        "selectedSlotTexture": "interface.inventory.pantsSlotSelected"
+                        "slotIcon": "interface.inventory.pantsSlot",
+                        "selectedSlotIcon": "interface.inventory.pantsSlotSelected"
                     },
                     "boots": {
                         "x": 320,
                         "y": 285,
-
-                        "slotTexture": "interface.inventory.bootsSlot",
-                        "selectedSlotTexture": "interface.inventory.bootsSlotSelected"
+                        "slotIcon": "interface.inventory.bootsSlot",
+                        "selectedSlotIcon": "interface.inventory.bootsSlotSelected"
                     }
                 }
             },
@@ -78,29 +85,82 @@
             },
             "named": {
                 "cap": {
-                    "acceptedTypes": ["cap"]
+                    "acceptedTypes": [
+                        "cap"
+                    ]
                 },
                 "top": {
-                    "acceptedTypes": ["top"]
-                    },
+                    "acceptedTypes": [
+                        "top"
+                    ]
+                },
                 "pants": {
-                    "acceptedTypes": ["pants"]
-                    },
+                    "acceptedTypes": [
+                        "pants"
+                    ]
+                },
                 "boots": {
-                    "acceptedTypes": ["boots"]
-                    },
+                    "acceptedTypes": [
+                        "boots"
+                    ]
+                },
                 "backpack": {
-                    "acceptedTypes": ["backpack"]
+                    "acceptedTypes": [
+                        "backpack"
+                    ]
                 },
                 "mainhand": {
-                    "acceptedTypes": ["weapon"]
+                    "acceptedTypes": [
+                        "weapon"
+                    ]
                 },
                 "offhand": {
-                    "acceptedTypes": ["weapon", "medicine", "consumable", "useable"]
+                    "acceptedTypes": [
+                        "weapon",
+                        "medicine",
+                        "consumable",
+                        "useable"
+                    ]
                 }
             }
         },
+        "inventoryContent": {
+            "grid": {
+                "lootTable": "TranscendRuins:playerPreload",
+                "chance": 1,
+                "shuffle": true
+            },
+            "named": {
+                "mainhand": {
+                    "item": [
+                        {
+                            "item": "TranscendRuins:ironPickaxe",
+                            "chance": 60
+                        },
+                        {
+                            "item": "TranscendRuins:ironHatchet",
+                            "chance": 40
+                        }
+                    ]
+                },
+                "offhand": {
+                    "item": [
+                        {
+                            "item": "TranscendRuins:ironPickaxe",
+                            "chance": 40
+                        },
+                        {
+                            "item": "TranscendRuins:ironHatchet",
+                            "chance": 60
+                        }
+                    ]
+                }
+            }
+        },
+        "interaction": {
+            "type": "inventory"
+        },
         "damage": 6,
-        "attackRange": 60
+        "attackRange": 2.5
     }
 }

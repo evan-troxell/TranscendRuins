@@ -16,16 +16,15 @@
 
 package com.transcendruins.assets.modelassets.items;
 
-import com.transcendruins.assets.assets.AssetContext;
-import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.modelassets.ModelAssetContext;
 import com.transcendruins.world.World;
 
 /**
  * <code>ItemContext</code>: A class representing the instantiation context of
  * an item.
  */
-public final class ItemContext extends AssetContext {
+public final class ItemContext extends ModelAssetContext {
 
     /**
      * <code>int</code>: The stack size of this <code>ItemContext</code> instance.
@@ -49,16 +48,14 @@ public final class ItemContext extends AssetContext {
      * @param presets   <code>AssetPresets</code>: The presets containing schema and
      *                  instantiation information of this <code>ItemContext</code>
      *                  instance.
-     * @param world     <code>World</code>: The world copy of this
+     * @param world     <code>World</code>: The world of this
      *                  <code>ItemContext</code> instance.
-     * @param parent    <code>PrimaryAssetInstance</code>: The parent to assign to
-     *                  this <code>ItemContext</code> instance.
      * @param stackSize <code>int</code>: The stack size of this
      *                  <code>ItemContext</code> instance.
      */
-    public ItemContext(AssetPresets presets, World world, AssetInstance parent, int stackSize) {
+    public ItemContext(AssetPresets presets, World world, int stackSize) {
 
-        super(presets, world, parent);
+        super(presets, world, world);
 
         this.stackSize = stackSize;
     }

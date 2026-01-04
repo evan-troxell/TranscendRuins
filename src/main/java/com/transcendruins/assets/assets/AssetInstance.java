@@ -148,7 +148,7 @@ public abstract class AssetInstance extends Instance {
      * @param parent <code>AssetInstance</code>: The parent of this
      *               <code>AssetInstance</code> instance.
      */
-    protected final void setParent(AssetInstance parent) {
+    public final void setParent(AssetInstance parent) {
 
         super.setParent(parent == null ? parent : world);
     }
@@ -204,6 +204,7 @@ public abstract class AssetInstance extends Instance {
 
         if (assetSchema == null) {
 
+            System.out.println(identifier);
             throw new IllegalArgumentException("Missing schema passed to asset instance.");
         }
 
@@ -232,12 +233,19 @@ public abstract class AssetInstance extends Instance {
         updateAttributes();
         isInitialized = true;
 
-        executeEvent(AssetEvent.ON_INITIALIZATION);
+        executeEvent(AssetEvent.ON_INITIALIZED);
 
         for (String event : assetPresets.getEvents()) {
 
             executeEvent(event);
         }
+
+        onInitialized();
+    }
+
+    public void onInitialized() {
+
+        // Assets may choose to override
     }
 
     public final void reload() {

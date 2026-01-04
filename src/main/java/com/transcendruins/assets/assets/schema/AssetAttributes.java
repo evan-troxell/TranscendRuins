@@ -59,7 +59,7 @@ public abstract class AssetAttributes extends Attributes {
      * @param dependency <code>AssetPresets</code>: The presets of the dependency to
      *                   be added.
      */
-    protected final void addAssetDependency(AssetPresets dependency) {
+    public final void addAssetDependency(AssetPresets dependency) {
 
         schema.addAssetDependency(dependency);
     }
@@ -73,7 +73,7 @@ public abstract class AssetAttributes extends Attributes {
      * @param identifier <code>TracedEntry&lt;Identifier&gt;</code>: The identifier
      *                   of the dependency to be added.
      */
-    protected final void addAssetDependency(AssetType type, TracedEntry<Identifier> identifier) {
+    public final void addAssetDependency(AssetType type, TracedEntry<Identifier> identifier) {
 
         schema.addAssetDependency(type, identifier);
     }

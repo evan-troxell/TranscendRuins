@@ -24,9 +24,9 @@ import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.events.GlobalEventSchema;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationSchema;
-import com.transcendruins.assets.interfaces.map.MapRender;
+import com.transcendruins.assets.interfaces.map.TerrainRender;
 import com.transcendruins.assets.scripts.TRScript;
-import com.transcendruins.resources.styles.Style.TextureSize;
+import com.transcendruins.resources.styles.Style.IconSize;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.FileException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyException;
@@ -46,7 +46,7 @@ import com.transcendruins.utilities.json.TracedEntry;
  */
 public final class AssetCatalogue {
 
-    public final record PinIcon(String icon, TextureSize size) {
+    public final record PinIcon(String icon, IconSize size) {
 
         public static PinIcon createPinIcon(TracedCollection collection, Object key) throws LoggedException {
 
@@ -56,7 +56,7 @@ public final class AssetCatalogue {
             TracedEntry<String> iconEntry = pinJson.getAsString("icon", false, null);
             String icon = iconEntry.getValue();
 
-            TextureSize size = TextureSize.createSize(pinJson, "size");
+            IconSize size = IconSize.createSize(pinJson, "size");
 
             return new PinIcon(icon, size);
         }
@@ -118,22 +118,21 @@ public final class AssetCatalogue {
     }
 
     /**
-     * <code>ImmutableList&lt;MapRender&gt;</code>: The map section catalogue of
+     * <code>ImmutableList&lt;TerrainRender&gt;</code>: The terrain catalogue of
      * this <code>AssetCatalogue</code> instance.
      */
-    private final ImmutableList<MapRender> mapSections;
+    private final ImmutableList<TerrainRender> terrain;
 
     /**
-     * Retrieves the map section catalogue of this <code>AssetCatalogue</code>
-     * instance.
+     * Retrieves the terrain catalogue of this <code>AssetCatalogue</code> instance.
      * 
-     * @return <code>ImmutableList&lt;MapRender&gt;</code>: The
-     *         <code>mapSections</code> field of this <code>AssetCatalogue</code>
+     * @return <code>ImmutableList&lt;TerrainRender&gt;</code>: The
+     *         <code>terrain</code> field of this <code>AssetCatalogue</code>
      *         instance.
      */
-    public final ImmutableList<MapRender> getMapSections() {
+    public final ImmutableList<TerrainRender> getTerrain() {
 
-        return mapSections;
+        return terrain;
     }
 
     /**
@@ -241,7 +240,7 @@ public final class AssetCatalogue {
 
         String defaultLocationString = null;
         ImmutableMap<String, GlobalLocationSchema> locationsMap = new ImmutableMap<>();
-        ImmutableList<MapRender> mapSectionsList = new ImmutableList<>();
+        ImmutableList<TerrainRender> terrainList = new ImmutableList<>();
         ImmutableMap<String, ImmutableList<GlobalEventSchema>> eventsMap = new ImmutableMap<>();
 
         // Process the global map data.
@@ -278,43 +277,43 @@ public final class AssetCatalogue {
                 // Attempt to process the locations.
                 locationsMap = createLocations(json, "locations");
 
-                // Attempt to process the map sections.
+                // Attempt to process the terrain.
                 try {
 
-                    TracedEntry<TracedDictionary> mapSectionsEntry = json.getAsDict("mapSections", true);
-                    if (mapSectionsEntry.containsValue()) {
+                    TracedEntry<TracedDictionary> terrainEntry = json.getAsDict("terrain", true);
+                    if (terrainEntry.containsValue()) {
 
-                        ArrayList<MapRender> mapSectionsTemp = new ArrayList<>();
+                        ArrayList<TerrainRender> terrainTemp = new ArrayList<>();
 
-                        TracedDictionary mapSectionsJson = mapSectionsEntry.getValue();
-                        for (String mapSectionKey : mapSectionsJson) {
+                        TracedDictionary terrainJson = terrainEntry.getValue();
+                        for (String terrainSectionKey : terrainJson) {
 
                             try {
 
-                                TracedEntry<TracedDictionary> mapSectionEntry = mapSectionsJson.getAsDict(mapSectionKey,
-                                        false);
-                                TracedDictionary mapSectionJson = mapSectionEntry.getValue();
+                                TracedEntry<TracedDictionary> terrainRenderEntry = terrainJson
+                                        .getAsDict(terrainSectionKey, false);
+                                TracedDictionary terrainRenderJson = terrainRenderEntry.getValue();
 
-                                TracedEntry<TRScript> iconEntry = mapSectionJson.getAsScript("icon", false);
+                                TracedEntry<TRScript> iconEntry = terrainRenderJson.getAsScript("icon", false);
                                 TRScript icon = iconEntry.getValue();
 
-                                TracedEntry<Double> xEntry = mapSectionJson.getAsDouble("x", false, null);
+                                TracedEntry<Double> xEntry = terrainRenderJson.getAsDouble("x", false, null);
                                 double x = xEntry.getValue();
 
-                                TracedEntry<Double> yEntry = mapSectionJson.getAsDouble("y", false, null);
+                                TracedEntry<Double> yEntry = terrainRenderJson.getAsDouble("y", false, null);
                                 double y = yEntry.getValue();
 
-                                TracedEntry<Double> heightEntry = mapSectionJson.getAsDouble("height", true, 0.0,
+                                TracedEntry<Double> heightEntry = terrainRenderJson.getAsDouble("height", true, 0.0,
                                         num -> 0 <= num && num < 1);
                                 double height = heightEntry.getValue();
 
-                                MapRender mapSection = new MapRender(icon, x, y, height);
-                                mapSectionsTemp.add(mapSection);
+                                TerrainRender terrainRender = new TerrainRender(icon, x, y, height);
+                                terrainTemp.add(terrainRender);
                             } catch (LoggedException _) {
                             }
                         }
 
-                        mapSectionsList = new ImmutableList<>(mapSectionsTemp);
+                        terrainList = new ImmutableList<>(terrainTemp);
                     }
                 } catch (LoggedException _) {
                 }
@@ -344,7 +343,7 @@ public final class AssetCatalogue {
 
         defaultLocation = defaultLocationString;
         locations = locationsMap;
-        mapSections = mapSectionsList;
+        terrain = terrainList;
         events = eventsMap;
 
         ImmutableMap<String, AssetPresets> overlaysMap = new ImmutableMap<>();

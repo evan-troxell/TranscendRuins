@@ -5,29 +5,26 @@
     "attributes": {
         "style": {
             "#inventoryDisplayList": {
-
                 "listDirection": "horizontal",
-                "backgroundColor": [64, 64, 64, 128]
-
+                "backgroundColor": "rgb(64, 64, 64, 128)"
             },
             "inventoryDisplay": {
                 "gap": 40,
                 "width": "fitContent",
                 "x": "50% - 50",
-                "origin": ["50%", 0],
-
+                "origin": [
+                    "50%",
+                    0
+                ],
                 "marginTop": 10,
-
                 "triggerPhase": "press"
             },
             "inventory": {
                 "width": "fitContent",
                 "height": "fitContent",
-
-                "textureFit": "contain",
-                "color": [255, 255, 255],
+                "iconFit": "contain",
+                "color": "rgb(255, 255, 255)",
                 "textAlign": "right",
-
                 "gap": 5,
                 "fontSize": 16,
                 "lineHeight": 1.4
@@ -36,17 +33,17 @@
                 "width": 100,
                 "height": "100%",
                 "fontSize": 28,
-                "backgroundColor": [64, 64, 64, 128],
-                "color": [160, 160, 160]
+                "backgroundColor": "rgb(64, 64, 64, 128)",
+                "color": "rgb(160, 160, 160)"
             },
             "#inventoryDisplayExitButtonList": {
                 "gap": 10
             },
             "#inventoryDisplayExitButton:hover": {
-                "backgroundColor": [32, 32, 32, 128]
+                "backgroundColor": "rgb(32, 32, 32, 128)"
             },
             "#inventoryDisplayExitButton:active": {
-                "backgroundColor": [32, 32, 32, 192]
+                "backgroundColor": "rgb(64, 64, 64, 192)"
             },
             "#inventoryDisplayExitButtonX": {
                 "x": "50",
@@ -54,43 +51,48 @@
                 "width": 50,
                 "height": 50,
                 "origin": "50%",
-                "textureFit": "contain"
+                "iconFit": "contain"
             }
         },
-
         "body": {
             "type": "list",
             "id": "inventoryDisplayList",
-            "classes": [ "menu" ],
-
+            "classes": [
+                "menu"
+            ],
             "components": [
                 {
                     "type": "inventoryDisplay",
                     "id": "inventoryDisplay"
                 },
-
                 {
                     "type": "button",
                     "id": "inventoryDisplayExitButton",
-
                     "component": {
                         "type": "list",
                         "id": "inventoryDisplayExitButtonList",
                         "components": [
                             {
-                                "type": "texture",
+                                "type": "icon",
                                 "id": "inventoryDisplayExitButtonX",
-
-                                "texture": "interface.inventory.x"
+                                "icon": "interface.inventory.x"
                             },
                             {
                                 "type": "rotate",
                                 "id": "inventoryDisplayExitButtonText",
-
+                                "style": {
+                                    "height": "100%"
+                                },
                                 "angle": 90,
                                 "centerX": 70.25,
                                 "centerY": 37.75,
-                                "component": "interface.close"
+                                "component": {
+                                    "type": "text",
+                                    "style": {
+                                        "width": "fitContent"
+                                    },
+                                    "text": "interface.close"
+                                }
                             }
                         ]
                     },

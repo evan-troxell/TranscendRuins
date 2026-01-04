@@ -334,61 +334,6 @@ sealed public class Matrix permits Vector {
     }
 
     /**
-     * Takes the determinant of this <code>Matrix</code> instance.
-     * 
-     * @return <code>double</code>: The determinant of this <code>Matrix</code>
-     *         instance.
-     */
-    public double determinant() {
-
-        double newValue = 0;
-
-        // Run the addition portion of the determinant.
-        for (int col = 0; col < cols; col++) {
-
-            double colValue = 1;
-            for (int row = 0; row < rows; row++) {
-
-                int colAdjusted = col + row;
-
-                // If the sum of the column numbe and the row number is greater than the number
-                // of columns, the number of columns should be added onto the column adjusted to
-                // prevent from indexing outside of the matrix.
-                if (col + row > cols) {
-
-                    colAdjusted -= cols;
-                }
-                colValue *= get(colAdjusted, row);
-            }
-
-            newValue += colValue;
-        }
-
-        // Run the subtraction portion of the determinant.
-        for (int col = 0; col < cols; col++) {
-
-            double colValue = 1;
-            for (int row = 0; row < rows; row++) {
-
-                int colAdjusted = col + row;
-
-                // If the column number is less than the row number, the number of columns
-                // should be added onto the column adjusted to prevent from indexing outside of
-                // the matrix.
-                if (col - row < 0) {
-
-                    colAdjusted += cols;
-                }
-                colValue *= get(colAdjusted, row);
-            }
-
-            newValue -= colValue;
-        }
-
-        return newValue;
-    }
-
-    /**
      * <code>String</code>: Returns the string representation of this
      * <code>Matrix</code> instance.
      * 

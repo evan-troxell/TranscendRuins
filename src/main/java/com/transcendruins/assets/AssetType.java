@@ -23,32 +23,32 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.transcendruins.App;
-import com.transcendruins.assets.statecontrollers.StateControllerAttributes;
-import com.transcendruins.assets.statecontrollers.StateControllerInstance;
 import com.transcendruins.assets.animations.AnimationAttributes;
 import com.transcendruins.assets.animations.AnimationInstance;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.assets.modelassets.elements.ElementAttributes;
-import com.transcendruins.assets.modelassets.elements.ElementInstance;
-import com.transcendruins.assets.modelassets.entities.EntityAttributes;
-import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.interfaces.InterfaceAttributes;
 import com.transcendruins.assets.interfaces.InterfaceInstance;
-import com.transcendruins.assets.modelassets.items.ItemAttributes;
-import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.layouts.LayoutAttributes;
 import com.transcendruins.assets.layouts.LayoutInstance;
 import com.transcendruins.assets.loottables.LootTableAttributes;
 import com.transcendruins.assets.loottables.LootTableInstance;
+import com.transcendruins.assets.modelassets.elements.ElementAttributes;
+import com.transcendruins.assets.modelassets.elements.ElementInstance;
+import com.transcendruins.assets.modelassets.entities.EntityAttributes;
+import com.transcendruins.assets.modelassets.entities.EntityInstance;
+import com.transcendruins.assets.modelassets.items.ItemAttributes;
+import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.models.ModelAttributes;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.assets.recipes.RecipeAttributes;
 import com.transcendruins.assets.recipes.RecipeInstance;
 import com.transcendruins.assets.rendermaterials.RenderMaterialAttributes;
 import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
+import com.transcendruins.assets.statecontrollers.StateControllerAttributes;
+import com.transcendruins.assets.statecontrollers.StateControllerInstance;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -69,9 +69,9 @@ public enum AssetType {
     ENTITY(EntityAttributes::new, EntityInstance::new),
 
     /**
-     * <code>AssetType</code>: An asset type representing animation controllers.
+     * <code>AssetType</code>: An asset type representing state controllers.
      */
-    ANIMATION_CONTROLLER(StateControllerAttributes::new, StateControllerInstance::new),
+    STATE_CONTROLLER(StateControllerAttributes::new, StateControllerInstance::new),
 
     /**
      * <code>AssetType</code>: An asset type representing animations.

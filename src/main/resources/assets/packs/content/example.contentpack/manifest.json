@@ -1,0 +1,27 @@
+{
+    "metadata": {
+        "identifier": "Example:examplePack",
+        "version": [
+            1,
+            0,
+            0
+        ],
+        "name": "Example Content Pack",
+        "author": "Evan Troxell",
+        "displayIcon": "displayIcon.png",
+        "description": "An example pack for Transcend Ruins.",
+        "website": "https://example.com",
+        "license": "MIT"
+    },
+    "dependencies": [
+        {
+            "type": "asset",
+            "identifier": "TranscendRuins:vanilla",
+            "version": [
+                1,
+                0,
+                0
+            ]
+        }
+    ]
+}

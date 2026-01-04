@@ -5,6 +5,8 @@
     "global.enter": "Enter",
     "global.travel": "Travel",
 
+    "interface.example": "Example Interface Text",
+
     "location.home": "Home",
     "location.home.description": "A small patch of land, sparsely dotted with pines and limestone ridges - the perfect place for a home in this desolate world.",
 
@@ -21,22 +23,23 @@
     "location.bunkerAlfa.description": "A dilapidated bunker, its rusting doors and crumbling walls hinting at a recent demise. Though its many floors and thick walls are filled with weapons and supplies, it might be best to leave them alone.",
 
     "location.bunkerBravo": "Bunker Bravo",
-    "location.bunkerBravo.description": "___",
+    "location.bunkerBravo.description": "Once a high-security military outpost in the mountain corridor, Bunker Bravo now lies in eerie silence. Rusted metal doors hang ajar, and the flicker of broken lights barely illuminates cracked walls and scattered supplies. Geiger counters click faintly in the shadows, but echoes of past experiments linger stronger than radiation. Venture inside at your own risk.",
 
     "location.convoy": "Abandoned Convoy",
     "location.convoy.description": "A distant roar cuts through the still air as you receive a distress signal over the radio.",
-    
 
     "event.convoy": "Abandoned Convoy",
     "event.convoy.description": "A convoy of abandoned vehicles, their rusting frames and shattered glass hinting at an unsettling recent past.",
 
     "event.raiders": "Raider Message",
     "event.raiders.description": "An unfamiliar voice crackles over the radio, requesting the location of survivors. Maybe you should listen...",
+
     "event.raiders.task1": "",
     "event.raiders.task1.description": "",
 
     "event.example": "Example Event",
     "event.example.description": "This is an example event.",
+
     "event.example.task1": "Example Task",
     "event.example.task1.description": "This is an example task.",
 

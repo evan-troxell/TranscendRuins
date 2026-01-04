@@ -36,12 +36,12 @@ public abstract class GenerationShapeSchema {
 
     private static GenerationShapeSchema createShape(TracedDictionary json) throws LoggedException {
 
-        TracedEntry<String> shapeEntry = json.getAsString("shape", false, null);
+        TracedEntry<String> shapeEntry = json.getAsString("type", false, null);
 
         String shape = shapeEntry.getValue();
         return switch (shape) {
 
-        case "spawn" -> SpanGenerationShapeSchema.DEFAULT;
+        case "span" -> SpanGenerationShapeSchema.DEFAULT;
 
         case "point" -> PointGenerationShapeSchema.DEFAULT;
 

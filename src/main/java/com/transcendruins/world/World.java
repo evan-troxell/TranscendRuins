@@ -45,7 +45,7 @@ import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationSchema;
 import com.transcendruins.assets.catalogue.locations.LocationTriggerType;
 import com.transcendruins.assets.interfaces.map.LocationRender;
-import com.transcendruins.assets.interfaces.map.MapRender;
+import com.transcendruins.assets.interfaces.map.TerrainRender;
 import com.transcendruins.assets.modelassets.entities.EntityContext;
 import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
@@ -203,7 +203,7 @@ public final class World extends PropertyHolder {
 
     private ImmutableMap<String, GlobalLocationSchema> locationSchemas;
 
-    private ImmutableList<MapRender> mapSections;
+    private ImmutableList<TerrainRender> globalTerrain;
 
     private ImmutableMap<String, ImmutableList<GlobalEventSchema>> eventSchemas;
 
@@ -528,8 +528,8 @@ public final class World extends PropertyHolder {
             }
         }
 
-        mapSections = new ImmutableList<>(
-                catalogues.stream().flatMap(catalogue -> catalogue.getMapSections().stream()).toList());
+        globalTerrain = new ImmutableList<>(
+                catalogues.stream().flatMap(catalogue -> catalogue.getTerrain().stream()).toList());
 
         eventSchemas = compile(catalogues, AssetCatalogue::getEvents);
 
@@ -631,9 +631,9 @@ public final class World extends PropertyHolder {
 
     private final Object LOCATION_LOCK = new Object();
 
-    public final List<MapRender> getMapRenders() {
+    public final List<TerrainRender> getTerrainRenders() {
 
-        return mapSections;
+        return globalTerrain;
     }
 
     private final LinkedHashMap<String, GlobalEventInstance> events = new LinkedHashMap<>();
@@ -936,7 +936,8 @@ public final class World extends PropertyHolder {
                     break;
                 }
 
-                double time = getRuntimeSeconds();
+                long time = System.currentTimeMillis();
+                double runtime = getRuntimeSeconds();
 
                 ZonedDateTime now = ZonedDateTime.now();
 
@@ -963,13 +964,13 @@ public final class World extends PropertyHolder {
                 // Update the active locations.
                 for (String location : activeLocations) {
 
-                    locations.get(location).update(time);
+                    locations.get(location).update(runtime);
                 }
 
                 // Update the UIs and recompute interacts.
                 for (Player player : players.values()) {
 
-                    player.updateUiPanels(time);
+                    player.updateUiPanels(runtime);
 
                     String playerLocation = player.getLocation();
                     boolean inLocation = !player.onGlobalMap() && locations.containsKey(playerLocation);
@@ -979,8 +980,8 @@ public final class World extends PropertyHolder {
                         GlobalLocationInstance location = locations.get(playerLocation);
                         AreaGrid area = location.getArea(player);
 
-                        player.setInteraction(area.getNearestInteraction(player));
-                        player.setAttack(area.getNearestTarget(player));
+                        player.setInteraction(area.getNearestInteraction(player, time));
+                        player.setAttack(area.getNearestTarget(player.getEntity()));
                     } else {
 
                         player.setInteraction(null);

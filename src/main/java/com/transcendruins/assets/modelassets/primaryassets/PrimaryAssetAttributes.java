@@ -23,6 +23,7 @@ import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionSchema;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryContent;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySchema;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -67,6 +68,13 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
     public final InventoryComponentSchema getPrivateInventoryUi() {
 
         return privateInventoryUi;
+    }
+
+    private final InventoryContent inventoryContent;
+
+    public final InventoryContent getInventoryContent() {
+
+        return inventoryContent;
     }
 
     private final ImmutableList<AssetInteractionSchema> interaction;
@@ -125,6 +133,16 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
             inventory = null;
             inventoryUi = null;
             privateInventoryUi = null;
+        }
+
+        TracedEntry<TracedDictionary> inventoryContentEntry = json.getAsDict("inventoryContent", true);
+        if (inventoryContentEntry.containsValue()) {
+
+            TracedDictionary inventoryContentJson = inventoryContentEntry.getValue();
+            inventoryContent = new InventoryContent(inventoryContentJson, this);
+        } else {
+
+            inventoryContent = null;
         }
 
         interaction = json.get("interaction", List.of(json.dictCase(entry -> {

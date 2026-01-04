@@ -33,6 +33,7 @@ import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.immutable.ImmutableSet;
+import com.transcendruins.utilities.random.DeterministicRandom;
 
 /**
  * <code>InventoryInstance</code>: A class representing an instatiated
@@ -243,6 +244,30 @@ public final class InventoryInstance extends Instance {
         return new HashSet<>(named.keySet());
     }
 
+    public final HashMap<String, HashSet<ItemInstance>> getAttachments() {
+
+        HashMap<String, HashSet<ItemInstance>> attachments = new HashMap<>();
+
+        for (InventorySlotInstance slot : named.values()) {
+
+            String attachment = slot.getModelAttachment();
+            if (attachment == null) {
+
+                continue;
+            }
+
+            ItemInstance item = slot.getItem();
+            if (item == null) {
+
+                continue;
+            }
+
+            attachments.computeIfAbsent(attachment, _ -> new HashSet<>()).add(item);
+        }
+
+        return attachments;
+    }
+
     /**
      * Retrieves an item from the named slots of this <code>InventoryInstance</code>
      * instance.
@@ -349,18 +374,18 @@ public final class InventoryInstance extends Instance {
      *                  this <code>InventoryInstance</code> instance with.
      * @param randomize <code>boolean</code>: Whether or not the order of insertion
      *                  should be randomized.
-     * @param asset     <code>PrimaryAssetInstance</code>: The asset used to
-     *                  randomize cell layout.
+     * @param random    <code>DeterministicRandom</code>: The random number generate
+     *                  used to shuffle cell layout.
      * @return <code>List&lt;ItemInstance&gt;</code>: The leftover items which could
      *         not be added.
      */
-    public final List<ItemInstance> fill(List<ItemInstance> items, boolean randomize, PrimaryAssetInstance asset) {
+    public final List<ItemInstance> fill(List<ItemInstance> items, boolean randomize, DeterministicRandom random) {
 
         // Retrieve the list of all available slots and randomize if necessary.
         ArrayList<InventorySlotInstance> availableSlots = new ArrayList<>(List.of(grid));
         if (randomize) {
 
-            asset.getRandom().shuffle(availableSlots);
+            random.shuffle(availableSlots);
         }
 
         ListIterator<ItemInstance> itemIt = items.listIterator();
@@ -403,6 +428,7 @@ public final class InventoryInstance extends Instance {
                 itemIt.remove();
 
                 item = slot.putItem(item);
+                slotIt.remove();
 
                 // If there is any remainder, add it to the item iterator.
                 if (item != null) {

@@ -1,0 +1,81 @@
+{
+    "metadata": {
+        "identifier": "Example:exampleOverlay"
+    },
+    "attributes": {
+        "style": {
+            "#overlayBody": {
+                "padding": "15px",
+                "backgroundColor": "#A0A0A8",
+                "listDirection": "vertical",
+                "gapHeight": "35px",
+                "display": "block"
+            },
+            "#overlayBody>*": {
+                "x": "50%",
+                "width": "fitContent",
+                "origin": [
+                    "50%",
+                    "0%"
+                ]
+            }
+        },
+        "body": {
+            "type": "container",
+            "components": [
+                {
+                    "type": "list",
+                    "id": "overlayBody",
+                    "components": [
+                        {
+                            "type": "button",
+                            "classes": [
+                                "exampleButton"
+                            ],
+                            "style": {
+                                "x": "50%",
+                                "origin": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "component": {
+                                "type": "text",
+                                "text": "This button switches to another menu."
+                            },
+                            "action": {
+                                "type": "openMenu",
+                                "menu": "exampleMenu"
+                            }
+                        },
+                        {
+                            "type": "text",
+                            "style": {
+                                "textAlign": "left"
+                            },
+                            "text": "EXAMPLE"
+                        },
+                        {
+                            "type": "icon",
+                            "icon": "example"
+                        }
+                    ]
+                },
+                {
+                    "type": "icon",
+                    "classes": [
+                        "trIcon"
+                    ],
+                    "icon": "transcendRuins"
+                },
+                {
+                    "type": "text",
+                    "classes": [
+                        "trademark"
+                    ],
+                    "text": "All content shown is the intellectual property of Evan Troxell."
+                }
+            ]
+        }
+    }
+}

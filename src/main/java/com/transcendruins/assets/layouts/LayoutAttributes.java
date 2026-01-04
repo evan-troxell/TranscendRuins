@@ -90,7 +90,10 @@ public final class LayoutAttributes extends AssetAttributes {
         }
 
         TracedEntry<AssetPresets> presetsEntry = collection.getAsPresets(key, false, type);
-        return presetsEntry.getValue();
+        AssetPresets presets = presetsEntry.getValue();
+        addAssetDependency(presets);
+
+        return presets;
     }
 
     private final WeightedRoll<GenerationPlacement> spawn;
@@ -596,7 +599,7 @@ public final class LayoutAttributes extends AssetAttributes {
             TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
             double chance = chanceEntry.getValue();
 
-            DiscreteRange limit = DiscreteRange.createRange(componentJson, "limit", true, -1, num -> num > 0);
+            DiscreteRange limit = DiscreteRange.createRange(json, "limit", true, -1, num -> num > 0 || num == -1);
 
             return new DistributionComponent(component, chance, limit);
         }
@@ -648,7 +651,7 @@ public final class LayoutAttributes extends AssetAttributes {
 
             borderWidth = DiscreteRange.createRange(json, "borderWidth", true, 0, num -> num >= 0);
 
-            rolls = DiscreteRange.createRange(json, "rolls", false, -1, num -> num > 0);
+            rolls = DiscreteRange.createRange(json, "rolls", true, 1, num -> num > 0);
             iterationType = createSelectionType(json, "iterationType");
 
             ArrayList<GridComponent> componentsList = new ArrayList<>();
@@ -717,7 +720,8 @@ public final class LayoutAttributes extends AssetAttributes {
             TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
             double chance = chanceEntry.getValue();
 
-            DiscreteRange limit = DiscreteRange.createRange(componentJson, "limit", true, -1, num -> num > 0);
+            DiscreteRange limit = DiscreteRange.createRange(componentJson, "limit", true, -1,
+                    num -> num > 0 || num == -1);
 
             return new GridComponent(component, width, length, tag, placement, count, chance, limit);
         }

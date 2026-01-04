@@ -18,6 +18,8 @@ package com.transcendruins.assets.modelassets.entities;
 
 import java.awt.Rectangle;
 
+import javax.swing.ImageIcon;
+
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.modelassets.attack.AttackInstance;
 import com.transcendruins.assets.modelassets.attack.AttackSchema;
@@ -207,17 +209,22 @@ public final class EntityInstance extends PrimaryAssetInstance {
         return attacking;
     }
 
+    private ItemInstance mainhandItem;
+
     private final AttackInstance attack = new AttackInstance();
 
-    public final ItemInstance getMainhandItem() {
+    @Override
+    public final void updateSlot(String name, ItemInstance item) {
 
-        return getInventory().getItem(InventoryInstance.MAINHAND);
+        if (InventoryInstance.MAINHAND.equals(name)) {
+
+            mainhandItem = item;
+        }
     }
 
     public final AttackInstance getAttack() {
 
-        ItemInstance mainhand = getMainhandItem();
-        return mainhand == null ? attack : mainhand.getAttack();
+        return mainhandItem == null ? attack : mainhandItem.getAttack();
     }
 
     public final void attack(long time, AttackInstance attack, EntityInstance target) {
@@ -232,6 +239,15 @@ public final class EntityInstance extends PrimaryAssetInstance {
     }
 
     public final void inflict(AttackInstance attack) {
+    }
+
+    private String mapIconPath;
+
+    private ImageIcon mapIcon;
+
+    public final ImageIcon getMapIcon() {
+
+        return mapIcon;
     }
 
     /**
@@ -263,6 +279,12 @@ public final class EntityInstance extends PrimaryAssetInstance {
         }, attributes, DoubleDimension.DEFAULT);
 
         computeAttribute(attributes.getAttack(), attack::applyAttributes, attributes, AttackSchema.DEFAULT);
+
+        mapIcon = calculateAttribute(attributes.getMapIcon(), iconPath -> {
+
+            mapIconPath = iconPath;
+            return getInstanceTexture(iconPath);
+        }, mapIcon, attributes, null);
     }
 
     @Override

@@ -3,27 +3,23 @@
         "identifier": "TranscendRuins:gameDescription"
     },
     "attributes": {
-
         "style": {
-            "texture": {
-
+            "icon": {
                 "width": 45,
                 "height": "fitContent",
-                "textureFit": "contain"
+                "iconFit": "contain"
             }
         },
-
         "body": {
             "type": "list",
             "style": {
                 "width": "15%",
                 "height": "fitContent",
-                "backgroundColor": [192, 192, 192, 128],
+                "backgroundColor": "rgb(192, 192, 192)",
                 "gap": 15,
                 "padding": 15,
                 "textAlign": "center"
             },
-
             "components": [
                 "This is the global map! While locations are where players battle enemies and collect resources, the global map is the hub by which players can travel to new locations.",
                 "Locations are marked 3 pins to represent the difficulty level, which hover directly above the location. The 3 pins – safe, moderate, and difficult – look like:",
@@ -38,27 +34,30 @@
                     },
                     "components": [
                         {
-                            "type": "texture",
-                            "texture": "global.pin.safe"
+                            "type": "icon",
+                            "icon": "global.pin.safe"
                         },
                         {
-                            "type": "texture",
-                            "texture": "global.pin.moderate"
+                            "type": "icon",
+                            "icon": "global.pin.moderate"
                         },
                         {
-                            "type": "texture",
-                            "texture": "global.pin.difficult"
+                            "type": "icon",
+                            "icon": "global.pin.difficult"
                         }
                     ]
                 },
                 "The player's pin will mark the current location of the player (which can also be seen by the 'Enter' button). The player's pin looks like:",
                 {
-                    "type": "texture",
+                    "type": "icon",
                     "style": {
                         "x": "50%",
-                        "origin": ["50%", 0]
+                        "origin": [
+                            "50%",
+                            0
+                        ]
                     },
-                    "texture": "global.pin.player"
+                    "icon": "global.pin.player"
                 },
                 "Begin by clicking on a location (other than the one you are currently in) to travel locations"
             ]

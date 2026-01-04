@@ -235,25 +235,25 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
 
         return switch (extension) {
 
-        case ".txt" -> TEXT;
+            case ".txt" -> TEXT;
 
-        case ".json" -> JSON;
+            case ".json" -> JSON;
 
-        case ".jpg", ".jpeg", ".png", ".gif" -> {
+            case ".jpg", ".jpeg", ".png", ".gif" -> {
 
-            yield isValidImage() ? IMAGE : OTHER;
-        }
+                yield isValidImage() ? IMAGE : OTHER;
+            }
 
-        case ".wav", ".au", ".aiff" -> {
+            case ".wav", ".au", ".aiff" -> {
 
-            yield isValidAudio() ? AUDIO : OTHER;
-        }
+                yield isValidAudio() ? AUDIO : OTHER;
+            }
 
-        case ".contentpack" -> CONTENT_PACK;
+            case ".contentpack" -> CONTENT_PACK;
 
-        case ".resourcepack" -> RESOURCE_PACK;
+            case ".resourcepack" -> RESOURCE_PACK;
 
-        default -> OTHER;
+            default -> OTHER;
         };
     }
 

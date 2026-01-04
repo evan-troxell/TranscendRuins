@@ -3,7 +3,6 @@
         "identifier": "TranscendRuins:bunkerAlfaMain"
     },
     "attributes": {
-
         "definitions": {
             "layouts": {},
             "elements": {
@@ -22,12 +21,24 @@
                 "player": "TranscendRuins:player"
             }
         },
-
         "width": 400,
         "length": 400,
-
         "type": "distributed",
         "iterationType": "sequential",
-        "components": []
+        "components": [
+            {
+                "component": {
+                    "type": "element",
+                    "element": "TranscendRuins:box",
+                    "placement": {
+                        "center": {
+                            "type": "absolute",
+                            "x": 1,
+                            "z": 1
+                        }
+                    }
+                }
+            }
+        ]
     }
 }

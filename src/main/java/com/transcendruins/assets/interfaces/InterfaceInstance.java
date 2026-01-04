@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import javax.swing.ImageIcon;
 
@@ -51,6 +52,8 @@ import com.transcendruins.assets.interfaces.InterfaceAttributes.ButtonComponentS
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ContainerComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.GlobalMapComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.IconComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.IconType;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InterfaceComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema.GridDisplay;
@@ -59,13 +62,10 @@ import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryDisplay
 import com.transcendruins.assets.interfaces.InterfaceAttributes.ListComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.LocationDisplayComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.RotateComponentSchema;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.StringComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.TextComponentSchema;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.TextureComponentSchema;
-import com.transcendruins.assets.interfaces.InterfaceAttributes.TextureType;
 import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponentInstance.LocationDisplay;
 import com.transcendruins.assets.interfaces.map.LocationRender;
-import com.transcendruins.assets.interfaces.map.MapRender;
+import com.transcendruins.assets.interfaces.map.TerrainRender;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySlotInstance;
@@ -74,13 +74,13 @@ import com.transcendruins.resources.styles.ComponentProperties;
 import com.transcendruins.resources.styles.Style;
 import com.transcendruins.resources.styles.Style.BorderStyle;
 import com.transcendruins.resources.styles.Style.Display;
+import com.transcendruins.resources.styles.Style.IconSize;
 import com.transcendruins.resources.styles.Style.Overflow;
 import com.transcendruins.resources.styles.Style.OverflowWrap;
 import com.transcendruins.resources.styles.Style.Size;
 import com.transcendruins.resources.styles.Style.SizeDimensions;
 import com.transcendruins.resources.styles.Style.TextAlign;
 import com.transcendruins.resources.styles.Style.TextOverflow;
-import com.transcendruins.resources.styles.Style.TextureSize;
 import com.transcendruins.resources.styles.Style.WhiteSpace;
 import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -203,11 +203,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         // TODO: Add rest of UI component types
         return switch (schema) {
 
-        case StringComponentSchema stringSchema -> new StringComponentInstance(stringSchema, parent, random);
+        case TextComponentSchema textSchema -> new TextComponentInstance(textSchema, parent, random);
 
-        case TextComponentSchema labelSchema -> new TextComponentInstance(labelSchema, parent, random);
-
-        case TextureComponentSchema labelSchema -> new TextureComponentInstance(labelSchema, parent, random);
+        case IconComponentSchema iconSchema -> new IconComponentInstance(iconSchema, parent, random);
 
         case ButtonComponentSchema buttonSchema -> new ButtonComponentInstance(buttonSchema, parent, random);
 
@@ -350,7 +348,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         protected Display displayMode;
 
-        private String backgroundTexture = null;
+        private String backgroundIconPath = null;
         private ImageIcon backgroundIcon = null;
 
         private Boolean propagateEvents;
@@ -918,20 +916,20 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             // Process the background color and image.
             Color backgroundColor = s.backgroundColor();
-            String newBackgroundTexture = s.backgroundTexture();
+            String newBackgroundIconPath = s.backgroundIcon();
 
-            // If the background texture has changed, recompute it.
-            if (newBackgroundTexture != null
-                    && (backgroundTexture == null || !backgroundTexture.equals(newBackgroundTexture))) {
+            // If the background icon has changed, recompute it.
+            if (newBackgroundIconPath != null
+                    && (backgroundIconPath == null || !backgroundIconPath.equals(newBackgroundIconPath))) {
 
-                backgroundIcon = getWorld().getTexture(newBackgroundTexture, getRandomComponentId());
-            } else if (newBackgroundTexture == null) {
+                backgroundIcon = getWorld().getTexture(newBackgroundIconPath, getRandomComponentId());
+            } else if (newBackgroundIconPath == null) {
 
                 backgroundIcon = null;
             }
-            backgroundTexture = newBackgroundTexture;
+            backgroundIconPath = newBackgroundIconPath;
 
-            TextureSize backgroundSize = s.backgroundSize();
+            IconSize backgroundSize = s.backgroundSize();
 
             // Ensure the shape is self-contained, draw the content and background.
             g2d.clip(contentBounds);
@@ -1002,8 +1000,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return path;
         }
 
-        protected final void drawBackground(Graphics2D g2d, Color color, ImageIcon icon, TextureSize size,
-                Shape bounds) {
+        protected final void drawBackground(Graphics2D g2d, Color color, ImageIcon icon, IconSize size, Shape bounds) {
 
             if (color != Style.TRANSPARENT) {
 
@@ -1011,10 +1008,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 g2d.fill(bounds);
             }
 
-            // Process the background texture, if it has one.
+            // Process the background icon, if it has one.
             if (icon != null) {
 
-                drawTexture(g2d, icon, 0, 0, width + paddingLeft + paddingRight, height + paddingTop + paddingBottom,
+                drawIcon(g2d, icon, 0, 0, width + paddingLeft + paddingRight, height + paddingTop + paddingBottom,
                         size);
             }
         }
@@ -1038,19 +1035,19 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             g2d.setTransform(old);
         }
 
-        protected final void drawTexture(Graphics2D g2d, ImageIcon icon, int x, int y, int width, int height,
-                TextureSize size) {
+        protected final void drawIcon(Graphics2D g2d, ImageIcon icon, int x, int y, int width, int height,
+                IconSize size) {
 
-            int textureWidth = icon.getIconWidth();
-            int textureHeight = icon.getIconHeight();
+            int iconWidth = icon.getIconWidth();
+            int iconHeight = icon.getIconHeight();
 
-            if (textureWidth == 0 || textureHeight == 0) {
+            if (iconWidth == 0 || iconHeight == 0) {
 
                 return;
             }
 
-            int backgroundWidth = size.getWidth(textureWidth, textureHeight, width, height);
-            int backgroundHeight = size.getHeight(textureWidth, textureHeight, width, height);
+            int backgroundWidth = size.getWidth(iconWidth, iconHeight, width, height);
+            int backgroundHeight = size.getHeight(iconWidth, iconHeight, width, height);
 
             g2d.drawImage(icon.getImage(), x, y, backgroundWidth, backgroundHeight, null);
         }
@@ -1060,8 +1057,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             g2d.setColor(color);
             g2d.setFont(font);
 
-            List<String> lines = whiteSpace != WhiteSpace.NOWRAP ? wrapText(text, fm, width - x) : List.of(text);
-            lines = lines.stream().map(line -> textOverflow(fm, line, width - x)).toList();
+            Stream<String> initLines = Stream.of(text.split("\n"));
+
+            List<String> lines = (whiteSpace == WhiteSpace.NOWRAP ? initLines
+                    : initLines.flatMap(line -> wrapText(line, fm, width - x).stream()))
+                            .map(line -> textOverflow(fm, line, width - x)).toList();
+
             for (int i = 0; i < lines.size(); i++) {
 
                 text = lines.get(i);
@@ -1114,42 +1115,27 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             }
         }
 
-        protected final Dimension calculateTextureSize(ImageIcon icon, int x, int y, TextureSize size) {
+        protected final Dimension calculateIconSize(ImageIcon icon, int x, int y, IconSize size) {
 
-            int textureWidth = icon.getIconWidth();
-            int textureHeight = icon.getIconHeight();
+            int iconWidth = icon.getIconWidth();
+            int iconHeight = icon.getIconHeight();
 
-            if (textureWidth == 0 || textureHeight == 0) {
+            if (iconWidth == 0 || iconHeight == 0) {
 
                 return new Dimension(0, 0);
             }
 
-            int backgroundWidth = size.getWidth(textureWidth, textureHeight, width, height);
-            int backgroundHeight = size.getHeight(textureWidth, textureHeight, width, height);
+            int backgroundWidth = size.getWidth(iconWidth, iconHeight, width, height);
+            int backgroundHeight = size.getHeight(iconWidth, iconHeight, width, height);
 
             return new Dimension(backgroundWidth, backgroundHeight);
         }
 
         protected final Dimension calculateTextSize(String text, int x, int y, int width) {
 
-            if (textAlign != TextAlign.LEFT) {
-
-                if (whiteSpace == WhiteSpace.NOWRAP) {
-
-                    return new Dimension(width - x, lineHeight);
-                }
-
-                return new Dimension(width - x, lineHeight * wrapText(text, fm, width - x).size());
-            }
-
-            if (whiteSpace == WhiteSpace.NOWRAP) {
-
-                text = textOverflow(fm, text, width - x);
-                int lineWidth = fm.stringWidth(text);
-                return new Dimension(lineWidth, lineHeight);
-            }
-
-            ArrayList<String> lines = wrapText(text, fm, width - x);
+            String[] initLines = text.split("\n");
+            List<String> lines = whiteSpace == WhiteSpace.NOWRAP ? List.of(initLines)
+                    : Stream.of(initLines).flatMap(line -> wrapText(line, fm, width - x).stream()).toList();
             int lineWidth = 0;
 
             for (int i = 0; i < lines.size(); i++) {
@@ -1157,6 +1143,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 text = textOverflow(fm, lines.get(i), width - x);
                 lineWidth = Math.max(lineWidth, fm.stringWidth(text));
             }
+
+            if (textAlign != TextAlign.LEFT) {
+
+                return new Dimension(width, lineHeight * lines.size());
+            }
+
             return new Dimension(lineWidth, lineHeight * lines.size());
         }
 
@@ -1343,45 +1335,17 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
     }
 
-    public final class StringComponentInstance extends ComponentInstance {
-
-        private final TRScript key;
-
-        private String string;
-
-        public StringComponentInstance(StringComponentSchema schema, ComponentInstance parent,
-                DeterministicRandom random) {
-
-            super(schema, parent, true, random);
-            key = schema.getKey();
-        }
-
-        @Override
-        public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
-
-            string = getWorld().getText(key.evaluateString(InterfaceInstance.this));
-            return calculateTextSize(string, 0, 0, width);
-        }
-
-        @Override
-        public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
-                List<ComponentInstance> children) {
-
-            return calculateTextSize(string, 0, 0, targetWidth);
-        }
-
-        @Override
-        public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
-
-            drawText(g2d, string, 0, 0, width, style.color());
-        }
-    }
-
     public final class TextComponentInstance extends ComponentInstance {
+
+        private final TRScript text;
+
+        private String stringVal;
 
         public TextComponentInstance(TextComponentSchema schema, ComponentInstance parent, DeterministicRandom random) {
 
             super(schema, parent, true, random);
+
+            text = schema.getText();
         }
 
         public TextComponentInstance(TextComponentSchema schema, ComponentInstance parent, DeterministicRandom random,
@@ -1389,77 +1353,95 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             super(schema, parent, true, random);
 
-            addChild(new StringComponentInstance(new StringComponentSchema(text), this, random));
+            this.text = text;
         }
 
         @Override
         public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
-            if (children.isEmpty()) {
-
-                return new Dimension();
-            }
-
-            Rectangle textSize = children.getFirst();
-
-            return new Dimension(textSize.x + textSize.width, textSize.y + textSize.height);
+            stringVal = getWorld().getText(text.evaluateString(InterfaceInstance.this));
+            Dimension textSize = calculateTextSize(stringVal, 0, 0, width);
+            return new Dimension(textSize.width, textSize.height);
         }
 
         @Override
         public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
                 List<ComponentInstance> children) {
 
-            if (children.isEmpty()) {
-
-                return new Dimension();
-            }
-
-            ComponentInstance text = children.getFirst();
-            Rectangle textSize = text.rescale(targetWidth, targetHeight);
-
-            return new Dimension(textSize.x + textSize.width, textSize.y + textSize.height);
+            Dimension textSize = calculateTextSize(stringVal, 0, 0, width);
+            return new Dimension(textSize.width, textSize.height);
         }
 
         @Override
         public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            if (children.isEmpty()) {
-
-                return;
-            }
-
-            ImageClip textRender = children.getFirst();
-            BufferedImage text = textRender.image();
-
-            drawImage(g2d, text, textRender.x(), textRender.y());
+            drawText(g2d, stringVal, 0, 0, width, style.color());
         }
     }
 
-    public final class TextureComponentInstance extends ComponentInstance {
+    public final class IconComponentInstance extends ComponentInstance {
 
-        private final TextureType texture;
+        private final IconType iconSchema;
+
+        private ImageIcon normalIcon;
 
         private ImageIcon icon;
 
-        public TextureComponentInstance(TextureComponentSchema schema, ComponentInstance parent,
+        private String iconPath;
+
+        private final InventoryInstance inventory;
+
+        public IconComponentInstance(InterfaceAttributes.IconComponentSchema schema, ComponentInstance parent,
                 DeterministicRandom random) {
 
             super(schema, parent, true, random);
 
-            texture = schema.getTexture();
+            iconSchema = schema.getIcon();
+
+            if (iconSchema instanceof InterfaceAttributes.NamedSlotIconType
+                    || iconSchema instanceof InterfaceAttributes.GridSlotIconType) {
+
+                inventory = getWorld().playerFunction(playerId, player -> player.getEntity().getInventory());
+            } else {
+
+                inventory = null;
+            }
         }
 
         @Override
         public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
-            icon = texture.getTexture(InterfaceInstance.this, getRandomComponentId());
+            String newIconPath = iconSchema.getIcon(InterfaceInstance.this);
+            ItemInstance item = switch (iconSchema) {
+
+            case InterfaceAttributes.GridSlotIconType gridSlotIconType -> inventory.getItem(gridSlotIconType.getSlot());
+
+            case InterfaceAttributes.NamedSlotIconType namedSlotIconType -> inventory
+                    .getItem(namedSlotIconType.getSlot());
+
+            default -> null;
+            };
+
+            if (item != null) {
+
+                icon = item.getIcon();
+            } else {
+
+                if (newIconPath != null && !newIconPath.equals(iconPath)) {
+
+                    normalIcon = getWorld().getTexture(newIconPath, getRandomComponentId());
+                    iconPath = newIconPath;
+                }
+
+                icon = normalIcon;
+            }
 
             if (icon == null) {
 
                 return new Dimension();
             }
 
-            return calculateTextureSize(icon, 0, 0, style.textureFit());
+            return calculateIconSize(icon, 0, 0, style.iconFit());
         }
 
         @Override
@@ -1471,7 +1453,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 return new Dimension();
             }
 
-            return calculateTextureSize(icon, 0, 0, style.textureFit());
+            return calculateIconSize(icon, 0, 0, style.iconFit());
         }
 
         @Override
@@ -1479,7 +1461,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             if (icon != null) {
 
-                drawTexture(g2d, icon, 0, 0, width, height, style.textureFit());
+                drawIcon(g2d, icon, 0, 0, width, height, style.iconFit());
             }
         }
     }
@@ -1576,6 +1558,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         private Dimension getRotatedSize(Rectangle child) {
+
+            // double childWidth = 0.5 * width * (Math.abs(cos) + cos) + 0.5 * height *
+            // (Math.abs(sin) - sin);
+            // double childHeight = 0.5 * height * (Math.abs(cos) + cos) + 0.5 * width *
+            // (Math.abs(sin) + sin);
 
             double childWidth = centerX + cos * (child.x - centerX) - sin * (child.y - centerY);
             childWidth += DoubleStream
@@ -1890,7 +1877,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return 1.0 / (1.7 + Math.atan(zoom / 80));
         }
 
-        private LinkedHashMap<ImageIcon, Rectangle> mapRenders;
+        private LinkedHashMap<ImageIcon, Rectangle> terrainRenders;
+
+        private final HashMap<String, ImageIcon> renderIcons = new HashMap<>();
 
         private LinkedHashMap<String, LocationDisplay> locationRenders;
 
@@ -1903,6 +1892,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private String currentLocation;
 
         private long prevPress;
+
+        ImageIcon playerPin = getWorld().getTexture(DataConstants.GLOBAL_MAP_PLAYER_PIN, getRandomComponentId());
 
         public GlobalMapComponentInstance(GlobalMapComponentSchema schema, ComponentInstance parent,
                 DeterministicRandom random) {
@@ -1934,8 +1925,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             DeterministicRandom random = new DeterministicRandom(getRandomComponentId());
             H = height();
 
-            mapRenders = new LinkedHashMap<>();
-            for (MapRender render : world.getMapRenders()) {
+            terrainRenders = new LinkedHashMap<>();
+            for (TerrainRender render : world.getTerrainRenders()) {
 
                 double h = render.height();
                 if (h >= H) {
@@ -1943,7 +1934,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                     continue;
                 }
 
-                ImageIcon icon = world.getTexture(render.icon().evaluateString(InterfaceInstance.this), random.next());
+                String iconPath = render.icon().evaluateString(InterfaceInstance.this);
+                ImageIcon icon = renderIcons.computeIfAbsent(iconPath,
+                        path -> world.getTexture(iconPath, random.next()));
+
                 double cX = render.x();
                 double cY = render.y();
                 double scale = 1 / (H - h);
@@ -1954,7 +1948,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 int iconH = (int) (icon.getIconHeight() * scale);
                 Rectangle bounds = new Rectangle(left, top, iconW, iconH);
 
-                mapRenders.put(icon, bounds);
+                terrainRenders.put(icon, bounds);
             }
 
             locationRenders = new LinkedHashMap<>();
@@ -1984,14 +1978,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 Rectangle bounds = new Rectangle(iconLeft, iconTop, iconBoundsW, iconBoundsH);
 
                 ImageIcon pin = render.pin();
-                TextureSize pinSize = render.pinSize();
+                IconSize pinSize = render.pinSize();
 
                 Rectangle pinBounds = null;
                 if (pin != null) {
 
                     scale = 1 / (H + 0.35 - h);
 
-                    Dimension pinDim = calculateTextureSize(pin, 0, 0, pinSize);
+                    Dimension pinDim = calculateIconSize(pin, 0, 0, pinSize);
                     int pinW = pinDim.width;
                     int pinH = pinDim.height;
 
@@ -2070,12 +2064,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             g2d.translate(width / 2 - centerX, height / 2 - centerY);
 
-            TextureSize size = style.textureFit();
+            IconSize size = style.iconFit();
 
-            for (Map.Entry<ImageIcon, Rectangle> mapRender : mapRenders.sequencedEntrySet()) {
+            for (Map.Entry<ImageIcon, Rectangle> terrainRender : terrainRenders.sequencedEntrySet()) {
 
-                Rectangle renderBounds = mapRender.getValue();
-                drawTexture(g2d, mapRender.getKey(), renderBounds.x, renderBounds.y, renderBounds.width,
+                Rectangle renderBounds = terrainRender.getValue();
+                drawIcon(g2d, terrainRender.getKey(), renderBounds.x, renderBounds.y, renderBounds.width,
                         renderBounds.height, size);
             }
 
@@ -2089,7 +2083,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                 ImageIcon icon = locationDisplay.icon();
                 Rectangle bounds = locationDisplay.bounds();
-                drawTexture(g2d, icon, bounds.x, bounds.y, bounds.width, bounds.height, size);
+                drawIcon(g2d, icon, bounds.x, bounds.y, bounds.width, bounds.height, size);
 
                 int boundsCenterX = (int) bounds.getCenterX();
                 int top = bounds.y;
@@ -2098,7 +2092,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 if (pin != null) {
 
                     Rectangle pinBounds = locationDisplay.pinBounds();
-                    drawTexture(g2d, pin, pinBounds.x, pinBounds.y, pinBounds.width, pinBounds.height, size);
+                    drawIcon(g2d, pin, pinBounds.x, pinBounds.y, pinBounds.width, pinBounds.height, size);
 
                     top = pinBounds.y;
                 }
@@ -2158,8 +2152,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                 Rectangle locationBounds = locationRenders.get(currentLocation).bounds();
 
-                ImageIcon playerPin = getWorld().getTexture(DataConstants.GLOBAL_MAP_PLAYER_PIN,
-                        getRandomComponentId());
                 double scale = 0.1 / (H + 0.35);
                 int playerPinWidth = (int) (playerPin.getIconWidth() * scale);
                 int playerPinHeight = (int) (playerPin.getIconHeight() * scale);
@@ -2167,7 +2159,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 int playerPinY = (int) (locationBounds.getCenterY() + locationBounds.height / 3.25 + height / 2.0
                         - centerY) - playerPinHeight;
 
-                drawTexture(g2d, playerPin, playerPinX, playerPinY, playerPinWidth, playerPinHeight, TextureSize.COVER);
+                drawIcon(g2d, playerPin, playerPinX, playerPinY, playerPinWidth, playerPinHeight, IconSize.COVER);
 
                 ImageClip enterButton = children.get(0);
                 BufferedImage enterButtonImage = enterButton.image();
@@ -2393,7 +2385,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 slotY = p1.y + (int) ((p2.y - p1.y) * dt * speed / distance);
             }
 
-            drawTexture(g2d, item, slotX, slotY, slotWidth, slotWidth, Style.TextureSize.CONTAIN);
+            drawIcon(g2d, item, slotX, slotY, slotWidth, slotWidth, Style.IconSize.CONTAIN);
 
             return !end;
         }
@@ -2581,7 +2573,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                                 secondItemIcon);
                     }
 
-                    newSlot.transfer(selectedSlot);
+                    selectedSlot.transfer(newSlot);
 
                     selectedSlot = null;
                 }
@@ -2698,6 +2690,18 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return null;
         }
 
+        private final HashMap<String, ImageIcon> slotIcons = new HashMap<>();
+
+        private ImageIcon getSlotIcon(World world, String icon, long random) {
+
+            if (icon == null) {
+
+                return null;
+            }
+
+            return slotIcons.computeIfAbsent(icon, path -> world.getTexture(path, random));
+        }
+
         public InventoryComponentInstance(InventoryComponentSchema schema, ComponentInstance componentParent,
                 DeterministicRandom random, InventoryInstance inventory) {
 
@@ -2738,13 +2742,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 int gridHeight = gridSlots.height();
                 int start = gridSlots.start();
 
-                String slotTexture = gridSlots.slotTexture();
-                ImageIcon slotIcon = slotTexture != null ? world.getTexture(slotTexture, random.next()) : null;
+                String slotIconPath = gridSlots.slotIcon();
+                ImageIcon slotIcon = getSlotIcon(world, slotIconPath, random.next());
 
-                String selectedSlotTexture = gridSlots.selectedSlotTexture();
-                ImageIcon selectedSlotIcon = selectedSlotTexture != null
-                        ? world.getTexture(selectedSlotTexture, random.next())
-                        : null;
+                String selectedSlotIconPath = gridSlots.selectedSlotIcon();
+                ImageIcon selectedSlotIcon = getSlotIcon(world, selectedSlotIconPath, random.next());
 
                 int displayGridWidth = ((gridSize - start) < gridWidth ? gridSize : gridWidth);
                 int displayGridHeight = Math.min(gridHeight, (int) Math.ceil((double) (gridSize - start) / gridWidth));
@@ -2774,13 +2776,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 int namedX = p.x();
                 int namedY = p.y();
 
-                String slotTexture = p.slotTexture();
-                ImageIcon slotIcon = slotTexture != null ? world.getTexture(slotTexture, random.next()) : null;
+                String slotIconPath = p.slotIcon();
+                ImageIcon slotIcon = getSlotIcon(world, slotIconPath, random.next());
 
-                String selectedSlotTexture = p.selectedSlotTexture();
-                ImageIcon selectedSlotIcon = selectedSlotTexture != null
-                        ? world.getTexture(selectedSlotTexture, random.next())
-                        : null;
+                String selectedSlotIconPath = p.selectedSlotIcon();
+                ImageIcon selectedSlotIcon = getSlotIcon(world, selectedSlotIconPath, random.next());
 
                 maxSlotWidth = Math.max(maxSlotWidth, namedX + slotWidth);
                 maxSlotHeight = Math.max(maxSlotHeight, namedY + slotWidth);
@@ -2830,11 +2830,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 drawImage(g2d, headerImage, header.x(), header.y());
             }
 
-            TextureSize slotFit = Style.TextureSize.CONTAIN;
+            IconSize slotFit = Style.IconSize.CONTAIN;
 
             World world = getWorld();
-            ImageIcon defaultSlotIcon = world.getTexture(DataConstants.INVENTORY_SLOT_TEXTURE, getRandomComponentId());
-            ImageIcon defaultSelectedSlotIcon = world.getTexture(DataConstants.INVENTORY_SLOT_SELECTED_TEXTURE,
+            ImageIcon defaultSlotIcon = getSlotIcon(world, DataConstants.INVENTORY_SLOT_ICON, getRandomComponentId());
+            ImageIcon defaultSelectedSlotIcon = getSlotIcon(world, DataConstants.INVENTORY_SLOT_SELECTED_ICON,
                     getRandomComponentId());
 
             for (InventorySlotInstance slot : slots.sequencedKeySet()) {
@@ -2849,14 +2849,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                     slotIcon = slotSelected ? defaultSelectedSlotIcon : defaultSlotIcon;
                 }
 
-                drawTexture(g2d, slotIcon, p.x, p.y, slotWidth, slotWidth, slotFit);
+                drawIcon(g2d, slotIcon, p.x, p.y, slotWidth, slotWidth, slotFit);
 
                 if (item == null) {
 
                     continue;
                 }
 
-                drawTexture(g2d, item.getIcon(), p.x, p.y, slotWidth, slotWidth, slotFit);
+                drawIcon(g2d, item.getIcon(), p.x, p.y, slotWidth, slotWidth, slotFit);
 
                 int stackSize = item.getStackSize();
                 if (stackSize > 1) {

@@ -8,6 +8,11 @@ public final class AttackInstance extends Instance {
 
     private int damage;
 
+    public final int getDamage() {
+
+        return damage;
+    }
+
     private double range;
 
     public final double getRange() {
@@ -17,13 +22,23 @@ public final class AttackInstance extends Instance {
 
     private double duration;
 
+    public final double getDuration() {
+
+        return duration;
+    }
+
     private double cooldown;
+
+    public final double getCooldown() {
+
+        return cooldown;
+    }
 
     private long prevTime = -1;
 
     public final boolean canCall(long time) {
 
-        return range != -1 && (prevTime == -1 || cooldown > -1 && 1000 * cooldown <= time - prevTime);
+        return range >= 0 && (prevTime == -1 || cooldown > -1 && 1000 * cooldown <= time - prevTime);
     }
 
     public final long call(long time, EntityInstance target) {

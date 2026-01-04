@@ -38,6 +38,11 @@ lines = 0
 # Walk through the project directory
 for subdir, _, files in os.walk(root_dir):
     for file in files:
+        if file.lower() == ".ds_store":
+            delete_path = os.path.join(subdir, file)
+            os.remove(delete_path)
+            print(f"Deleted: {delete_path}")
+
         if file.endswith(".java"):  # Check only Java files
             count += 1
             file_path = os.path.join(subdir, file)

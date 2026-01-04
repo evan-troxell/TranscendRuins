@@ -7,12 +7,11 @@
         "stateControllerX": "TranscendRuins:stairwell",
         "renderMaterialX": "TranscendRuins:opaque",
         "textureX": "element.stairwell",
-
         "model": "TranscendRuins:box",
         "stateController": "TranscendRuins:box",
         "renderMaterial": "TranscendRuins:opaque",
         "texture": "element.crate",
-
+        "mapColor": "#8B4513",
         "inventory": {
             "ui": {
                 "slotSize": 80,
@@ -28,7 +27,6 @@
             }
         }
     },
-
     "permutations": {
         "passagewayInteract": {
             "interaction": [
@@ -37,30 +35,38 @@
                 },
                 {
                     "type": "passageway",
-                    "position": [1, 1, 1]
+                    "position": [
+                        1,
+                        1,
+                        1
+                    ]
                 }
             ]
         },
-
-        "destroy": {
-        }
+        "destroy": {}
     },
     "events": {
         "destroy": {
             "permutations": {
-                "add": [ "destroy" ],
-                "remove": [ "passagewayInteract" ]
+                "add": [
+                    "destroy"
+                ],
+                "remove": [
+                    "passagewayInteract"
+                ]
             }
         },
-
         "onInitialized": {
             "permutations": {
-                "add": [ "passagewayInteract" ]
+                "add": [
+                    "passagewayInteract"
+                ]
             }
         },
-
         "onInteract": {
-            "run": [ "destroy" ]
+            "run": [
+                "destroy"
+            ]
         }
     }
 }

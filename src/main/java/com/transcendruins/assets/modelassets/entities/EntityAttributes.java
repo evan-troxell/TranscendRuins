@@ -51,6 +51,13 @@ public final class EntityAttributes extends PrimaryAssetAttributes {
         return attack;
     }
 
+    private final String mapIcon;
+
+    public final String getMapIcon() {
+
+        return mapIcon;
+    }
+
     /**
      * Compiles this <code>EntityAttributes</code> instance into a completed
      * instance.
@@ -94,5 +101,8 @@ public final class EntityAttributes extends PrimaryAssetAttributes {
         }), json.nullCase(_ -> null)));
 
         attack = AttackSchema.createAttack(json, isBase);
+
+        TracedEntry<String> mapIconEntry = json.getAsString("mapIcon", true, null);
+        mapIcon = mapIconEntry.getValue();
     }
 }

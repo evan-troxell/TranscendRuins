@@ -4,7 +4,7 @@ root = true
 [*]
 charset = utf-8
 indentStyle = tab
-indentSize = 2
+indentSize = 4
 insertFinalNewline = true
 trimTrailingWhitespace = true
 maxLineLength = 80

@@ -170,7 +170,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
 
     public final HashSet<String> getTag(PrimaryAssetInstance element) {
 
-        return new HashSet<>(tagged.get(element));
+        return tagged.containsKey(element) ? new HashSet<>(tagged.get(element)) : null;
     }
 
     private final HashMap<String, HashSet<PrimaryAssetInstance>> matches = new HashMap<>();
@@ -199,7 +199,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
 
     private void updateTag(PrimaryAssetInstance asset, Set<String> tag) {
 
-        if (tag == null) {
+        if (tag == null || tag.isEmpty()) {
 
             return;
         }
@@ -230,14 +230,24 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         }
     }
 
-    private final HashSet<ElementInstance> elements = new HashSet<>();
+    private final ArrayList<ElementInstance> elements = new ArrayList<>();
+
+    public final ArrayList<ElementInstance> getElements() {
+
+        return new ArrayList<>(elements);
+    }
 
     public final List<ElementInstance> getElements(Identifier identifier) {
 
         return elements.stream().filter(element -> element.getIdentifier() == identifier).toList();
     }
 
-    private final HashSet<EntityInstance> entities = new HashSet<>();
+    private final ArrayList<EntityInstance> entities = new ArrayList<>();
+
+    public final ArrayList<EntityInstance> getEntities() {
+
+        return new ArrayList<>(entities);
+    }
 
     public final List<EntityInstance> getEntities(Identifier identifier) {
 
@@ -415,6 +425,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
                 }
 
                 // TODO Operate on overlapped elements
+                return false;
             }
         } else {
 
@@ -435,6 +446,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
                         overlappedElements.add(intersectElement);
 
                         // TODO Operate on overlapped elements
+                        return false;
                     }
                 }
             }
@@ -491,7 +503,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         return random.next(options);
     }
 
-    public final InteractionCall getNearestInteraction(Player player) {
+    public final InteractionCall getNearestInteraction(Player player, long time) {
 
         HashSet<PrimaryAssetInstance> assets = new HashSet<>();
 
@@ -506,7 +518,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
             return null;
         }
 
-        double sqr_r = range * range;
+        double sqr_r = range * range * World.UNIT_TILE * World.UNIT_TILE;
 
         // Handle tiles (elements).
         for (int i = Math.max(0, (int) Math.ceil(x - range)); i <= Math.floor(x + range) && x < bounds.width; i++) {
@@ -536,6 +548,11 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
 
             for (AssetInteractionInstance interactionOption : assetOption.getInteraction()) {
 
+                if (!interactionOption.canCall(assetOption, time)) {
+
+                    continue;
+                }
+
                 Vector displacement = interactionOption.getPosition(assetOption.getRotation(),
                         assetOption.getPosition().subtract(position));
                 double newDist_sqr = displacement.dot(displacement);
@@ -551,19 +568,19 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         return interaction;
     }
 
-    public final AttackCall getNearestTarget(Player player) {
+    public final AttackCall getNearestTarget(EntityInstance entity) {
 
-        EntityInstance playerEntity = player.getEntity();
-        Vector position = playerEntity.getPosition();
+        AttackInstance attackData = entity.getAttack();
 
-        AttackInstance attackData = playerEntity.getAttack();
         double range = attackData.getRange();
         if (range < 0) {
 
             return null;
         }
 
-        double sqr_r = range * range;
+        Vector position = entity.getPosition();
+
+        double sqr_r = range * range * World.UNIT_TILE * World.UNIT_TILE;
 
         HashSet<EntityInstance> assets = new HashSet<>();
 
@@ -571,7 +588,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         // TODO: implement entity quadtree separation.
         assets.addAll(entities);
 
-        assets.remove(playerEntity);
+        assets.remove(entity);
 
         double distance_sqr = Double.POSITIVE_INFINITY;
         AttackCall attack = null;
@@ -584,7 +601,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
             if (newDist_sqr <= sqr_r && newDist_sqr < distance_sqr) {
 
                 distance_sqr = newDist_sqr;
-                attack = new AttackCall(attackData, playerEntity, assetOption);
+                attack = new AttackCall(attackData, entity, assetOption);
             }
         }
 

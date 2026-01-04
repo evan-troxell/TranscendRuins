@@ -221,9 +221,9 @@ public final class GlobalLocationSchema {
             WeightedRoll<AssetPresets> areaOptions = areasJson.getAsRoll(areaKey, false, null, "layout",
                     areasJson.presetsCase(entry -> {
 
-                        AssetPresets area = entry.getValue();
-
-                        return area;
+                        AssetPresets presets = entry.getValue();
+                        // TODO add dependency
+                        return presets;
                     }, LAYOUT));
 
             areasDict.put(areaKey, areaOptions);

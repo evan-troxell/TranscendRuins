@@ -49,51 +49,6 @@ import com.transcendruins.utilities.immutable.ImmutableList;
  */
 public abstract class ModelAssetInstance extends AssetInstance implements RenderInstance {
 
-    private GlobalLocationInstance location;
-
-    public final GlobalLocationInstance getLocation() {
-
-        return location;
-    }
-
-    public final void setLocation(GlobalLocationInstance location) {
-
-        this.location = location;
-        if (!hasModelParent()) {
-
-            setParent(location);
-        }
-    }
-
-    private PrimaryAssetInstance modelParent;
-
-    protected final void setModelParent(PrimaryAssetInstance modelParent) {
-
-        this.modelParent = modelParent;
-        if (hasModelParent()) {
-
-            location = modelParent.getLocation();
-            setParent(modelParent);
-        } else {
-
-            setParent(location);
-        }
-    }
-
-    public abstract void removeModelParent();
-
-    public final boolean hasModelParent() {
-
-        return modelParent != null;
-    }
-
-    public final PrimaryAssetInstance getModelParent() {
-
-        return modelParent;
-    }
-
-    public abstract String getModelParentAttachment();
-
     /**
      * <code>String</code>: The pathway to the texture of this
      * <code>ModelAssetInstance</code> instance.
@@ -177,10 +132,10 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         return getParentPolygons(model, boneActors, getPosition(), getRotation());
     }
 
-    public final RenderBuffer getPolygons(ModelAssetInstance parent) {
+    public final RenderBuffer getPolygons(ModelAssetInstance parent, String attachment) {
 
         computeBoneActors();
-        return getChildPolygons(model, boneActors, modelParent, getModelParentAttachment());
+        return getChildPolygons(model, boneActors, parent, attachment);
     }
 
     protected abstract RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector position,
@@ -247,8 +202,6 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         super(assetContext, key);
 
         ModelAssetContext context = (ModelAssetContext) assetContext;
-
-        setLocation(context.getLocation());
     }
 
     @Override

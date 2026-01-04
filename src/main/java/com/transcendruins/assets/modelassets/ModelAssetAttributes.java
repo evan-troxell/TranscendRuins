@@ -18,9 +18,9 @@ package com.transcendruins.assets.modelassets;
 
 import java.util.ArrayList;
 
-import static com.transcendruins.assets.AssetType.ANIMATION_CONTROLLER;
 import static com.transcendruins.assets.AssetType.MODEL;
 import static com.transcendruins.assets.AssetType.RENDER_MATERIAL;
+import static com.transcendruins.assets.AssetType.STATE_CONTROLLER;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
@@ -162,8 +162,7 @@ public abstract class ModelAssetAttributes extends AssetAttributes {
             addAssetDependency(renderMaterial);
         }
 
-        TracedEntry<AssetPresets> stateControllerEntry = json.getAsPresets("stateController", true,
-                ANIMATION_CONTROLLER);
+        TracedEntry<AssetPresets> stateControllerEntry = json.getAsPresets("stateController", true, STATE_CONTROLLER);
         stateController = stateControllerEntry.getValue();
         if (stateControllerEntry.containsValue()) {
 

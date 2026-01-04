@@ -116,19 +116,19 @@ public abstract class TracedCollection {
 
         return switch (val) {
 
-        case null -> JSONType.NULL;
+            case null -> JSONType.NULL;
 
-        case Boolean _ -> JSONType.BOOLEAN;
+            case Boolean _ -> JSONType.BOOLEAN;
 
-        case Long _ -> JSONType.LONG;
-        case Double _ -> JSONType.DOUBLE;
+            case Long _ -> JSONType.LONG;
+            case Double _ -> JSONType.DOUBLE;
 
-        case String _ -> JSONType.STRING;
+            case String _ -> JSONType.STRING;
 
-        case @SuppressWarnings("rawtypes") Map _ -> JSONType.DICT;
-        case @SuppressWarnings("rawtypes") List _ -> JSONType.ARRAY;
+            case @SuppressWarnings("rawtypes") Map _ -> JSONType.DICT;
+            case @SuppressWarnings("rawtypes") List _ -> JSONType.ARRAY;
 
-        default -> JSONType.NULL;
+            default -> JSONType.NULL;
         };
     }
 
@@ -272,7 +272,7 @@ public abstract class TracedCollection {
      *               apply to the entry.
      * @return <code>TypeCase&lt;Float, T&gt;</code>: The created float type case.
      */
-    public <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall) {
+    public final <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsFloat(key, false, null), LONG, DOUBLE);
     }
@@ -287,7 +287,7 @@ public abstract class TracedCollection {
      *                  determine if a number is valid.
      * @return <code>TypeCase&lt;Float, T&gt;</code>: The created float type case.
      */
-    public <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall, Function<Float, Boolean> isInRange) {
+    public final <T> TypeCase<Float, T> floatCase(EntryOperator<Float, T> onCall, Function<Float, Boolean> isInRange) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsFloat(key, false, null, isInRange), LONG,
                 DOUBLE);
@@ -301,7 +301,7 @@ public abstract class TracedCollection {
      *               apply to the entry.
      * @return <code>TypeCase&lt;Long, T&gt;</code>: The created long type case.
      */
-    public <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall) {
+    public final <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsLong(key, false, null), LONG);
     }
@@ -316,7 +316,7 @@ public abstract class TracedCollection {
      *                  determine if a number is valid.
      * @return <code>TypeCase&lt;Long, T&gt;</code>: The created long type case.
      */
-    public <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall, Function<Long, Boolean> isInRange) {
+    public final <T> TypeCase<Long, T> longCase(EntryOperator<Long, T> onCall, Function<Long, Boolean> isInRange) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsLong(key, false, null, isInRange), LONG);
     }
@@ -330,7 +330,7 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;Integer, T&gt;</code>: The created integer type
      *         case.
      */
-    public <T> TypeCase<Integer, T> intCase(EntryOperator<Integer, T> onCall) {
+    public final <T> TypeCase<Integer, T> intCase(EntryOperator<Integer, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsInteger(key, false, null), LONG);
     }
@@ -346,7 +346,8 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;Integer, T&gt;</code>: The created integer type
      *         case.
      */
-    public <T> TypeCase<Integer, T> intCase(EntryOperator<Integer, T> onCall, Function<Integer, Boolean> isInRange) {
+    public final <T> TypeCase<Integer, T> intCase(EntryOperator<Integer, T> onCall,
+            Function<Integer, Boolean> isInRange) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsInteger(key, false, null, isInRange), LONG);
     }
@@ -361,7 +362,7 @@ public abstract class TracedCollection {
      *                 create the entry.
      * @return <code>TypeCase&lt;String, T&gt;</code>: The created string type case.
      */
-    public static <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall, EntryBuilder<String> getEntry) {
+    public final <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall, EntryBuilder<String> getEntry) {
 
         return new TypeCase<>(onCall, getEntry, STRING);
     }
@@ -374,7 +375,7 @@ public abstract class TracedCollection {
      *               apply to the entry.
      * @return <code>TypeCase&lt;String, T&gt;</code>: The created string type case.
      */
-    public <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall) {
+    public final <T> TypeCase<String, T> stringCase(EntryOperator<String, T> onCall) {
 
         return stringCase(onCall, (collection, key) -> collection.getAsString(key, false, null));
     }
@@ -387,7 +388,7 @@ public abstract class TracedCollection {
      *               apply to the entry.
      * @return <code>TypeCase&lt;Object, T&gt;</code>: The created scalar type case.
      */
-    public <T> TypeCase<Object, T> scalarCase(EntryOperator<Object, T> onCall) {
+    public final <T> TypeCase<Object, T> scalarCase(EntryOperator<Object, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsScalar(key, false, null), BOOLEAN, LONG,
                 DOUBLE, STRING);
@@ -402,7 +403,7 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;TracedDictionary, T&gt;</code>: The created
      *         dictionary type case.
      */
-    public <T> TypeCase<TracedDictionary, T> dictCase(EntryOperator<TracedDictionary, T> onCall) {
+    public final <T> TypeCase<TracedDictionary, T> dictCase(EntryOperator<TracedDictionary, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsDict(key, false), DICT);
     }
@@ -416,7 +417,7 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;TracedArray, T&gt;</code>: The created array type
      *         case.
      */
-    public <T> TypeCase<TracedArray, T> arrayCase(EntryOperator<TracedArray, T> onCall) {
+    public final <T> TypeCase<TracedArray, T> arrayCase(EntryOperator<TracedArray, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsArray(key, false), ARRAY);
     }
@@ -430,7 +431,7 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;TracedCollection, T&gt;</code>: The created
      *         collection type case.
      */
-    public <T> TypeCase<TracedCollection, T> collectionCase(EntryOperator<TracedCollection, T> onCall) {
+    public final <T> TypeCase<TracedCollection, T> collectionCase(EntryOperator<TracedCollection, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsCollection(key, false), DICT, ARRAY);
     }
@@ -445,7 +446,7 @@ public abstract class TracedCollection {
      *                 create the entry.
      * @return <code>TypeCase&lt;Vector, T&gt;</code>: The created vector type case.
      */
-    public <T> TypeCase<Vector, T> vectorCase(EntryOperator<Vector, T> onCall, EntryBuilder<Vector> getEntry) {
+    public final <T> TypeCase<Vector, T> vectorCase(EntryOperator<Vector, T> onCall, EntryBuilder<Vector> getEntry) {
 
         return new TypeCase<>(onCall, getEntry, ARRAY);
     }
@@ -461,7 +462,7 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;Identifier, T&gt;</code>: The created identifier
      *         type case.
      */
-    public <T> TypeCase<Identifier, T> identifierCase(EntryOperator<Identifier, T> onCall,
+    public final <T> TypeCase<Identifier, T> identifierCase(EntryOperator<Identifier, T> onCall,
             EntryBuilder<Identifier> getEntry) {
 
         return new TypeCase<>(onCall, getEntry, STRING);
@@ -478,7 +479,8 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;Version, T&gt;</code>: The created version type
      *         case.
      */
-    public <T> TypeCase<Version, T> versionCase(EntryOperator<Version, T> onCall, EntryBuilder<Version> getEntry) {
+    public final <T> TypeCase<Version, T> versionCase(EntryOperator<Version, T> onCall,
+            EntryBuilder<Version> getEntry) {
 
         return new TypeCase<>(onCall, getEntry, ARRAY);
     }
@@ -493,9 +495,22 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;AssetPresets, T&gt;</code>: The asset presets type
      *         case.
      */
-    public <T> TypeCase<AssetPresets, T> presetsCase(EntryOperator<AssetPresets, T> onCall, AssetType type) {
+    public final <T> TypeCase<AssetPresets, T> presetsCase(EntryOperator<AssetPresets, T> onCall, AssetType type) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsPresets(key, false, type), STRING, DICT);
+    }
+
+    /**
+     * Creates a color type case.
+     * 
+     * @param <T>    <code>Object</code>: The type of the value.
+     * @param onCall <code>EntryOperator&lt;Color, T&gt;</code>: The operator to
+     *               apply to the entry.
+     * @return <code>TypeCase&lt;Color, T&gt;</code>: The color type case.
+     */
+    public final <T> TypeCase<Color, T> colorCase(EntryOperator<Color, T> onCall) {
+
+        return new TypeCase<>(onCall, (collection, key) -> collection.getAsColor(key, false, null), STRING);
     }
 
     /**
@@ -506,7 +521,7 @@ public abstract class TracedCollection {
      *               apply to the entry.
      * @return <code>TypeCase&lt;TRScript, T&gt;</code>: The script type case.
      */
-    public <T> TypeCase<TRScript, T> scriptCase(EntryOperator<TRScript, T> onCall) {
+    public final <T> TypeCase<TRScript, T> scriptCase(EntryOperator<TRScript, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.getAsScript(key, false), BOOLEAN, LONG, DOUBLE,
                 STRING, DICT);
@@ -520,7 +535,7 @@ public abstract class TracedCollection {
      *               apply to the entry.
      * @return <code>TypeCase&lt;Void, T&gt;</code>: The created null type case.
      */
-    public <T> TypeCase<Void, T> nullCase(EntryOperator<Void, T> onCall) {
+    public final <T> TypeCase<Void, T> nullCase(EntryOperator<Void, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> new TracedEntry<>(collection.extend(key), null), NULL);
     }
@@ -534,7 +549,7 @@ public abstract class TracedCollection {
      * @return <code>TypeCase&lt;Object, T&gt;</code>: The created default type
      *         case.
      */
-    public <T> TypeCase<Object, T> defaultCase(EntryOperator<Object, T> onCall) {
+    public final <T> TypeCase<Object, T> defaultCase(EntryOperator<Object, T> onCall) {
 
         return new TypeCase<>(onCall, (collection, key) -> collection.get(key, true, null));
     }
@@ -1138,59 +1153,128 @@ public abstract class TracedCollection {
     public final TracedEntry<Color> getAsColor(Object key, boolean nullCaseAllowed, Color ifNull)
             throws LoggedException {
 
-        ArrayList<TypeCase<?, TracedEntry<Color>>> cases = new ArrayList<>(List.of(arrayCase(entry -> {
-
-            TracedArray array = entry.getValue();
-            int size = array.size();
-
-            if (size != 3 && size != 4) {
-
-                throw new CollectionSizeException(entry, array);
-            }
-
-            int[] rgb = new int[size];
-
-            for (int i : array) {
-
-                TracedEntry<Integer> colorEntry = array.getAsInteger(i, false, null, num -> 0 <= num && num < 256);
-                rgb[i] = colorEntry.getValue();
-            }
-
-            int alpha = size == 4 ? rgb[3] : 255;
-            return entry.cast(new Color(rgb[0], rgb[1], rgb[2], alpha));
-        }), stringCase(entry -> {
+        ArrayList<TypeCase<?, TracedEntry<Color>>> cases = new ArrayList<>(List.of(stringCase(entry -> {
 
             String color = entry.getValue();
             return entry.cast(switch (color) {
 
-            case "white" -> Color.WHITE;
-            case "lightGray" -> Color.LIGHT_GRAY;
-            case "gray" -> Color.GRAY;
-            case "darkGray" -> Color.DARK_GRAY;
-            case "black" -> Color.BLACK;
+                case "white" -> Color.WHITE;
+                case "lightGray" -> Color.LIGHT_GRAY;
+                case "gray" -> Color.GRAY;
+                case "darkGray" -> Color.DARK_GRAY;
+                case "black" -> Color.BLACK;
 
-            case "red" -> Color.RED;
-            case "pink" -> Color.PINK;
-            case "orange" -> Color.ORANGE;
-            case "yellow" -> Color.YELLOW;
-            case "green" -> Color.GREEN;
-            case "magenta" -> Color.MAGENTA;
-            case "cyan" -> Color.CYAN;
-            case "blue" -> Color.BLUE;
+                case "red" -> Color.RED;
+                case "pink" -> Color.PINK;
+                case "orange" -> Color.ORANGE;
+                case "yellow" -> Color.YELLOW;
+                case "green" -> Color.GREEN;
+                case "magenta" -> Color.MAGENTA;
+                case "cyan" -> Color.CYAN;
+                case "blue" -> Color.BLUE;
 
-            default -> {
+                default -> {
 
-                Color colorVal;
-                try {
+                    color = color.replaceAll("\\s", "").toLowerCase();
 
-                    colorVal = Color.decode(color);
-                } catch (NumberFormatException e) {
+                    if (color.startsWith("#")) {
+
+                        color = color.substring(1);
+
+                        int[] colorVal = { 0, 0, 0, 255 };
+
+                        int len = color.length();
+                        if (len < 3 || len == 5 || len == 7 || 8 < len) {
+
+                            throw new UnexpectedValueException(entry);
+                        }
+
+                        if (len < 6) {
+
+                            String replacement = "";
+                            for (int i = 0; i < len; i++) {
+
+                                char c = color.charAt(i);
+                                replacement += c;
+                                replacement += c;
+                            }
+                            color = replacement;
+                            len *= 2;
+                        }
+
+                        for (int i = 0; i < len / 2; i++) {
+
+                            String codeString = color.substring(i * 2, (i + 1) * 2);
+                            int code = 0;
+
+                            int pow = 1;
+
+                            for (int j = 0; j < codeString.length(); j++) {
+
+                                int num;
+
+                                char c = codeString.charAt(codeString.length() - 1 - j);
+                                if ('0' <= c && c <= '9') {
+
+                                    num = c - '0';
+                                } else if ('a' <= c && c <= 'f') {
+
+                                    num = 10 + c - 'a';
+                                } else {
+
+                                    throw new UnexpectedValueException(entry);
+                                }
+
+                                code += num * pow;
+
+                                pow *= 16;
+                            }
+
+                            colorVal[i] = code;
+                        }
+
+                        yield new Color(colorVal[0], colorVal[1], colorVal[2], colorVal[3]);
+                    }
+
+                    if (color.startsWith("rgb")) {
+
+                        int pStart = color.indexOf("(");
+                        int pEnd = color.indexOf(")");
+
+                        if (pStart == -1 || pEnd == -1 || pEnd < pStart) {
+
+                            throw new UnexpectedValueException(entry);
+                        }
+
+                        String[] split = color.substring(pStart + 1, pEnd).split(",");
+                        if (split.length != 3 && split.length != 4) {
+
+                            throw new UnexpectedValueException(entry);
+                        }
+
+                        int[] colorVal = { 0, 0, 0, 255 };
+
+                        for (int i = 0; i < split.length; i++) {
+
+                            try {
+
+                                colorVal[i] = Integer.parseInt(split[i]);
+                            } catch (NumberFormatException _) {
+
+                                throw new UnexpectedValueException(entry);
+                            }
+
+                            if (colorVal[i] < 0 || 255 < colorVal[i]) {
+
+                                throw new UnexpectedValueException(entry);
+                            }
+                        }
+
+                        yield new Color(colorVal[0], colorVal[1], colorVal[2], colorVal[3]);
+                    }
 
                     throw new UnexpectedValueException(entry);
                 }
-
-                yield colorVal;
-            }
             });
         })));
 

@@ -1,19 +1,19 @@
 {
     "globalOverlays": {
-
-        "utilityBar": "TranscendRuins:utilityBar",
-        "description": "TranscendRuins:globalMapDescription"
+        "utilityBar": "TranscendRuins:utilityBar"
     },
-
-
+    "TEMP": {
+        "utilityBar": "TranscendRuins:utilityBar",
+        "actionBar": "TranscendRuins:actionBar"
+    },
     "overlays": {
-
-        "utilityBar": "TranscendRuins:utilityBar",
-        "actionBar": "TranscendRuins:actionBar",
-        "description": "TranscendRuins:gameDescription"
+        "example": "Example:exampleOverlay"
     },
-
     "menus": {
-        "test": "TranscendRuins:example"
+        "exampleMenu": "Example:exampleMenu"
+    },
+    "temp": {
+        "globalMapDescription": "TranscendRuins:globalMapDescription",
+        "gameDescription": "TranscendRuins:gameDescription"
     }
 }

@@ -114,7 +114,6 @@ public final class AssetPresets {
         this(new TracedEntry<>(null, identifier), type);
     }
 
-    @Deprecated
     public AssetPresets(TracedEntry<Identifier> identifierEntry, AssetType type) {
 
         this.type = type;

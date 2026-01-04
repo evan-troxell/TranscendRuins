@@ -37,14 +37,14 @@ import com.transcendruins.utilities.json.TracedEntry;
  * component.
  */
 public final record Style(Size x, Size y, Size width, Size height, Size minWidth, Size minHeight, SizeDimensions origin,
-        Color backgroundColor, String backgroundTexture, TextureSize backgroundSize, BorderStyle borderTopStyle,
+        Color backgroundColor, String backgroundIcon, IconSize backgroundSize, BorderStyle borderTopStyle,
         Size borderTopWidth, Color borderTopColor, BorderStyle borderBottomStyle, Size borderBottomWidth,
         Color borderBottomColor, BorderStyle borderLeftStyle, Size borderLeftWidth, Color borderLeftColor,
         BorderStyle borderRightStyle, Size borderRightWidth, Color borderRightColor, SizeDimensions rTL,
         SizeDimensions rTR, SizeDimensions rBL, SizeDimensions rBR, Size marginTop, Size marginBottom, Size marginLeft,
         Size marginRight, Size paddingTop, Size paddingBottom, Size paddingLeft, Size paddingRight, Integer fontStyle,
         Integer fontWeight, Size fontSize, String fontFamily, Size lineHeight, TextAlign textAlign, Color color,
-        TextureSize textureFit, WhiteSpace whiteSpace, OverflowWrap overflowWrap, TextOverflow textOverflow,
+        IconSize iconFit, WhiteSpace whiteSpace, OverflowWrap overflowWrap, TextOverflow textOverflow,
         Overflow overflowX, Overflow overflowY, Size gapWidth, Size gapHeight, Direction listDirection,
         Boolean propagateEvents, Display display, TriggerPhase triggerPhase) {
 
@@ -98,8 +98,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         SizeDimensions origin = null;
 
         Color backgroundColor = null;
-        String backgroundTexture = null;
-        TextureSize backgroundSize = null;
+        String backgroundIcon = null;
+        IconSize backgroundSize = null;
 
         BorderStyle borderTopStyle = null;
         Size borderTopWidth = null;
@@ -141,7 +141,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         TextAlign textAlign = null;
         Color color = null;
 
-        TextureSize textureFit = null;
+        IconSize iconFit = null;
 
         WhiteSpace whiteSpace = null;
         OverflowWrap overflowWrap = null;
@@ -188,14 +188,14 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                     switch (backgroundProperty) {
 
                     case "color" -> backgroundColor = createColor(backgroundJson, backgroundProperty);
-                    case "texture" -> backgroundTexture = createString(backgroundJson, backgroundProperty);
-                    case "size" -> backgroundSize = TextureSize.createSize(backgroundJson, backgroundProperty);
+                    case "icon" -> backgroundIcon = createString(backgroundJson, backgroundProperty);
+                    case "size" -> backgroundSize = IconSize.createSize(backgroundJson, backgroundProperty);
                     }
                 }
             }
             case "backgroundColor" -> backgroundColor = createColor(json, property);
-            case "backgroundTexture" -> backgroundTexture = createString(json, property);
-            case "backgroundSize" -> backgroundSize = TextureSize.createSize(json, property);
+            case "backgroundIcon" -> backgroundIcon = createString(json, property);
+            case "backgroundSize" -> backgroundSize = IconSize.createSize(json, property);
 
             // Process all four borders.
             case "border" -> {
@@ -403,7 +403,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             case "color" -> color = createColor(json, property);
             case "textAlign" -> textAlign = TextAlign.createTextAlign(json, property);
 
-            case "textureFit" -> textureFit = TextureSize.createSize(json, property);
+            case "iconFit" -> iconFit = IconSize.createSize(json, property);
 
             // Process the text wrapping and overflow.
             case "whiteSpace" -> whiteSpace = WhiteSpace.createWhiteSpace(json, property);
@@ -432,12 +432,12 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             }
         }
 
-        Style s = new Style(x, y, width, height, minWidth, minHeight, origin, backgroundColor, backgroundTexture,
+        Style s = new Style(x, y, width, height, minWidth, minHeight, origin, backgroundColor, backgroundIcon,
                 backgroundSize, borderTopStyle, borderTopWidth, borderTopColor, borderBottomStyle, borderBottomWidth,
                 borderBottomColor, borderLeftStyle, borderLeftWidth, borderLeftColor, borderRightStyle,
                 borderRightWidth, borderRightColor, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft,
                 marginRight, paddingTop, paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize,
-                fontFamily, lineHeight, textAlign, color, textureFit, whiteSpace, overflowWrap, textOverflow, overflowX,
+                fontFamily, lineHeight, textAlign, color, iconFit, whiteSpace, overflowWrap, textOverflow, overflowX,
                 overflowY, gapWidth, gapHeight, listDirection, propagateEvents, display, triggerPhase);
 
         return s;
@@ -462,11 +462,11 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
                 // All sizing properties should be independent.
                 parseVal(styles, Style::x, Size.NONE), parseVal(styles, Style::y, Size.NONE),
-                parseVal(styles, Style::width, Size.FULL), parseVal(styles, Style::height, Size.AUTO),
+                parseVal(styles, Style::width, Size.FULL), parseVal(styles, Style::height, Size.FIT_CONTENT),
                 parseVal(styles, Style::minWidth, Size.NONE), parseVal(styles, Style::minHeight, Size.NONE),
                 parseVal(styles, Style::origin, SizeDimensions.NONE),
-                parseVal(styles, Style::backgroundColor, TRANSPARENT), parseVal(styles, Style::backgroundTexture, null),
-                parseVal(styles, Style::backgroundSize, TextureSize.COVER),
+                parseVal(styles, Style::backgroundColor, TRANSPARENT), parseVal(styles, Style::backgroundIcon, null),
+                parseVal(styles, Style::backgroundSize, IconSize.COVER),
                 parseVal(styles, Style::borderTopStyle, BorderStyle.NONE),
                 parseVal(styles, Style::borderTopWidth, Size.PX_1),
                 parseVal(styles, Style::borderTopColor, Color.BLACK),
@@ -495,7 +495,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 inheritVal(styles, Style::textAlign, parent, TextAlign.LEFT),
                 inheritVal(styles, Style::color, parent, Color.BLACK),
 
-                parseVal(styles, Style::textureFit, TextureSize.AUTO),
+                parseVal(styles, Style::iconFit, IconSize.AUTO),
 
                 inheritVal(styles, Style::whiteSpace, parent, WhiteSpace.NORMAL),
                 inheritVal(styles, Style::overflowWrap, parent, OverflowWrap.NORMAL),
@@ -846,108 +846,105 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     }
 
     /**
-     * <code>TextureSize</code>: A class representing the size configuration of a
-     * texture.
+     * <code>IconSize</code>: A class representing the size configuration of a icon.
      */
-    public static abstract class TextureSize {
+    public static abstract class IconSize {
 
         /**
-         * <code>TextureSize</code>: A texture size representing constant, 1:1 scaling.
+         * <code>IconSize</code>: A icon size representing constant, 1:1 scaling.
          */
-        public static final TextureSize AUTO = new TextureSize() {
+        public static final IconSize AUTO = new IconSize() {
 
             @Override
-            public int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+            public int getWidth(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
-                return textureWidth;
+                return iconWidth;
             }
 
             @Override
-            public int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+            public int getHeight(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
-                return textureHeight;
+                return iconHeight;
             }
         };
 
         /**
-         * <code>TextureSize</code>: A texture size representing scaling to contain the
-         * entire graphic in the parent's bounds without distorting the texture.
+         * <code>IconSize</code>: A icon size representing scaling to contain the entire
+         * graphic in the parent's bounds without distorting the icon.
          */
-        public static final TextureSize CONTAIN = new TextureSize() {
+        public static final IconSize CONTAIN = new IconSize() {
 
             @Override
-            public int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+            public int getWidth(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
-                return Math.min(textureWidth * parentWidth / textureWidth, textureWidth * parentHeight / textureHeight);
+                return Math.min(iconWidth * parentWidth / iconWidth, iconWidth * parentHeight / iconHeight);
             }
 
             @Override
-            public int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+            public int getHeight(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
-                return Math.min(textureHeight * parentWidth / textureWidth,
-                        textureHeight * parentHeight / textureHeight);
+                return Math.min(iconHeight * parentWidth / iconWidth, iconHeight * parentHeight / iconHeight);
             }
         };
 
         /**
-         * <code>TextureSize</code>: A texture size representing scaling to fill the
-         * parent's bounds without distorting the texture.
+         * <code>IconSize</code>: A icon size representing scaling to fill the parent's
+         * bounds without distorting the icon.
          */
-        public static final TextureSize COVER = new TextureSize() {
+        public static final IconSize COVER = new IconSize() {
 
             @Override
-            public int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+            public int getWidth(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
-                return Math.max(textureWidth * parentWidth / textureWidth, textureWidth * parentHeight / textureHeight);
+                return Math.max(iconWidth * parentWidth / iconWidth, iconWidth * parentHeight / iconHeight);
             }
 
             @Override
-            public int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+            public int getHeight(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
-                return Math.max(textureHeight * parentWidth / textureWidth,
-                        textureHeight * parentHeight / textureHeight);
+                return Math.max(iconHeight * parentWidth / iconWidth, iconHeight * parentHeight / iconHeight);
             }
         };
 
         /**
-         * <code>TextureSize</code>: A texture size representing scaling to fill the
-         * parent's bounds by distorting the texture.
+         * <code>IconSize</code>: A icon size representing scaling to fill the parent's
+         * bounds by distorting the icon.
          */
-        public static final TextureSize FILL = new TextureSize() {
+        public static final IconSize FILL = new IconSize() {
 
             @Override
-            public int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+            public int getWidth(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
                 return parentWidth;
             }
 
             @Override
-            public int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+            public int getHeight(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
                 return parentHeight;
             }
         };
 
         /**
-         * Creates a new instance of the <code>TextureSize</code> class sized based on
-         * the variable dimensions of a parent component.
+         * Creates a new instance of the <code>IconSize</code> class sized based on the
+         * variable dimensions of a parent component.
          * 
          * @param width  <code>Size</code>: The width to calculate using.
          * @param height <code>Size</code>: The height to calculate using.
-         * @return <code>TextureSize</code>: The generated texture size.
+         * @return <code>IconSize</code>: The generated icon size.
          */
-        public static TextureSize createSize(Size width, Size height) {
+        public static IconSize createSize(Size width, Size height) {
 
-            return new TextureSize() {
+            return new IconSize() {
 
                 @Override
-                public int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+                public int getWidth(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
                     return width.getSize(parentWidth, 0);
                 }
 
                 @Override
-                public int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+                public int getHeight(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
                     return height.getSize(parentHeight, 0);
                 }
@@ -955,26 +952,26 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         }
 
         /**
-         * Creates a new instance of the <code>TextureSize</code> class of constant
+         * Creates a new instance of the <code>IconSize</code> class of constant
          * proportions sized based on the variable dimensions of a parent component.
          * 
          * @param width <code>Size</code>: The width to calculate using.
-         * @return <code>TextureSize</code>: The generated texture size.
+         * @return <code>IconSize</code>: The generated icon size.
          */
-        public static TextureSize createSize(Size width) {
+        public static IconSize createSize(Size width) {
 
-            return new TextureSize() {
+            return new IconSize() {
 
                 @Override
-                public int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+                public int getWidth(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
                     return width.getSize(parentWidth, 0);
                 }
 
                 @Override
-                public int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight) {
+                public int getHeight(int iconWidth, int iconHeight, int parentWidth, int parentHeight) {
 
-                    return (width.getSize(parentWidth, 0) * textureHeight / textureWidth);
+                    return (width.getSize(parentWidth, 0) * iconHeight / iconWidth);
                 }
             };
         }
@@ -985,14 +982,14 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
          * @param collection <code>TracedCollection</code>: The collection to parse.
          * @param key        <code>Object</code>: The key to retrieve from the
          *                   collection.
-         * @return <code>TextureSize</code>: The generated texture size.
+         * @return <code>IconSize</code>: The generated icon size.
          * @throws LoggedException Thrown if the collection could not be parsed.
          */
-        public static TextureSize createSize(TracedCollection collection, Object key) throws LoggedException {
+        public static IconSize createSize(TracedCollection collection, Object key) throws LoggedException {
 
             return collection.get(key, List.of(
 
-                    // Parse into a width-height texture size.
+                    // Parse into a width-height icon size.
                     collection.arrayCase(sizeEntry -> {
 
                         TracedArray sizeJson = sizeEntry.getValue();
@@ -1001,16 +998,16 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                             throw new CollectionSizeException(sizeEntry, sizeJson);
                         }
 
-                        return TextureSize.createSize(Size.createSize(sizeJson, 0, Size.FULL),
+                        return IconSize.createSize(Size.createSize(sizeJson, 0, Size.FULL),
                                 Size.createSize(sizeJson, 1, Size.FULL));
                     }),
 
-                    // Parse into a width-height texture size.
+                    // Parse into a width-height icon size.
                     collection.dictCase(sizeEntry -> {
 
                         TracedDictionary sizeJson = sizeEntry.getValue();
 
-                        return TextureSize.createSize(Size.createSize(sizeJson, "width", Size.FULL),
+                        return IconSize.createSize(Size.createSize(sizeJson, "width", Size.FULL),
                                 Size.createSize(sizeJson, "height", Size.FULL));
                     }), collection.stringCase(sizeEntry -> {
 
@@ -1029,37 +1026,37 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                         // Distort the image to fully cover the component.
                         case "fill" -> FILL;
 
-                        default -> TextureSize.createSize(Size.createStringSize(sizeEntry));
+                        default -> IconSize.createSize(Size.createStringSize(sizeEntry));
                         };
-                    }), collection.doubleCase(sizeEntry -> TextureSize.createSize(Size.createDoubleSize(sizeEntry))),
-                    collection.nullCase(_ -> TextureSize.AUTO)));
+                    }), collection.doubleCase(sizeEntry -> IconSize.createSize(Size.createDoubleSize(sizeEntry))),
+                    collection.nullCase(_ -> IconSize.AUTO)));
         };
 
         /**
-         * Retrieves the width of this <code>TextureSize</code> instance in pixels.
+         * Retrieves the width of this <code>IconSize</code> instance in pixels.
          * 
-         * @param textureWidth  <code>int</code>: The width, in pixels, of the texture.
-         * @param textureHeight <code>int</code>: The height, in pixels, of the texture.
-         * @param parentWidth   <code>int</code>: The width, in pixels, of the parent
-         *                      component.
-         * @param parentHeight  <code>int</code>: The height, in pixels, of the parent
-         *                      component.
+         * @param iconWidth    <code>int</code>: The width, in pixels, of the icon.
+         * @param iconHeight   <code>int</code>: The height, in pixels, of the icon.
+         * @param parentWidth  <code>int</code>: The width, in pixels, of the parent
+         *                     component.
+         * @param parentHeight <code>int</code>: The height, in pixels, of the parent
+         *                     component.
          * @return <code>int</code>: The generated width.
          */
-        public abstract int getWidth(int textureWidth, int textureHeight, int parentWidth, int parentHeight);
+        public abstract int getWidth(int iconWidth, int iconHeight, int parentWidth, int parentHeight);
 
         /**
-         * Retrieves the height of this <code>TextureSize</code> instance in pixels.
+         * Retrieves the height of this <code>IconSize</code> instance in pixels.
          * 
-         * @param textureWidth  <code>int</code>: The width, in pixels, of the texture.
-         * @param textureHeight <code>int</code>: The height, in pixels, of the texture.
-         * @param parentWidth   <code>int</code>: The width, in pixels, of the parent
-         *                      component.
-         * @param parentHeight  <code>int</code>: The height, in pixels, of the parent
-         *                      component.
+         * @param iconWidth    <code>int</code>: The width, in pixels, of the icon.
+         * @param iconHeight   <code>int</code>: The height, in pixels, of the icon.
+         * @param parentWidth  <code>int</code>: The width, in pixels, of the parent
+         *                     component.
+         * @param parentHeight <code>int</code>: The height, in pixels, of the parent
+         *                     component.
          * @return <code>int</code>: The generated height.
          */
-        public abstract int getHeight(int textureWidth, int textureHeight, int parentWidth, int parentHeight);
+        public abstract int getHeight(int iconWidth, int iconHeight, int parentWidth, int parentHeight);
     }
 
     /**

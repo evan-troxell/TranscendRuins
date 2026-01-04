@@ -1,0 +1,108 @@
+{
+    "metadata": {
+        "identifier": "Example:exampleLayout"
+    },
+    "attributes": {
+        "width": 59,
+        "length": 56,
+        "type": "distributed",
+        "iterationType": "sequential",
+        "components": [
+            {
+                "component": {
+                    "type": "layout",
+                    "layout": "Example:campfireCircle",
+                    "placement": {
+                        "center": {
+                            "type": "center"
+                        },
+                        "distribution": {
+                            "type": "normal",
+                            "spread": 1
+                        },
+                        "shape": {
+                            "type": "point",
+                            "radius": 8
+                        }
+                    }
+                }
+            },
+            {
+                "component": {
+                    "type": "element",
+                    "element": "Example:bigRock",
+                    "placement": {
+                        "center": {
+                            "type": "center"
+                        },
+                        "distribution": {
+                            "type": "peripheral",
+                            "spread": 4.5
+                        },
+                        "shape": {
+                            "type": "span"
+                        }
+                    },
+                    "count": 10
+                }
+            },
+            {
+                "component": {
+                    "type": "element",
+                    "element": "Example:bigTree",
+                    "placement": {
+                        "center": {
+                            "type": "center"
+                        },
+                        "distribution": {
+                            "type": "peripheral",
+                            "spread": 2.5
+                        },
+                        "shape": {
+                            "type": "span"
+                        }
+                    },
+                    "count": 25
+                }
+            },
+            {
+                "component": {
+                    "type": "element",
+                    "element": "Example:treee",
+                    "placement": {
+                        "center": {
+                            "type": "center"
+                        },
+                        "distribution": {
+                            "type": "peripheral",
+                            "spread": 3.5
+                        },
+                        "shape": {
+                            "type": "span"
+                        }
+                    },
+                    "count": 100
+                }
+            },
+            {
+                "component": {
+                    "type": "element",
+                    "element": "Example:rock",
+                    "placement": {
+                        "center": {
+                            "type": "center"
+                        },
+                        "distribution": {
+                            "type": "peripheral",
+                            "spread": 3.5
+                        },
+                        "shape": {
+                            "type": "span"
+                        }
+                    },
+                    "count": 40
+                }
+            }
+        ]
+    }
+}

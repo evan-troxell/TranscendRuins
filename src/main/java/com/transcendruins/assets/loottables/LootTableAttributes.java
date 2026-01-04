@@ -187,7 +187,7 @@ public final class LootTableAttributes extends AssetAttributes {
             items = null;
         }
 
-        TracedEntry<TracedArray> disableByComponentIdEntry = json.getAsArray("disableByComponentId", false);
+        TracedEntry<TracedArray> disableByComponentIdEntry = json.getAsArray("disableByComponentId", true);
         if (disableByComponentIdEntry.containsValue()) {
 
             TracedArray disableByComponentIdJson = disableByComponentIdEntry.getValue();
@@ -207,7 +207,7 @@ public final class LootTableAttributes extends AssetAttributes {
             disableByComponentId = null;
         }
 
-        TracedEntry<TracedArray> enableByComponentIdEntry = json.getAsArray("enableByComponentId", false);
+        TracedEntry<TracedArray> enableByComponentIdEntry = json.getAsArray("enableByComponentId", true);
         if (enableByComponentIdEntry.containsValue()) {
 
             TracedArray enableByComponentIdJson = enableByComponentIdEntry.getValue();
@@ -227,7 +227,7 @@ public final class LootTableAttributes extends AssetAttributes {
             enableByComponentId = null;
         }
 
-        TracedEntry<TracedArray> disableByComponentTagsEntry = json.getAsArray("disableByComponentTags", false);
+        TracedEntry<TracedArray> disableByComponentTagsEntry = json.getAsArray("disableByComponentTags", true);
 
         if (disableByComponentTagsEntry.containsValue()) {
 
@@ -248,7 +248,7 @@ public final class LootTableAttributes extends AssetAttributes {
             disableByComponentTag = null;
         }
 
-        TracedEntry<TracedArray> enableByComponentTagsEntry = json.getAsArray("enableByComponentTags", false);
+        TracedEntry<TracedArray> enableByComponentTagsEntry = json.getAsArray("enableByComponentTags", true);
 
         if (enableByComponentTagsEntry.containsValue()) {
 
@@ -516,7 +516,8 @@ public final class LootTableAttributes extends AssetAttributes {
                 // Retrieve the maximum number of times a pool can be rolled in a single check.
                 // A value of -1 means there is no limit to the number of times a pool can be
                 // rolled.
-                DiscreteRange poolLimit = DiscreteRange.createRange(poolJson, "limit", true, -1, num -> num > 0);
+                DiscreteRange poolLimit = DiscreteRange.createRange(poolJson, "limit", true, -1,
+                        num -> num > 0 || num == -1);
 
                 poolsMap.put(createLoot(poolJson, componentIdList), poolLimit);
             }

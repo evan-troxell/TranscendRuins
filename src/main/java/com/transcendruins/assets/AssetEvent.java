@@ -36,13 +36,13 @@ import com.transcendruins.utilities.json.TracedEntry;
  */
 public final class AssetEvent {
 
-    public static final String ON_INITIALIZATION = "onInitialized";
+    public static final String ON_INITIALIZED = "onInitialized";
 
     public static final String ON_TICK = "onTick";
 
     public static final String ON_INTERACT = "onInteract";
 
-    public static final String ON_DESTRUCTION = "TranscendRuins:onDestroyed";
+    public static final String ON_DESTROYED = "TranscendRuins:onDestroyed";
 
     /**
      * <code>ImmutableList&lt;TRScript&gt;</code>: The conditions required to be met

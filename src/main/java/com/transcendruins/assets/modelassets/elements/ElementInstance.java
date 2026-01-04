@@ -16,6 +16,7 @@
 
 package com.transcendruins.assets.modelassets.elements;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -25,6 +26,7 @@ import java.util.HashSet;
 
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.modelassets.entities.EntityInstance;
+import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.geometry.Quaternion;
@@ -216,6 +218,10 @@ public final class ElementInstance extends PrimaryAssetInstance {
         tiles = new ImmutableSet<>(newTiles);
     }
 
+    @Override
+    public final void updateSlot(String name, ItemInstance item) {
+    }
+
     private final Vector tileOffset;
 
     @Override
@@ -274,6 +280,13 @@ public final class ElementInstance extends PrimaryAssetInstance {
         return super.addModelChild(modelChild, attachment);
     }
 
+    private Color mapColor;
+
+    public final Color getMapColor() {
+
+        return mapColor;
+    }
+
     /**
      * Creates a new instance of the <code>ElementInstance</code> class.
      * 
@@ -304,6 +317,9 @@ public final class ElementInstance extends PrimaryAssetInstance {
             updateTileRotation();
 
         }, attributes, new Dimension(1, 1));
+
+        mapColor = calculateAttribute(attributes.getMapColor(), roll -> roll.get(getRandomId()), mapColor, attributes,
+                null);
     }
 
     @Override

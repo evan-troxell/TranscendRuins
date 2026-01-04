@@ -16,13 +16,13 @@
 
 package com.transcendruins.world;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import com.transcendruins.assets.modelassets.elements.ElementInstance;
 
 public final class AreaTile {
 
-    private final HashSet<ElementInstance> elements = new HashSet<>();
+    private final LinkedHashSet<ElementInstance> elements = new LinkedHashSet<>();
 
     public final void addElement(ElementInstance element) {
 
@@ -34,9 +34,9 @@ public final class AreaTile {
         elements.remove(element);
     }
 
-    public final HashSet<ElementInstance> getElements() {
+    public final LinkedHashSet<ElementInstance> getElements() {
 
-        return new HashSet<>(elements);
+        return new LinkedHashSet<>(elements);
     }
 
     public AreaTile() {

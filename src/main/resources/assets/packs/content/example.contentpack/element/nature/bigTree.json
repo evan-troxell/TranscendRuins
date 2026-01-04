@@ -1,0 +1,20 @@
+{
+    "metadata": {
+        "identifier": "Example:bigTree"
+    },
+    "attributes": {
+        "model": "TranscendRuins:box",
+        "stateController": "TranscendRuins:box",
+        "renderMaterial": "TranscendRuins:opaque",
+        "texture": "element.crate",
+        "mapColor": [
+            "#228B22",
+            "#0B6623",
+            "#437C17"
+        ],
+        "tileDimensions": [
+            3,
+            3
+        ]
+    }
+}

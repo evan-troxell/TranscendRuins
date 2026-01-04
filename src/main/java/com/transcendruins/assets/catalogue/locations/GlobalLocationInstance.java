@@ -22,7 +22,6 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.ImageIcon;
 
@@ -35,7 +34,7 @@ import com.transcendruins.assets.layouts.LayoutInstance;
 import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.rendering.renderBuffer.RenderBuffer;
-import com.transcendruins.resources.styles.Style.TextureSize;
+import com.transcendruins.resources.styles.Style.IconSize;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.random.DeterministicRandom;
@@ -120,7 +119,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     private final ImageIcon pin;
 
-    private final TextureSize pinSize;
+    private final IconSize pinSize;
 
     /**
      * <code>double</code>: The icon height of this
@@ -196,6 +195,13 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     public final AreaGrid getArea(String area) {
 
+        ZonedDateTime now = ZonedDateTime.now();
+
+        if (regenerateConditional(now)) {
+
+            generated = true;
+        }
+
         return areas.get(area);
     }
 
@@ -234,6 +240,13 @@ public final class GlobalLocationInstance extends PropertyHolder {
         if (!players.containsKey(player)) {
 
             return null;
+        }
+
+        ZonedDateTime now = ZonedDateTime.now();
+
+        if (regenerateConditional(now)) {
+
+            generated = true;
         }
 
         return areas.get(players.get(player).area());
@@ -299,7 +312,34 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     private double resetOffsetCounter = 0.0;
 
+    private boolean generated;
+
     private boolean active;
+
+    private boolean regenerateConditional(ZonedDateTime now) {
+
+        // If the location was already regenerated, return true.
+        if (generated) {
+
+            return true;
+        }
+
+        // If the location is not empty, it cannot be regenerated.
+        if (!isEmpty()) {
+
+            return false;
+        }
+
+        // If the location is active and has not reached the reset duration, do not
+        // regenerate.
+        if (active && (reset.getDuration() == -1 || getMinutesUntilReset(now) > 0)) {
+
+            return false;
+        }
+
+        generate();
+        return true;
+    }
 
     public final boolean add(Player player, PlayerSpawn spawn) {
 
@@ -308,26 +348,18 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
             ZonedDateTime now = ZonedDateTime.now();
 
-            // If the location is active, the location should reset, and the active period
-            // is over, regenerate.
-            if (active) {
-
-                active = reset.getDuration() == -1 || getMinutesUntilReset(now) > 0;
-            }
-
-            // If the location is not already active, generate.
-            if (!active) {
+            if (regenerateConditional(now)) {
 
                 active = true;
 
                 locationResetTimestamp = now;
                 resetOffsetCounter = 0;
-
-                generate();
             }
 
             prevEntranceTimestamp = now;
         }
+
+        generated = false;
 
         // If the area cannot be assigned, use the primary area.
         if (spawn == null) {
@@ -386,7 +418,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
         int spawnZ = spawn.z();
 
         playerEntity.setPosition(spawnX, spawnZ);
-        area.addEntity(playerEntity, Set.of("player"));
+        area.addEntity(playerEntity, null);
 
         return true;
     }

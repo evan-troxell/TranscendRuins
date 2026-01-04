@@ -163,7 +163,7 @@ public final class PackDependency {
         this.entry = entry;
         TracedDictionary json = entry.getValue();
 
-        if (json.getType("version") == JSONType.ARRAY) {
+        if (json.getType("version") == JSONType.DICT) {
 
             TracedEntry<TracedDictionary> versionEntry = json.getAsDict("version", false);
             TracedDictionary versionJson = versionEntry.getValue();

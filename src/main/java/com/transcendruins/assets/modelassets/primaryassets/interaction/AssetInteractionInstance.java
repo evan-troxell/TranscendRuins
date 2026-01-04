@@ -75,11 +75,6 @@ public abstract class AssetInteractionInstance {
 
     public final long call(PrimaryAssetInstance self, long time, Player caller) {
 
-        if (!canCall(self, time)) {
-
-            return -1;
-        }
-
         prevTime = time;
 
         self.executeEvent(AssetEvent.ON_INTERACT);

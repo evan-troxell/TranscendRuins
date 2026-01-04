@@ -33,15 +33,15 @@ public abstract class GenerationDistribution {
 
         return switch (type) {
 
-        case "uniform" -> UNIFORM;
+            case "uniform" -> UNIFORM;
 
-        case "normal" -> new NormalGenerationDistribution(json);
+            case "normal" -> new NormalGenerationDistribution(json);
 
-        case "peripheral" -> new PeripheralGenerationDistribution(json);
+            case "peripheral" -> new PeripheralGenerationDistribution(json);
 
-        case "ring" -> new RingGenerationDistribution(json);
+            case "ring" -> new RingGenerationDistribution(json);
 
-        default -> throw new UnexpectedValueException(typeEntry);
+            default -> throw new UnexpectedValueException(typeEntry);
         };
     }
 
@@ -82,7 +82,7 @@ public abstract class GenerationDistribution {
         @Override
         public double getChance(int x, int z, DeterministicRandom random) {
 
-            return Math.exp((x * x + z * z) / (2 * spread * spread));
+            return Math.exp((x * x + z * z) / (50 * spread * spread));
         }
     }
 

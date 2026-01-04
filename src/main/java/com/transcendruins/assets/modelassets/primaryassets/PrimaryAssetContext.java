@@ -26,6 +26,13 @@ import com.transcendruins.assets.modelassets.ModelAssetContext;
  */
 public abstract class PrimaryAssetContext extends ModelAssetContext {
 
+    private final GlobalLocationInstance location;
+
+    public final GlobalLocationInstance getLocation() {
+
+        return location;
+    }
+
     /**
      * Creates a new instance of the <code>PrimaryAssetContext</code> class.
      * 
@@ -37,6 +44,8 @@ public abstract class PrimaryAssetContext extends ModelAssetContext {
      */
     public PrimaryAssetContext(AssetPresets presets, GlobalLocationInstance location) {
 
-        super(presets, location);
+        super(presets, location.getWorld(), location);
+
+        this.location = location;
     }
 }

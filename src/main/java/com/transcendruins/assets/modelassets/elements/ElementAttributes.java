@@ -16,6 +16,7 @@
 
 package com.transcendruins.assets.modelassets.elements;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedArray;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.selection.WeightedRoll;
 
 /**
  * <code>ElementAttributes</code>: A class which represents the attributes of an
@@ -37,6 +39,13 @@ public final class ElementAttributes extends PrimaryAssetAttributes {
     public final Dimension getTileDimensions() {
 
         return tileDimensions != null ? new Dimension(tileDimensions) : null;
+    }
+
+    private final WeightedRoll<Color> mapColor;
+
+    public final WeightedRoll<Color> getMapColor() {
+
+        return mapColor;
     }
 
     /**
@@ -84,5 +93,7 @@ public final class ElementAttributes extends PrimaryAssetAttributes {
 
                     return new Dimension(width, length);
                 }), json.nullCase(_ -> null)));
+
+        mapColor = json.getAsRoll("mapColor", true, null, "mapColor", json.colorCase(TracedEntry::getValue));
     }
 }

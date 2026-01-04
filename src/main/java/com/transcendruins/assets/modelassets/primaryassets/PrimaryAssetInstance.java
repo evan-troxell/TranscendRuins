@@ -27,14 +27,15 @@ import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionInstance;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryContent;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySchema;
-import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.geometry.Matrix;
@@ -50,6 +51,41 @@ import com.transcendruins.world.AreaGrid;
  * <code>RenderInstance</code> method.
  */
 public abstract class PrimaryAssetInstance extends ModelAssetInstance {
+
+    private GlobalLocationInstance location;
+
+    public final GlobalLocationInstance getLocation() {
+
+        return location;
+    }
+
+    public final void setLocation(GlobalLocationInstance location) {
+
+        this.location = location;
+        if (modelParent == null) {
+
+            setParent(location);
+        }
+    }
+
+    private PrimaryAssetInstance modelParent;
+
+    protected final void setModelParent(PrimaryAssetInstance modelParent) {
+
+        this.modelParent = modelParent;
+        if (hasModelParent()) {
+
+            setParent(modelParent);
+        } else {
+
+            setParent(location);
+        }
+    }
+
+    public final boolean hasModelParent() {
+
+        return modelParent != null;
+    }
 
     /**
      * <code>InventoryInstance</code>: The inventory of this
@@ -68,6 +104,8 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         return inventory;
     }
 
+    public abstract void updateSlot(String name, ItemInstance item);
+
     private InventoryComponentSchema inventoryUi;
 
     public final InventoryComponentSchema getInventoryUi() {
@@ -81,6 +119,8 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
         return privateInventoryUi;
     }
+
+    private InventoryContent inventoryContent;
 
     private ImmutableList<AssetInteractionInstance> interaction;
 
@@ -138,7 +178,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
         if (hasModelParent()) {
 
-            return getModelParent().getTileBounds();
+            return modelParent.getTileBounds();
         }
 
         return getInternalTileBounds();
@@ -150,7 +190,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
         if (hasModelParent()) {
 
-            return getModelParent().getTileBoundsTranslated(dx, dz);
+            return modelParent.getTileBoundsTranslated(dx, dz);
         }
 
         return getInternalTileBoundsAt(dx, dz);
@@ -162,7 +202,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
 
         if (hasModelParent()) {
 
-            return getModelParent().getTileBoundsAt(tileX, tileZ);
+            return modelParent.getTileBoundsAt(tileX, tileZ);
         }
 
         return getInternalTileBoundsAt(tileX, tileZ);
@@ -180,7 +220,6 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         queueAreaUpdate();
     }
 
-    @Override
     public final void removeModelParent() {
 
         setModelParent(null);
@@ -189,17 +228,10 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         queueAreaUpdate();
     }
 
-    @Override
     public final String getModelParentAttachment() {
 
         return modelParentAttachment;
     }
-
-    /**
-     * <code>HashSet&lt;ModelAssetInstance</code>: The children models of this
-     * <code>PrimaryAssetInstance</code> instance.
-     */
-    private final HashSet<ModelAssetInstance> modelChildren = new HashSet<>();
 
     /**
      * Adds a child model to this <code>PrimaryAssetInstance</code> instance. The
@@ -219,7 +251,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
             return false;
         }
 
-        if (this != modelChild.getModelParent()) {
+        if (this != modelChild.modelParent) {
 
             modelChild.removeModelParent();
         } else {
@@ -229,7 +261,6 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         }
 
         modelChild.setModelParent(this, connection);
-        modelChildren.add(modelChild);
 
         primaryModelChildren.add(modelChild);
         primaryModelConnections.computeIfAbsent(connection, _ -> new HashSet<>()).add(modelChild);
@@ -238,44 +269,19 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
     }
 
     /**
-     * Adds a child model to this <code>PrimaryAssetInstance</code> instance.
-     * 
-     * @param modelChild <code>ItemInstance</code>: The child model to add to this
-     *                   <code>PrimaryAssetInstance</code> instance.
-     * @param slot       <code>InventorySlotInstance</code>: The slot to which the
-     *                   child model will be attached.
-     * @return <code>boolean</code>: Whether or not the child was successfully
-     *         added.
-     */
-    public final boolean addModelChild(ItemInstance modelChild, InventorySlotInstance slot) {
-
-        if (this != modelChild.getModelParent()) {
-
-            modelChild.removeModelParent();
-        }
-
-        modelChild.setModelParent(this, slot);
-        modelChildren.add(modelChild);
-        return true;
-    }
-
-    /**
      * Removes a child model from this <code>PrimaryAssetInstance</code> instance.
      * 
-     * @param modelChild <code>ModelAssetInstance</code>: The child model to remove
-     *                   from this <code>PrimaryAssetInstance</code> instance.
+     * @param modelChild <code>PrimaryAssetInstance</code>: The child model to
+     *                   remove from this <code>PrimaryAssetInstance</code>
+     *                   instance.
      */
-    public final void removeModelChild(ModelAssetInstance modelChild) {
+    public final void removeModelChild(PrimaryAssetInstance modelChild) {
 
         // If the child is a child of this model, remove it.
-        if (modelChild != null && modelChildren.remove(modelChild)) {
+        if (modelChild != null && primaryModelChildren.remove(modelChild)) {
 
-            if (modelChild instanceof PrimaryAssetInstance primaryModelChild) {
-
-                String prevConnection = modelChild.getModelParentAttachment();
-                primaryModelConnections.get(prevConnection).remove(primaryModelChild);
-                primaryModelChildren.remove(primaryModelChild);
-            }
+            String prevConnection = modelChild.getModelParentAttachment();
+            primaryModelConnections.get(prevConnection).remove(modelChild);
 
             modelChild.removeModelParent();
         }
@@ -288,35 +294,46 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         Bone root = model.getRoot();
         BoneActor boneActor = new BoneActor(position.subtract(root.pivotPoint()), rotation, Matrix.IDENTITY_3X3);
 
-        HashMap<String, List<ModelAssetInstance>> boneMappings = new HashMap<>();
+        HashMap<String, ArrayList<ModelAssetInstance>> boneMappings = new HashMap<>();
 
-        for (ModelAssetInstance modelChild : modelChildren) {
+        for (Map.Entry<String, HashSet<PrimaryAssetInstance>> boneMapping : primaryModelConnections.entrySet()) {
 
-            String attachment = modelChild.getModelParentAttachment();
-            if (attachment == null) {
+            String attachment = boneMapping.getKey();
+            HashSet<PrimaryAssetInstance> bones = boneMapping.getValue();
 
+            boneMappings.put(attachment, new ArrayList<>(bones));
+        }
+
+        for (Map.Entry<String, HashSet<ItemInstance>> boneMapping : inventory.getAttachments().entrySet()) {
+
+            String attachment = boneMapping.getKey();
+            HashSet<ItemInstance> bones = boneMapping.getValue();
+
+            if (boneMappings.containsKey(attachment)) {
+
+                boneMappings.get(attachment).addAll(bones);
                 continue;
             }
 
-            boneMappings.computeIfAbsent(attachment, _ -> new ArrayList<>()).add(modelChild);
+            boneMappings.put(attachment, new ArrayList<>(bones));
         }
 
-        RenderBuffer[] renders = new RenderBuffer[] { new RenderBuffer() };
+        RenderBuffer renders = new RenderBuffer();
         Map<Integer, Map<Vector, Double>> vertices = root.computeVertexWeights(boneActors, boneActor,
                 model.getVertices(), (bone, actor, pivotPoint) -> {
 
                     if (boneMappings.containsKey(bone)) {
 
                         List<RenderBuffer> newRenders = boneMappings.get(bone).stream()
-                                .map(asset -> asset.getPolygons(this)).toList();
-                        renders[0].append(newRenders);
+                                .map(asset -> asset.getPolygons(this, bone)).toList();
+                        renders.append(newRenders);
                     }
 
-                    renders[0].transform(actor, pivotPoint);
+                    renders.transform(actor, pivotPoint);
                 });
 
         RenderBuffer render = generatePolygons(vertices);
-        render.append(renders[0]);
+        render.append(renders);
 
         return render;
     }
@@ -342,6 +359,26 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
     public PrimaryAssetInstance(AssetContext assetContext, Object key) {
 
         super(assetContext, key);
+
+        PrimaryAssetContext context = (PrimaryAssetContext) assetContext;
+
+        setLocation(context.getLocation());
+    }
+
+    @Override
+    public final void onInitialized() {
+
+        if (inventoryContent != null) {
+
+            inventoryContent.generate(getRandom(), this);
+        }
+
+        onPrimaryInitialized();
+    }
+
+    public void onPrimaryInitialized() {
+
+        // Assets may choose to override
     }
 
     @Override
@@ -353,9 +390,12 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         computeAttribute(attributes.getInventory(), inventory::applyAttributes, attributes, InventorySchema.DEFAULT);
 
         // Updates the inventoryUi field.
-        inventoryUi = calculateAttribute(attributes.getInventoryUi(), inventoryUi);
+        inventoryUi = calculateAttribute(attributes.getInventoryUi(), inventoryUi, attributes, null);
 
-        privateInventoryUi = calculateAttribute(attributes.getPrivateInventoryUi(), privateInventoryUi);
+        privateInventoryUi = calculateAttribute(attributes.getPrivateInventoryUi(), privateInventoryUi, attributes,
+                null);
+
+        inventoryContent = calculateAttribute(attributes.getInventoryContent(), inventoryContent, attributes, null);
 
         // Update the interaction.
         interaction = calculateAttribute(attributes.getInteraction(),

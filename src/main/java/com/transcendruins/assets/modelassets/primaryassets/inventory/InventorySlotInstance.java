@@ -21,6 +21,7 @@ import java.util.Collections;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.Instance;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
+import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.utilities.immutable.ImmutableList;
 
 public final class InventorySlotInstance extends Instance {
@@ -55,17 +56,19 @@ public final class InventorySlotInstance extends Instance {
 
     public final void setItem(ItemInstance item) {
 
-        if (this.item != null) {
+        if (this.item == item) {
 
-            this.item.setModelParent(null, null);
+            return;
         }
+
+        PrimaryAssetInstance inventoryParent = parent.getInventoryParent();
 
         this.item = item;
+        if (item != null) {
 
-        if (this.item != null) {
-
-            this.item.setModelParent(parent.getInventoryParent(), this);
+            item.setParent(inventoryParent);
         }
+        inventoryParent.updateSlot(name, item);
     }
 
     public final boolean transfer(InventorySlotInstance other) {

@@ -3,7 +3,6 @@
         "identifier": "TranscendRuins:utilityBar"
     },
     "attributes": {
-
         "style": {
             "#utilityBarContainer": {
                 "x": "100%",
@@ -12,41 +11,38 @@
                 "height": 60,
                 "origin": "100%"
             },
-            
-
             "#inventoryButton": {
-                "backgroundTexture": "interface.utilityBar.backpack"
+                "backgroundIcon": "interface.utilityBar.backpack"
             },
-
             "#inventoryButton:hover": {
-                "backgroundTexture": "interface.utilityBar.backpackDark"
+                "backgroundIcon": "interface.utilityBar.backpackDark"
             },
-
             ".utilityButton": {
                 "triggerPhase": "release",
                 "x": 30,
                 "y": 30,
                 "width": 60,
                 "height": 60,
-                "origin": ["50%", "50%"]
+                "origin": [
+                    "50%",
+                    "50%"
+                ]
             },
             ".utilityButton:active": {
-
                 "width": 55,
                 "height": 55
             }
         },
-
         "body": {
             "type": "container",
             "id": "utilityBarContainer",
-
             "components": [
                 {
                     "type": "button",
                     "id": "inventoryButton",
-                    "classes": [ "utilityButton" ],
-
+                    "classes": [
+                        "utilityButton"
+                    ],
                     "action": {
                         "type": "openInventory"
                     }

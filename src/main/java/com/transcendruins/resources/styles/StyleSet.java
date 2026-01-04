@@ -206,6 +206,10 @@ public final class StyleSet {
                     case '+' -> (p, s, o) -> {
 
                         p = p.getPrecedingSibling();
+                        if (p == null) {
+
+                            return false;
+                        }
                         return s.matches(p) && select(p, o);
                     };
 
@@ -227,6 +231,10 @@ public final class StyleSet {
                     case '>' -> (p, s, o) -> {
 
                         p = p.getParent();
+                        if (p == null) {
+
+                            return false;
+                        }
                         return s.matches(p) && select(p, o);
                     };
 

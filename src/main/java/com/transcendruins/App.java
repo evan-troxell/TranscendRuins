@@ -17,7 +17,9 @@
 package com.transcendruins;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -54,6 +56,8 @@ public final class App {
      */
     public static void main(String[] args) throws Exception {
 
+        System.out.println("START");
+
         // new SimpleApp().start();
 
         // new Test().start();
@@ -61,19 +65,22 @@ public final class App {
         PackProcessor packProcessor = PackProcessor.getProcessor();
         // packProcessor.addRoot();
 
-        Identifier vanillaId = Identifier.createTestIdentifier("TranscendRuins:vanilla", new int[] { 1, 0, 0 });
-        ContentPack vanillaPack = ContentPack.getPack(vanillaId);
-
-        System.out.println(vanillaPack.getAssets().entrySet().stream()
-                .map(entry -> entry.getKey() + " : " + entry.getValue().keySet().stream().toList()).toList());
+        ContentPack vanillaPack = ContentPack.getPack(DataConstants.VANILLA_IDENTIFIER);
 
         ArrayList<ContentPack> packs = new ArrayList<>();
         packs.add(vanillaPack);
 
+        Identifier examplePackId = Identifier.createTestIdentifier("Example:examplePack", new int[] { 1, 0, 0 });
+        ContentPack examplePack = ContentPack.getPack(examplePackId);
+
+        System.out.println(examplePack.getAssets().entrySet().stream()
+                .map(entry -> entry.getKey() + " : " + entry.getValue().keySet().stream().toList()).toList());
+        packs.add(examplePack);
+
         ArrayList<ResourcePack> resources = new ArrayList<>();
 
-        long seed = 12397123057172l;
-        System.out.println("SEED: " + seed);
+        long seed = (long) (Math.random() * 1000000000l);
+        System.out.println("SEED: " + seed); // 645221640
 
         World.createWorld(packs, resources, seed);
         World world = World.getWorld();
@@ -111,10 +118,6 @@ public final class App {
 
         // ElementInstance ex2 = new ElementInstance(examplePresets, world, 0, 0, //
 
-        double startTime = world.getRuntimeSeconds();
-
-        System.out.println("ELAPSED TIME: " + (world.getRuntimeSeconds() - startTime));
-
         ArrayList<RenderInstance> models;
 
         // DisplayFrame frame = new DisplayFrame(camera);
@@ -149,23 +152,114 @@ public final class App {
 
         world.startHost();
 
+        /* LAYOUT RENDERING */
+        // ImmutableMap<Identifier, AssetSchema> layoutAssets =
+        // vanillaPack.getAssets().get(AssetType.LAYOUT);
+        // Identifier exampleLayout =
+        // Identifier.createTestIdentifier("Example:exampleLayout", null);
+        // AssetPresets layoutPresets = new AssetPresets(exampleLayout,
+        // AssetType.LAYOUT);
+        // LayoutContext layoutContext = new LayoutContext(layoutPresets,
+        // world.getLocation("bunkerBravo"));
+        // LayoutInstance layout = layoutContext.instantiate();
+
+        // AreaGrid area = layout.generate();
+        // int width = area.getWidth();
+        // int length = area.getLength();
+
+        // int scale = 15;
+
+        // AreaTile[] tiles = area.getArea(0, 0, width, length);
+        // BufferedImage areaImage = new BufferedImage(width * scale, length * scale,
+        // BufferedImage.TYPE_INT_ARGB);
+        // Graphics2D g2d = areaImage.createGraphics();
+
+        // JFrame frame = new JFrame();
+
+        // Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        // double ratio = 0.4;
+        // Rectangle bounds = new Rectangle((int) (screenSize.width * ratio), 0, (int)
+        // (screenSize.width * (1 - ratio)),
+        // screenSize.height);
+        // frame.setBounds(bounds);
+
+        // ArrayList<ElementInstance> elements = area.getElements();
+        // int[] i = { 0 };
+
+        // JPanel panel = new JPanel() {
+
+        // @Override
+        // public void paint(Graphics graphics) {
+
+        // graphics.setColor(Color.GREEN.darker());
+        // graphics.fillRect(0, 0, areaImage.getWidth(), areaImage.getHeight());
+
+        // graphics.drawImage(areaImage, 0, 0, null);
+
+        // if (i[0] < elements.size()) {
+
+        // ElementInstance element = elements.get(i[0]);
+        // Color mapColor = element.getMapColor();
+
+        // if (mapColor == null) {
+
+        // return;
+        // }
+
+        // Rectangle bounds = element.getTileBounds();
+
+        // g2d.setColor(mapColor);
+        // g2d.fillRect(bounds.x * scale, bounds.y * scale, bounds.width * scale,
+        // bounds.height * scale);
+        // }
+        // i[0]++;
+        // }
+        // };
+
+        // frame.add(panel);
+
+        // panel.setSize(frame.getSize());
+
+        // frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // frame.setIconImage(DataConstants.FRAME_ICON_PATH.retrieveImage().getImage());
+        // frame.setVisible(true);
+
+        // Object lock = new Object();
+        // synchronized (lock) {
+
+        // while (true) {
+
+        // panel.repaint();
+        // try {
+        // lock.wait(25);
+        // } catch (InterruptedException e) {
+        // }
+        // }
+        // }
+
+        /* UI RENDERING */
         JFrame uiFrame = new JFrame();
-        uiFrame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        double ratio = 0.4;
+        Rectangle bounds = new Rectangle((int) (screenSize.width * ratio), 0, (int) (screenSize.width * (1 - ratio)),
+                screenSize.height);
+        uiFrame.setBounds(bounds);
 
         JPanel panel = new JPanel() {
 
             @Override
             public void paint(Graphics graphics) {
 
-                // StopWatch watch = new StopWatch();
+                // World.StopWatch watch = new World.StopWatch();
                 // watch.start();
 
                 BufferedImage image = world.renderUi(playerId);
                 // watch.stop("Render time: ");
 
-                float hue = (float) ((System.currentTimeMillis() * 0.0002) % 1.0f);
-                Color rainbow = Color.getHSBColor(hue, 1.0f, 1.0f);
+                float hue = (float) ((System.currentTimeMillis() * 0.00005) % 1.0f);
+                Color rainbow = Color.getHSBColor(hue, 0.6f, 0.6f);
                 graphics.setColor(rainbow);
+                // graphics.setColor(new Color(128, 32, 32));
                 graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
 
                 graphics.drawImage(image, 0, 0, null);
@@ -282,7 +376,7 @@ public final class App {
         return Arrays.stream(tokens).map(token -> {
 
             return Character.toUpperCase(token.charAt(0)) + token.substring(1);
-        }).collect(Collectors.joining());
+        }).collect(Collectors.joining(" "));
     }
 
     /**

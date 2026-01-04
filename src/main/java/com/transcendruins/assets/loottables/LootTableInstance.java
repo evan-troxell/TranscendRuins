@@ -26,7 +26,9 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.modelassets.items.ItemContext;
+import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -34,7 +36,6 @@ import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.utilities.selection.DiscreteRange;
 import com.transcendruins.utilities.selection.SelectionType;
-import com.transcendruins.world.World;
 
 public final class LootTableInstance extends AssetInstance {
 
@@ -42,9 +43,9 @@ public final class LootTableInstance extends AssetInstance {
 
     private ImmutableList<AssetPresets> items;
 
-    public final List<ItemContext> evaluateLoot() {
+    public final List<ItemInstance> generate(GlobalLocationInstance location) {
 
-        return loot.evaluate(getWorld(), getRandom());
+        return loot.generate(location, getRandom());
     }
 
     private final ArrayList<String> disableByComponentId = new ArrayList<>();
@@ -219,26 +220,29 @@ public final class LootTableInstance extends AssetInstance {
          * @param world  <code>World</code>: The world used to generate item presets.
          * @param random <code>DeterministicRandom</code>: The random number generater
          *               used to generate item presets.
-         * @return <code>List&lt;ItemContext&gt;</code>: The generated item contexts.
+         * @return <code>List&lt;ItemInstance&gt;</code>: The generated item contexts.
          */
-        public abstract List<ItemContext> evaluate(World world, DeterministicRandom random);
+        public abstract List<ItemInstance> generate(GlobalLocationInstance location, DeterministicRandom random);
     }
 
     public final class LootValueInstance extends LootInstance {
 
-        private final AssetPresets item;
+        private final AssetPresets presets;
 
         public LootValueInstance(LootTableAttributes.LootValueSchema schema) {
 
             super(schema);
 
-            item = schema.getItem();
+            presets = schema.getItem();
         }
 
         @Override
-        public List<ItemContext> evaluate(World world, DeterministicRandom random) {
+        public List<ItemInstance> generate(GlobalLocationInstance location, DeterministicRandom random) {
 
-            return List.of(new ItemContext(item, getWorld(), null, getCount(random)));
+            ItemContext itemContext = new ItemContext(presets, getWorld(), getCount(random));
+            ItemInstance item = itemContext.instantiate();
+
+            return List.of(item);
         }
     }
 
@@ -260,14 +264,14 @@ public final class LootTableInstance extends AssetInstance {
         }
 
         @Override
-        public final ArrayList<ItemContext> evaluate(World world, DeterministicRandom random) {
+        public final ArrayList<ItemInstance> generate(GlobalLocationInstance location, DeterministicRandom random) {
 
-            ArrayList<ItemContext> items = new ArrayList<>();
+            ArrayList<ItemInstance> items = new ArrayList<>();
 
             int rolled = getCount(random);
             iterationType.generate(pools.keySet(), rolled, loot -> {
 
-                items.addAll(loot.evaluate(world, random));
+                items.addAll(loot.generate(location, random));
                 return new int[] { 1, 0 };
             }, LootInstance::getChance, loot -> pools.get(loot).get(random.next()), random, 1.0, -1);
 
