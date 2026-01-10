@@ -1,0 +1,54 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:locationDisplay"
+    },
+    "attributes": {
+        "style": {
+            "locationDisplay": {
+                "x": "100%",
+                "y": 0,
+                "origin": [
+                    "100%",
+                    0
+                ],
+                "propagateEvents": false,
+                "width": "32.5%",
+                "height": "100%",
+                "borderLeft": {
+                    "width": 2,
+                    "color": "rgb(64, 64, 64)",
+                    "style": "solid"
+                },
+                "backgroundColor": "rgb(160, 160, 160, 128)",
+                "gapHeight": 50,
+                "paddingHorizontal": 20,
+                "paddingVertical": 20
+            },
+            "#locationDisplayNameText": {
+                "height": "fitContent",
+                "fontSize": 45,
+                "lineHeight": 1.5,
+                "textAlign": "center"
+            },
+            "#locationDisplayDescriptionText": {
+                "height": "fitContent",
+                "fontSize": 25,
+                "textAlign": "left"
+            }
+        },
+        "body": {
+            "type": "locationDisplay",
+            "id": "locationDisplay",
+            "components": {
+                "nameText": {
+                    "type": "text",
+                    "id": "locationDisplayNameText"
+                },
+                "descriptionText": {
+                    "type": "text",
+                    "id": "locationDisplayDescriptionText"
+                }
+            }
+        }
+    }
+}

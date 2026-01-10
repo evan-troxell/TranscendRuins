@@ -1,0 +1,137 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:actionBar"
+    },
+    "attributes": {
+        "style": {
+            "#actionBarContainer": {},
+            "#interactButton": {
+                "x": "100% - 300",
+                "y": "100% - 175",
+                "width": 75,
+                "height": 75
+            },
+            "#interactButton:active": {
+                "width": 65,
+                "height": 65
+            },
+            "#mainhandButton": {
+                "x": "100% - 225",
+                "y": "100% - 250",
+                "width": 90,
+                "height": 90
+            },
+            "#mainhandButton:active": {
+                "width": 80,
+                "height": 80
+            },
+            "#offhandButton": {
+                "x": "100% - 325",
+                "y": "100% - 270",
+                "width": 65,
+                "height": 65
+            },
+            "#offhandButton:active": {
+                "width": 55,
+                "height": 55
+            },
+            ".actionButton": {
+                "triggerPhase": "press",
+                "border": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "rgb(176, 176, 176, 192)"
+                },
+                "borderRadius": 50,
+                "origin": "50%"
+            },
+            ".actionButton:hover": {
+                "borderColor": "rgb(80, 200, 220, 192)"
+            },
+            ".actionButtonIcon": {
+                "width": "100%",
+                "height": "100%",
+                "background": {
+                    "color": "rgb(96, 96, 96, 96)"
+                },
+                "iconFit": "contain",
+                "border": {
+                    "width": 5,
+                    "style": "solid",
+                    "color": "rgb(0, 0, 0, 0)"
+                },
+                "borderRadius": 50
+            }
+        },
+        "body": {
+            "type": "container",
+            "id": "actionBarContainer",
+            "components": [
+                {
+                    "type": "button",
+                    "id": "interactButton",
+                    "classes": [
+                        "actionButton"
+                    ],
+                    "component": {
+                        "type": "icon",
+                        "id": "interactButtonIcon",
+                        "classes": [
+                            "actionButtonIcon"
+                        ],
+                        "icon": "interface.actionBar.interact"
+                    },
+                    "action": {
+                        "type": "interact"
+                    }
+                },
+                {
+                    "type": "button",
+                    "id": "mainhandButton",
+                    "classes": [
+                        "actionButton"
+                    ],
+                    "component": {
+                        "type": "icon",
+                        "id": "mainhandButtonIcon",
+                        "classes": [
+                            "actionButtonIcon"
+                        ],
+                        "icon": {
+                            "type": "inventorySlot",
+                            "slot": "mainhand",
+                            "icon": "interface.actionBar.attack"
+                        }
+                    },
+                    "action": {
+                        "type": "attack"
+                    }
+                },
+                {
+                    "type": "button",
+                    "id": "offhandButton",
+                    "classes": [
+                        "actionButton"
+                    ],
+                    "component": {
+                        "type": "icon",
+                        "id": "offhandButtonIcon",
+                        "classes": [
+                            "actionButtonIcon"
+                        ],
+                        "icon": {
+                            "type": "inventorySlot",
+                            "slot": "offhand"
+                        }
+                    },
+                    "count": 1,
+                    "action": {
+                        "type": "swapSlots",
+                        "first": "mainhand",
+                        "second": "offhand"
+                    }
+                }
+            ]
+        }
+    }
+}

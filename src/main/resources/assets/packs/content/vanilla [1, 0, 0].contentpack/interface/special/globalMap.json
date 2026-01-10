@@ -1,0 +1,88 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:globalMap"
+    },
+    "attributes": {
+        "style": {
+            "globalMap": {
+                "iconFit": "contain",
+                "background": {
+                    "color": "rgb(220, 208, 162)",
+                    "size": "cover",
+                    "icon": "global.globalMap"
+                },
+                "triggerPhase": "press",
+                "gapHeight": 10,
+                "color": "rgb(255, 255, 255)"
+            },
+            "#globalMapEnterButton": {
+                "width": "fitContent",
+                "height": "fitContent",
+                "padding": 5,
+                "fontSize": 22,
+                "border": {
+                    "width": 2,
+                    "color": "rgb(64, 64, 64)",
+                    "style": "solid"
+                },
+                "color": "rgb(0, 0, 0)",
+                "backgroundColor": "rgb(160, 160, 160, 128)"
+            },
+            "#globalMapEnterButton:hover": {
+                "backgroundColor": "rgb(128, 128, 128, 160)",
+                "borderColor": "rgb(80, 200, 220, 192)"
+            },
+            "#globalMapEnterButton:active": {
+                "color": "rgb(192, 192, 192)",
+                "backgroundColor": "rgb(96, 96, 96, 192)"
+            },
+            "#globalMapTravelButton": {
+                "width": "fitContent",
+                "height": "fitContent",
+                "padding": 5,
+                "fontSize": 22,
+                "border": {
+                    "width": 2,
+                    "color": "rgb(64, 64, 64)",
+                    "style": "solid"
+                },
+                "color": "rgb(0, 0, 0)",
+                "backgroundColor": "rgb(160, 160, 160, 128)"
+            },
+            "#globalMapTravelButton:hover": {
+                "backgroundColor": "rgb(128, 128, 128, 160)",
+                "borderColor": "rgb(80, 200, 220, 192)"
+            },
+            "#globalMapTravelButton:active": {
+                "color": "rgb(192, 192, 192)",
+                "backgroundColor": "rgb(96, 96, 96, 192)"
+            },
+            "button text": {
+                "textAlign": "left",
+                "width": "fitContent"
+            }
+        },
+        "body": {
+            "type": "globalMap",
+            "id": "globalMap",
+            "components": {
+                "enterButton": {
+                    "type": "button",
+                    "id": "globalMapEnterButton",
+                    "component": {
+                        "type": "text",
+                        "text": "global.enter"
+                    }
+                },
+                "travelButton": {
+                    "type": "button",
+                    "id": "globalMapTravelButton",
+                    "component": {
+                        "type": "text",
+                        "text": "global.travel"
+                    }
+                }
+            }
+        }
+    }
+}

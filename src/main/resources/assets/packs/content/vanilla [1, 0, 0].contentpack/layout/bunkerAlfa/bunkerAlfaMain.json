@@ -1,0 +1,33 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:bunkerAlfaMain"
+    },
+    "attributes": {
+        "width": 30,
+        "length": 30,
+        "type": "distributed",
+        "iterationType": "sequential",
+        "rolls": 2,
+        "components": [
+            {
+                "component": {
+                    "type": "element",
+                    "element": "TranscendRuins:crate",
+                    "placement": {
+                        "center": {
+                            "type": "center"
+                        },
+                        "distribution": {
+                            "type": "peripheral",
+                            "spread": 4.5
+                        },
+                        "shape": {
+                            "type": "circle",
+                            "radius": 10
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

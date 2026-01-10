@@ -1,0 +1,34 @@
+{
+    "metadata": {
+        "identifier": "Example:exampleMenu"
+    },
+    "attributes": {
+        "style": {},
+        "body": {
+            "type": "container",
+            "components": [
+                {
+                    "type": "button",
+                    "classes": [
+                        "exampleButton"
+                    ],
+                    "style": {
+                        "x": "100% - 15px",
+                        "y": "15px",
+                        "origin": [
+                            "100%",
+                            "0%"
+                        ]
+                    },
+                    "component": {
+                        "type": "text",
+                        "text": "Close Menu"
+                    },
+                    "action": {
+                        "type": "closeMenu"
+                    }
+                }
+            ]
+        }
+    }
+}

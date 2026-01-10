@@ -1,0 +1,18 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:cloth"
+    },
+    "attributes": {
+        "texture": "item.cloth.texture",
+        "model": {
+            "identifier": "TranscendRuins:crate"
+        },
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "stackSize": 20,
+        "icon": "item.cloth.icon",
+        "categories": [
+            "material"
+        ]
+    }
+}

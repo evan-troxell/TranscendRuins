@@ -1,0 +1,65 @@
+{
+  "metadata": {
+    "identifier": "Example:campfireCircle"
+  },
+  "attributes": {
+    "width": 40,
+    "length": 40,
+    "type": "distributed",
+    "iterationType": "sequential",
+    "components": [
+      {
+        "component": {
+          "type": "element", "element": "Example:campfire",
+          "tag": "campfire",
+          "placement": {
+            "center": {
+              "type": "center"
+            }
+          }
+        }
+      },
+      {
+        "component": {
+          "type": "element", "element": "Example:rock",
+          "placement": {
+            "distribution": {
+              "type": "ring", "radius": 5,
+              "spread": 0.5
+            },
+            "shape": {
+              "type": "circle", "radius": 10
+            },
+            "center": {
+              "type": "tag",
+              "tag": "campfire"
+            }
+          },
+          "count": 25
+        }
+      },
+      {
+        "component": {
+          "type": "element", "element": "Example:torch",
+          "placement": {
+            "distribution": {
+              "type": "ring", "radius": 12,
+              "spread": 0.4
+            },
+            "shape": {
+              "type": "circle", "radius": 18
+            },
+            "center": {
+              "type": "tag",
+              "tag": "campfire"
+            }
+          },
+          "count": 25
+        }
+      }
+    ]
+  }
+}
+
+
+

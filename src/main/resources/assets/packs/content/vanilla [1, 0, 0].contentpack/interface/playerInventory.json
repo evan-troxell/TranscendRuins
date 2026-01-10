@@ -1,0 +1,194 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:playerInventory"
+    },
+    "attributes": {
+        "style": {
+            "container": {
+                "background": {
+                    "color": "rgb(192, 192, 192)"
+                },
+                "border": {
+                    "width": 5,
+                    "color": "rgb(128, 128, 128)",
+                    "style": "solid"
+                },
+                "borderRadiusLeft": "25px",
+                "borderRadiusTopRight": "15px",
+                "borderRadiusBottomRight": "10px",
+                "padding": "10px",
+                "paddingLeft": "25px",
+                "margin": "5px",
+                "gap": 25,
+                "display": "flex",
+                "listDirection": "vertical",
+                "color": "rgb(255, 255, 255)"
+            },
+            "button": {
+                "border": {
+                    "style": "solid"
+                },
+                "borderRight": {
+                    "width": "4",
+                    "color": "rgb(255, 0, 0)"
+                },
+                "borderBottom": {
+                    "width": "8",
+                    "color": "rgb(255, 255, 0)"
+                },
+                "borderLeft": {
+                    "width": "12",
+                    "color": "rgb(0, 255, 0)"
+                },
+                "borderTop": {
+                    "width": "16",
+                    "color": "rgb(0, 255, 255)"
+                },
+                "background": {
+                    "color": "rgb(192, 192, 192)",
+                    "texture": "interface.background.example"
+                },
+                "borderRadiusTopLeft": [
+                    "5%",
+                    "10%"
+                ],
+                "borderRadiusTopRight": [
+                    "15%",
+                    "20%"
+                ],
+                "borderRadiusBottomLeft": [
+                    "25%",
+                    "30%"
+                ],
+                "borderRadiusBottomRight": [
+                    "35%",
+                    "40%"
+                ],
+                "padding": "0px",
+                "margin": "0px",
+                "whiteSpace": "normal",
+                "textOverflow": "ellipsis",
+                "textAlign": "center",
+                "display": "flex"
+            }
+        },
+        "body": {
+            "type": "container",
+            "components": [
+                "This is an example of a UI list component with 2 string literals and 2 buttons",
+                {
+                    "type": "button",
+                    "style": {
+                        "x": 50,
+                        "y": 100,
+                        "width": 175,
+                        "height": 175
+                    }
+                },
+                "\nThis is the other string :D",
+                {
+                    "type": "button",
+                    "style": {
+                        "x": 600,
+                        "y": 600,
+                        "width": 250,
+                        "height": 250
+                    },
+                    "component": "i think i've gone a 'lil overboard with this",
+                    "action": {
+                        "type": "openMenu",
+                        "menu": "test"
+                    }
+                },
+                {
+                    "type": "text",
+                    "style": {
+                        "borderRadius": 100,
+                        "borderStyle": "solid",
+                        "width": 80,
+                        "height": 20,
+                        "x": 300,
+                        "y": 25,
+                        "textAlign": "center"
+                    },
+                    "text": "TEST"
+                },
+                {
+                    "type": "icon",
+                    "style": {
+                        "width": 80,
+                        "height": 80,
+                        "x": 300,
+                        "y": 150,
+                        "textAlign": "center",
+                        "iconFit": [
+                            80,
+                            80
+                        ]
+                    },
+                    "icon": "interface.icon.example"
+                }
+            ]
+        },
+        "body1": {
+            "type": "button",
+            "id": "exitButton",
+            "style": {
+                "width": "450",
+                "height": "450",
+                "x": "10px",
+                "y": "10px",
+                "color": "rgb(0, 128, 255)",
+                "borderLeftWidth": 5,
+                "borderRightWidth": 10,
+                "borderTopWidth": 15,
+                "borderBottomWidth": 20,
+                "lineHeight": 1.75,
+                "paddingLeft": 0,
+                "paddingRight": 0,
+                "paddingTop": 10,
+                "paddingBottom": 5
+            },
+            "component": "12345678 12345678",
+            "action": {
+                "type": "closeMenu"
+            }
+        },
+        "bodyX": {
+            "type": "list",
+            "id": "body",
+            "classes": [],
+            "components": [
+                "This is a button!!1!1 :D",
+                {
+                    "type": "button",
+                    "id": "exitButton",
+                    "style": {
+                        "width": "100% - 20px",
+                        "height": "auto",
+                        "x": "10px",
+                        "y": "10px"
+                    },
+                    "component": "Text here :)",
+                    "action": {
+                        "type": "closeMenu"
+                    }
+                },
+                {
+                    "type": "list",
+                    "id": "seriousList",
+                    "components": [
+                        "This is what happens when a list gets serious.",
+                        {
+                            "type": "icon",
+                            "style": {
+                                "iconFit": "cover"
+                            },
+                            "icon": "interface.icon.example"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:crate"
+    },
+
+
+
+
+
+
+    
+    "attributes": {
+
+        "type": "sequence",
+        "count": 3,
+        "components": [
+            {
+                "type": "item",
+                "item": "TranscendRuins:cloth",
+                "count": 3
+            },
+            {
+                "type": "item",
+                "item": "TranscendRuins:rope",
+                "count": 3
+            },
+            {
+                "type": "item",
+                "item": "TranscendRuins:ironHatchet"
+            }
+        ]
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

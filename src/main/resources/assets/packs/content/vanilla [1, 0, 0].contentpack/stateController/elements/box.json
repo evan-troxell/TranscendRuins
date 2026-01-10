@@ -1,0 +1,45 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:crate"
+    },
+    "attributes": {
+        "animations": {
+            "open": "TranscendRuins:crate.open"
+        },
+        "defaultState": "default",
+        "states": {
+            "default": {
+                "animations": [
+                    "TranscendRuins:example"
+                ],
+                "sounds": [],
+                "particles": [],
+                "transitions": {
+                    "open": [
+                        {
+                            "operator": "<",
+                            "args": [
+                                0,
+                                1
+                            ]
+                        }
+                    ]
+                }
+            },
+            "closed": {
+                "animations": [],
+                "sounds": [],
+                "particles": [],
+                "transitions": {}
+            },
+            "open": {
+                "animations": [
+                    "open"
+                ],
+                "sounds": [],
+                "particles": [],
+                "transitions": {}
+            }
+        }
+    }
+}

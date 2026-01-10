@@ -1,0 +1,15 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:leatherBoots"
+    },
+    "attributes": {
+        "texture": "item.leatherBoots.texture",
+        "model": "TranscendRuins:crate",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+
+        "stackSize": 1,
+        "icon": "item.leatherBoots.icon",
+        "categories": [ "clothing", "boots" ]
+    }
+}

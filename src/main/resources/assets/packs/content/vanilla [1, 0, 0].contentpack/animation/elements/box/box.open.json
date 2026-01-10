@@ -1,0 +1,65 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:crate.open"
+    },
+    "attributes": {
+        "length": 10,
+        "loopMode": "cycle",
+        "keyframes": {
+            "0.00": {
+                "armLeft": {
+                    "rotation": {
+                        "interpolation": "easeInOut",
+                        "angle": 0,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                },
+                "armRight": {
+                    "rotation": {
+                        "interpolation": "easeInOut",
+                        "angle": 0,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                }
+            },
+            "5.00": {
+                "armLeft": {
+                    "rotation": {
+                        "interpolation": "linear",
+                        "angle": -135,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                },
+                "armRight": {
+                    "rotation": {
+                        "interpolation": "linear",
+                        "angle": 135,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                }
+            },
+            "10.00": {
+                "armLeft": {
+                    "rotation": {
+                        "interpolation": "easeInOut",
+                        "angle": 0,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                },
+                "armRight": {
+                    "rotation": {
+                        "interpolation": "easeInOut",
+                        "angle": 0,
+                        "axisHeading": 90,
+                        "axisPitch": 90
+                    }
+                }
+            }
+        }
+    }
+}

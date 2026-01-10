@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:crate"
+    },
+    "attributes": {
+        "lit": true,
+
+        "diffuse": "#884411",
+        "ambient": "#FFFFFF",
+        "shininess": 1
+    }
+}

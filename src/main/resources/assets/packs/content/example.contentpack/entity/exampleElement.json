@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "identifier": "Example:exampleEntity"
+    },
+    "attributes": {
+        "model": "TranscendRuins:crate",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "texture": "element.crate",
+        "mapIcon": "entity.example"
+    }
+}

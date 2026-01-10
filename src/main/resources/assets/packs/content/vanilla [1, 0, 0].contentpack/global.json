@@ -1,0 +1,270 @@
+{
+    "pinIcons": {
+        "difficult": {
+            "icon": "global.pin.difficult",
+            "size": 45
+        },
+        "moderate": {
+            "icon": "global.pin.moderate",
+            "size": 45
+        },
+        "easy": {
+            "icon": "global.pin.easy",
+            "size": 45
+        }
+    },
+    "defaultLocation": "pineMedium",
+    "terrain": {
+        "mountain1": {
+            "x": -100,
+            "y": -100,
+            "icon": "global.terrain.mountain1"
+        },
+        "mountain3": {
+            "x": -250,
+            "y": 200,
+            "icon": "global.terrain.mountain3"
+        },
+        "mountain4": {
+            "x": 150,
+            "y": 375,
+            "icon": "global.terrain.mountain4"
+        },
+        "mountain5": {
+            "x": 250,
+            "y": -325,
+            "icon": "global.terrain.mountain5"
+        },
+        "mountain6": {
+            "x": 425,
+            "y": 275,
+            "icon": "global.terrain.mountain6"
+        },
+        "mountain7": {
+            "x": 775,
+            "y": 175,
+            "icon": "global.terrain.mountain7"
+        }
+    },
+    "locations": {
+        "pineMedium": {
+            "name": "location.pineMedium",
+            "description": "location.pineMedium.description",
+            "icon": "location.pineMedium",
+            "pin": "moderate",
+            "coordinates": {
+                "x": 400,
+                "y": 125
+            },
+            "areas": {
+                "main": "TranscendRuins:bunkerAlfaMain"
+            },
+            "primary": "main",
+            "reset": {}
+        },
+        "bunkerAlfa": {
+            "name": "location.bunkerAlfa",
+            "description": "location.bunkerAlfa.description",
+            "icon": "location.bunkerAlfa",
+            "pin": "difficult",
+            "coordinates": {
+                "x": 400,
+                "y": -100
+            },
+            "areas": {
+                "main": "TranscendRuins:bunkerAlfaMain"
+            },
+            "primary": "main",
+            "reset": {
+                "duration": 2880
+            },
+            "duration": {
+                "duration": -1,
+                "endOnExit": false
+            },
+            "triggerType": "automatic"
+        },
+        "bunkerBravo": {
+            "name": "location.bunkerBravo",
+            "description": "location.bunkerBravo.description",
+            "icon": "location.bunkerBravo",
+            "pin": "difficult",
+            "coordinates": {
+                "x": 150,
+                "y": 250
+            },
+            "areas": {
+                "main": "TranscendRuins:bunkerBravoMain"
+            },
+            "primary": "main",
+            "reset": {
+                "duration": 2880
+            },
+            "duration": {
+                "duration": -1,
+                "endOnExit": false
+            },
+            "triggerType": "automatic"
+        }
+    },
+    "locationsX": {
+        "home": {
+            "location": "TranscendRuins:home"
+        },
+        "pineSmall": {
+            "location": "TranscendRuins:pineSmall"
+        },
+        "pineMedium": {
+            "location": "TranscendRuins:pineMedium"
+        },
+        "pineLarge": {
+            "location": "TranscendRuins:pineLarge"
+        },
+        "convoy": {},
+        "survivorHome": {}
+    },
+    "events": {
+        "convoy": {
+            "name": "event.convoy",
+            "description": "event.convoy.description",
+            "locations": {
+                "activate": [
+                    "convoy"
+                ],
+                "deactivate": []
+            },
+            "conditions": {
+                "operator": "&&",
+                "args": [
+                    {
+                        "operator": "||",
+                        "args": [
+                            {
+                                "operator": "==",
+                                "args": [
+                                    {
+                                        "operator": "getProperty",
+                                        "args": "location"
+                                    },
+                                    "home"
+                                ]
+                            },
+                            {
+                                "operator": "==",
+                                "args": [
+                                    {
+                                        "operator": "getProperty",
+                                        "args": "location"
+                                    },
+                                    "bunkerAlfa"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "operator": ">=",
+                        "args": [
+                            {
+                                "operator": "getProperty",
+                                "args": "event.convoy.kills.TranscendRuins:roamer"
+                            },
+                            20
+                        ]
+                    }
+                ]
+            }
+        },
+        "raiders": {
+            "name": "event.raiders",
+            "description": "event.raiders.description",
+            "locations": {
+                "activate": [
+                    "survivorHome"
+                ]
+            },
+            "tasks": {
+                "required": 5,
+                "active": 5,
+                "tasks": [
+                    {
+                        "name": "event.raiders.task1",
+                        "description": "event.raiders.task1.description",
+                        "location": "home"
+                    }
+                ]
+            },
+            "conditions": {
+                "operator": ">=",
+                "args": [
+                    {
+                        "operator": "getProperty",
+                        "args": "player.level"
+                    },
+                    100
+                ]
+            }
+        },
+        "example": {
+            "name": "event.example",
+            "description": "event.example.description",
+            "locations": {
+                "activate": [],
+                "deactivate": []
+            },
+            "events": {
+                "global": [
+                    "example"
+                ],
+                "local": [
+                    {
+                        "location": "exampleLocation",
+                        "event": "example"
+                    }
+                ]
+            },
+            "duration": 1440,
+            "cooldown": 120,
+            "tasks": {
+                "required": 15,
+                "active": 3,
+                "duration": 1440,
+                "cooldown": 120,
+                "tasks": [
+                    {
+                        "name": "event.example.task1",
+                        "description": "event.example.task1.description",
+                        "chance": 10,
+                        "location": "exampleLocation",
+                        "conditions": {
+                            "operator": ">=",
+                            "args": [
+                                {
+                                    "operator": "getProperty",
+                                    "args": "event.example.kills.TranscendRuins:roamer"
+                                },
+                                20
+                            ]
+                        },
+                        "counter": {
+                            "value": {
+                                "operator": "getProperty",
+                                "args": "event.example.kills.TranscendRuins:roamer"
+                            },
+                            "target": 20
+                        }
+                    }
+                ]
+            },
+            "conditions": {
+                "operator": "==",
+                "args": [
+                    {
+                        "operator": "getProperty",
+                        "args": "location"
+                    },
+                    "home"
+                ]
+            }
+        }
+    }
+}

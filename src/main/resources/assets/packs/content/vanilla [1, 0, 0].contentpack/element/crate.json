@@ -1,0 +1,60 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:crate"
+    },
+    "attributes": {
+        "model": "TranscendRuins:crate",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:crate",
+        "texture": "element.crate",
+        "inventory": {
+            "ui": {
+                "slotSize": "80px",
+                "grid": {
+                    "x": 0,
+                    "y": 0,
+                    "rows": 3,
+                    "cols": 3
+                }
+            },
+            "grid": {
+                "slots": 9
+            },
+            "named": {
+                "top": {
+                    "modelAttachment": "topSocket"
+                }
+            }
+        },
+
+        "inventoryContents": {
+            "grid": {
+                "lootTable": "TranscendRuins:crate",
+                "chance": 100,
+                "shuffle": true
+            },
+            "named": {
+            }
+        },
+
+        "interaction": {
+            "type": "inventory"
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

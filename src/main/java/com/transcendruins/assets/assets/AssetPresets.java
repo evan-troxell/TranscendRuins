@@ -1,0 +1,190 @@
+/* Copyright 2026 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package com.transcendruins.assets.assets;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.transcendruins.assets.AssetType;
+import com.transcendruins.utilities.exceptions.LoggedException;
+import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.utilities.immutable.ImmutableMap;
+import com.transcendruins.utilities.json.TracedArray;
+import com.transcendruins.utilities.json.TracedCollection;
+import com.transcendruins.utilities.json.TracedCollection.JSONType;
+import com.transcendruins.utilities.json.TracedDictionary;
+import com.transcendruins.utilities.json.TracedEntry;
+import com.transcendruins.utilities.metadata.Identifier;
+
+/**
+ * <code>AssetPresets</code>: A class representing the presets of any asset
+ * type, including but not limited to: layouts, elements, entities, items, and
+ * more.
+ */
+public final class AssetPresets {
+
+    /**
+     * <code>TracedEntry&lt;Identifier&gt;</code>: The identifier of this
+     * <code>AssetPresets</code> instance.
+     */
+    private final TracedEntry<Identifier> identifierEntry;
+
+    /**
+     * Retrieves the identifier entry of this <code>AssetPresets</code> instance.
+     * 
+     * @return <code>TracedEntry&lt;Identifier&gt;</code>: The
+     *         <code>identifierEntry</code> field of this <code>AssetPresets</code>
+     *         instance.
+     */
+    public TracedEntry<Identifier> getIdentifierEntry() {
+
+        return identifierEntry;
+    }
+
+    /**
+     * Retrieves the identifier of this <code>AssetPresets</code> instance.
+     * 
+     * @return <code>Identifier</code>: The value of the
+     *         <code>identifierEntry</code> field of this <code>AssetPresets</code>
+     *         instance.
+     */
+    public Identifier getIdentifier() {
+
+        return identifierEntry.getValue();
+    }
+
+    /**
+     * <code>AssetType</code>: The asset type of this <code>AssetPresets</code>
+     * instance.
+     */
+    private final AssetType type;
+
+    /**
+     * Retrieves the asset type of this <code>AssetPresets</code> instance.
+     * 
+     * @return <code>AssetType</code>: The <code>type</code> field of this
+     *         <code>AssetPresets</code> instance.
+     */
+    public final AssetType getType() {
+
+        return type;
+    }
+
+    /**
+     * <code>ImmutableList&lt;String&gt;</code>: A list of the initial events of
+     * this <code>AssetPresets</code> instance.
+     */
+    private final ImmutableList<String> events;
+
+    /**
+     * Retrieves the initial events of this <code>AssetPresets</code> instance.
+     * 
+     * @return <code>ImmutableList&lt;String&gt;</code>: The <code>events</code>
+     *         field of this <code>AssetPresets</code> instance.
+     */
+    public final ImmutableList<String> getEvents() {
+
+        return events;
+    }
+
+    private final ImmutableMap<String, Object> properties;
+
+    public final ImmutableMap<String, Object> getProperties() {
+
+        return properties;
+    }
+
+    @Deprecated
+    public AssetPresets(Identifier identifier, AssetType type) {
+
+        this(new TracedEntry<>(null, identifier), type);
+    }
+
+    public AssetPresets(TracedEntry<Identifier> identifierEntry, AssetType type) {
+
+        this.type = type;
+        this.identifierEntry = identifierEntry;
+
+        events = new ImmutableList<>();
+        properties = new ImmutableMap<>();
+    }
+
+    public AssetPresets(TracedDictionary json, TracedEntry<Identifier> identifierEntry, AssetType type)
+            throws LoggedException {
+
+        this.type = type;
+        this.identifierEntry = identifierEntry;
+
+        ArrayList<String> eventsList = new ArrayList<>();
+
+        TracedEntry<TracedArray> eventsEntry = json.getAsArray("events", true);
+        if (eventsEntry.containsValue()) {
+
+            TracedArray eventsJson = eventsEntry.getValue();
+
+            for (int i : eventsJson) {
+
+                TracedEntry<String> eventEntry = eventsJson.getAsString(i, false, null);
+                eventsList.add(eventEntry.getValue());
+            }
+        }
+        events = new ImmutableList<>(eventsList);
+
+        HashMap<String, Object> propertiesMap = new HashMap<>();
+
+        TracedEntry<TracedDictionary> propertiesEntry = json.getAsDict("properties", true);
+        if (propertiesEntry.containsValue()) {
+
+            TracedDictionary propertiesJson = propertiesEntry.getValue();
+            for (String property : propertiesJson) {
+
+                TracedEntry<Object> propertyEntry = propertiesJson.getAsScalar(property, true, null);
+                propertiesMap.put(property, propertyEntry.getValue());
+            }
+        }
+        properties = new ImmutableMap<>(propertiesMap);
+    }
+
+    /**
+     * Creates a new instance of the <code>AssetPresets</code> class.
+     * 
+     * @param collection <code>TracedCollection</code>: The collection from which
+     *                   this <code>AssetPresets</code> instance should be created.
+     * @param key        <code>Object</code>: The key to retrieve from the
+     *                   <code>collection</code> parameter.
+     * @param type       <code>AssetType</code>: The asset type of this
+     *                   <code>AssetPresets</code> instance.
+     * @throws LoggedException Thrown if any exception is raised while creating this
+     *                         <code>AssetPresets</code> instance.
+     */
+    public static final AssetPresets createPresets(TracedCollection collection, Object key, AssetType type)
+            throws LoggedException {
+
+        if (collection.getType(key) == JSONType.DICT) {
+
+            TracedEntry<TracedDictionary> assetEntry = collection.getAsDict(key, false);
+            TracedDictionary json = assetEntry.getValue();
+
+            TracedEntry<Identifier> identifierEntry = collection.getAsMetadata(key, false, false);
+
+            return new AssetPresets(json, identifierEntry, type);
+        }
+
+        TracedEntry<Identifier> identifierEntry = collection.getAsIdentifier(key, false, null);
+        return new AssetPresets(identifierEntry, type);
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "metadata": {
+        "identifier": "Example:bigRock"
+    },
+    "attributes": {
+        "model": "TranscendRuins:crate",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "texture": "element.crate",
+        "mapColor": [
+            "#928E85",
+            "#777B7E",
+            "#808588"
+        ],
+        "tileDimensions": [
+            2,
+            2
+        ]
+    }
+}

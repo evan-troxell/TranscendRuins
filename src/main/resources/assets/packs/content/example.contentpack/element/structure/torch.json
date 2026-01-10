@@ -1,0 +1,12 @@
+{
+    "metadata": {
+        "identifier": "Example:torch"
+    },
+    "attributes": {
+        "model": "TranscendRuins:crate",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "texture": "element.crate",
+        "mapColor": "#FF8800"
+    }
+}

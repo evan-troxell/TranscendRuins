@@ -1,0 +1,129 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:player"
+    },
+    "attributes": {
+        "texture": "element.crate",
+        "model": "TranscendRuins:crate",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:crate",
+        "mapIcon": "entity.playerMapIcon",
+        "inventory": {
+            "privateUi": {
+                "slotSize": "80px",
+                "grid": {
+                    "x": 0,
+                    "y": 0,
+                    "rows": 3,
+                    "cols": 5
+                }
+            },
+            "ui": {
+                "slotSize": "80px",
+                "named": {
+                    "mainhand": {
+                        "x": 0,
+                        "y": 0,
+                        "slotIcon": "interface.inventory.mainhandSlot",
+                        "selectedSlotIcon": "interface.inventory.mainhandSlotSelected"
+                    },
+                    "offhand": {
+                        "x": 0,
+                        "y": 95,
+                        "slotIcon": "interface.inventory.offhandSlot",
+                        "selectedSlotIcon": "interface.inventory.offhandSlotSelected"
+                    },
+                    "backpack": {
+                        "x": 0,
+                        "y": 285,
+                        "slotIcon": "interface.inventory.backpackSlot",
+                        "selectedSlotIcon": "interface.inventory.backpackSlotSelected"
+                    },
+                    "cap": {
+                        "x": 95,
+                        "y": 0,
+                        "slotIcon": "interface.inventory.capSlot",
+                        "selectedSlotIcon": "interface.inventory.capSlotSelected"
+                    },
+                    "top": {
+                        "x": 95,
+                        "y": 95,
+                        "slotIcon": "interface.inventory.topSlot",
+                        "selectedSlotIcon": "interface.inventory.topSlotSelected"
+                    },
+                    "pants": {
+                        "x": 95,
+                        "y": 190,
+                        "slotIcon": "interface.inventory.pantsSlot",
+                        "selectedSlotIcon": "interface.inventory.pantsSlotSelected"
+                    },
+                    "boots": {
+                        "x": 95,
+                        "y": 285,
+                        "slotIcon": "interface.inventory.bootsSlot",
+                        "selectedSlotIcon": "interface.inventory.bootsSlotSelected"
+                    }
+                }
+            },
+            "grid": {
+                "slots": 15
+            },
+            "named": {
+
+                "mainhand": {
+                    "acceptedTypes": [
+                        "weapon"
+                    ]
+                },
+                
+                "offhand": {
+                    "acceptedTypes": [
+                        "weapon",
+                        "medicine",
+                        "consumable",
+                        "useable"
+                    ]
+                },
+                "backpack": {
+                    "acceptedTypes": [
+                        "backpack"
+                    ]
+                },
+                "cap": {
+                    "acceptedTypes": [
+                        "cap"
+                    ]
+                },
+                "top": {
+                    "acceptedTypes": [
+                        "top"
+                    ]
+                },
+                "pants": {
+                    "acceptedTypes": [
+                        "pants"
+                    ]
+                },
+                "boots": {
+                    "acceptedTypes": [
+                        "boots"
+                    ]
+                }
+            }
+        },
+        "inventoryContents": {
+            "gridX": {
+                "lootTable": "TranscendRuins:playerPreload",
+                "chance": 100,
+                "shuffle": true
+            },
+            "named": {
+            }
+        },
+        "interaction": {
+            "type": "inventory"
+        },
+        "damage": 6,
+        "attackRange": 2.5
+    }
+}
