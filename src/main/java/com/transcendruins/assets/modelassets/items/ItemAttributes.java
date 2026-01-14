@@ -60,6 +60,13 @@ public final class ItemAttributes extends ModelAssetAttributes {
         return attack;
     }
 
+    private final Double detectionRange;
+
+    public final Double getDetectionRange() {
+
+        return detectionRange;
+    }
+
     /**
      * Compiles this <code>ItemAttributes</code> instance into a completed instance.
      * 
@@ -84,5 +91,8 @@ public final class ItemAttributes extends ModelAssetAttributes {
         icon = iconEntry.getValue();
 
         attack = AttackSchema.createAttack(json, isBase);
+
+        TracedEntry<Double> detectionRangeEntry = json.getAsDouble("detectionRange", true, null);
+        detectionRange = detectionRangeEntry.getValue();
     }
 }

@@ -149,8 +149,15 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         HashSet<Integer> disabledVertices = model.getDisabledVertices();
 
         // Form the vertices which describe the final mesh.
-        List<Vector> vertices = WeightedVertex.getWeightedVertices(model.getVertices(), vertexWeights, position,
-                rotation, pivotPoint);
+        ImmutableList<WeightedVertex> weightedVertices = model.getVertices();
+        int verticesCount = weightedVertices.size();
+
+        ArrayList<Vector> vertices = new ArrayList<>(verticesCount);
+        for (int i = 0; i < verticesCount; i++) {
+
+            Vector weighted = weightedVertices.get(i).getWeightedVertex(vertexWeights.get(i));
+            vertices.add(weighted.subtract(pivotPoint).rotate(rotation).add(position));
+        }
 
         // Form the polygon indices which describe the final mesh.
         List<Integer> polygons = model.getPolygons();

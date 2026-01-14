@@ -46,7 +46,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Integer fontWeight, Size fontSize, String fontFamily, Size lineHeight, TextAlign textAlign, Color color,
         IconSize iconFit, WhiteSpace whiteSpace, OverflowWrap overflowWrap, TextOverflow textOverflow,
         Overflow overflowX, Overflow overflowY, Size gapWidth, Size gapHeight, Direction listDirection,
-        Boolean propagateEvents, Display display, TriggerPhase triggerPhase) {
+        Boolean propagateEvents, Display display, TriggerPhase triggerPhase, Boolean pointerCapture) {
 
     /**
      * <code>Color</code>: A fully transparent color.
@@ -60,7 +60,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null);
+            null, null, null, null, null, null);
 
     /**
      * <code>Style</code>: A style which represents default string literal UI
@@ -69,7 +69,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
     public static final Style STRING_STYLE = new Style(null, null, Size.FIT_CONTENT, Size.FIT_CONTENT, null, null, null,
             TRANSPARENT, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, null, Display.FLEX, null);
+            null, null, null, null, null, null, null, null, null, Display.FLEX, null, null);
 
     /**
      * Creates a new instance of the <code>Style</code> class.
@@ -157,6 +157,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         Display display = null;
 
         TriggerPhase triggerPhase = null;
+        Boolean pointerCapture = null;
 
         TracedDictionary json = entry.getValue();
 
@@ -429,6 +430,12 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             case "display" -> display = Display.createDisplay(json, property);
 
             case "triggerPhase" -> triggerPhase = TriggerPhase.createTriggerPhase(json, property);
+
+            case "pointerCapture" -> {
+
+                TracedEntry<Boolean> pointerCaptureEntry = json.getAsBoolean(property, false, null);
+                pointerCapture = pointerCaptureEntry.getValue();
+            }
             }
         }
 
@@ -438,7 +445,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 borderRightWidth, borderRightColor, rTL, rTR, rBL, rBR, marginTop, marginBottom, marginLeft,
                 marginRight, paddingTop, paddingBottom, paddingLeft, paddingRight, fontStyle, fontWeight, fontSize,
                 fontFamily, lineHeight, textAlign, color, iconFit, whiteSpace, overflowWrap, textOverflow, overflowX,
-                overflowY, gapWidth, gapHeight, listDirection, propagateEvents, display, triggerPhase);
+                overflowY, gapWidth, gapHeight, listDirection, propagateEvents, display, triggerPhase, pointerCapture);
 
         return s;
     }
@@ -509,7 +516,8 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
                 parseVal(styles, Style::propagateEvents, null),
                 inheritVal(styles, Style::display, parent, Display.FLEX),
 
-                parseVal(styles, Style::triggerPhase, TriggerPhase.RELEASE));
+                parseVal(styles, Style::triggerPhase, TriggerPhase.RELEASE),
+                parseVal(styles, Style::pointerCapture, false));
     }
 
     /**

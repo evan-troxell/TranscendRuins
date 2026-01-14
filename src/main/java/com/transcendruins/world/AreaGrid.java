@@ -50,6 +50,10 @@ import com.transcendruins.world.calls.InteractionCall;
  */
 public final class AreaGrid implements PlacementArea, RenderInstance {
 
+    /**
+     * <code>Rectangle</code>: The rectangular bounds of this <code>AreaGrid</code>
+     * instance, starting at the point <code>(0, 0)</code>.
+     */
     private final Rectangle bounds;
 
     /**
@@ -76,6 +80,10 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         return bounds.height;
     }
 
+    /**
+     * <code>GenerationPlacement</code>: The default spawn placement of this
+     * <code>AreaGrid</code> instance.
+     */
     private final GenerationPlacement spawn;
 
     /**
@@ -85,36 +93,19 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
     private final AreaTile[] tiles;
 
     /**
-     * Determines whether or not a coordinate is contained within this
-     * <code>AreaGrid</code> instance.
-     * 
-     * @param x <code>int</code>: The X component of the coordinate as an integer
-     *          from <code>0</code> to the width of this <code>AreaGrid</code>
-     *          instance, exclusive.
-     * @param z <code>int</code>: The Z component of the coordinate as an integer
-     *          from <code>0</code> to the length of this <code>AreaGrid</code>
-     *          instance, exclusive.
-     * @return <code>boolean</code>: If the coordinate is valid.
-     */
-    public final boolean inBounds(int x, int z) {
-
-        return 0 <= x && x < bounds.width && 0 <= z && z < bounds.height;
-    }
-
-    /**
      * Retrieves a tile from this <code>AreaGrid</code> instance.
      * 
-     * @param x <code>int</code>: The X component of the tile as an integer from
+     * @param x <code>int</code>: The X coordinate of the tile as an integer from
      *          <code>0</code> to the width of this <code>AreaGrid</code> instance,
      *          exclusive.
-     * @param z The Z component of the coordinate as an integer from <code>0</code>
-     *          to the length of this <code>AreaGrid</code> instance, exclusive.
+     * @param z The Z coordinate as an integer from <code>0</code> to the length of
+     *          this <code>AreaGrid</code> instance, exclusive.
      * @return <code>AreaTile</code>: The retrieved <code>AreaTile</code> instance,
      *         or <code>null</code> if the tile could not be retrieved.
      */
     public final AreaTile getTile(int x, int z) {
 
-        if (!inBounds(x, z)) {
+        if (!bounds.contains(x, z)) {
 
             return null;
         }
@@ -124,6 +115,16 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         return tiles[i];
     }
 
+    /**
+     * Retrieves a region of tiles from this <code>AreaGrid</code> instance.
+     * 
+     * @param x      <code>int</code>: The X coordinate of the tile to start at.
+     * @param z      <code>int</code>: The Z coordinate of the tile to start at.
+     * @param width  <code>int</code>: The width of the region to retrieve.
+     * @param length <code>int</code>: The length of the region to retrieve.
+     * @return <code>AreaTile[]</code>: An array of length
+     *         <code>width * length</code> of the retrieved tiles.
+     */
     public final AreaTile[] getArea(int x, int z, int width, int length) {
 
         if (width <= 0 || length <= 0 || bounds.width <= x || bounds.height <= z) {
@@ -166,15 +167,38 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         return copy;
     }
 
+    /**
+     * <code>HashMap&lt;PrimaryAssetInstance, HashSet&lt;String&gt;&gt;</code>: The
+     * set of all tagged assets mapped to their tags.
+     */
     private final HashMap<PrimaryAssetInstance, HashSet<String>> tagged = new HashMap<>();
 
-    public final HashSet<String> getTag(PrimaryAssetInstance element) {
+    /**
+     * Retrieves the tags of an asset.
+     * 
+     * @param asset <code>PrimaryAssetInstance</code>: The asset whose tags to
+     *              retrieve.
+     * @return <code>HashSet&lt;String&gt;</code>: The set of tags previously
+     *         attached to the asset. This will not reflect changes to the asset's
+     *         tags.
+     */
+    public final HashSet<String> getTag(PrimaryAssetInstance asset) {
 
-        return tagged.containsKey(element) ? new HashSet<>(tagged.get(element)) : null;
+        return tagged.containsKey(asset) ? new HashSet<>(tagged.get(asset)) : null;
     }
 
+    /**
+     * <code>HashMap&lt;String, HashSet&lt;PrimaryAssetInstance&gt;&gt;</code>: The
+     * map of all tags to the assets they match.
+     */
     private final HashMap<String, HashSet<PrimaryAssetInstance>> matches = new HashMap<>();
 
+    /**
+     * Retrieves the assets matched by a tag.
+     * 
+     * @param tag <code>String</code>: The tag to match for.
+     * @return <code>List&lt;PrimaryAssetInstance&gt;</code>: The retrieved assets.
+     */
     public final List<PrimaryAssetInstance> getAssets(String tag) {
 
         if (!matches.containsKey(tag)) {
@@ -197,6 +221,12 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         return match.stream().map(PrimaryAssetInstance::getTileBounds).toList();
     }
 
+    /**
+     * Updates an asset with an additional set of tags.
+     * 
+     * @param asset <code>PrimaryAssetInstance</code>: The asset to update.
+     * @param tag   <code>Set&lt;String&gt;</code>: The set of tags to update.
+     */
     private void updateTag(PrimaryAssetInstance asset, Set<String> tag) {
 
         if (tag == null || tag.isEmpty()) {
@@ -216,6 +246,12 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         }
     }
 
+    /**
+     * Removes all tags from an asset.
+     * 
+     * @param asset <code>PrimaryAssetInstance</code>: The asset whose tags to
+     *              remove.
+     */
     private void removeTag(PrimaryAssetInstance asset) {
 
         HashSet<String> tags = tagged.remove(asset);
@@ -230,42 +266,83 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         }
     }
 
+    /**
+     * <code>ArrayList&lt;ElementInstance&gt;</code>: The set of all elements in
+     * this <code>AreaGrid</code> instance.
+     */
     private final ArrayList<ElementInstance> elements = new ArrayList<>();
 
+    /**
+     * Retrieves the set of all elements in this <code>AreaGrid</code> instance.
+     * 
+     * @return <code>ArrayList&lt;ElementInstance&gt;</code>: The retrieved
+     *         elements.
+     */
     public final ArrayList<ElementInstance> getElements() {
 
         return new ArrayList<>(elements);
     }
 
+    /**
+     * Retrieves the set of all elements in this <code>AreaGrid</code> instance with
+     * a specific identifier.
+     * 
+     * @param identifier <code>Identifier</code>: The identifier to retrieve.
+     * @return <code>ArrayList&lt;ElementInstance&gt;</code>: The retrieved
+     *         elements.
+     */
     public final List<ElementInstance> getElements(Identifier identifier) {
 
         return elements.stream().filter(element -> element.getIdentifier() == identifier).toList();
     }
 
+    /**
+     * <code>ArrayList&lt;EntityInstance&gt;</code>: The set of all entities in this
+     * <code>AreaGrid</code> instance.
+     */
     private final ArrayList<EntityInstance> entities = new ArrayList<>();
 
+    /**
+     * Retrieves the set of all entities in this <code>AreaGrid</code> instance.
+     * 
+     * @return <code>ArrayList&lt;EntityInstance&gt;</code>: The retrieved entities.
+     */
     public final ArrayList<EntityInstance> getEntities() {
 
         return new ArrayList<>(entities);
     }
 
+    /**
+     * Retrieves the set of all entities in this <code>AreaGrid</code> instance with
+     * a specific identifier.
+     * 
+     * @param identifier <code>Identifier</code>: The identifier to retrieve.
+     * @return <code>ArrayList&lt;EntityInstance&gt;</code>: The retrieved entities.
+     */
     public final List<EntityInstance> getEntities(Identifier identifier) {
 
         return entities.stream().filter(element -> element.getIdentifier() == identifier).toList();
     }
 
+    /**
+     * Retrieves a stream of all assets in this <code>AreaGrid</code> instance.
+     * 
+     * @return <code>Stream&lt;PrimaryAssetInstance&gt;</code>: The concatenated
+     *         <code>elements</code> and <code>entities</code> streams.
+     */
     public final Stream<PrimaryAssetInstance> getAssets() {
 
         return Stream.concat(elements.stream(), entities.stream());
     }
 
     /**
-     * Creates a new, blank instance of the <code>AreaGrid</code> class.
+     * Creates a new instance of the <code>AreaGrid</code> class with a single
+     * asset.
      * 
-     * @param dimensions <code>Dimension</code>: The dimensions of the new
-     *                   <code>AreaGrid</code> instance.
-     * @param spawn      <code>GenerationPlacement</code>: The spawn point of the
-     *                   new <code>AreaGrid</code> instance.
+     * @param asset <code>PrimaryAssetInstance</code>: The asset to add.
+     * @param tag   <code>Set&lt;String&gt;</code>: The tags to attach to the asset.
+     * @param spawn <code>GenerationPlacement</code>: The spawn position of the new
+     *              <code>AreaGrid</code> instance.
      */
     public AreaGrid(PrimaryAssetInstance asset, Set<String> tag, GenerationPlacement spawn) {
 
@@ -300,6 +377,16 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         Arrays.setAll(tiles, _ -> new AreaTile());
     }
 
+    /**
+     * Rotates the contents of this <code>AreaGrid</code> instance by 90°, 180°, or
+     * 270°.
+     * 
+     * @param direction <code>int</code>: The cardinal direction to rotate
+     *                  counterclockwise in, based on the unit circle.
+     *                  <code>EAST</code> corresponds to 0°, <code>NORTH</code>
+     *                  corresponds to 90°, <code>WEST</code> corresponds to 180°,
+     *                  and <code>SOUTH</code> corresponds to 270°.
+     */
     public final void rotate(int direction) {
 
         if (direction == World.EAST) {
@@ -319,33 +406,57 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         // TODO Rotate terrain texture, height map, etc.
     }
 
-    public final void addArea(AreaGrid area, int tileX, int tileZ) {
+    /**
+     * Appends another area onto this <code>AreaGrid</code> instance at a specific
+     * point.
+     * 
+     * @param area <code>AreaGrid</code>: The area to add.
+     * @param x    <code>int</code>: The X coordinate to add at.
+     * @param z    <code>int</code>: The Z coordinate to add at.
+     */
+    public final void addArea(AreaGrid area, int x, int z) {
 
         for (ElementInstance element : area.elements) {
 
-            element.translate(tileX, tileZ);
+            element.translate(x, z);
             addElement(element, area.getTag(element));
         }
 
         for (EntityInstance entity : area.entities) {
 
-            entity.translate(tileX, tileZ);
+            entity.translate(x, z);
             addEntity(entity, area.getTag(entity));
         }
 
         // TODO project terrain texture, height map, etc.
     }
 
-    public final boolean canAddAt(AreaGrid area, int tileX, int tileZ) {
+    /**
+     * Determines if another area can be added onto this <code>AreaGrid</code>
+     * instance at a specific point.
+     * 
+     * @param area <code>AreaGrid</code>: The area to check.
+     * @param x    <code>int</code>: The X coordinate to check.
+     * @param z    <code>int</code>: The Z coordinate to check.
+     * @return <code>boolean</code>: Whether or not the area can be added.
+     */
+    public final boolean canAddAt(AreaGrid area, int x, int z) {
 
         if (!bounds.contains(area.bounds)) {
 
             return false;
         }
 
-        return getAssets().allMatch(asset -> canAdd(asset.getTileBoundsTranslated(tileX, tileZ)));
+        return getAssets().allMatch(asset -> canAdd(asset.getTileBoundsTranslated(x, z)));
     }
 
+    /**
+     * Appends an element onto this <code>AreaGrid</code> instance.
+     * 
+     * @param element <code>ElementInstance</code>: The element to add.
+     * @param tags    <code>Set&lt;String&gt;</code>: The tags to attach to the
+     *                element
+     */
     public final void addElement(ElementInstance element, Set<String> tag) {
 
         updateTag(element, tag);
@@ -359,6 +470,11 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         element.updateArea(this);
     }
 
+    /**
+     * Removes an element from this <code>AreaGrid</code> instance.
+     * 
+     * @param element <code>ElementInstance</code>: The element to remove.
+     */
     public final void removeElement(ElementInstance element) {
 
         if (!elements.contains(element)) {
@@ -372,6 +488,13 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         removeTag(element);
     }
 
+    /**
+     * Appends an entity onto this <code>AreaGrid</code> instance.
+     * 
+     * @param entity <code>EntityInstance</code>: The entity to add.
+     * @param tags   <code>Set&lt;String&gt;</code>: The tags to attach to the
+     *               entity
+     */
     public final void addEntity(EntityInstance entity, Set<String> tag) {
 
         updateTag(entity, tag);
@@ -385,6 +508,11 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         entity.updateArea(this);
     }
 
+    /**
+     * Removes an entity from this <code>AreaGrid</code> instance.
+     * 
+     * @param entity <code>EntityInstance</code>: The entity to remove.
+     */
     public final void removeEntity(EntityInstance entity) {
 
         if (!entities.contains(entity)) {
@@ -399,14 +527,31 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
 
     public final void updateEntity(EntityInstance entity) {
 
+        // TODO update entity bounds
     }
 
-    public final boolean canAddAt(PrimaryAssetInstance asset, int tileX, int tileZ) {
+    /**
+     * Determines if an asset can be added to this <code>AreaGrid</code> instance at
+     * a specific position.
+     * 
+     * @param asset <code>PrimaryAssetInstance</code>: The asset to check.
+     * @param x     <code>int</code>: The X coordinate to check.
+     * @param x     <code>int</code>: The Z coordinate to check.
+     * @return <code>boolean</code>: Whether or not the asset can be added.
+     */
+    public final boolean canAddAt(PrimaryAssetInstance asset, int x, int z) {
 
-        Rectangle assetBounds = asset.getTileBoundsAt(tileX, tileZ);
+        Rectangle assetBounds = asset.getTileBoundsAt(x, z);
         return canAdd(assetBounds);
     }
 
+    /**
+     * Determines if a rectangular region in this <code>AreaGrid</code> instance can
+     * be added to.
+     * 
+     * @param assetBounds <code>Rectangle</code>: The region to check.
+     * @return <code>boolean</code>: Whether or not the region can be added.
+     */
     private boolean canAdd(Rectangle assetBounds) {
 
         if (!bounds.contains(assetBounds)) {
@@ -465,13 +610,39 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         return true;
     }
 
+    /**
+     * Calculates the spawn position of an asset using the default spawn location of
+     * this <code>AreaGrid</code> instance.
+     * 
+     * @param asset  <code>PrimaryAssetInstance</code>: The asset whose spawn
+     *               location to calculate.
+     * @param random <code>DeterministicRandom</code>: The random number generator
+     *               to calculate with.
+     * 
+     * @preturn <code>Point</code>: The calculated spawn position.
+     */
     public final Point getSpawnPoint(PrimaryAssetInstance asset, DeterministicRandom random) {
 
         Rectangle assetBounds = asset.getTileBoundsAt(0, 0);
         GenerationShapeInstance spawnShape = spawn.generateShape(this, assetBounds.width, assetBounds.height, random);
+
         return spawnShape.getPoint(p -> canAddAt(asset, p.x, p.y), random);
     }
 
+    /**
+     * Calculates the spawn position of an asset around another asset.
+     * 
+     * @param target <code>PrimaryAssetInstance</code>: The asset whose position to
+     *               spawn around.
+     * @param range  <code>double</code>: The range around the target asset to
+     *               spawn.
+     * @param asset  <code>PrimaryAssetInstance</code>: The asset whose spawn
+     *               location to calculate.
+     * @param random <code>DeterministicRandom</code>: The random number generator
+     *               to calculate with.
+     * 
+     * @preturn <code>Point</code>: The calculated spawn position.
+     */
     public final Point getSpawnPoint(PrimaryAssetInstance target, double range, PrimaryAssetInstance asset,
             DeterministicRandom random) {
 
@@ -503,6 +674,15 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         return random.next(options);
     }
 
+    /**
+     * Retrieves the nearest interaction target of a player.
+     * 
+     * @param player <code>Player</code>: The player whose interaction to check.
+     * @param time   <code>long</code>: The current timestamp in milliseconds.
+     * 
+     * @return <code>InteractionCall</code>: The interaction, player, and target
+     *         asset bundled together.
+     */
     public final InteractionCall getNearestInteraction(Player player, long time) {
 
         HashSet<PrimaryAssetInstance> assets = new HashSet<>();
@@ -512,13 +692,13 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         double x = position.getX();
         double y = position.getY();
 
-        double range = player.getInteractionRange();
+        double range = player.getInteractionDetectionRange();
         if (range < 0) {
 
             return null;
         }
 
-        double sqr_r = range * range * World.UNIT_TILE * World.UNIT_TILE;
+        double sqr_r = range * range;
 
         // Handle tiles (elements).
         for (int i = Math.max(0, (int) Math.ceil(x - range)); i <= Math.floor(x + range) && i < bounds.width; i++) {
@@ -544,11 +724,13 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         double distance_sqr = Double.POSITIVE_INFINITY;
         InteractionCall interaction = null;
 
+        sqr_r *= World.UNIT_TILE * World.UNIT_TILE;
+
         for (PrimaryAssetInstance assetOption : assets) {
 
             for (AssetInteractionInstance interactionOption : assetOption.getInteraction()) {
 
-                if (!interactionOption.canCall(assetOption, time)) {
+                if (!interactionOption.passes(assetOption)) {
 
                     continue;
                 }
@@ -560,7 +742,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
                 if (newDist_sqr <= sqr_r && newDist_sqr < distance_sqr) {
 
                     distance_sqr = newDist_sqr;
-                    interaction = new InteractionCall(interactionOption, player, assetOption);
+                    interaction = new InteractionCall(interactionOption, assetOption);
                 }
             }
         }
@@ -568,12 +750,20 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         return interaction;
     }
 
+    /**
+     * Retrieves the nearest attack target of an entity.
+     * 
+     * @param entity <code>EntityInstance</code>: The entity whose attack to check.
+     * 
+     * @return <code>AttackCall</code>: The attacm, entity, and target bundled
+     *         together.
+     */
     public final AttackCall getNearestTarget(EntityInstance entity) {
 
-        AttackInstance attackData = entity.getAttack();
+        double range = entity.getDetectionRange();
 
-        double range = attackData.getRange();
-        if (range < 0) {
+        AttackInstance attackData = entity.getAttack();
+        if (attackData == null) {
 
             return null;
         }
@@ -601,17 +791,31 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
             if (newDist_sqr <= sqr_r && newDist_sqr < distance_sqr) {
 
                 distance_sqr = newDist_sqr;
-                attack = new AttackCall(attackData, entity, assetOption);
+                attack = new AttackCall(attackData, assetOption, entity.getMainhandItem());
             }
         }
 
         return attack;
     }
 
+    /**
+     * Updates all assets in this <code>AreaGrid</code> instance.
+     * 
+     * @param time <code>double</code>: The current time in seconds.
+     */
     public final void update(double time) {
 
         elements.forEach(element -> element.update(time));
-        entities.forEach(entity -> entity.update(time));
+        entities.forEach(entity -> {
+
+            entity.update(time);
+
+            // If the entity does not have an attack locked, check for a new option.
+            if (!entity.getAttackLocked()) {
+
+                entity.setAttack(getNearestTarget(entity));
+            }
+        });
     }
 
     /**

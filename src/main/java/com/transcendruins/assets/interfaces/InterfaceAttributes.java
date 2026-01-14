@@ -529,17 +529,33 @@ public final class InterfaceAttributes extends AssetAttributes {
         /**
          * <code>ComponentActionSchema</code>: The action to run when pressed.
          */
-        private final ComponentAction action;
+        private final ComponentAction onPress;
 
         /**
          * Retrieves the action to run when pressed.
          * 
-         * @return <code>ComponentActionSchema</code>: The <code>action</code> field of
+         * @return <code>ComponentActionSchema</code>: The <code>onPress</code> field of
          *         this <code>ButtonComponentSchema</code> instance.
          */
-        public final ComponentAction getAction() {
+        public final ComponentAction getOnPress() {
 
-            return action;
+            return onPress;
+        }
+
+        /**
+         * <code>ComponentActionSchema</code>: The action to run when released.
+         */
+        private final ComponentAction onRelease;
+
+        /**
+         * Retrieves the action to run when released.
+         * 
+         * @return <code>ComponentActionSchema</code>: The <code>onRelease</code> field
+         *         of this <code>ButtonComponentSchema</code> instance.
+         */
+        public final ComponentAction getOnRelease() {
+
+            return onRelease;
         }
 
         /**
@@ -563,7 +579,18 @@ public final class InterfaceAttributes extends AssetAttributes {
                 addChild(component);
             }
 
-            action = new ComponentAction.ExecuteActionComponentAction(json);
+            onPress = new ComponentAction.ExecuteActionComponentAction(json);
+
+            TracedEntry<TracedDictionary> onReleaseEntry = json.getAsDict("onRelease", true);
+            if (onReleaseEntry.containsValue()) {
+
+                TracedDictionary onReleaseJson = onReleaseEntry.getValue();
+
+                onRelease = new ComponentAction.ExecuteActionComponentAction(onReleaseJson);
+            } else {
+
+                onRelease = null;
+            }
         }
     }
 

@@ -28,6 +28,13 @@ public abstract class AssetInteractionSchema {
         return position;
     }
 
+    private final double duration;
+
+    public final double getDuration() {
+
+        return duration;
+    }
+
     private final double cooldown;
 
     public final double getCooldown() {
@@ -52,6 +59,7 @@ public abstract class AssetInteractionSchema {
     private AssetInteractionSchema() {
 
         position = Vector.IDENTITY_VECTOR;
+        duration = 0.0;
         cooldown = 0.0;
         conditions = new ImmutableList<>();
         event = new ImmutableList<>();
@@ -68,7 +76,10 @@ public abstract class AssetInteractionSchema {
             position = Vector.IDENTITY_VECTOR;
         }
 
-        TracedEntry<Double> cooldownEntry = json.getAsDouble("cooldown", true, 0.0, num -> num >= 0.0 || num == -1.0);
+        TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, 0.0, num -> 0.0 <= num);
+        duration = durationEntry.getValue();
+
+        TracedEntry<Double> cooldownEntry = json.getAsDouble("cooldown", true, 0.0, num -> 0.0 <= num);
         cooldown = cooldownEntry.getValue();
 
         conditions = json.get("conditions", List.of(json.arrayCase(entry -> {

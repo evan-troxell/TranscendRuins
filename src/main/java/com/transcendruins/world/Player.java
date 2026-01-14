@@ -1,3 +1,19 @@
+/* Copyright 2026 Evan Troxell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package com.transcendruins.world;
 
 import java.awt.Dimension;
@@ -16,41 +32,80 @@ import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponent
 import com.transcendruins.assets.interfaces.UIComponent;
 import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
+import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
+import com.transcendruins.geometry.Vector;
 import com.transcendruins.resources.styles.Style;
 import com.transcendruins.utilities.random.DeterministicRandom;
-import com.transcendruins.world.calls.AttackCall;
 import com.transcendruins.world.calls.InteractionCall;
 
+/**
+ * <code>Player</code>: A class representing the runtime context of a player,
+ * including their in-world entity, UI menus, and current state.
+ */
 public final class Player {
 
-    private final long playerId;
+    /**
+     * <code>long</code>: The ID of this <code>Player</code> instance.
+     */
+    private final long randomId;
 
-    public final long getPlayerId() {
-
-        return playerId;
-    }
-
+    /**
+     * <code>DeterministicRandom</code>: The random number generator of this
+     * <code>Player</code> instance.
+     */
     private final DeterministicRandom random;
 
+    /**
+     * Retrieves the random number generator of this <code>Player</code> instance.
+     * 
+     * @return <code>DeterministicRandom</code>: The <code>random</code> field of
+     *         this <code>Player</code> instance.
+     */
     public final DeterministicRandom getRandom() {
 
         return random;
     }
 
+    /**
+     * <code>EntityInstance</code>: The entity of this <code>Player</code> instance.
+     */
     private final EntityInstance entity;
 
+    /**
+     * Retrieves the entity of this <code>Player</code> instance.
+     * 
+     * @return <code>EntityInstance</code>: The <code>entity</code> field of this
+     *         <code>Player</code> instance.
+     */
     public final EntityInstance getEntity() {
 
         return entity;
     }
 
-    private String location;
+    /**
+     * <code>Object</code>: The synchronization lock used when modifying location
+     * fields.
+     */
+    private final Object LOCATION_LOCK = new Object();
 
+    /**
+     * <code>double</code>: The X coordinate on the global map of this
+     * <code>Player</code> instance.
+     */
     private double globalMapX;
 
+    /**
+     * <code>double</code>: The Y coordinate on the global map of this
+     * <code>Player</code> instance.
+     */
     private double globalMapY;
 
+    /**
+     * Sets the current global map coordinates of this <code>Player</code> instance.
+     * 
+     * @param coordinates <code>Point2D</code>: The position to set.
+     */
     public final void setGlobalMapCoordinates(Point2D coordinates) {
 
         synchronized (LOCATION_LOCK) {
@@ -60,6 +115,12 @@ public final class Player {
         }
     }
 
+    /**
+     * Retrieves the global map coordinates of this <code>Player</code> instance.
+     * 
+     * @return <code>Point2D</code>: The <code>globalMapX</code> and
+     *         <code>globalMapY</code> fields of this <code>Player</code> instance.
+     */
     public final Point2D getGlobalMapCoordinates() {
 
         synchronized (LOCATION_LOCK) {
@@ -68,8 +129,18 @@ public final class Player {
         }
     }
 
-    private final Object LOCATION_LOCK = new Object();
+    /**
+     * <code>String</code>: The current location of this <code>Player</code>
+     * instance.
+     */
+    private String location;
 
+    /**
+     * Sets the current location of this <code>Player</code> instance.
+     * 
+     * @param location <code>String</code>: The <code>location</code> field of this
+     *                 <code>Player</code> instance.
+     */
     public final void setLocation(String location) {
 
         synchronized (LOCATION_LOCK) {
@@ -78,6 +149,12 @@ public final class Player {
         }
     }
 
+    /**
+     * Retrieves the current location of this <code>Player</code> instance.
+     * 
+     * @return <code>String</code>: The <code>location</code> field of this
+     *         <code>Player</code> instance.
+     */
     public final String getLocation() {
 
         synchronized (LOCATION_LOCK) {
@@ -86,19 +163,43 @@ public final class Player {
         }
     }
 
+    /**
+     * <code>Object</code>: The synchronization lock used when modifying UI fields.
+     */
     private final Object UI_LOCK = new Object();
 
+    /**
+     * <code>ArrayList&lt;InterfaceInstance&gt;</code>: The current UI panels of
+     * this <code>Player</code> instance.
+     */
     private final ArrayList<InterfaceInstance> uiPanels = new ArrayList<>();
 
+    /**
+     * Sets the current UI panels of this <code>Player</code> instance.
+     * 
+     * @param interfacePresets <code>List&lt;AssetPresets&gt;</code>: The presets of
+     *                         the interfaces to apply.
+     */
     public final void setPanels(List<AssetPresets> interfacePresets) {
 
         replacePanels(interfacePresets.stream()
-                .map(presets -> new InterfaceContext(presets, entity.getWorld(), entity, playerId, null)).toList());
+                .map(presets -> new InterfaceContext(presets, entity.getWorld(), entity, randomId, null)).toList());
 
     }
 
+    /**
+     * <code>boolean</code>: Whether or not this <code>Player</code> instance is on
+     * the global map.
+     */
     private boolean onGlobalMap;
 
+    /**
+     * Retrieves whether or not this <code>Player</code> instance is on the global
+     * map.
+     * 
+     * @return <code>boolean</code>: The <code>onGlobalMap</code> field of this
+     *         <code>Player</code> instance.
+     */
     public final boolean onGlobalMap() {
 
         synchronized (UI_LOCK) {
@@ -107,6 +208,9 @@ public final class Player {
         }
     }
 
+    /**
+     * Exits the current location and enters the global map.
+     */
     public final void enterGlobalMap() {
 
         synchronized (UI_LOCK) {
@@ -118,18 +222,21 @@ public final class Player {
 
             onGlobalMap = true;
             InterfaceContext globalMapContext = InterfaceContext.createGlobalMapContext(entity.getWorld(), entity,
-                    playerId, globalMapX, globalMapY);
+                    randomId, globalMapX, globalMapY);
             uiPanels.addFirst((InterfaceInstance) globalMapContext.instantiate());
 
-            calculateSize();
-            calculateHovered();
+            updateUiSize();
+            updateUiHovered();
             if (mousePressed) {
 
-                calculatePressed();
+                updateUiPressed();
             }
         }
     }
 
+    /**
+     * Exits the global map and enters the current location.
+     */
     public final void exitGlobalMap() {
 
         synchronized (UI_LOCK) {
@@ -142,22 +249,34 @@ public final class Player {
             onGlobalMap = false;
             uiPanels.removeFirst();
 
-            calculateSize();
-            calculateHovered();
+            updateUiSize();
+            updateUiHovered();
             if (mousePressed) {
 
-                calculatePressed();
+                updateUiPressed();
             }
         }
     }
 
+    /**
+     * Displays the global map information of a specific location.
+     * 
+     * @param locationDisplay <code>LocationDisplay</code>: The global map
+     *                        information to display.
+     */
     public final void displayLocation(LocationDisplay locationDisplay) {
 
-        InterfaceContext context = InterfaceContext.createLocationDisplayContext(entity.getWorld(), entity, playerId,
+        InterfaceContext context = InterfaceContext.createLocationDisplayContext(entity.getWorld(), entity, randomId,
                 locationDisplay);
         replacePanels(List.of(context));
     }
 
+    /**
+     * Displays 2 parallel inventories.
+     * 
+     * @param other <code>PrimaryAssetInstance</code>: The other asset whose
+     *              inventory to display.
+     */
     public final void displayInventory(PrimaryAssetInstance other) {
 
         InventoryInstance secondaryInventory = other.getInventory();
@@ -171,11 +290,17 @@ public final class Player {
             return;
         }
 
-        InterfaceContext context = InterfaceContext.createInventoryDisplayContext(entity.getWorld(), entity, playerId,
+        InterfaceContext context = InterfaceContext.createInventoryDisplayContext(entity.getWorld(), entity, randomId,
                 primaryInventory, primaryUi, secondaryInventory, secondaryUi);
         replacePanels(List.of(context));
     }
 
+    /**
+     * Replaces the current UI panels with another set.
+     * 
+     * @param contexts <code>List&lt;InterfaceContext&gt;</code>: The interface
+     *                 contexts to apply.
+     */
     private void replacePanels(List<InterfaceContext> contexts) {
 
         synchronized (UI_LOCK) {
@@ -194,16 +319,32 @@ public final class Player {
             hovered.clear();
             pressed.clear();
 
-            calculateSize();
-            calculateHovered();
+            long time = System.currentTimeMillis();
+            pointerCapture.forEach(layout -> {
+
+                Point relativeMousePosition = getCumulativeComponentOffset(layout);
+
+                layout.onExit(relativeMousePosition.x, relativeMousePosition.y);
+                layout.onRelease(relativeMousePosition.x, relativeMousePosition.y);
+                layout.onTriggerRelease(relativeMousePosition.x, relativeMousePosition.y, layout.getValue(), time);
+            });
+            pointerCapture.clear();
+
+            updateUiSize();
+            updateUiHovered();
             if (mousePressed) {
 
-                calculatePressed();
+                updateUiPressed();
             }
         }
     }
 
-    public final void updateUiPanels(double time) {
+    /**
+     * Updates this <code>Player</code> instance.
+     * 
+     * @param time <code>double</code>: The current time in seconds.
+     */
+    public final void update(double time) {
 
         synchronized (UI_LOCK) {
 
@@ -212,24 +353,45 @@ public final class Player {
                 panel.update(time);
             }
 
-            calculateSize();
-            calculateHovered();
+            updateUiSize();
+            updateUiHovered();
             if (mousePressed) {
 
-                calculatePressed();
+                updateUiPressed();
             }
         }
+
+        updateInteract(time);
     }
 
+    /**
+     * <code>int</code>: The width of the screen.
+     */
     private int screenWidth = 1;
 
+    /**
+     * <code>int</code>: The height of the screen.
+     */
     private int screenHeight = 1;
 
+    /**
+     * Retrieves the size of the screen.
+     * 
+     * @return <code>Dimension</code>: The <code>screenWidth</code> and
+     *         <code>screenHeight</code> fields of this <code>Player</code>
+     *         instance.
+     */
     public final Dimension getScreenSize() {
 
         return new Dimension(screenWidth, screenHeight);
     }
 
+    /**
+     * Sets the size of the screen.
+     * 
+     * @param width  <code>int</code>: The width of the screen.
+     * @param height <code>int</code>: The height of the screen.
+     */
     public final void setScreenSize(int width, int height) {
 
         synchronized (UI_LOCK) {
@@ -242,16 +404,19 @@ public final class Player {
             screenWidth = width;
             screenHeight = height;
 
-            calculateSize();
-            calculateHovered();
+            updateUiSize();
+            updateUiHovered();
             if (mousePressed) {
 
-                calculatePressed();
+                updateUiPressed();
             }
         }
     }
 
-    private void calculateSize() {
+    /**
+     * Updates the sizing of all UI panels.
+     */
+    private void updateUiSize() {
 
         for (InterfaceInstance panel : uiPanels) {
 
@@ -259,18 +424,39 @@ public final class Player {
         }
     }
 
+    /**
+     * Resizes a UI panel.
+     * 
+     * @param panel <code>InterfaceInstance</code>: The panel to resize.
+     */
     private void resizePanel(InterfaceInstance panel) {
 
         panel.renderBounds(screenWidth, screenHeight, 16, Style.EMPTY);
         panel.rescale(screenWidth, screenHeight);
     }
 
+    /**
+     * <code>int</code>: The current X coordinate of the mouse.
+     */
     private int mouseX = -1;
 
+    /**
+     * <code>int</code>: The current Y coordinate of the mouse.
+     */
     private int mouseY = -1;
 
+    /**
+     * <code>ArrayList&lt;UIComponent&gt;</code>: The UI components that are
+     * currently hovered.
+     */
     private final ArrayList<UIComponent> hovered = new ArrayList<>();
 
+    /**
+     * Sets the current position of the mouse.
+     * 
+     * @param x <code>int</code>: The current X coordinate of the mouse.
+     * @param y <code>int</code>: The current Y coordinate of the mouse.
+     */
     public final void setMousePosition(int x, int y) {
 
         synchronized (UI_LOCK) {
@@ -283,16 +469,19 @@ public final class Player {
             mouseX = x;
             mouseY = y;
 
-            calculateSize();
-            calculateHovered();
+            updateUiSize();
+            updateUiHovered();
             if (mousePressed) {
 
-                calculatePressed();
+                updateUiPressed();
             }
         }
     }
 
-    private void calculateHovered() {
+    /**
+     * Updates the hover status of all UI panels.
+     */
+    private void updateUiHovered() {
 
         long time = System.currentTimeMillis();
 
@@ -306,11 +495,21 @@ public final class Player {
             }
         }
 
+        hovered.removeAll(pointerCapture);
+        pointerCapture.forEach(layout -> {
+
+            Point relativeMousePosition = getCumulativeComponentOffset(layout);
+            layout.onHover(relativeMousePosition.x, relativeMousePosition.y);
+        });
+
         hovered.removeAll(newHovered);
         exitAll();
         hovered.addAll(newHovered);
     }
 
+    /**
+     * Exits the mouse from all UI components and clears all UI component hovers.
+     */
     private void exitAll() {
 
         for (UIComponent exited : hovered) {
@@ -321,13 +520,36 @@ public final class Player {
         hovered.clear();
     }
 
+    /**
+     * <code>boolean</code>: Whether or not the mouse is currently pressed.
+     */
     private boolean mousePressed;
 
+    /**
+     * <code>boolean</code>: Whether or not there have been no frames since the
+     * mouse was pressed.
+     */
     private boolean mouseJustPressed;
+
+    /**
+     * <code>boolean</code>: Whether or not there have been no frames since the
+     * mouse was released.
+     */
     private boolean mouseJustReleased;
 
+    /**
+     * <code>ArrayList&lt;UIComponent&gt; The UI components that are currently
+     * pressed.
+     */
     private final ArrayList<UIComponent> pressed = new ArrayList<>();
 
+    private final ArrayList<UIComponent> pointerCapture = new ArrayList<>();
+
+    /**
+     * Sets the current current mouse press state.
+     * 
+     * @param pressed <code>boolean</code>: Whether or not the mouse is pressed.
+     */
     public final void setMousePress(boolean pressed) {
 
         synchronized (UI_LOCK) {
@@ -350,17 +572,37 @@ public final class Player {
             // If the mouse is not being clicked, calculate hover and press states.
             if (pressed) {
 
-                calculatePressed();
-                calculateTriggerPress();
+                updateUiPressed();
+                updateUiTriggerPress();
+
+                pointerCapture.addAll(this.pressed.stream().filter(UIComponent::getPointerCapture).toList());
             } else {
 
                 releaseAll();
-                calculateTriggerRelease();
+                UIComponent triggerConsumer = updateUiTriggerRelease();
+
+                long time = System.currentTimeMillis();
+                pointerCapture.forEach(layout -> {
+
+                    Point relativeMousePosition = getCumulativeComponentOffset(layout);
+
+                    layout.onExit(relativeMousePosition.x, relativeMousePosition.y);
+                    layout.onRelease(relativeMousePosition.x, relativeMousePosition.y);
+
+                    if (layout != triggerConsumer) {
+                        layout.onTriggerRelease(relativeMousePosition.x, relativeMousePosition.y, layout.getValue(),
+                                time);
+                    }
+                });
+                pointerCapture.clear();
             }
         }
     }
 
-    private void calculatePressed() {
+    /**
+     * Updates the press status of all UI panels.
+     */
+    private void updateUiPressed() {
 
         long time = System.currentTimeMillis();
 
@@ -374,11 +616,21 @@ public final class Player {
             }
         }
 
+        pressed.removeAll(pointerCapture);
+        pointerCapture.forEach(layout -> {
+
+            Point relativeMousePosition = getCumulativeComponentOffset(layout);
+            layout.onPress(relativeMousePosition.x, relativeMousePosition.y);
+        });
+
         pressed.removeAll(newPressed);
         releaseAll();
         pressed.addAll(newPressed);
     }
 
+    /**
+     * Releases the mouse and clears all UI component presses.
+     */
     private void releaseAll() {
 
         for (UIComponent exited : pressed) {
@@ -389,9 +641,15 @@ public final class Player {
         pressed.clear();
     }
 
+    /**
+     * <code>UIComponent</code>: The current mouse press focus.
+     */
     private UIComponent pressFocus = null;
 
-    private void calculateTriggerPress() {
+    /**
+     * Triggers the actions of all UI components that are pressed.
+     */
+    private void updateUiTriggerPress() {
 
         pressFocus = null;
         long time = System.currentTimeMillis();
@@ -409,7 +667,10 @@ public final class Player {
         }
     }
 
-    private void calculateTriggerRelease() {
+    /**
+     * Triggers the actions of all UI components that are released.
+     */
+    private UIComponent updateUiTriggerRelease() {
 
         long time = System.currentTimeMillis();
 
@@ -417,13 +678,24 @@ public final class Player {
         for (int i = uiPanels.size() - 1; i >= 0; i--) {
 
             InterfaceInstance panel = uiPanels.get(i);
-            if (panel.triggerRelease(mouseX, mouseY, clicked, time) != null) {
+            UIComponent consumer = panel.triggerRelease(mouseX, mouseY, clicked, time);
+            if (consumer != null) {
 
-                break;
+                return consumer;
             }
         }
+
+        return null;
     }
 
+    /**
+     * Scrolls the mouse.
+     * 
+     * @param dx <code>int</code>: The horizontal distance the mouse was scrolled in
+     *           pixels.
+     * @param dy <code>int</code>: The vertical distance the mouse was scrolled in
+     *           pixels.
+     */
     public final void mouseScroll(int dx, int dy) {
 
         if (dx == 0 && dy == 0) {
@@ -450,14 +722,36 @@ public final class Player {
                 resizePanel(panel);
             }
 
-            calculateHovered();
+            updateUiHovered();
             if (mousePressed) {
 
-                calculatePressed();
+                updateUiPressed();
             }
         }
     }
 
+    private Point getCumulativeComponentOffset(UIComponent component) {
+
+        int relativeMouseX = mouseX;
+        int relativeMouseY = mouseY;
+
+        while (component != null) {
+
+            relativeMouseX -= component.getContentOffsetX();
+            relativeMouseY -= component.getContentOffsetY();
+
+            component = component.getParent();
+        }
+
+        return new Point(relativeMouseX, relativeMouseY);
+    }
+
+    /**
+     * Renders the current state of the UI.
+     * 
+     * @return <code>BufferedImage</code>: The outputs from all active interfaces
+     *         layered into a single image.
+     */
     public final BufferedImage renderUi() {
 
         synchronized (UI_LOCK) {
@@ -475,8 +769,8 @@ public final class Player {
             // next frame.
             if (mouseJustPressed && mouseJustReleased) {
 
-                calculateHovered();
-                calculatePressed();
+                updateUiHovered();
+                updateUiPressed();
             }
 
             mouseJustPressed = false;
@@ -486,66 +780,180 @@ public final class Player {
         }
     }
 
-    private InteractionCall interaction;
+    /**
+     * <code>double</code>: The maximum interaction detection range of this
+     * <code>Player</code> instance.
+     */
+    private final double interactionDetectionRange = 4.5;
 
-    private final double interactionRange = World.UNIT_TILE * 2.5;
+    /**
+     * Retrieves the maximum interaction interaction range of this
+     * <code>Player</code> instance.
+     * 
+     * @return <code>double</code>: The <code>interactionDetectionRange</code> field
+     *         of this <code>Player</code> instance.
+     */
+    public final double getInteractionDetectionRange() {
 
-    public final void setInteraction(InteractionCall interaction) {
-
-        this.interaction = interaction;
+        return interactionDetectionRange;
     }
 
-    public final double getInteractionRange() {
+    /**
+     * <code>double</code>: The maximum interaction range of this
+     * <code>Player</code> instance.
+     */
+    private final double interactionRange = 2.5;
 
-        return interactionRange;
+    /**
+     * <code>InteractionCall</code>: The current interaction context of this
+     * <code>Player</code> instance.
+     */
+    private InteractionCall interactCall;
+
+    /**
+     * Sets the current interaction context.
+     * 
+     * @param interactCall <code>InteractionCall</code>: The interaction context to
+     *                     apply.
+     */
+    public final void setInteraction(InteractionCall interactCall) {
+
+        this.interactCall = interactCall;
     }
 
-    private long interactEnd = -1;
+    private boolean interactLocked = false;
 
-    private boolean interacting = false;
+    public final boolean getInteractLocked() {
 
-    public final boolean isInteracting() {
-
-        return interacting;
+        return interactLocked;
     }
 
-    public final void interact(long time) {
+    private double interactStart = -1;
 
-        if (interaction == null || interactEnd > -1 && time < interactEnd) {
+    private boolean interacted = false;
 
-            return;
+    /**
+     * Interacts with the current interaction target of this <code>Player</code>
+     * instance.
+     * 
+     * @return <code>boolean</code>: Whehter or not the an interaction is active at
+     *         the end of this call.
+     */
+    public final boolean interact() {
+
+        if (interactCall != null) {
+
+            System.out.println("INTERACT LOCKED");
+            interactLocked = true;
+
+            entity.stopAttack();
+
+            return true;
         }
+
+        return false;
+    }
+
+    private void startInteract(double time) {
 
         System.out.println("INTERACT");
-        System.out.println(interaction.interaction().getClass().getSimpleName());
 
-        interactEnd = interaction.call(time);
-        interacting = interactEnd != -1;
+        interactStart = time;
+        interacted = false;
+
+        // TODO play interact animation
     }
 
-    private AttackCall attack;
+    private void stopInteract() {
 
-    public final void setAttack(AttackCall attack) {
+        System.out.println("INTERACT ENDED");
 
-        this.attack = attack;
+        interactLocked = false;
+        interactStart = -1;
+        // TODO stop attack animation
     }
 
-    public final void attack(long time) {
+    private void updateInteract(double time) {
 
-        if (attack == null) {
+        // If the interact is not locked or the interact can't be performed, stop the
+        // interact sequence.
+        if (!interactLocked || interactCall == null || !interactCall.isValid()) {
+
+            interactLocked = false;
+            interactStart = -1;
+            return;
+        }
+
+        AssetInteractionInstance interactInstance = interactCall.interaction();
+
+        // If the entity is still tracking the target, check if the entity reached the
+        // interact range.
+        if (interactStart == -1) {
+
+            double range = interactionRange * World.UNIT_TILE;
+
+            Vector displacement = entity.getPosition().subtract(interactCall.target().getPosition());
+            double r_sqr = displacement.dot(displacement);
+
+            if (r_sqr <= range * range) {
+
+                startInteract(time);
+            }
 
             return;
         }
 
-        System.out.println("ATTACK");
+        System.out.println("INTERACT TIME: " + (time - interactStart));
 
-        attack.call(time);
+        double duration = interactInstance.getDuration();
+        double cooldown = interactInstance.getCooldown();
+
+        // If the attack has not been inflicted yet, check if the duration has
+        // concluded.
+        if (!interacted && interactStart + duration <= time) {
+
+            System.out.println("INTERACT FINISHED");
+
+            interactInstance.call(interactCall.target(), time, this);
+            interacted = true;
+        }
+
+        // Check if the duration and end cooldown has concluded to end the attack.
+        if (interactStart + (duration + cooldown) <= time) {
+
+            System.out.println("INTERACT RESET");
+            interactStart = -1;
+            interactLocked = false;
+        }
     }
 
-    public Player(long playerId, EntityInstance entity) {
+    /**
+     * Sets whether or not to attack the current target of this <code>Player</code>
+     * instance.
+     * 
+     * @param attack <code>boolean</code>: Whether or not this <code>Player</code>
+     *               instance should attack.
+     */
+    public final void attack(boolean attack) {
 
-        this.playerId = playerId;
-        random = new DeterministicRandom(playerId);
+        if (entity.attack(attack)) {
+
+            stopInteract();
+        }
+    }
+
+    /**
+     * Creates a new instance of the <code>Player</code> class.
+     * 
+     * @param randomId <code>long</code>: The ID of this <code>Player</code>
+     *                 instance.
+     * @param entity   <code>EntityInstance</code>: The entity of this
+     *                 <code>Player</code> instance.
+     */
+    public Player(long randomId, EntityInstance entity) {
+
+        this.randomId = randomId;
+        random = new DeterministicRandom(randomId);
 
         this.entity = entity;
     }
@@ -553,7 +961,7 @@ public final class Player {
     @Override
     public final int hashCode() {
 
-        return Long.hashCode(playerId);
+        return Long.hashCode(randomId);
     }
 
     @Override

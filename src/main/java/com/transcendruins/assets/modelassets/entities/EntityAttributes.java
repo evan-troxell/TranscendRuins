@@ -51,6 +51,13 @@ public final class EntityAttributes extends PrimaryAssetAttributes {
         return attack;
     }
 
+    private final Double detectionRange;
+
+    public final Double getDetectionRange() {
+
+        return detectionRange;
+    }
+
     private final String mapIcon;
 
     public final String getMapIcon() {
@@ -101,6 +108,9 @@ public final class EntityAttributes extends PrimaryAssetAttributes {
         }), json.nullCase(_ -> null)));
 
         attack = AttackSchema.createAttack(json, isBase);
+
+        TracedEntry<Double> detectionRangeEntry = json.getAsDouble("detectionRange", true, null);
+        detectionRange = detectionRangeEntry.getValue();
 
         TracedEntry<String> mapIconEntry = json.getAsString("mapIcon", true, null);
         mapIcon = mapIconEntry.getValue();

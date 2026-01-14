@@ -143,7 +143,7 @@ public final class LootTableInstance extends AssetInstance {
          * Determines whether or not this <code>LootInstance</code> passes the applied
          * conditions.
          * 
-         * @return <code>boolean</code>: If this loot passes its conditions.
+         * @return <code>boolean</code>: Whether or not this loot passes its conditions.
          */
         public final boolean passes() {
 

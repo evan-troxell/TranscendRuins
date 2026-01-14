@@ -47,28 +47,42 @@ import com.transcendruins.world.World;
 
 public final class GlobalLocationInstance extends PropertyHolder {
 
+    /**
+     * <code>World</code>: The world to use during generation.
+     */
     private final World world;
 
+    /**
+     * Retrieves the world of this <code>GlobalLocationInstance</code> instance.
+     * 
+     * @return <code>World</code>: The <code>world</code> field of this
+     *         <code>GlobalLocaitonInstance</code> instance.
+     */
     public final World getWorld() {
 
         return world;
     }
 
-    private final String key;
-
-    public final String getKey() {
-
-        return key;
-    }
-
+    /**
+     * <code>long</code>: The random ID of this <code>GlobalLocationInstance</code>
+     * instance.
+     */
     private final long randomId;
 
+    /**
+     * <code>DeterministicRandom</code>: The random number generator of this
+     * <code>GlobalLocationInstance</code> instance.
+     */
     private final DeterministicRandom random;
 
+    /**
+     * <code>TRScript</code>: The name of this <code>GlobalLocationInstance</code>
+     * instance.
+     */
     private final TRScript name;
 
     /**
-     * <code>TRScript</code>: Retrieves the description of this
+     * <code>TRScript</code>: Retrieves the name of this
      * <code>GlobalLocationInstance</code> instance.
      * 
      * @return <code>TRScript</code>: The <code>name</code> field of this
@@ -160,25 +174,25 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
     /**
      * <code>ImmutableMap&lt;String, WeightedRoll&lt;AssetPresets&gt;&gt;</code>:
-     * The templates for the areas of this <code>LocationInstance</code> instance.
-     * These are areas which may or have may not been instantiated yet, depending on
-     * whether or not the <code>generate()</code> method has been called since the
-     * previous application of attributes.
+     * The templates for the areas of this <code>GlobalLocationInstance</code>
+     * instance. These are areas which may or have may not been instantiated yet,
+     * depending on whether or not the <code>generate()</code> method has been
+     * called since the previous application of attributes.
      */
     private final ImmutableMap<String, WeightedRoll<AssetPresets>> areaTemplates;
 
     /**
      * <code>HashMap&lt;String, AreaGrid&gt;</code>: The areas of this
-     * <code>LocationInstance</code> instance.
+     * <code>GlobalLocationInstance</code> instance.
      */
     private final HashMap<String, AreaGrid> areas = new HashMap<>();
 
     /**
-     * Retrieves the keys of the areas of this <code>LocationInstance</code>
+     * Retrieves the keys of the areas of this <code>GlobalLocationInstance</code>
      * instance.
      * 
      * @return <code>ImmutableList&lt;String&gt;</code>: The keys of the
-     *         <code>areas</code> field of this <code>LocationInstance</code>
+     *         <code>areas</code> field of this <code>GlobalLocationInstance</code>
      *         instance.
      */
     public final ImmutableList<String> getAreas() {
@@ -187,11 +201,11 @@ public final class GlobalLocationInstance extends PropertyHolder {
     }
 
     /**
-     * Retrieves an area from this <code>LocationInstance</code> instance.
+     * Retrieves an area from this <code>GlobalLocationInstance</code> instance.
      * 
      * @param area <code>String</code>: The key of the area to retrieve.
      * @return <code>AreaGrid</code>: The location retrieved from the
-     *         <code>areas</code> field of this <code>LocationInstance</code>
+     *         <code>areas</code> field of this <code>GlobalLocationInstance</code>
      *         instance.
      */
     public final AreaGrid getArea(String area) {
@@ -201,6 +215,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
         if (regenerateConditional(now)) {
 
             generated = true;
+            active = false;
         }
 
         return areas.get(area);
@@ -208,13 +223,13 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
     /**
      * Retrieves the name of the area a specific player is in from this
-     * <code>LocationInstance</code> instance.
+     * <code>GlobalLocationInstance</code> instance.
      * 
      * @param player <code>Player</code>: The id of the player whose area name to
      *               retrieve.
      * @return <code>String</code>: The location name retrieved from the
-     *         <code>players</code> field of this <code>LocationInstance</code>
-     *         instance.
+     *         <code>players</code> field of this
+     *         <code>GlobalLocationInstance</code> instance.
      */
     public final String getAreaName(Player player) {
 
@@ -228,12 +243,12 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
     /**
      * Retrieves the area a specific player is in from this
-     * <code>LocationInstance</code> instance.
+     * <code>GlobalLocationInstance</code> instance.
      * 
      * @param player <code>Player</code>: The id of the player whose area to
      *               retrieve.
      * @return <code>AreaGrid</code>: The location retrieved from the
-     *         <code>areas</code> field of this <code>LocationInstance</code>
+     *         <code>areas</code> field of this <code>GlobalLocationInstance</code>
      *         instance.
      */
     public final AreaGrid getArea(Player player) {
@@ -248,6 +263,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
         if (regenerateConditional(now)) {
 
             generated = true;
+            active = false;
         }
 
         return areas.get(players.get(player).area());
@@ -255,16 +271,16 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
     /**
      * <code>String</code>: The key of the primary location of this
-     * <code>LocationInstance</code> instance.
+     * <code>GlobalLocationInstance</code> instance.
      */
     private final String primary;
 
     /**
      * Retrieves the key of the primary location of this
-     * <code>LocationInstance</code> instance.
+     * <code>GlobalLocationInstance</code> instance.
      * 
      * @return <code>String</code>: The <code>primary</code> field of this
-     *         <code>LocationInstance</code> instance.
+     *         <code>GlobalLocationInstance</code> instance.
      */
     public final String getPrimary() {
 
@@ -273,35 +289,65 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
     /**
      * <code>ZonedDateTime</code>: The timestamp at which this
-     * <code>LocationInstance</code> was created.
+     * <code>GlobalLocationInstance</code> was created.
      */
     private final ZonedDateTime locationCreatedTimestamp;
 
     /**
      * <code>LocationReset</code>: The reset behavior of this
-     * <code>LocationInstance</code> instance.
+     * <code>GlobalLocationInstance</code> instance.
      */
     private final LocationReset reset;
 
+    /**
+     * <code>LocationDuration</code>: The duration of this
+     * <code>GlobalLocationInstance</code> instance.
+     */
     private final LocationDuration duration;
 
+    /**
+     * <code>LocationTriggerType</code>: The trigger type of this
+     * <code>GlobalLocationInstance</code> instance.
+     */
     private final LocationTriggerType triggerType;
 
+    /**
+     * Retrieves the trigger type of this <code>GlobalLocationInstance</code>
+     * instance.
+     * 
+     * @return <code>LocationTriggerType</code>: The <code>triggerType</code> field
+     *         of this <code>GlobalLocationInstance</code> instance.
+     */
     public final LocationTriggerType getTriggerType() {
 
         return triggerType;
     }
 
+    /**
+     * <code>ZonedDateTime</code>: The timestamp of when this
+     * <code>GlobalLocationInstance</code> instance was last reset.
+     */
     private ZonedDateTime locationResetTimestamp;
 
     /**
      * <code>ZonedDateTime</code>: The timestamp of when the last player exited this
-     * <code>LocationInstance</code> instance.
+     * <code>GlobalLocationInstance</code> instance.
      */
     private ZonedDateTime prevEntranceTimestamp;
 
+    /**
+     * <code>HashMap&lt;Player, PlayerSpawn&gt;</code>: The set of players and their
+     * spawn locations in this <code>GlobalLocationInstance</code> instance.
+     */
     private final HashMap<Player, PlayerSpawn> players = new HashMap<>();
 
+    /**
+     * Retrieves whether or not this <code>GlobalLocationInstance</code> instance
+     * has no players in it.
+     * 
+     * @return <code>boolean</code>: Whether or not the <code>players</code> field
+     *         of this code>GlobalLocationInstance</code> instance is empty.
+     */
     public final boolean isEmpty() {
 
         return players.isEmpty();
@@ -313,10 +359,33 @@ public final class GlobalLocationInstance extends PropertyHolder {
      */
     private double resetOffsetCounter = 0.0;
 
+    /**
+     * <code>boolean</code>: Whether or not this code>GlobalLocationInstance</code>
+     * instance is generated. A <i>generated</i> location is one whose areas have
+     * been generated but has not been activated, which will occur in the next
+     * occupancy.
+     */
     private boolean generated;
 
+    /**
+     * <code>boolean</code>: Whether or not this code>GlobalLocationInstance</code>
+     * instance is activated. An <i>active</i> location is one which has had players
+     * since being generated and is, if applicable, awaiting a reset timer.
+     */
     private boolean active;
 
+    /**
+     * Determines if regeneration reset logic should be applied when a player enters
+     * this <code>GlobalLocationInstance</code> instance based on if the location
+     * has already been generated, is empty, and was already activated and is
+     * awaiting a reset. If the location meets regeneration conditions, all areas
+     * will be regenerated.
+     * 
+     * @param now <code>ZonedDateTime</code>: The current moment in time.
+     * 
+     * @return <code>boolean</code>: Whether or not regeneration logic should be
+     *         applied.
+     */
     private boolean regenerateConditional(ZonedDateTime now) {
 
         // If the location was already regenerated, return true.
@@ -342,6 +411,15 @@ public final class GlobalLocationInstance extends PropertyHolder {
         return true;
     }
 
+    /**
+     * Adds a player to this <code>GlobalLocationInstance</code> instance.
+     * 
+     * @param player <code>Player</code>: The player to add.
+     * @param spawn  <code>PlayerSpawn</code>: The spawm location to add at.
+     * 
+     * @return <code>boolean</code>: Whether or not the player was successfully
+     *         added.
+     */
     public final boolean add(Player player, PlayerSpawn spawn) {
 
         // If there are no players in the location, check if it needs to be generated.
@@ -358,9 +436,8 @@ public final class GlobalLocationInstance extends PropertyHolder {
             }
 
             prevEntranceTimestamp = now;
+            generated = false;
         }
-
-        generated = false;
 
         // If the area cannot be assigned, use the primary area.
         if (spawn == null) {
@@ -378,6 +455,11 @@ public final class GlobalLocationInstance extends PropertyHolder {
         return true;
     }
 
+    /**
+     * Removes a player from this <code>GlobalLocationInstance</code> instance.
+     * 
+     * @param player <code>Player</code>: The player to remove.
+     */
     public final void remove(Player player) {
 
         // If there is not a player in the location, the entrance timestamp will be
@@ -399,6 +481,14 @@ public final class GlobalLocationInstance extends PropertyHolder {
         exit(player);
     }
 
+    /**
+     * Enters a player from the global map into this
+     * <code>GlobalLocationInstance</code> instance.
+     * 
+     * @param player <code>Player</code>: The player to enter.
+     * @return <code>boolean</code>: Whether or not the player was successfully
+     *         entered.
+     */
     public final boolean enter(Player player) {
 
         PlayerSpawn spawn = players.get(player);
@@ -424,6 +514,12 @@ public final class GlobalLocationInstance extends PropertyHolder {
         return true;
     }
 
+    /**
+     * Exits a player from this <code>GlobalLocationInstance</code> instance into
+     * the global map.
+     * 
+     * @param player <code>Player</code>: The player to exit.
+     */
     public final void exit(Player player) {
 
         AreaGrid area = getArea(player);
@@ -436,6 +532,15 @@ public final class GlobalLocationInstance extends PropertyHolder {
         area.removeEntity(playerEntity);
     }
 
+    /**
+     * Retrieves the polygons of a player from this
+     * <code>GlobalLocationInstance</code> instance.
+     * 
+     * @param player <code>Player</code>: The player whose area's polygons should be
+     *               retrieved.
+     * @return <code>RenderBuffer</code>: The retrieved polygons, packaged into a
+     *         buffer.
+     */
     public final RenderBuffer getPolygons(Player player) {
 
         if (!players.containsKey(player)) {
@@ -449,7 +554,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
     /**
      * Determines the length in minutes until the reset countdown will end.
      * 
-     * @param now <code>ZonedDateTime</code>: The current timestamp.
+     * @param now <code>ZonedDateTime</code>: The current moment in time.
      * @return <code>double</code>: The duration in minutes.
      */
     public final double getMinutesUntilReset(ZonedDateTime now) {
@@ -463,7 +568,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
      * the location does not have a reset countdown, if the countdown has finished,
      * or if the player is in the location.
      * 
-     * @param now <code>ZonedDateTime</code>: The current timestamp.
+     * @param now <code>ZonedDateTime</code>: The current moment in time.
      * @return <code>String</code>: The minutes formatted as H:MM:SS or MM:SS, or
      *         <code>null</code> if the counter should not be displayed.
      */
@@ -495,7 +600,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
     /**
      * Determines the length in minutes until the location will end.
      * 
-     * @param now <code>ZonedDateTime</code>: The current timestamp.
+     * @param now <code>ZonedDateTime</code>: The current moment in time.
      * @return <code>double</code>: The duration in minutes.
      */
     public final double getMinutesUntilEnd(ZonedDateTime now) {
@@ -515,7 +620,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
      * Outputs the end counter as a <code>String</code>, or <code>null</code> if the
      * location does not have a end countdown or if the countdown has finished.
      * 
-     * @param now <code>ZonedDateTime</code>: The current timestamp.
+     * @param now <code>ZonedDateTime</code>: The current moment in time.
      * @return <code>String</code>: The minutes formatted as H:MM:SS or MM:SS.
      */
     public final String getEndCounter(ZonedDateTime now) {
@@ -529,12 +634,17 @@ public final class GlobalLocationInstance extends PropertyHolder {
         return formatMinutes(remaining);
     }
 
-    public GlobalLocationInstance(GlobalLocationSchema schema, World world, String key) {
+    /**
+     * Creates a new instance of the <code>GlobalLocationInstance</code> class.
+     * 
+     * @param schema <code>GlobalLocationSchema</code>: The schema to apply.
+     * @param world  <code>World</code>: The world to use during generation.
+     */
+    public GlobalLocationInstance(GlobalLocationSchema schema, World world) {
 
         this.world = world;
         setParent(world);
 
-        this.key = key;
         randomId = world.getRandom().next();
         random = new DeterministicRandom(randomId);
 
@@ -569,9 +679,9 @@ public final class GlobalLocationInstance extends PropertyHolder {
     }
 
     /**
-     * Generates the contents of this <code>LocationInstance</code> instance. This
-     * automatically resets each area in this <code>LocationInstance</code> instance
-     * in a deterministic pattern.
+     * Generates the contents of this <code>GlobalLocationInstance</code> instance.
+     * This automatically resets each area in this
+     * <code>GlobalLocationInstance</code> instance in a deterministic pattern.
      */
     public final void generate() {
 
@@ -591,6 +701,14 @@ public final class GlobalLocationInstance extends PropertyHolder {
         }
     }
 
+    /**
+     * Determine whether or not this code>GlobalLocationInstance</code> instance has
+     * expired.
+     * 
+     * @param now <code>ZonedDateTime</code>: The current moment in time.
+     * 
+     * @return <code>boolean</code>: Whether or not the location has expired.
+     */
     public final boolean expired(ZonedDateTime now) {
 
         // The location cannot expire while occupied.
@@ -608,11 +726,15 @@ public final class GlobalLocationInstance extends PropertyHolder {
         return duration.getDuration() != -1 && getMinutesUntilEnd(now) <= 0;
     }
 
+    /**
+     * Updates all areas in this <code>GlobalLocationInstance</code> instance.
+     * 
+     * @param time <code>double</code>: The current time in seconds.
+     */
     public final void update(double time) {
 
-        if (active) {
+        if (generated || active) {
 
-            // TODO this filter logic is probably not right, this should be corrected
             areas.values().stream().filter(Objects::nonNull).forEach(area -> area.update(time));
         }
     }
@@ -660,6 +782,13 @@ public final class GlobalLocationInstance extends PropertyHolder {
         }
     }
 
+    /**
+     * Retrieves the global map rendering information of this
+     * <code>GlobalLocationInstance</code> instance.
+     * 
+     * @return <code>LocationRender</code>: The location icons and text to display
+     *         on the global map overlay.
+     */
     public final LocationRender getRender() {
 
         return new LocationRender(name, description, icon, pin, pinSize, coordinates.getX(), coordinates.getY(),

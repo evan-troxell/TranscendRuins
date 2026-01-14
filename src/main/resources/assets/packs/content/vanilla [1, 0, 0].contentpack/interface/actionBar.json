@@ -19,7 +19,8 @@
                 "x": "100% - 225",
                 "y": "100% - 250",
                 "width": 90,
-                "height": 90
+                "height": 90,
+                "pointerCapture": true
             },
             "#mainhandButton:active": {
                 "width": 80,
@@ -104,7 +105,14 @@
                         }
                     },
                     "action": {
-                        "type": "attack"
+                        "type": "attack",
+                        "attack": true
+                    },
+                    "onRelease": {
+                        "action": {
+                            "type": "attack",
+                            "attack": false
+                        }
                     }
                 },
                 {

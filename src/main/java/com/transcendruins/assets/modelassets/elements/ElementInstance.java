@@ -280,6 +280,13 @@ public final class ElementInstance extends PrimaryAssetInstance {
         return super.addModelChild(modelChild, attachment);
     }
 
+    @Override
+    public final boolean alive() {
+
+        // TODO write alive code
+        return true;
+    }
+
     private Color mapColor;
 
     public final Color getMapColor() {

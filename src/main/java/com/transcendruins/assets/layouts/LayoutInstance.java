@@ -34,12 +34,29 @@ import com.transcendruins.world.AreaGrid;
  */
 public final class LayoutInstance extends AssetInstance {
 
+    /**
+     * <code>GlobalLocationInstance</code>: The location of this
+     * <code>LayoutInstance</code> instance.
+     */
     private final GlobalLocationInstance location;
 
+    /**
+     * <code>WeightedRoll&lt;GenerationPlacement&gt;</code>: The spawn location of
+     * this <code>LayoutInstance</code> instance.
+     */
     private WeightedRoll<GenerationPlacement> spawn;
 
+    /**
+     * <code>GenerationLayout</code>: The default generation layout of this
+     * <code>LayoutInstance</code> instance.
+     */
     private GenerationLayout generation;
 
+    /**
+     * Generates the contents of this <code>LayoutInstance</code> instance.
+     * 
+     * @return <code>AreaGrid</code>: The generated contents.
+     */
     public final AreaGrid generate() {
 
         DeterministicRandom random = getRandom();

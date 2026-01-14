@@ -2,7 +2,6 @@ package com.transcendruins.assets.modelassets.attack;
 
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.Instance;
-import com.transcendruins.assets.modelassets.entities.EntityInstance;
 
 public final class AttackInstance extends Instance {
 
@@ -20,11 +19,11 @@ public final class AttackInstance extends Instance {
         return range;
     }
 
-    private double duration;
+    private double speed = -1;
 
-    public final double getDuration() {
+    public final double getSpeed() {
 
-        return duration;
+        return speed;
     }
 
     private double cooldown;
@@ -34,35 +33,14 @@ public final class AttackInstance extends Instance {
         return cooldown;
     }
 
-    private long prevTime = -1;
-
-    public final boolean canCall(long time) {
-
-        return range >= 0 && (prevTime == -1 || cooldown > -1 && 1000 * cooldown <= time - prevTime);
-    }
-
-    public final long call(long time, EntityInstance target) {
-
-        if (!canCall(time)) {
-
-            return -1;
-        }
-
-        prevTime = time;
-
-        target.inflict(this);
-
-        return time + (long) (duration * 1000);
-    }
-
     @Override
     public void applyAttributes(Attributes attributeSet) {
 
         AttackSchema attributes = (AttackSchema) attributeSet;
 
         damage = calculateAttribute(attributes.getDamage(), damage, attributes, 0);
-        range = calculateAttribute(attributes.getRange(), range, attributes, -1.0);
-        duration = calculateAttribute(attributes.getDuration(), duration, attributes, 0.0);
+        range = calculateAttribute(attributes.getRange(), range, attributes, 0.0);
+        speed = calculateAttribute(attributes.getSpeed(), speed, attributes, -1.0);
         cooldown = calculateAttribute(attributes.getCooldown(), cooldown, attributes, 0.0);
     }
 }

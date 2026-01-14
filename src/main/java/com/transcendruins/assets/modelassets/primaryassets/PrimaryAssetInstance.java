@@ -346,6 +346,8 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         return getParentPolygons(model, boneActors, position, rotation);
     }
 
+    public abstract boolean alive();
+
     /**
      * Creates a new instance of the <code>PrimaryAssetInstance</code> class.
      * 

@@ -142,8 +142,8 @@ public final class AssetSchema {
      * event.
      * 
      * @param event <code>String</code>: The event to check for.
-     * @return <code>boolean</code>: If the <code>events</code> field of this
-     *         <code>AssetSchema</code> contains the event.
+     * @return <code>boolean</code>: Whether or not the <code>events</code> field of
+     *         this <code>AssetSchema</code> contains the event.
      */
     public boolean containsEvent(String event) {
 

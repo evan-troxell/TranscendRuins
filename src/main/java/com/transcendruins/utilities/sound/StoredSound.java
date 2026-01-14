@@ -119,8 +119,8 @@ public final class StoredSound {
          * 
          * @param decibels <code>float</code>: The decibel volume of the sound to play,
          *                 beginning at <code>0.0</code> for the original volume.
-         * @return <code>boolean</code>: If the sound successfully ran without
-         *         exception.
+         * @return <code>boolean</code>: Whether or not the sound successfully ran
+         *         without exception.
          */
         public boolean run(float decibels);
     }

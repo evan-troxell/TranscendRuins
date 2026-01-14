@@ -18,7 +18,6 @@ package com.transcendruins.assets.models;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.jme3.math.Vector2f;
@@ -26,7 +25,6 @@ import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.geometry.Quaternion;
 import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.renderbuffer.LightData;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -100,8 +98,19 @@ public final class ModelAttributes extends AssetAttributes {
         return vertices;
     }
 
+    /**
+     * <code>ImmutableList&lt;Vector2f&gt;</code>: The UV coordinates of this
+     * <code>ModelAttributes</code> instance. Each UV vector corresponds to the
+     * vertex with the same index.
+     */
     private final ImmutableList<Vector2f> uvs;
 
+    /**
+     * Retrieves the UV coordinates of this <code>ModelAttributes</code> instance.
+     * 
+     * @return <code>ImmutableList&lt;Vector2f&gt;</code>: The <code>uvs</code>
+     *         field of this <code>ModelAttributes</code> instance.
+     */
     public final ImmutableList<Vector2f> getUvs() {
 
         return uvs;
@@ -124,15 +133,35 @@ public final class ModelAttributes extends AssetAttributes {
         return polygons;
     }
 
+    /**
+     * <code>ImmutableList&lt;LightData&gt;</code>: The lights of this
+     * <code>ModelAttributes</code> instance.
+     */
     private final ImmutableList<LightData> lights;
 
+    /**
+     * Retrieves the lights of this <code>ModelAttributes</code> instance.
+     * 
+     * @return <code>ImmutableList&lt;LightData&gt;</code>: The <code>lights</code>
+     *         field of this <code>ModelAttributes</code> instance.
+     */
     public final ImmutableList<LightData> getLights() {
 
         return lights;
     }
 
+    /**
+     * <code>Bone</code>: The root bone of this <code>ModelAttributes</code>
+     * instance.
+     */
     private final Bone root;
 
+    /**
+     * Retrieves the root bone of this <code>ModelAttributes</code> instance.
+     * 
+     * @return <code>Bone</code>: The <code>root</code> field of this
+     *         <code>ModelAttributes</code> instance.
+     */
     public final Bone getRoot() {
 
         return root;
@@ -480,11 +509,16 @@ public final class ModelAttributes extends AssetAttributes {
         /**
          * Retrieves the weighted vertex of this <code>WeightedVertex</code> instance.
          * 
-         * @param weights <code>Map&lt;String, Vector&gt;</code>: The map of bones to
-         *                their respective vertex which should be applied.
+         * @param vertices <code>Map&lt;Vector, Double&gt;</code>: The map of modified
+         *                 vertices to their weights.
          * @return <code>Vector</code>: The generated vertex.
          */
         public final Vector getWeightedVertex(Map<Vector, Double> vertices) {
+
+            if (vertices == null) {
+
+                return baseVertex;
+            }
 
             Vector returnVertex = Vector.IDENTITY_VECTOR;
             double weightSum = 0.0;
@@ -502,23 +536,6 @@ public final class ModelAttributes extends AssetAttributes {
             }
 
             return returnVertex.multiply(1.0 / weightSum);
-        }
-
-        public static final List<Vector> getWeightedVertices(List<WeightedVertex> weightedVertices,
-                Map<Integer, Map<Vector, Double>> vertices, Vector position, Quaternion rotation, Vector pivotPoint) {
-
-            int verticesCount = weightedVertices.size();
-            ArrayList<Vector> newVertices = new ArrayList<>(verticesCount);
-
-            for (int i = 0; i < verticesCount; i++) {
-
-                WeightedVertex weighted = weightedVertices.get(i);
-                Vector v = (vertices.containsKey(i)) ? weighted.getWeightedVertex(vertices.get(i))
-                        : weighted.baseVertex;
-                newVertices.add(v.subtract(pivotPoint).rotate(rotation).add(position));
-            }
-
-            return newVertices;
         }
     }
 
@@ -538,8 +555,10 @@ public final class ModelAttributes extends AssetAttributes {
         /**
          * Creates a new instance of the <code>Bone</code> class.
          * 
-         * @param modelJson <code>TracedDictionary</code>: The JSON from which to create
-         *                  this <code>Bone</code> instance.
+         * @param modelJson   <code>TracedDictionary</code>: The JSON from which to
+         *                    create this <code>Bone</code> instance.
+         * @param allBonesMap <code>HashMap&lt;String, Bone&gt;</code>: The map of all
+         *                    bones in the model. Duplicate bone names are not allowed.
          * @throws LoggedException Thrown to represent any exception raised which
          *                         creating the bone.
          */
@@ -630,9 +649,19 @@ public final class ModelAttributes extends AssetAttributes {
             return new Bone(tags, vertexWeights, pivotPoint, bones);
         }
 
+        /**
+         * <code>BoneConsumer</code>: A functional interface that operates on a bone.
+         */
         @FunctionalInterface
         public interface BoneConsumer {
 
+            /**
+             * Performs this operation on the given bone.
+             * 
+             * @param bone       <code>String</code>: The reference name of the bone.
+             * @param boneActor  <code>BoneActor</code>: The bone actor applied.
+             * @param pivotPoint <code>Vector</code>: The pivot point to center around.
+             */
             public void accept(String bone, BoneActor boneActor, Vector pivotPoint);
         }
 

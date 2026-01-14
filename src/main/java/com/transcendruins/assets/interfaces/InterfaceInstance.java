@@ -104,11 +104,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
      */
     private final long playerId;
 
-    public final long getPlayerId() {
-
-        return playerId;
-    }
-
     /**
      * <code>ComponentInstance</code>: The parent component of this
      * <code>InterfaceInstance</code> instance. This is the parent which will be
@@ -268,6 +263,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         @Override
+        public UIComponent getParent() {
+
+            return parent;
+        }
+
+        @Override
         public List<UIComponent> getChildren() {
 
             return new ArrayList<>(children);
@@ -356,6 +357,13 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private final boolean defaultPropagateEvents;
 
         private Style.TriggerPhase triggerPhase;
+        private boolean pointerCapture;
+
+        @Override
+        public final boolean getPointerCapture() {
+
+            return pointerCapture;
+        }
 
         @Override
         public final int getX() {
@@ -601,6 +609,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             displayMode = style.display();
 
             triggerPhase = style.triggerPhase();
+            pointerCapture = style.pointerCapture();
         }
 
         public static final record ImageClip(int x, int y, BufferedImage image) {
@@ -1278,6 +1287,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             if (triggerPhase == Style.TriggerPhase.PRESS) {
 
                 onComponentClick(mouseX, mouseY, value, time);
+            } else {
+
+                onComponentRelease(mouseX, mouseY, value, time);
             }
 
             if (propagateEvents == null) {
@@ -1291,7 +1303,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public boolean onTriggerRelease(int mouseX, int mouseY, TRScript value, long time) {
 
-            if (triggerPhase == Style.TriggerPhase.RELEASE) {
+            if (triggerPhase == Style.TriggerPhase.PRESS) {
+
+                onComponentRelease(mouseX, mouseY, value, time);
+            } else {
 
                 onComponentClick(mouseX, mouseY, value, time);
             }
@@ -1305,6 +1320,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         public void onComponentClick(int mouseX, int mouseY, TRScript value, long time) {
+        }
+
+        public void onComponentRelease(int mouseX, int mouseY, TRScript value, long time) {
         }
 
         @Override
@@ -1468,14 +1486,17 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
     public final class ButtonComponentInstance extends ComponentInstance {
 
-        private final ComponentAction action;
+        private final ComponentAction onPress;
+
+        private final ComponentAction onRelease;
 
         public ButtonComponentInstance(ButtonComponentSchema schema, ComponentInstance parent,
                 DeterministicRandom random) {
 
             super(schema, parent, false, random);
 
-            action = schema.getAction();
+            onPress = schema.getOnPress();
+            onRelease = schema.getOnRelease();
         }
 
         public ButtonComponentInstance(ButtonComponentSchema schema, ComponentInstance parent,
@@ -1483,7 +1504,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             super(schema, parent, false, random);
 
-            this.action = ComponentAction.createComponentAction(action);
+            onPress = ComponentAction.createComponentAction(action);
+            onRelease = null;
         }
 
         @Override
@@ -1532,7 +1554,17 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public final void onComponentClick(int mouseX, int mouseY, TRScript value, long time) {
 
-            action.call(InterfaceInstance.this, playerId, value);
+            onPress.call(InterfaceInstance.this, playerId, value);
+        }
+
+        @Override
+        public final void onComponentRelease(int mouseX, int mouseY, TRScript value, long time) {
+
+            if (onRelease == null) {
+
+                return;
+            }
+            onRelease.call(InterfaceInstance.this, playerId, value);
         }
     }
 
@@ -2903,6 +2935,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
     }
 
     @Override
+    public UIComponent getParent() {
+
+        return componentParent;
+    }
+
+    @Override
     public final List<UIComponent> getChildren() {
 
         return List.of(body);
@@ -2971,5 +3009,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         g2d.drawImage(bodyRender, bodyOffsetX, bodyOffsetY, null);
 
         return render;
+    }
+
+    @Override
+    public boolean getPointerCapture() {
+
+        return false;
     }
 }

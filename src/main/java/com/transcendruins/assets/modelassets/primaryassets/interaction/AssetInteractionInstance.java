@@ -32,9 +32,19 @@ public abstract class AssetInteractionInstance {
         return position.rotate(rotation).add(offset);
     }
 
+    private final double duration;
+
+    public final double getDuration() {
+
+        return duration;
+    }
+
     private final double cooldown;
 
-    private long prevTime = -1;
+    public final double getCooldown() {
+
+        return cooldown;
+    }
 
     private final ImmutableList<TRScript> conditions;
 
@@ -56,26 +66,13 @@ public abstract class AssetInteractionInstance {
     public AssetInteractionInstance(AssetInteractionSchema schema) {
 
         position = schema.getPosition();
+        duration = schema.getDuration();
         cooldown = schema.getCooldown();
         conditions = schema.getConditions();
         event = schema.getEvent();
     }
 
-    public final boolean canCall(PrimaryAssetInstance self, long time) {
-
-        // If it has been previously called and the interaction has not reset, do not
-        // call again.
-        if (prevTime > -1 && (cooldown == -1 || time - prevTime < 1000 * cooldown)) {
-
-            return false;
-        }
-
-        return passes(self);
-    }
-
-    public final long call(PrimaryAssetInstance self, long time, Player caller) {
-
-        prevTime = time;
+    public final void call(PrimaryAssetInstance self, double time, Player caller) {
 
         self.executeEvent(AssetEvent.ON_INTERACT);
 
@@ -84,10 +81,10 @@ public abstract class AssetInteractionInstance {
             self.executeEvent(eventKey);
         }
 
-        return onCall(self, time, caller);
+        onCall(self, time, caller);
     }
 
-    protected abstract long onCall(PrimaryAssetInstance self, long time, Player caller);
+    protected abstract void onCall(PrimaryAssetInstance self, double time, Player caller);
 
     public static final AssetInteractionInstance createInteraction(AssetInteractionSchema schema) {
 
@@ -104,9 +101,8 @@ public abstract class AssetInteractionInstance {
         default -> new AssetInteractionInstance(schema) {
 
             @Override
-            public final long onCall(PrimaryAssetInstance self, long time, Player caller) {
+            public final void onCall(PrimaryAssetInstance self, double time, Player caller) {
 
-                return -1;
             }
         };
         };
@@ -125,14 +121,12 @@ public abstract class AssetInteractionInstance {
         }
 
         @Override
-        public final long onCall(PrimaryAssetInstance self, long time, Player caller) {
+        public final void onCall(PrimaryAssetInstance self, double time, Player caller) {
 
             for (AssetInteractionInstance action : interaction) {
 
                 action.call(self, time, caller);
             }
-
-            return -1;
         }
     }
 
@@ -144,11 +138,9 @@ public abstract class AssetInteractionInstance {
         }
 
         @Override
-        public final long onCall(PrimaryAssetInstance self, long time, Player caller) {
+        public final void onCall(PrimaryAssetInstance self, double time, Player caller) {
 
             caller.displayInventory(self);
-
-            return -1;
         }
     }
 
@@ -160,7 +152,7 @@ public abstract class AssetInteractionInstance {
         }
 
         @Override
-        public final long onCall(PrimaryAssetInstance self, long time, Player caller) {
+        public final void onCall(PrimaryAssetInstance self, double time, Player caller) {
 
             World world = self.getWorld();
             EntityInstance playerEntity = caller.getEntity();
@@ -177,7 +169,7 @@ public abstract class AssetInteractionInstance {
 
             if (!locationSpecified && !areaSpecified && !targetSpecified) {
 
-                return -1;
+                return;
             }
 
             GlobalLocationInstance location = world
@@ -186,7 +178,7 @@ public abstract class AssetInteractionInstance {
             // Return if the specified location does not exist.
             if (location == null) {
 
-                return -1;
+                return;
             }
 
             AreaGrid area = areaSpecified ? location.getArea(areaName)
@@ -195,7 +187,7 @@ public abstract class AssetInteractionInstance {
             // Return if the specified area does not exist.
             if (area == null) {
 
-                return -1;
+                return;
             }
 
             PlayerSpawn spawn = null;
@@ -251,7 +243,6 @@ public abstract class AssetInteractionInstance {
             }
 
             world.travel(caller, locationName, spawn);
-            return -1;
         }
     }
 }

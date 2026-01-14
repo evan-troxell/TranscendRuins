@@ -160,6 +160,18 @@ public final class ItemInstance extends ModelAssetInstance {
         return attack;
     }
 
+    private Double detectionRange;
+
+    public final Double getDetectionRange() {
+
+        return detectionRange;
+    }
+
+    public final boolean intact() {
+
+        return true; // TODO add intact code
+    }
+
     /**
      * Creates a new instance of the <code>ItemInstance</code> class.
      * 
@@ -195,6 +207,8 @@ public final class ItemInstance extends ModelAssetInstance {
         setProperty("icon", iconPath);
 
         computeAttribute(attributes.getAttack(), attack::applyAttributes, attributes, AttackSchema.DEFAULT);
+
+        detectionRange = calculateAttribute(attributes.getDetectionRange(), detectionRange, attributes, null);
     }
 
     @Override

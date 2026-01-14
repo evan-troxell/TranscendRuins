@@ -16,8 +16,8 @@ import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
 
 /**
- * <code>ComponentAction</code>: An abstract class representing the schema of a
- * UI component action.
+ * <code>ComponentAction</code>: An abstract class representing a UI component
+ * action.
  */
 public abstract class ComponentAction {
 
@@ -76,12 +76,26 @@ public abstract class ComponentAction {
         })));
     }
 
+    /**
+     * <code>OnCall</code>: A functional interface that operates on an interface,
+     * player ID, and value.
+     */
     @FunctionalInterface
     public interface OnCall {
 
+        /**
+         * Performs this operation on a given interface and player ID.
+         * 
+         * @param asset    <code>InterfaceInstance</code>: The interface.
+         * @param playerId <code>long</code>: The player ID.
+         * @param value    <code>TRScript</code>: The value to apply.
+         */
         public void onCall(InterfaceInstance asset, long playerId, TRScript value);
     }
 
+    /**
+     * Creates a new, empty instance of the <code>ComponentAction</code> class.
+     */
     private ComponentAction() {
 
         conditions = new ImmutableList<>();
@@ -183,8 +197,8 @@ public abstract class ComponentAction {
 
             super(json);
 
-            TracedEntry<Integer> selectEntry = json.getAsInteger("count", true, -1, num -> num > 0 || num == -1);
-            count = selectEntry.getValue();
+            TracedEntry<Integer> countEntry = json.getAsInteger("count", true, -1, num -> num > 0 || num == -1);
+            count = countEntry.getValue();
 
             action = json.get("action", List.of(
 
@@ -327,23 +341,26 @@ public abstract class ComponentAction {
         @Override
         protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
 
-            long time = System.currentTimeMillis();
-            asset.getWorld().playerConsumer(playerId, player -> player.interact(time));
+            asset.getWorld().playerConsumer(playerId, player -> player.interact());
         }
     }
 
     public static final class AttackComponentAction extends ComponentAction {
 
+        private final boolean attack;
+
         public AttackComponentAction(TracedDictionary json) throws LoggedException {
 
             super(json);
+
+            TracedEntry<Boolean> attackEntry = json.getAsBoolean("attack", false, null);
+            attack = attackEntry.getValue();
         }
 
         @Override
         protected void onCall(InterfaceInstance asset, long playerId, TRScript value) {
 
-            long time = System.currentTimeMillis();
-            asset.getWorld().playerConsumer(playerId, player -> player.attack(time));
+            asset.getWorld().playerConsumer(playerId, player -> player.attack(attack));
         }
     }
 

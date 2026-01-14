@@ -209,7 +209,7 @@ public final class PackDependency {
      * string as this <code>PackDependency</code> instance.
      * 
      * @param identifier <code>Identifier</code>: The identifier to check.
-     * @return <code>boolean</code>: If the identifier strings match.
+     * @return <code>boolean</code>: Whether or not the identifier strings match.
      */
     public boolean compatible(Identifier identifier) {
 
@@ -241,7 +241,7 @@ public final class PackDependency {
      * are less than another <code>Version</code> instance.
      * 
      * @param version <code>Version</code>: The version to check.
-     * @return <code>boolean</code>: If the other version is lower.
+     * @return <code>boolean</code>: Whether or not the other version is lower.
      */
     public boolean isLessThan(Version version) {
 

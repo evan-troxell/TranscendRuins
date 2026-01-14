@@ -318,7 +318,8 @@ public final class Identifier {
      * instance matches that of this <code>Identifier</code> instance.
      * 
      * @param identifier <code>Identifier</code>: The identifier to compare.
-     * @return <code>boolean</code>: If the other identifier is compatible.
+     * @return <code>boolean</code>: Whether or not the other identifier is
+     *         compatible.
      */
     public boolean compatible(Identifier identifier) {
 

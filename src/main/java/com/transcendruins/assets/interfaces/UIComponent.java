@@ -210,6 +210,13 @@ public interface UIComponent {
     }
 
     /**
+     * Retrieves the parent component of this <code>UIComponent</code> instance.
+     * 
+     * @return <code>UIComponent</code>: The immediate parent UI component.
+     */
+    public UIComponent getParent();
+
+    /**
      * Retrieves the children components of this <code>UIComponent</code> instance.
      * 
      * @return <code>List&lt;UIComponent&gt;</code>: The children UI components,
@@ -300,6 +307,8 @@ public interface UIComponent {
 
         return false;
     }
+
+    public boolean getPointerCapture();
 
     /**
      * Calculates whether or not this <code>UIComponent</code> instance contains a

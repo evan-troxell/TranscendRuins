@@ -32,6 +32,7 @@ import com.transcendruins.geometry.Quaternion;
 import com.transcendruins.geometry.Vector;
 import com.transcendruins.world.AreaGrid;
 import com.transcendruins.world.World;
+import com.transcendruins.world.calls.AttackCall;
 
 /**
  * <code>EntityInstance</code>: A class representing a generated entity
@@ -200,18 +201,12 @@ public final class EntityInstance extends PrimaryAssetInstance {
         return super.addModelChild(modelChild, attachment);
     }
 
-    private long attackEnd = -1;
-
-    private boolean attacking = false;
-
-    public final boolean isAttacking() {
-
-        return attacking;
-    }
-
     private ItemInstance mainhandItem;
 
-    private final AttackInstance attack = new AttackInstance();
+    public final ItemInstance getMainhandItem() {
+
+        return mainhandItem;
+    }
 
     @Override
     public final void updateSlot(String name, ItemInstance item) {
@@ -222,23 +217,148 @@ public final class EntityInstance extends PrimaryAssetInstance {
         }
     }
 
+    private final AttackInstance attack = new AttackInstance();
+
     public final AttackInstance getAttack() {
 
         return mainhandItem == null ? attack : mainhandItem.getAttack();
     }
 
-    public final void attack(long time, AttackInstance attack, EntityInstance target) {
+    private double detectionRange;
 
-        if (attackEnd > -1 && time < attackEnd) {
+    public final double getDetectionRange() {
+
+        if (mainhandItem == null) {
+
+            return detectionRange;
+        }
+
+        Double mainhandDetectionRange = mainhandItem.getDetectionRange();
+        return mainhandDetectionRange == null ? detectionRange : mainhandDetectionRange;
+    }
+
+    private AttackCall attackCall;
+
+    /**
+     * Sets the current attack context.
+     * 
+     * @param attackCall <code>AttackCall</code>: The attack to apply.
+     */
+    public final void setAttack(AttackCall attackCall) {
+
+        this.attackCall = attackCall;
+    }
+
+    private boolean attemptAttack;
+
+    private boolean attackLocked;
+
+    public final boolean getAttackLocked() {
+
+        return attackLocked;
+    }
+
+    public final boolean attack(boolean attack) {
+
+        attemptAttack = attack;
+        if (attack && attackCall != null) {
+
+            System.out.println("ATTACK LOCKED");
+            attackLocked = true;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private double attackStart = -1;
+
+    private boolean attacked = false;
+
+    private void startAttack(double time) {
+
+        System.out.println("ATTACK");
+
+        attackStart = time;
+        attacked = false;
+
+        // TODO play attack animation
+    }
+
+    public final void stopAttack() {
+
+        System.out.println("ATTACK ENDED");
+
+        attackLocked = false;
+        attackStart = -1;
+        // TODO stop attack animation
+    }
+
+    private void updateAttack(double time) {
+
+        // If the attack is not locked or the attack can't be performed, stop the attack
+        // sequence.
+        if (!attackLocked || attackCall == null || !attackCall.isValid()) {
+
+            attackLocked = false;
+            attackStart = -1;
+            return;
+        }
+
+        AttackInstance attackInstance = attackCall.attack();
+
+        // If the entity is still tracking the target, check if the entity reached the
+        // attack range.
+        if (attackStart == -1) {
+
+            double range = attackInstance.getRange() * World.UNIT_TILE;
+
+            Vector displacement = getPosition().subtract(attackCall.target().getPosition());
+            double r_sqr = displacement.dot(displacement);
+
+            if (r_sqr <= range * range) {
+
+                startAttack(time);
+            }
 
             return;
         }
 
-        attacking = true;
-        attackEnd = attack.call(time, target);
+        System.out.println("ATTACK TIME: " + (time - attackStart));
+
+        double speed = attackInstance.getSpeed();
+        double duration = speed > 0 ? 1.0 / speed : 0;
+        double preDuration = (1 - attackInstance.getCooldown()) * duration;
+
+        // If the attack has not been inflicted yet, check if the duration has
+        // concluded.
+        if (!attacked && attackStart + preDuration <= time) {
+
+            System.out.println("ATTACK FINISHED");
+            attackCall.target().inflict(attackInstance);
+            attacked = true;
+        }
+
+        // Check if the duration and end cooldown has concluded to end the attack.
+        if (attackStart + duration <= time) {
+
+            System.out.println("ATTACK RESET");
+            attackStart = -1;
+            attackLocked = attemptAttack;
+        }
     }
 
     public final void inflict(AttackInstance attack) {
+
+        // TODO write damage code
+    }
+
+    @Override
+    public final boolean alive() {
+
+        // TODO write alive code
+        return true;
     }
 
     private String mapIconPath;
@@ -280,6 +400,8 @@ public final class EntityInstance extends PrimaryAssetInstance {
 
         computeAttribute(attributes.getAttack(), attack::applyAttributes, attributes, AttackSchema.DEFAULT);
 
+        detectionRange = calculateAttribute(attributes.getDetectionRange(), detectionRange, attributes, 7.5);
+
         mapIcon = calculateAttribute(attributes.getMapIcon(), iconPath -> {
 
             mapIconPath = iconPath;
@@ -289,5 +411,7 @@ public final class EntityInstance extends PrimaryAssetInstance {
 
     @Override
     protected void onPrimaryAssetUpdate(double time) {
+
+        updateAttack(time);
     }
 }

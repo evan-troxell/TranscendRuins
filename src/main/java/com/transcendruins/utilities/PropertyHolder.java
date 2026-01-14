@@ -62,17 +62,6 @@ public abstract class PropertyHolder {
     }
 
     /**
-     * Retrieves the parent asset to this <code>PropertyHolder</code> instance.
-     * 
-     * @return <code>PropertyHolder</code>: The <code>parent</code> field of this
-     *         <code>PropertyHolder</code> instance.
-     */
-    public final PropertyHolder getParent() {
-
-        return parent;
-    }
-
-    /**
      * <code>HashMap&lt;String, Object&gt;</code>: The set of private properties of
      * this <code>PropertyHolder</code> instance.
      */

@@ -23,11 +23,11 @@ public final class AttackSchema extends Attributes {
         return range;
     }
 
-    private final Double duration;
+    private final Double speed;
 
-    public final Double getDuration() {
+    public final Double getSpeed() {
 
-        return duration;
+        return speed;
     }
 
     private final Double cooldown;
@@ -37,12 +37,12 @@ public final class AttackSchema extends Attributes {
         return cooldown;
     }
 
-    public AttackSchema(Integer damage, Double range, Double duration, Double cooldown, boolean isBase) {
+    public AttackSchema(Integer damage, Double range, Double speed, Double cooldown, boolean isBase) {
 
         super(isBase);
         this.damage = damage;
         this.range = range;
-        this.duration = duration;
+        this.speed = speed;
         this.cooldown = cooldown;
     }
 
@@ -54,18 +54,18 @@ public final class AttackSchema extends Attributes {
         TracedEntry<Double> attackRangeEntry = json.getAsDouble("attackRange", true, null, num -> num >= 0);
         Double attackRange = attackRangeEntry.getValue();
 
-        TracedEntry<Double> attackDurationEntry = json.getAsDouble("attackDuration", true, null, num -> num >= 0);
-        Double attackDuration = attackDurationEntry.getValue();
+        TracedEntry<Double> attackSpeedEntry = json.getAsDouble("attackSpeed", true, null, num -> num > 0 || num == -1);
+        Double attackSpeed = attackSpeedEntry.getValue();
 
         TracedEntry<Double> attackCooldownEntry = json.getAsDouble("attackCooldown", true, null,
-                num -> num >= 0 || num == -1);
+                num -> 0 <= num && num <= 1);
         Double attackCooldown = attackCooldownEntry.getValue();
 
-        if (attackRange == null && damage == null && attackDuration == null && attackCooldown == null) {
+        if (attackRange == null && damage == null && attackSpeed == null && attackCooldown == null) {
 
             return null;
         }
 
-        return new AttackSchema(damage, attackRange, attackDuration, attackCooldown, isBase);
+        return new AttackSchema(damage, attackRange, attackSpeed, attackCooldown, isBase);
     }
 }

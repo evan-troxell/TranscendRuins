@@ -155,7 +155,7 @@ public final class Version {
      * version.
      * 
      * @param version <code>Version</code>: The version to compare.
-     * @return <code>boolean</code>: If the inequality
+     * @return <code>boolean</code>: Whether or not the inequality
      *         <code>this &lt; version</code> holds true.
      */
     public boolean lessThan(Version version) {
@@ -186,7 +186,7 @@ public final class Version {
      * another version.
      * 
      * @param version <code>Version</code>: The version to compare.
-     * @return <code>boolean</code>: If the inequality
+     * @return <code>boolean</code>: Whether or not the inequality
      *         <code>this &lt;= version </code> holds true.
      */
     public boolean lessThanEqual(Version version) {
@@ -217,7 +217,7 @@ public final class Version {
      * version.
      * 
      * @param version <code>Version</code>: The version to compare.
-     * @return <code>boolean</code>: If the inequality
+     * @return <code>boolean</code>: Whether or not the inequality
      *         <code>this &gt; version </code> holds true.
      */
     public boolean greaterThan(Version version) {
@@ -248,7 +248,7 @@ public final class Version {
      * to another version.
      * 
      * @param version <code>Version</code>: The version to compare.
-     * @return <code>boolean</code>: If the inequality
+     * @return <code>boolean</code>: Whether or not the inequality
      *         <code>this &gt;= version </code> holds true.
      */
     public boolean greaterThanEqual(Version version) {
@@ -280,7 +280,7 @@ public final class Version {
      * 
      * @param min <code>Version</code>: The minimum version to compare.
      * @param max <code>Version</code>: The maximum version to compare.
-     * @return <code>boolean</code>: If the
+     * @return <code>boolean</code>: Whether or not the
      *         inequality<code>min &lt;= this &lt; max</code> holds true.
      */
     public boolean isInRange(Version min, Version max) {

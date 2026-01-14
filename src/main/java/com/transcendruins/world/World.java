@@ -523,7 +523,7 @@ public final class World extends PropertyHolder {
                 for (String location : newLocations) {
 
                     GlobalLocationSchema schema = locationSchemas.get(location);
-                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this, location);
+                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
                     locations.put(location, instance);
                 }
             }
@@ -870,7 +870,7 @@ public final class World extends PropertyHolder {
 
     public final RenderBuffer getPolygons(long playerId) {
 
-        return playerFunction(playerId, player -> getLocation(player.getLocation()).getArea(player).getPolygons());
+        return playerFunction(playerId, player -> getLocation(player.getLocation()).getPolygons(player));
     }
 
     public final <K> K playerFunction(long playerId, Function<Player, K> operator) {
@@ -959,7 +959,7 @@ public final class World extends PropertyHolder {
                 for (String location : newLocations) {
 
                     GlobalLocationSchema schema = locationSchemas.get(location);
-                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this, location);
+                    GlobalLocationInstance instance = new GlobalLocationInstance(schema, this);
                     locations.put(location, instance);
                 }
 
@@ -976,8 +976,6 @@ public final class World extends PropertyHolder {
                 // Update the UIs and recompute interacts.
                 for (Player player : players.values()) {
 
-                    player.updateUiPanels(runtime);
-
                     String playerLocation = player.getLocation();
                     boolean inLocation = !player.onGlobalMap() && locations.containsKey(playerLocation);
 
@@ -987,12 +985,12 @@ public final class World extends PropertyHolder {
                         AreaGrid area = location.getArea(player);
 
                         player.setInteraction(area.getNearestInteraction(player, time));
-                        player.setAttack(area.getNearestTarget(player.getEntity()));
                     } else {
 
                         player.setInteraction(null);
-                        player.setAttack(null);
                     }
+
+                    player.update(runtime);
                 }
             }
 

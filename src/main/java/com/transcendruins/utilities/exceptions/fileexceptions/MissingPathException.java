@@ -28,8 +28,8 @@ public final class MissingPathException extends FileException {
      * Creates a new instance of the <code>MissingPathException</code> exception.
      * 
      * @param path        <code>TracedPath</code>: The missing filepath to log.
-     * @param isDirectory <code>boolean</code>: If the path to check for is a
-     *                    directory.
+     * @param isDirectory <code>boolean</code>: Whether or not the path to check for
+     *                    is a directory.
      */
     public MissingPathException(TracedPath path, boolean isDirectory) {
 

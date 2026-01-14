@@ -263,7 +263,8 @@ public final class StyleSet {
          * Determines whether or not a character is a combinator.
          * 
          * @param c <code>char</code>: The character to check.
-         * @return <code>boolean</code>: If the character was a valid combinator.
+         * @return <code>boolean</code>: Whether or not the character was a valid
+         *         combinator.
          */
         private boolean isCombinator(char c) {
 
@@ -276,8 +277,9 @@ public final class StyleSet {
          * 
          * @param properties <code>ComponentProperties</code>: The component properties
          *                   to check.
-         * @return <code>boolean</code>: If the component met all of the conditions in
-         *         at least one case of this <code>StyleSet</code> instance.
+         * @return <code>boolean</code>: Whether or not the component met all of the
+         *         conditions in at least one case of this <code>StyleSet</code>
+         *         instance.
          */
         public final boolean matches(ComponentProperties properties) {
 
@@ -339,9 +341,9 @@ public final class StyleSet {
          *                    properties against.
          * @param combinators <code>List&lt;ComponentCombinator&gt;</code>: The
          *                    sequential operators to match.
-         * @return <code>boolean</code>: If the component met all of the conditions in
-         *         this <code>CombinatorOperator</code> instance and the subsequent
-         *         cases.
+         * @return <code>boolean</code>: Whether or not the component met all of the
+         *         conditions in this <code>CombinatorOperator</code> instance and the
+         *         subsequent cases.
          */
         public boolean operate(ComponentProperties properties, ComponentSelector selector,
                 List<ComponentCombinator> combinators);
@@ -470,7 +472,8 @@ public final class StyleSet {
          * Determines whether or not a character is a separator.
          * 
          * @param c <code>char</code>: The character to check.
-         * @return <code>boolean</code>: If the character was a valid separator.
+         * @return <code>boolean</code>: Whether or not the character was a valid
+         *         separator.
          */
         private boolean isSeparator(char c) {
 
@@ -483,9 +486,9 @@ public final class StyleSet {
          * 
          * @param properties <code>ComponentProperties</code>: The component properties
          *                   to check.
-         * @return <code>boolean</code>: If the component met all of the conditions in
-         *         this <code>ComponentSelector</code> instance and the subsequent
-         *         cases.
+         * @return <code>boolean</code>: Whether or not the component met all of the
+         *         conditions in this <code>ComponentSelector</code> instance and the
+         *         subsequent cases.
          */
         public final boolean matches(ComponentProperties properties) {
 

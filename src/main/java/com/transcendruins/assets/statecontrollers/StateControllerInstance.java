@@ -64,10 +64,10 @@ public final class StateControllerInstance extends AssetInstance {
     private double timeOfCreation;
 
     /**
-     * <code>double</code>: The current timestamp of this
-     * <code>StateControllerInstance</code> instance in seconds.
+     * <code>double</code>: The time, in seconds, since this
+     * <code>StateControllerInstance</code> instance was created.
      */
-    private double timestamp;
+    private double timeLength;
 
     /**
      * <code>ArrayList&lt;AnimationInstance&gt;</code>: The list animations
@@ -126,7 +126,7 @@ public final class StateControllerInstance extends AssetInstance {
         while (animationIterator.hasNext()) {
 
             AnimationInstance animation = animationIterator.next();
-            if (timestamp > animation.getLength() && !animation.getHoldOnFinish()) {
+            if (timeLength > animation.getLength() && !animation.getHoldOnFinish()) {
 
                 animationIterator.remove();
             }
@@ -139,8 +139,8 @@ public final class StateControllerInstance extends AssetInstance {
         }
         setProperty("animations", new ImmutableMap<>(animationsMap));
 
-        timestamp = time - timeOfCreation;
-        setProperty("timestamp", timestamp);
+        timeLength = time - timeOfCreation;
+        setProperty("timeLength", timeLength);
 
         for (AnimationInstance animation : animations) {
 
@@ -152,13 +152,13 @@ public final class StateControllerInstance extends AssetInstance {
      * Advances the current state to another one.
      * 
      * @param state <code>String</code>: The name of the new state.
-     * @param time  <code>double</code>: The timestamp of the new state.
+     * @param time  <code>double</code>: The time of the new state.
      * @return <code>String</code>: The name of the new state.
      */
     private String setState(String state, double time) {
 
         timeOfCreation = time;
-        timestamp = time;
+        timeLength = time;
 
         animations.clear();
 
@@ -218,7 +218,7 @@ public final class StateControllerInstance extends AssetInstance {
         ArrayList<BoneActorSet> boneActors = new ArrayList<>();
         for (AnimationInstance animation : animations) {
 
-            boneActors.add(animation.getKeyFrames(timestamp));
+            boneActors.add(animation.getKeyFrames(timeLength));
         }
 
         // Compile animations into a single set.

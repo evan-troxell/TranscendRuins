@@ -69,13 +69,11 @@
                 "slots": 15
             },
             "named": {
-
                 "mainhand": {
                     "acceptedTypes": [
                         "weapon"
                     ]
                 },
-                
                 "offhand": {
                     "acceptedTypes": [
                         "weapon",
@@ -112,18 +110,28 @@
             }
         },
         "inventoryContents": {
-            "gridX": {
+            "grid": {
                 "lootTable": "TranscendRuins:playerPreload",
                 "chance": 100,
                 "shuffle": true
             },
             "named": {
+                "mainhand": {
+                    "item": "TranscendRuins:ironHatchet",
+                    "chance": 100
+                },
+                "offhand": {
+                    "item": "TranscendRuins:ironPickaxe",
+                    "chance": 50
+                }
             }
         },
         "interaction": {
             "type": "inventory"
         },
         "damage": 6,
-        "attackRange": 2.5
+        "attackRange": 2.5,
+        "attackSpeed": 2,
+        "attackCooldown": 0.33
     }
 }
