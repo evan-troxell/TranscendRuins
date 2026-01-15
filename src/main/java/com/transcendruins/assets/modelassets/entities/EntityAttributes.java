@@ -32,14 +32,14 @@ import com.transcendruins.utilities.json.TracedEntry;
  */
 public final class EntityAttributes extends PrimaryAssetAttributes {
 
-    public final record DoubleDimension(double width, double length) {
+    public final record FloatDimension(float width, float length) {
 
-        public static final DoubleDimension DEFAULT = new DoubleDimension(1.0, 1.0);
+        public static final FloatDimension DEFAULT = new FloatDimension(1.0f, 1.0f);
     }
 
-    private final DoubleDimension tileDimensions;
+    private final FloatDimension tileDimensions;
 
-    public final DoubleDimension getTileDimensions() {
+    public final FloatDimension getTileDimensions() {
 
         return tileDimensions;
     }
@@ -51,9 +51,9 @@ public final class EntityAttributes extends PrimaryAssetAttributes {
         return attack;
     }
 
-    private final Double detectionRange;
+    private final Float detectionRange;
 
-    public final Double getDetectionRange() {
+    public final Float getDetectionRange() {
 
         return detectionRange;
     }
@@ -87,29 +87,29 @@ public final class EntityAttributes extends PrimaryAssetAttributes {
 
             TracedArray tileDimensionsJson = entry.getValue();
 
-            TracedEntry<Double> widthEntry = tileDimensionsJson.getAsDouble(0, false, null, num -> num > 0);
-            double width = widthEntry.getValue();
+            TracedEntry<Float> widthEntry = tileDimensionsJson.getAsFloat(0, false, null, num -> num > 0);
+            float width = widthEntry.getValue();
 
-            TracedEntry<Double> lengthEntry = tileDimensionsJson.getAsDouble(1, false, null, num -> num > 0);
-            double length = lengthEntry.getValue();
+            TracedEntry<Float> lengthEntry = tileDimensionsJson.getAsFloat(1, false, null, num -> num > 0);
+            float length = lengthEntry.getValue();
 
-            return new DoubleDimension(width, length);
+            return new FloatDimension(width, length);
         }), json.dictCase(entry -> {
 
             TracedDictionary tileDimensionsJson = entry.getValue();
 
-            TracedEntry<Double> widthEntry = tileDimensionsJson.getAsDouble("width", false, null, num -> num > 0);
-            double width = widthEntry.getValue();
+            TracedEntry<Float> widthEntry = tileDimensionsJson.getAsFloat("width", false, null, num -> num > 0);
+            float width = widthEntry.getValue();
 
-            TracedEntry<Double> lengthEntry = tileDimensionsJson.getAsDouble("length", false, null, num -> num > 0);
-            double length = lengthEntry.getValue();
+            TracedEntry<Float> lengthEntry = tileDimensionsJson.getAsFloat("length", false, null, num -> num > 0);
+            float length = lengthEntry.getValue();
 
-            return new DoubleDimension(width, length);
+            return new FloatDimension(width, length);
         }), json.nullCase(_ -> null)));
 
         attack = AttackSchema.createAttack(json, isBase);
 
-        TracedEntry<Double> detectionRangeEntry = json.getAsDouble("detectionRange", true, null);
+        TracedEntry<Float> detectionRangeEntry = json.getAsFloat("detectionRange", true, null);
         detectionRange = detectionRangeEntry.getValue();
 
         TracedEntry<String> mapIconEntry = json.getAsString("mapIcon", true, null);

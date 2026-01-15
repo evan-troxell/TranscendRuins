@@ -16,10 +16,10 @@
 
 package com.transcendruins.assets.modelassets.elements;
 
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetContext;
-import com.transcendruins.geometry.Vector;
 
 /**
  * <code>ElementContext</code>: A class representing the instantiation context
@@ -27,9 +27,9 @@ import com.transcendruins.geometry.Vector;
  */
 public final class ElementContext extends PrimaryAssetContext {
 
-    private final Vector tileOffset;
+    private final Vector3f tileOffset;
 
-    public final Vector getTileOffset() {
+    public final Vector3f getTileOffset() {
 
         return tileOffset;
     }
@@ -43,11 +43,11 @@ public final class ElementContext extends PrimaryAssetContext {
      * @param location <code>GlobalLocationInstance</code>: The location of this
      *                 <code>ElementContext</code> instance.
      */
-    public ElementContext(AssetPresets presets, GlobalLocationInstance location, Vector tileOffset) {
+    public ElementContext(AssetPresets presets, GlobalLocationInstance location, Vector3f tileOffset) {
 
         super(presets, location);
 
-        this.tileOffset = tileOffset != null ? tileOffset : Vector.IDENTITY_VECTOR;
+        this.tileOffset = tileOffset;
     }
 
     @Override

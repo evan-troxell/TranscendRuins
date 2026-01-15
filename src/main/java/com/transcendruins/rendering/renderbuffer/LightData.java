@@ -5,7 +5,6 @@ import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedCollection;
 import com.transcendruins.utilities.json.TracedDictionary;
@@ -33,10 +32,10 @@ public final record LightData(int index, ColorRGBA color, float range, Vector3f 
         float innerAngle = 0f;
         float outerAngle = 0f;
 
-        TracedEntry<Vector> directionEntry = json.getAsVector("direction", true, 3);
+        TracedEntry<Vector3f> directionEntry = json.getAsVector3f("direction", true);
         if (directionEntry.containsValue()) {
 
-            Vector direction = directionEntry.getValue();
+            Vector3f direction = directionEntry.getValue();
 
             float x = (float) direction.getX();
             float y = (float) direction.getY();

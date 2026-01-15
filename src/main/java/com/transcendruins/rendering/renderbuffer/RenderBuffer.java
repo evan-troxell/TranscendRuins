@@ -13,12 +13,11 @@ import com.jme3.scene.Geometry;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
 import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.RenderPacket;
 
 public final class RenderBuffer {
 
-    private final ArrayList<Vector> vertices;
+    private final ArrayList<Vector3f> vertices;
 
     private final ArrayList<ModelData> models;
 
@@ -28,7 +27,7 @@ public final class RenderBuffer {
         models = new ArrayList<>();
     }
 
-    public RenderBuffer(ModelAssetInstance asset, List<Vector> vertices, List<Vector2f> uvs, List<Integer> indices,
+    public RenderBuffer(ModelAssetInstance asset, List<Vector3f> vertices, List<Vector2f> uvs, List<Integer> indices,
             BufferedImage texture, int textureWidth, int textureHeight, RenderMaterialInstance renderMaterial,
             List<LightData> lights) {
 
@@ -61,21 +60,15 @@ public final class RenderBuffer {
         });
     }
 
-    public final synchronized void transform(BoneActor boneActor, Vector pivotPoint) {
+    public final synchronized void transform(BoneActor boneActor, Vector3f pivotPoint) {
 
-        List<Vector> verticesTransformed = vertices.stream().map(vertex -> boneActor.transform(vertex, pivotPoint))
-                .toList();
-
-        vertices.clear();
-        vertices.addAll(verticesTransformed);
+        vertices.stream().forEach(vertex -> boneActor.transform(vertex, pivotPoint));
     }
 
     public final synchronized RenderPacket getRenderPacket(AssetManager assetManager) {
 
         int offset = 0;
-        Vector3f[] vertexArray = vertices.stream()
-                .map(v -> new Vector3f((float) v.getX(), (float) v.getY(), (float) v.getZ()))
-                .toArray(i -> new Vector3f[i]);
+        Vector3f[] vertexArray = vertices.toArray(Vector3f[]::new);
 
         LinkedHashMap<ModelAssetInstance, Geometry> opaqueMeshes = new LinkedHashMap<>();
         LinkedHashMap<ModelAssetInstance, Geometry> transparentMeshes = new LinkedHashMap<>();

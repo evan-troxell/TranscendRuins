@@ -78,11 +78,11 @@ public final class RenderMaterialAttributes extends AssetAttributes {
         return transparent;
     }
 
-    private final Boolean hasBackfaceCulling;
+    private final Boolean backfaceCulling;
 
-    public final Boolean getHasBackfaceCulling() {
+    public final Boolean getBackfaceCulling() {
 
-        return hasBackfaceCulling;
+        return backfaceCulling;
     }
 
     /**
@@ -125,7 +125,7 @@ public final class RenderMaterialAttributes extends AssetAttributes {
         TracedEntry<Boolean> transparentEntry = json.getAsBoolean("transparent", true, null);
         transparent = transparentEntry.getValue();
 
-        TracedEntry<Boolean> hasBackfaceCullingEntry = json.getAsBoolean("hasBackfaceCulling", true, null);
-        hasBackfaceCulling = hasBackfaceCullingEntry.getValue();
+        TracedEntry<Boolean> backfaceCullingEntry = json.getAsBoolean("backfaceCulling", true, null);
+        backfaceCulling = backfaceCullingEntry.getValue();
     }
 }

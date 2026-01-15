@@ -3,8 +3,8 @@ package com.transcendruins.assets.modelassets.primaryassets.interaction;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.scripts.TRScript;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -21,9 +21,9 @@ public abstract class AssetInteractionSchema {
     public static final AssetInteractionSchema NONE = new AssetInteractionSchema() {
     };
 
-    private final Vector position;
+    private final Vector3f position;
 
-    public final Vector getPosition() {
+    public final Vector3f getPosition() {
 
         return position;
     }
@@ -58,7 +58,7 @@ public abstract class AssetInteractionSchema {
 
     private AssetInteractionSchema() {
 
-        position = Vector.IDENTITY_VECTOR;
+        position = Vector3f.ZERO;
         duration = 0.0;
         cooldown = 0.0;
         conditions = new ImmutableList<>();
@@ -67,13 +67,13 @@ public abstract class AssetInteractionSchema {
 
     public AssetInteractionSchema(TracedDictionary json) throws LoggedException {
 
-        TracedEntry<Vector> positionEntry = json.getAsVector("position", true, 3);
+        TracedEntry<Vector3f> positionEntry = json.getAsVector3f("position", true);
         if (positionEntry.containsValue()) {
 
             position = positionEntry.getValue();
         } else {
 
-            position = Vector.IDENTITY_VECTOR;
+            position = Vector3f.ZERO;
         }
 
         TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, 0.0, num -> 0.0 <= num);

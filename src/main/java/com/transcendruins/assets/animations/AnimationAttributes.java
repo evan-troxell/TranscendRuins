@@ -46,19 +46,19 @@ public final class AnimationAttributes extends AssetAttributes {
     private static final String KEYFRAME_PATTERN = "[-+]?\\d*\\.\\d+";
 
     /**
-     * <code>Double</code>: The starting timestamp of this
+     * <code>Float</code>: The starting timestamp of this
      * <code>AnimationAttributes</code> instance, in seconds.
      */
-    private final Double startingTimestamp;
+    private final Float startingTimestamp;
 
     /**
      * Retrieves the starting timestamp of this <code>AnimationAttributes</code>
      * instance.
      * 
-     * @return <code>Double</code>: The <code>startingTimestamp</code> field of this
+     * @return <code>Float</code>: The <code>startingTimestamp</code> field of this
      *         <code>AnimationAttributes</code> instance.
      */
-    public Double getStartingTimestamp() {
+    public Float getStartingTimestamp() {
 
         return startingTimestamp;
     }
@@ -82,36 +82,36 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>Double</code>: The playback speed of this
+     * <code>Float</code>: The playback speed of this
      * <code>AnimationAttributes</code> instance.
      */
-    private final Double playbackSpeed;
+    private final Float playbackSpeed;
 
     /**
      * Retrieves the playback speed of this <code>AnimationAttributes</code>
      * instance.
      * 
-     * @return <code>Double</code>: The <code>playbackSpeed</code> field of this
+     * @return <code>Float</code>: The <code>playbackSpeed</code> field of this
      *         <code>AnimationAttributes</code> instance.
      */
-    public Double getPlaybackSpeed() {
+    public Float getPlaybackSpeed() {
 
         return playbackSpeed;
     }
 
     /**
-     * <code>Double</code>: The animation length of this
+     * <code>Float</code>: The animation length of this
      * <code>AnimationAttributes</code> instance in seconds.
      */
-    private final Double length;
+    private final Float length;
 
     /**
      * Retrieves the length of this <code>AnimationAttributes</code> instance.
      * 
-     * @return <code>Double</code>: The <code>length</code> field of this
+     * @return <code>Float</code>: The <code>length</code> field of this
      *         <code>AnimationAttributes</code> instance.
      */
-    public Double getLength() {
+    public Float getLength() {
 
         return length;
     }
@@ -190,20 +190,20 @@ public final class AnimationAttributes extends AssetAttributes {
     }
 
     /**
-     * <code>ImmutableList&lt;Double&gt;</code>: The sorted list of timestamps of
+     * <code>ImmutableList&lt;Float&gt;</code>: The sorted list of timestamps of
      * this <code>AnimationAttributes</code> instance.
      */
-    private final ImmutableList<Double> timestamps;
+    private final ImmutableList<Float> timestamps;
 
     /**
      * Retrieves the sorted timestamps of this <code>AnimationAttributes</code>
      * instance.
      * 
-     * @return <code>ImmutableList&lt;Double&gt;</code>: The
+     * @return <code>ImmutableList&lt;Float&gt;</code>: The
      *         <code>timestampsSorted</code> field of this
      *         <code>AnimationAttributes</code> instance.
      */
-    public ImmutableList<Double> getTimestamps() {
+    public ImmutableList<Float> getTimestamps() {
 
         return timestamps;
     }
@@ -243,13 +243,13 @@ public final class AnimationAttributes extends AssetAttributes {
 
         super(schema, json, isBase);
 
-        TracedEntry<Double> startingTimestampEntry = json.getAsDouble("startingTimestamp", true, null);
+        TracedEntry<Float> startingTimestampEntry = json.getAsFloat("startingTimestamp", true, null);
         startingTimestamp = startingTimestampEntry.getValue();
 
         TracedEntry<Boolean> reversedEntry = json.getAsBoolean("reversed", true, null);
         reversed = reversedEntry.getValue();
 
-        TracedEntry<Double> playbackSpeedEntry = json.getAsDouble("playbackSpeed", true, null, num -> num >= 0.0);
+        TracedEntry<Float> playbackSpeedEntry = json.getAsFloat("playbackSpeed", true, null, num -> num >= 0.0);
         playbackSpeed = playbackSpeedEntry.getValue();
 
         TracedEntry<String> loopModeEntry = json.getAsString("loopMode", true, null);
@@ -304,23 +304,23 @@ public final class AnimationAttributes extends AssetAttributes {
             ArrayList<String> bonesList = new ArrayList<>();
 
             // If there are keyframe entries, a new length should be defined.
-            TracedEntry<Double> lengthEntry = json.getAsDouble("length", false, null, num -> num >= 0.0);
+            TracedEntry<Float> lengthEntry = json.getAsFloat("length", false, null, num -> num >= 0.0);
             length = lengthEntry.getValue();
 
-            ArrayList<Double> timestampsList = new ArrayList<>();
+            ArrayList<Float> timestampsList = new ArrayList<>();
 
-            HashMap<Double, ImmutableMap<String, KeyFrame>> tempKeyframes = new HashMap<>();
+            HashMap<Float, ImmutableMap<String, KeyFrame>> tempKeyframes = new HashMap<>();
 
             for (String keyframe : keyframesJson) {
 
-                // If the keyframe cannot be converted to a double value, raise an exception.
+                // If the keyframe cannot be converted to a float value, raise an exception.
                 if (!keyframe.matches(KEYFRAME_PATTERN)) {
 
                     throw new KeyNameException(keyframesJson, keyframe);
                 }
 
                 // Generates the timestamp of the keyframe.
-                Double keyframeTimestamp = Double.valueOf(keyframe);
+                Float keyframeTimestamp = Float.valueOf(keyframe);
 
                 // If the timestamp of the keyframe is outside of the animation length, raise an
                 // exception.
@@ -358,7 +358,7 @@ public final class AnimationAttributes extends AssetAttributes {
             timestamps = new ImmutableList<>(timestampsList.stream().sorted().toList());
 
             ArrayList<ImmutableMap<String, KeyFrame>> keyframesList = new ArrayList<>();
-            for (double timestamp : timestamps) {
+            for (float timestamp : timestamps) {
 
                 keyframesList.add(tempKeyframes.get(timestamp));
             }
@@ -443,12 +443,12 @@ public final class AnimationAttributes extends AssetAttributes {
          * 
          * @param keyframeJson <code>TracedDictionary</code>: The JSON from which this
          *                     <code>KeyFrame</code> instance should be constructed.
-         * @param timestamp    <code>double</code>: The timestamp of this
+         * @param timestamp    <code>float</code>: The timestamp of this
          *                     <code>KeyFrame</code> instance.
          * @throws LoggedException Thrown to indicate any raised exception while
          *                         creating this key frame.
          */
-        private KeyFrame(TracedDictionary keyframeJson, double timestamp) throws LoggedException {
+        private KeyFrame(TracedDictionary keyframeJson, float timestamp) throws LoggedException {
 
             TracedEntry<TracedDictionary> positionEntry = keyframeJson.getAsDict("position", true);
             PositionFrame position = positionEntry.containsValue()

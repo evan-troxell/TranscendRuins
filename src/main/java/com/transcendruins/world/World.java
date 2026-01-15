@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 
 import javax.swing.ImageIcon;
 
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetSchema;
@@ -50,7 +51,6 @@ import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.recipes.RecipeContext;
 import com.transcendruins.assets.recipes.RecipeInstance;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.rendering.renderbuffer.RenderBuffer;
@@ -98,7 +98,7 @@ public final class World extends PropertyHolder {
     /**
      * <code>Vector</code>: The 3D bounds of a unit tile.
      */
-    public static final Vector UNIT_TILE_VECTOR = new Vector(UNIT_TILE, UNIT_TILE, UNIT_TILE);
+    public static final Vector3f UNIT_TILE_VECTOR = new Vector3f(UNIT_TILE, UNIT_TILE, UNIT_TILE);
 
     /**
      * <code>int</code>: An enum constant representing the cardinal direction

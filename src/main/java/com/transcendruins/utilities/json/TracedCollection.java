@@ -26,10 +26,10 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.AssetType;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.scripts.TRScript;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
@@ -446,7 +446,8 @@ public abstract class TracedCollection {
      *                 create the entry.
      * @return <code>TypeCase&lt;Vector, T&gt;</code>: The created vector type case.
      */
-    public final <T> TypeCase<Vector, T> vectorCase(EntryOperator<Vector, T> onCall, EntryBuilder<Vector> getEntry) {
+    public final <T> TypeCase<Vector3f, T> vector3fCase(EntryOperator<Vector3f, T> onCall,
+            EntryBuilder<Vector3f> getEntry) {
 
         return new TypeCase<>(onCall, getEntry, ARRAY);
     }
@@ -735,15 +736,13 @@ public abstract class TracedCollection {
 
     /**
      * Retrieves a field from this <code>TracedCollection</code> instance and parses
-     * it into a <code>Vector</code> value.
+     * it into a <code>Vector3f</code> value.
      * 
      * @param key             <code>Object</code>: The key whose entry to retrieve
      *                        in this <code>TracedCollection</code> instance.
      * @param nullCaseAllowed <code>boolean</code>: Whether or not a
      *                        <code>null</code> case should cause an exception.
-     * @param dimensions      <code>int</code>: The dimensions of the vector to
-     *                        retrieve.
-     * @return <code>TracedEntry&lt;Vector&gt;</code>: The vector retrieved from
+     * @return <code>TracedEntry&lt;Vector3f&gt;</code>: The vector retrieved from
      *         this <code>TracedCollection</code> instance.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  <code>JSONArray</code> class.
@@ -754,7 +753,7 @@ public abstract class TracedCollection {
      *                                  a length of <code>dimensions</code>.
      * @throws NumberBoundsException
      */
-    public final TracedEntry<Vector> getAsVector(Object key, boolean nullCaseAllowed, int dimensions)
+    public final TracedEntry<Vector3f> getAsVector3f(Object key, boolean nullCaseAllowed)
             throws PropertyTypeException, MissingPropertyException, CollectionSizeException, NumberBoundsException {
 
         // Retrieves the value associated with the key.
@@ -769,55 +768,21 @@ public abstract class TracedCollection {
 
         TracedArray array = entry.getValue();
 
-        if (array.size() != dimensions) {
+        if (array.size() != 3) {
 
             throw new CollectionSizeException(entry, array);
         }
 
-        double[] vectorList = new double[dimensions];
+        TracedEntry<Float> xEntry = array.getAsFloat(0, false, null);
+        float x = xEntry.getValue();
 
-        for (int i = 0; i < dimensions; i++) {
+        TracedEntry<Float> yEntry = array.getAsFloat(1, false, null);
+        float y = yEntry.getValue();
 
-            TracedEntry<Double> vectorEntry = array.getAsDouble(i, false, null);
-            vectorList[i] = vectorEntry.getValue();
-        }
+        TracedEntry<Float> zEntry = array.getAsFloat(2, false, null);
+        float z = zEntry.getValue();
 
-        return entry.cast(new Vector(vectorList));
-    }
-
-    public final TracedEntry<Vector> getAsVector(Object key, boolean nullCaseAllowed, int dimensions, Vector min,
-            Vector max)
-            throws PropertyTypeException, MissingPropertyException, CollectionSizeException, NumberBoundsException {
-
-        // Retrieves the value associated with the key.
-        TracedEntry<TracedArray> entry = getAsArray(key, nullCaseAllowed);
-
-        // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
-        // and thus a null entry may be returned.
-        if (!entry.containsValue()) {
-
-            return entry.cast(null);
-        }
-
-        TracedArray array = entry.getValue();
-
-        if (array.size() != dimensions) {
-
-            throw new CollectionSizeException(entry, array);
-        }
-
-        double[] vectorList = new double[dimensions];
-
-        for (int i = 0; i < dimensions; i++) {
-
-            double minI = (min != null) ? min.get(i) : Double.NEGATIVE_INFINITY;
-            double maxI = (max != null) ? max.get(i) : Double.POSITIVE_INFINITY;
-
-            TracedEntry<Double> vectorEntry = array.getAsDouble(i, false, null, num -> minI <= num && num <= maxI);
-            vectorList[i] = vectorEntry.getValue();
-        }
-
-        return entry.cast(new Vector(vectorList));
+        return entry.cast(new Vector3f(x, y, z));
     }
 
     /**

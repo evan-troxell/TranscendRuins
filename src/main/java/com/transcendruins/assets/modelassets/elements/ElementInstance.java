@@ -24,13 +24,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.immutable.ImmutableSet;
 import com.transcendruins.world.AreaGrid;
 import com.transcendruins.world.AreaTile;
@@ -222,16 +223,16 @@ public final class ElementInstance extends PrimaryAssetInstance {
     public final void updateSlot(String name, ItemInstance item) {
     }
 
-    private final Vector tileOffset;
+    private final Vector3f tileOffset;
 
     @Override
-    public final Vector getPosition() {
+    public final Vector3f getPosition() {
 
-        double x = (position.x + rotatedTileWidth / 2.0) * World.UNIT_TILE;
-        double y = tileOffset.getY(); // TODO adjust for tile height
-        double z = (position.y + rotatedTileLength / 2.0) * World.UNIT_TILE;
+        float x = (position.x + rotatedTileWidth / 2.0f) * World.UNIT_TILE;
+        float y = tileOffset.getY(); // TODO adjust for tile height
+        float z = (position.y + rotatedTileLength / 2.0f) * World.UNIT_TILE;
 
-        if (tileOffset != Vector.IDENTITY_VECTOR) {
+        if (tileOffset != Vector3f.ZERO) {
 
             switch (heading) {
 
@@ -261,13 +262,13 @@ public final class ElementInstance extends PrimaryAssetInstance {
             }
         }
 
-        return new Vector(x, y, z);
+        return new Vector3f(x, y, z);
     }
 
     @Override
     public final Quaternion getRotation() {
 
-        return Quaternion.fromEulerRotation(heading * Math.PI / 2.0, new Vector(0, 1.0, 0));
+        return new Quaternion().fromAngleNormalAxis(heading * FastMath.HALF_PI, new Vector3f(0, 1.0f, 0));
     }
 
     public final boolean addModelChild(ElementInstance modelChild, String attachment) {

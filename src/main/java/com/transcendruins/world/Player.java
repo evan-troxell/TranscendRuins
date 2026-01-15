@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceContext;
@@ -34,7 +35,6 @@ import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.resources.styles.Style;
 import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.world.calls.InteractionCall;
@@ -892,7 +892,7 @@ public final class Player {
 
             double range = interactionRange * World.UNIT_TILE;
 
-            Vector displacement = entity.getPosition().subtract(interactCall.target().getPosition());
+            Vector3f displacement = entity.getPosition().subtract(interactCall.target().getPosition());
             double r_sqr = displacement.dot(displacement);
 
             if (r_sqr <= range * range) {

@@ -215,10 +215,12 @@ public final class StateControllerInstance extends AssetInstance {
             return new BoneActorSet();
         }
 
+        float floatTimeLength = (float) timeLength;
+
         ArrayList<BoneActorSet> boneActors = new ArrayList<>();
         for (AnimationInstance animation : animations) {
 
-            boneActors.add(animation.getKeyFrames(timeLength));
+            boneActors.add(animation.getKeyFrames(floatTimeLength));
         }
 
         // Compile animations into a single set.

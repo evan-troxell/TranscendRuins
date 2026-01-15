@@ -18,10 +18,12 @@ package com.transcendruins.assets.modelassets;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
@@ -33,8 +35,6 @@ import com.transcendruins.assets.rendermaterials.RenderMaterialContext;
 import com.transcendruins.assets.rendermaterials.RenderMaterialInstance;
 import com.transcendruins.assets.statecontrollers.StateControllerContext;
 import com.transcendruins.assets.statecontrollers.StateControllerInstance;
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.rendering.renderbuffer.LightData;
 import com.transcendruins.rendering.renderbuffer.RenderBuffer;
@@ -136,14 +136,14 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         return getChildPolygons(model, boneActors, parent, attachment);
     }
 
-    protected abstract RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector position,
+    protected abstract RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector3f position,
             Quaternion rotation);
 
     protected abstract RenderBuffer getChildPolygons(ModelInstance model, BoneActorSet boneActors,
             ModelAssetInstance parent, String attachment);
 
-    protected final RenderBuffer generatePolygons(Map<Integer, Map<Vector, Double>> vertexWeights, Vector position,
-            Quaternion rotation, Vector pivotPoint) {
+    protected final RenderBuffer generatePolygons(HashMap<Integer, HashMap<Vector3f, Float>> vertexWeights,
+            Vector3f position, Quaternion rotation, Vector3f pivotPoint) {
 
         // Determine which vertices should be hidden.
         HashSet<Integer> disabledVertices = model.getDisabledVertices();
@@ -152,11 +152,14 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
         ImmutableList<WeightedVertex> weightedVertices = model.getVertices();
         int verticesCount = weightedVertices.size();
 
-        ArrayList<Vector> vertices = new ArrayList<>(verticesCount);
+        ArrayList<Vector3f> vertices = new ArrayList<>(verticesCount);
         for (int i = 0; i < verticesCount; i++) {
 
-            Vector weighted = weightedVertices.get(i).getWeightedVertex(vertexWeights.get(i));
-            vertices.add(weighted.subtract(pivotPoint).rotate(rotation).add(position));
+            Vector3f weighted = weightedVertices.get(i).getWeightedVertex(vertexWeights.get(i));
+            weighted.subtractLocal(pivotPoint);
+            rotation.multLocal(weighted);
+            weighted.addLocal(position);
+            vertices.add(weighted);
         }
 
         // Form the polygon indices which describe the final mesh.
@@ -285,10 +288,10 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
     /**
      * Retrieves the position of this <code>ModelAssetInstance</code> instance.
      * 
-     * @return <code>Vector</code>: The vector form of the position of this
+     * @return <code>Vector3f</code>: The vector form of the position of this
      *         <code>ModelAssetInstance</code> instance.
      */
-    public abstract Vector getPosition();
+    public abstract Vector3f getPosition();
 
     /**
      * Retrieves the rotation of this <code>ModelAssetInstance</code> instance.

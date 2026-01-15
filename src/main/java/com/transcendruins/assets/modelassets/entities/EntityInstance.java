@@ -20,16 +20,17 @@ import java.awt.Rectangle;
 
 import javax.swing.ImageIcon;
 
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.modelassets.attack.AttackInstance;
 import com.transcendruins.assets.modelassets.attack.AttackSchema;
-import com.transcendruins.assets.modelassets.entities.EntityAttributes.DoubleDimension;
+import com.transcendruins.assets.modelassets.entities.EntityAttributes.FloatDimension;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.world.AreaGrid;
 import com.transcendruins.world.World;
 import com.transcendruins.world.calls.AttackCall;
@@ -40,23 +41,23 @@ import com.transcendruins.world.calls.AttackCall;
  */
 public final class EntityInstance extends PrimaryAssetInstance {
 
-    private double tileWidth;
+    private float tileWidth;
 
-    public final double getTileWidth() {
+    public final float getTileWidth() {
 
         return tileWidth;
     }
 
-    private double tileLength;
+    private float tileLength;
 
-    public final double getTileLength() {
+    public final float getTileLength() {
 
         return tileLength;
     }
 
-    private Vector position = Vector.IDENTITY_VECTOR;
+    private Vector3f position = new Vector3f();
 
-    public final void setPosition(Vector position) {
+    public final void setPosition(Vector3f position) {
 
         this.position = position;
         queueAreaUpdate();
@@ -65,31 +66,34 @@ public final class EntityInstance extends PrimaryAssetInstance {
     @Override
     public final void setPosition(int tileX, int tileZ) {
 
-        setPosition(new Vector(tileX, 0.0, tileZ).multiply(World.UNIT_TILE));
+        this.position = new Vector3f(tileX, 0.0f, tileZ).mult(World.UNIT_TILE);
+        queueAreaUpdate();
     }
 
-    public final void translate(Vector dv) {
+    public final void translate(Vector3f dv) {
 
-        setPosition(position.add(dv));
+        position.addLocal(dv);
+        queueAreaUpdate();
     }
 
     @Override
     public final void translate(int dx, int dz) {
 
-        setPosition(position.add(new Vector(dx, 0, dz).multiply(World.UNIT_TILE)));
+        position.addLocal(new Vector3f(dx, 0, dz).mult(World.UNIT_TILE));
+        queueAreaUpdate();
     }
 
-    private double rotatedTileWidth;
+    private float rotatedTileWidth;
 
-    private double rotatedTileLength;
+    private float rotatedTileLength;
 
-    private double heading;
+    private float heading;
 
     private void updateTileRotation() {
 
-        double theta = Math.toRadians(heading);
-        double C = Math.abs(Math.cos(theta));
-        double S = Math.abs(Math.sin(theta));
+        float theta = heading * FastMath.DEG_TO_RAD;
+        float C = FastMath.abs(FastMath.cos(theta));
+        float S = FastMath.abs(FastMath.sin(theta));
 
         rotatedTileWidth = C * tileWidth + S * tileLength;
         rotatedTileLength = C * tileLength + S * tileWidth;
@@ -97,15 +101,15 @@ public final class EntityInstance extends PrimaryAssetInstance {
         queueAreaUpdate();
     }
 
-    public final void rotate(double degrees) {
+    public final void rotate(float degrees) {
 
         if (degrees == 0) {
 
             return;
         }
 
-        double dx = rotatedTileWidth;
-        double dz = rotatedTileLength;
+        float dx = rotatedTileWidth;
+        float dz = rotatedTileLength;
 
         heading += degrees;
         heading %= 360;
@@ -115,7 +119,7 @@ public final class EntityInstance extends PrimaryAssetInstance {
         dz -= rotatedTileLength;
 
         // Recenter the entity on the previous center.
-        translate(new Vector(dx, 0, dz).multiply(World.UNIT_TILE / 2.0));
+        translate(new Vector3f(dx, 0, dz).mult(World.UNIT_TILE / 2.0f));
     }
 
     @Override
@@ -130,37 +134,38 @@ public final class EntityInstance extends PrimaryAssetInstance {
         heading %= 360;
         updateTileRotation();
 
-        double x = position.getX();
-        double y = position.getY();
-        double z = position.getZ();
+        float x = position.getX();
+        float y = position.getY();
+        float z = position.getZ();
 
         position = switch (direction) {
 
-        case World.NORTH -> new Vector(z, y, areaLength * World.UNIT_TILE - x - rotatedTileLength * World.UNIT_TILE);
+        case World.NORTH -> new Vector3f(z, y, areaLength * World.UNIT_TILE - x - rotatedTileLength * World.UNIT_TILE);
 
-        case World.WEST -> new Vector(areaWidth * World.UNIT_TILE - x - rotatedTileWidth * World.UNIT_TILE, y,
+        case World.WEST -> new Vector3f(areaWidth * World.UNIT_TILE - x - rotatedTileWidth * World.UNIT_TILE, y,
                 areaLength * World.UNIT_TILE - z - rotatedTileLength * World.UNIT_TILE);
 
-        case World.SOUTH -> new Vector(areaWidth * World.UNIT_TILE - z - rotatedTileWidth * World.UNIT_TILE, y, x);
+        case World.SOUTH -> new Vector3f(areaWidth * World.UNIT_TILE - z - rotatedTileWidth * World.UNIT_TILE, y, x);
 
         default -> position;
         };
     }
 
     @Override
-    public final Vector getPosition() {
+    public final Vector3f getPosition() {
 
         // TODO adjust for tile height
-        return position.add(new Vector(rotatedTileWidth / 2.0, 0.0, rotatedTileLength / 2.0).multiply(World.UNIT_TILE));
+        return position
+                .add(new Vector3f(rotatedTileWidth / 2.0f, 0.0f, rotatedTileLength / 2.0f).mult(World.UNIT_TILE));
     }
 
     @Override
     public final Quaternion getRotation() {
 
-        return Quaternion.fromEulerRotation(Math.toRadians(heading), new Vector(0, 1.0, 0));
+        return new Quaternion().fromAngleNormalAxis(heading * FastMath.DEG_TO_RAD, new Vector3f(0, 1.0f, 0));
     }
 
-    private Rectangle getTileBoundsAt(double left, double top) {
+    private Rectangle getTileBoundsAt(float left, float top) {
 
         int minTileX = (int) Math.floor(left);
         int minTileZ = (int) Math.floor(top);
@@ -186,7 +191,7 @@ public final class EntityInstance extends PrimaryAssetInstance {
     @Override
     public final Rectangle getInternalTileBoundsAt(int tileX, int tileZ) {
 
-        return getTileBoundsAt((double) tileX, (double) tileZ);
+        return getTileBoundsAt((float) tileX, (float) tileZ);
     }
 
     @Override
@@ -224,16 +229,16 @@ public final class EntityInstance extends PrimaryAssetInstance {
         return mainhandItem == null ? attack : mainhandItem.getAttack();
     }
 
-    private double detectionRange;
+    private float detectionRange;
 
-    public final double getDetectionRange() {
+    public final float getDetectionRange() {
 
         if (mainhandItem == null) {
 
             return detectionRange;
         }
 
-        Double mainhandDetectionRange = mainhandItem.getDetectionRange();
+        Float mainhandDetectionRange = mainhandItem.getDetectionRange();
         return mainhandDetectionRange == null ? detectionRange : mainhandDetectionRange;
     }
 
@@ -312,10 +317,10 @@ public final class EntityInstance extends PrimaryAssetInstance {
         // attack range.
         if (attackStart == -1) {
 
-            double range = attackInstance.getRange() * World.UNIT_TILE;
+            float range = attackInstance.getRange() * World.UNIT_TILE;
 
-            Vector displacement = getPosition().subtract(attackCall.target().getPosition());
-            double r_sqr = displacement.dot(displacement);
+            Vector3f displacement = getPosition().subtract(attackCall.target().getPosition());
+            float r_sqr = displacement.dot(displacement);
 
             if (r_sqr <= range * range) {
 
@@ -396,11 +401,11 @@ public final class EntityInstance extends PrimaryAssetInstance {
             tileLength = dim.length();
 
             updateTileRotation();
-        }, attributes, DoubleDimension.DEFAULT);
+        }, attributes, FloatDimension.DEFAULT);
 
         computeAttribute(attributes.getAttack(), attack::applyAttributes, attributes, AttackSchema.DEFAULT);
 
-        detectionRange = calculateAttribute(attributes.getDetectionRange(), detectionRange, attributes, 7.5);
+        detectionRange = calculateAttribute(attributes.getDetectionRange(), detectionRange, attributes, 7.5f);
 
         mapIcon = calculateAttribute(attributes.getMapIcon(), iconPath -> {
 

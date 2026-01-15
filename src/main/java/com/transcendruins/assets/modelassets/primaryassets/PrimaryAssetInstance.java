@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
@@ -38,8 +40,6 @@ import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryIn
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySchema;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelInstance;
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.renderbuffer.RenderBuffer;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.world.AreaGrid;
@@ -287,7 +287,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
     }
 
     @Override
-    protected final RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector position,
+    protected final RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector3f position,
             Quaternion rotation) {
 
         Bone root = model.getRoot();
@@ -317,7 +317,7 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
         }
 
         RenderBuffer renders = new RenderBuffer();
-        Map<Integer, Map<Vector, Double>> vertices = root.computeVertexWeights(boneActors, BoneActor.DEFAULT,
+        HashMap<Integer, HashMap<Vector3f, Float>> vertices = root.computeVertexWeights(boneActors, BoneActor.DEFAULT,
                 model.getVertices(), (bone, actor, pivotPoint) -> {
 
                     if (boneMappings.containsKey(bone)) {
@@ -340,8 +340,8 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
     protected final RenderBuffer getChildPolygons(ModelInstance model, BoneActorSet boneActors,
             ModelAssetInstance parent, String attachment) {
 
-        Vector position = model.getPivotPoint(attachment);
-        Quaternion rotation = Quaternion.IDENTITY_QUATERNION;
+        Vector3f position = model.getPivotPoint(attachment);
+        Quaternion rotation = Quaternion.IDENTITY;
 
         return getParentPolygons(model, boneActors, position, rotation);
     }

@@ -16,8 +16,8 @@
 
 package com.transcendruins.assets.animations.interpolation;
 
-import com.transcendruins.geometry.Matrix;
-import com.transcendruins.geometry.Vector;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Vector3f;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
@@ -33,18 +33,18 @@ import com.transcendruins.utilities.json.TracedEntry;
 sealed public class ScaleModifier permits ScaleFrame {
 
     /**
-     * <code>Vector</code>: The scale values of this <code>ScaleModifier</code>
+     * <code>Vector3f</code>: The scale values of this <code>ScaleModifier</code>
      * instance.
      */
-    private final Vector scale;
+    private final Vector3f scale;
 
     /**
      * Retrieves the scale values of this <code>ScaleModifier</code> instance.
      * 
-     * @return <code>Vector</code>: The <code>scale</code> field of this
+     * @return <code>Vector3f</code>: The <code>scale</code> field of this
      *         <code>ScaleModifier</code> instance.
      */
-    public Vector getScale() {
+    public Vector3f getScale() {
 
         return scale;
     }
@@ -77,7 +77,7 @@ sealed public class ScaleModifier permits ScaleFrame {
     public ScaleModifier(TracedDictionary json)
             throws MissingPropertyException, PropertyTypeException, CollectionSizeException, NumberBoundsException {
 
-        TracedEntry<Vector> scaleEntry = json.getAsVector("scale", false, 3);
+        TracedEntry<Vector3f> scaleEntry = json.getAsVector3f("scale", false);
         scale = scaleEntry.getValue();
 
         TracedEntry<TracedDictionary> rotationEntry = json.getAsDict("rotation", true);
@@ -90,20 +90,20 @@ sealed public class ScaleModifier permits ScaleFrame {
      */
     public ScaleModifier() {
 
-        this.scale = new Vector(1, 1, 1);
+        this.scale = Vector3f.UNIT_XYZ;
         this.rotation = new RotationModifier();
     }
 
     /**
      * Creates a new instance of the <code>ScaleModifier</code> class.
      * 
-     * @param scale    <code>Vector</code>: The scale values of this
+     * @param scale    <code>Vector3f</code>: The scale values of this
      *                 <code>ScaleModifier</code> instance.
      * @param rotation <code>RotationModifier</code>: The rotation modifier to be
      *                 applied to the scale of this <code>ScaleModifier</code>
      *                 instance.
      */
-    public ScaleModifier(Vector scale, RotationModifier rotation) {
+    public ScaleModifier(Vector3f scale, RotationModifier rotation) {
 
         this.scale = scale;
         this.rotation = rotation;
@@ -112,10 +112,11 @@ sealed public class ScaleModifier permits ScaleFrame {
     /**
      * Retrieves the transformation of this <code>ScaleModifier</code> instance.
      * 
-     * @return <code>Matrix</code>: The transformation matrix.
+     * @return <code>Matrix3f</code>: The transformation matrix.
      */
-    public Matrix getTransform() {
+    public Matrix3f getTransform() {
 
-        return rotation.getTransform().rotate(Matrix.getScaledMatrix3X3(scale.getX(), scale.getY(), scale.getZ()));
+        return rotation.getTransform().toRotationMatrix()
+                .mult(new Matrix3f(scale.x, 0f, 0f, 0f, scale.y, 0f, 0f, 0f, scale.z));
     }
 }

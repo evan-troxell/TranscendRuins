@@ -16,8 +16,8 @@
 
 package com.transcendruins.assets.animations.interpolation;
 
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.animations.AnimationAttributes.KeyFrame;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 
@@ -25,23 +25,23 @@ public final class PositionFrame extends PositionModifier {
 
     private final Interpolation interpolation;
 
-    private final double animationLength;
+    private final float animationLength;
 
-    public PositionFrame(TracedDictionary json, double timestamp, double animationLength) throws LoggedException {
+    public PositionFrame(TracedDictionary json, float timestamp, float animationLength) throws LoggedException {
 
         super(json);
         interpolation = Interpolation.createInterpolation(json, "interpolation", timestamp);
         this.animationLength = animationLength;
     }
 
-    public PositionModifier interpolate(PositionFrame next, double t) {
+    public PositionModifier interpolate(PositionFrame next, float t) {
 
-        double inter = Interpolation.getInter(interpolation, next.interpolation, t, animationLength);
+        float inter = Interpolation.getInter(interpolation, next.interpolation, t, animationLength);
 
-        Vector position = Interpolation.lerp(getPosition(), next.getPosition(), inter);
+        Vector3f position = Interpolation.lerp(getPosition(), next.getPosition(), inter);
 
-        double rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
-        Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(), next.getRotation().getAxis(), inter);
+        float rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
+        Vector3f rotationAxis = Interpolation.slerp(getRotation().getAxis(), next.getRotation().getAxis(), inter);
 
         return new PositionModifier(position, new RotationModifier(rotationAngle, rotationAxis));
     }
@@ -52,10 +52,10 @@ public final class PositionFrame extends PositionModifier {
      * @param lastFrame <code>KeyFrame</code>: The last frame to interpolate at.
      * @param nextFrame <code>KeyFrame</code>: The next frame to interpolate
      *                  between.
-     * @param timestamp <code>double</code>: The timestamp to interpolate at.
-     * @return <code>Vector</code>: The resulting position modifier.
+     * @param timestamp <code>float</code>: The timestamp to interpolate at.
+     * @return <code>Vector3f</code>: The resulting position modifier.
      */
-    public static Vector interpolate(KeyFrame lastFrame, KeyFrame nextFrame, double timestamp) {
+    public static Vector3f interpolate(KeyFrame lastFrame, KeyFrame nextFrame, float timestamp) {
 
         PositionFrame last = lastFrame == null ? null : lastFrame.getPosition(KeyFrame.LAST);
         PositionFrame next = nextFrame == null ? null : nextFrame.getPosition(KeyFrame.NEXT);
@@ -75,6 +75,6 @@ public final class PositionFrame extends PositionModifier {
             return last.getTransform();
         }
 
-        return Vector.IDENTITY_VECTOR;
+        return Vector3f.ZERO;
     }
 }

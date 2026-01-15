@@ -19,6 +19,9 @@ package com.transcendruins.assets.animations;
 import java.util.Collections;
 import java.util.HashMap;
 
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animations.AnimationAttributes.KeyFrame;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
@@ -28,9 +31,6 @@ import com.transcendruins.assets.animations.interpolation.RotationFrame;
 import com.transcendruins.assets.animations.interpolation.ScaleFrame;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
-import com.transcendruins.geometry.Matrix;
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 
@@ -41,36 +41,36 @@ import com.transcendruins.utilities.immutable.ImmutableMap;
 public final class AnimationInstance extends AssetInstance {
 
     /**
-     * <code>double</code>: The playback speed of this
-     * <code>AnimationInstance</code> instance.
-     */
-    private double playbackSpeed;
-
-    /**
-     * <code>double>/code>: The starting timestamp of this <code>AnimationInstance</code>
+     * <code>float</code>: The playback speed of this <code>AnimationInstance</code>
      * instance.
      */
-    private double startingTimestamp;
+    private float playbackSpeed;
 
     /**
-     * <code>boolean>/code>: Whether or not this <code>AnimationInstance</code>
+     * <code>float</code>: The starting timestamp of this
+     * <code>AnimationInstance</code> instance.
+     */
+    private float startingTimestamp;
+
+    /**
+     * <code>boolean</code>: Whether or not this <code>AnimationInstance</code>
      * instance is playing in reverse.
      */
     private boolean reversed;
 
     /**
-     * <code>double</code>: The animation length of this
+     * <code>float</code>: The animation length of this
      * <code>AnimationInstance</code> instance.
      */
-    private double length;
+    private float length;
 
     /**
      * Retrieves the length of this <code>AnimationInstance</code> instance.
      * 
-     * @return <code>double</code>: The <code>length</code> field of this
+     * @return <code>float</code>: The <code>length</code> field of this
      *         <code>AnimationInstance</code> instance.
      */
-    public final double getLength() {
+    public final float getLength() {
 
         return length;
     }
@@ -109,10 +109,10 @@ public final class AnimationInstance extends AssetInstance {
     private ImmutableList<String> bones;
 
     /**
-     * <code>ImmutableList&lt;Double&gt;</code>: The list of sorted timestamps of
+     * <code>ImmutableList&lt;Float&gt;</code>: The list of sorted timestamps of
      * this <code>AnimationInstance</code> instance.
      */
-    private ImmutableList<Double> timestampsSorted;
+    private ImmutableList<Float> timestampsSorted;
 
     /**
      * Creates a new instance of the <code>AnimationInstance</code> class.
@@ -135,7 +135,7 @@ public final class AnimationInstance extends AssetInstance {
         AnimationAttributes attributes = (AnimationAttributes) attributeSet;
 
         // Updates the startingTimestamp field.
-        startingTimestamp = calculateAttribute(attributes.getStartingTimestamp(), startingTimestamp, attributes, 0.0);
+        startingTimestamp = calculateAttribute(attributes.getStartingTimestamp(), startingTimestamp, attributes, 0.0f);
         setProperty("startingTimestamp", startingTimestamp);
 
         // Updates the reversed field.
@@ -143,7 +143,7 @@ public final class AnimationInstance extends AssetInstance {
         setProperty("reversed", reversed);
 
         // Updates the playbackSpeed field.
-        playbackSpeed = calculateAttribute(attributes.getPlaybackSpeed(), playbackSpeed, attributes, 1.0);
+        playbackSpeed = calculateAttribute(attributes.getPlaybackSpeed(), playbackSpeed, attributes, 1.0f);
         setProperty("playbackSpeed", playbackSpeed);
 
         // Updates the holdOnFinish field.
@@ -183,15 +183,15 @@ public final class AnimationInstance extends AssetInstance {
      * Retrieves the timestamp of this <code>AnimationInstance</code> instance at a
      * certain time.
      * 
-     * @param time <code>double</code>: The time to convert, assuming 0.0 is the
+     * @param time <code>float</code>: The time to convert, assuming 0.0 is the
      *             start of the animation.
-     * @return <code>double</code>: The created timestamp.
+     * @return <code>float</code>: The created timestamp.
      */
-    public double getTimestamp(double time) {
+    public float getTimestamp(float time) {
 
-        double timestamp = time * playbackSpeed * ((reversed) ? -1 : 1) + startingTimestamp;
+        float timestamp = time * playbackSpeed * ((reversed) ? -1 : 1) + startingTimestamp;
 
-        double loopTimestamp = timestamp % length;
+        float loopTimestamp = timestamp % length;
 
         if (timestamp > length) {
 
@@ -210,11 +210,11 @@ public final class AnimationInstance extends AssetInstance {
      * Retrieves the keyframes of this <code>AnimationInstance</code> instance at a
      * specified timestamp.
      * 
-     * @param timestamp <code>double</code>: The timestamp whose keyframes to find.
+     * @param timestamp <code>float</code>: The timestamp whose keyframes to find.
      * @return <code>BoneActorSet</code>: The retrieved bone actors of the
      *         keyframes.
      */
-    public BoneActorSet getKeyFrames(double timestamp) {
+    public BoneActorSet getKeyFrames(float timestamp) {
 
         timestamp = getTimestamp(timestamp);
 
@@ -248,9 +248,9 @@ public final class AnimationInstance extends AssetInstance {
             KeyFrame nextFrame = higherKeyframes == null ? null : higherKeyframes.get(bone);
             KeyFrame lastFrame = lowerKeyframes == null ? null : lowerKeyframes.get(bone);
 
-            Vector position = PositionFrame.interpolate(lastFrame, nextFrame, timestamp);
+            Vector3f position = PositionFrame.interpolate(lastFrame, nextFrame, timestamp);
             Quaternion rotation = RotationFrame.interpolate(lastFrame, nextFrame, timestamp);
-            Matrix scale = ScaleFrame.interpolate(lastFrame, nextFrame, timestamp);
+            Matrix3f scale = ScaleFrame.interpolate(lastFrame, nextFrame, timestamp);
 
             animationNodeMap.put(bone, new BoneActor(position, rotation, scale));
         }
@@ -262,13 +262,13 @@ public final class AnimationInstance extends AssetInstance {
      * Finds the first timestamp higher than the input timestamp in this
      * <code>AnimationInstance</code> instance.
      * 
-     * @param timestamp <code>double</code>: The timestamp to search for.
+     * @param timestamp <code>float</code>: The timestamp to search for.
      * @return <code>int</code>: The index of the first timestamp greater than the
      *         <code>timestamp</code> field If the index is the length of the
      *         timestamps list, then there are no timestamps greater than the
      *         <code>timestamp</code> perameter.
      */
-    private int findTimestampIndex(double timestamp) {
+    private int findTimestampIndex(float timestamp) {
 
         // The timestamps list is already sorted, so it is a candidate for a binary
         // sort.

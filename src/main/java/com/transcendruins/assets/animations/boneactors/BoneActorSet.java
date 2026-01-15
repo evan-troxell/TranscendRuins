@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.transcendruins.geometry.Vector;
+import com.jme3.math.Vector3f;
 import com.transcendruins.utilities.immutable.ImmutableMap;
 
 /**
@@ -38,7 +38,7 @@ public final class BoneActorSet {
 
     public final BoneActor getBoneActor(String boneActor) {
 
-        return boneActors.get(boneActor);
+        return boneActors.getOrDefault(boneActor, BoneActor.DEFAULT);
     }
 
     /**
@@ -108,25 +108,21 @@ public final class BoneActorSet {
      * Applies a bone actor from this <code>BoneActorSet</code> instance to a set of
      * vertices.
      * 
-     * @param vertices   <code>ArrayList&lt;Vector&gt;</code>: The vertices to apply
-     *                   this <code>BoneActorSet</code> instance to.
+     * @param vertices   <code>ArrayList&lt;Vector3f&gt;</code>: The vertices to
+     *                   apply this <code>BoneActorSet</code> instance to.
      * @param bone       <code>String</code>: The bone actor to apply.
-     * @param pivotPoint <code>Vector</code>: The origin about which to perform all
-     *                   relevant transformations.
-     * @return <code>ArrayList&lt;Vector&gt;</code>: The transformed vertices.
+     * @param pivotPoint <code>Vector3f</code>: The origin about which to perform
+     *                   all relevant transformations.
      */
-    public final ArrayList<Vector> apply(ArrayList<Vector> vertices, String bone, Vector pivotPoint) {
+    public final void apply(ArrayList<Vector3f> vertices, String bone, Vector3f pivotPoint) {
 
         // If the bone actor does not exist, a new list should still be created - create
         // a default bone actor used only to copy over vertices.
         BoneActor boneActor = boneActors.getOrDefault(bone, BoneActor.DEFAULT);
 
-        ArrayList<Vector> modifiedVertices = new ArrayList<>(vertices.size());
-        for (Vector vertex : vertices) {
+        for (Vector3f vertex : vertices) {
 
-            modifiedVertices.add(boneActor.transform(vertex, pivotPoint));
+            boneActor.transform(vertex, pivotPoint);
         }
-
-        return modifiedVertices;
     }
 }

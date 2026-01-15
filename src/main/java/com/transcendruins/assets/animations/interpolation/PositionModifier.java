@@ -16,8 +16,8 @@
 
 package com.transcendruins.assets.animations.interpolation;
 
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
@@ -29,18 +29,18 @@ import com.transcendruins.utilities.json.TracedEntry;
 sealed public class PositionModifier permits PositionFrame {
 
     /**
-     * <code>Vector</code>: The position of this <code>PositionModifier</code>
+     * <code>Vector3f</code>: The position of this <code>PositionModifier</code>
      * instance.
      */
-    private final Vector position;
+    private final Vector3f position;
 
     /**
      * Retrieves the position of this <code>PositionModifier</code> instance.
      * 
-     * @return <code>Vector</code>: The <code>position</code> field of this
+     * @return <code>Vector3f</code>: The <code>position</code> field of this
      *         <code>PositionModifier</code> instance.
      */
-    public Vector getPosition() {
+    public Vector3f getPosition() {
 
         return position;
     }
@@ -72,7 +72,7 @@ sealed public class PositionModifier permits PositionFrame {
      */
     public PositionModifier(TracedDictionary json) throws LoggedException {
 
-        TracedEntry<Vector> positionEntry = json.getAsVector("position", false, 3);
+        TracedEntry<Vector3f> positionEntry = json.getAsVector3f("position", false);
         position = positionEntry.getValue();
 
         if (json.containsKey("rotation")) {
@@ -90,19 +90,19 @@ sealed public class PositionModifier permits PositionFrame {
      */
     public PositionModifier() {
 
-        this(Vector.IDENTITY_VECTOR, new RotationModifier());
+        this(null, new RotationModifier());
     }
 
     /**
      * Creates a new instance of the <code>PositionModifier</code> class.
      * 
-     * @param position <code>Vector</code>: The position of this
+     * @param position <code>Vector3f</code>: The position of this
      *                 <code>PositionModifier</code> instance.
      * @param rotation <code>RotationModifier</code>: The rotation modifier to be
      *                 applied to the position of this <code>PositionModifier</code>
      *                 instance.
      */
-    public PositionModifier(Vector position, RotationModifier rotation) {
+    public PositionModifier(Vector3f position, RotationModifier rotation) {
 
         this.position = position;
         this.rotation = rotation;
@@ -111,9 +111,9 @@ sealed public class PositionModifier permits PositionFrame {
     /**
      * Retrieves the transformation of this <code>PositionModifier</code> instance.
      * 
-     * @return <code>Vector</code>: The transformation vector.
+     * @return <code>Vector3f</code>: The transformation vector.
      */
-    public Vector getTransform() {
+    public Vector3f getTransform() {
 
         if (rotation == null) {
 
@@ -121,6 +121,6 @@ sealed public class PositionModifier permits PositionFrame {
         }
         Quaternion quat = rotation.getTransform();
 
-        return quat.rotate(position);
+        return quat.mult(position);
     }
 }

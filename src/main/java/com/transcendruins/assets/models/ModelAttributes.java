@@ -21,11 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.assets.schema.AssetSchema;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.renderbuffer.LightData;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
@@ -304,7 +304,7 @@ public final class ModelAttributes extends AssetAttributes {
             ArrayList<WeightedVertex> verticesList = new ArrayList<>();
             for (int i : verticesJson) {
 
-                TracedEntry<Vector> vertexIndexEntry = verticesJson.getAsVector(i, false, 3);
+                TracedEntry<Vector3f> vertexIndexEntry = verticesJson.getAsVector3f(i, false);
                 verticesList.add(new WeightedVertex(vertexIndexEntry.getValue()));
             }
 
@@ -489,19 +489,19 @@ public final class ModelAttributes extends AssetAttributes {
     public static final class WeightedVertex {
 
         /**
-         * <code>Vector</code>: The initial position of this <code>WeightedVertex</code>
-         * instance.
+         * <code>Vector3f</code>: The initial position of this
+         * <code>WeightedVertex</code> instance.
          */
-        private final Vector baseVertex;
+        private final Vector3f baseVertex;
 
         /**
          * Creates a new instance of the <code>WeightedVertex</code> class.
          * 
-         * @param baseVertex <code>Vector</code>: The initial position of this
+         * @param baseVertex <code>Vector3f</code>: The initial position of this
          *                   <code>WeightedVertex</code> instance, and the vertex which
          *                   will be returned if no weights are added.
          */
-        private WeightedVertex(Vector baseVertex) {
+        private WeightedVertex(Vector3f baseVertex) {
 
             this.baseVertex = baseVertex;
         }
@@ -509,33 +509,37 @@ public final class ModelAttributes extends AssetAttributes {
         /**
          * Retrieves the weighted vertex of this <code>WeightedVertex</code> instance.
          * 
-         * @param vertices <code>Map&lt;Vector, Double&gt;</code>: The map of modified
-         *                 vertices to their weights.
-         * @return <code>Vector</code>: The generated vertex.
+         * @param weights <code>HashMpa&lt;Vector3f, Float&gt;</code>: The map of each
+         *                transformed vertex to its weight.
+         * @return <code>Vector3f</code>: The generated vertex.
          */
-        public final Vector getWeightedVertex(Map<Vector, Double> vertices) {
+        public final Vector3f getWeightedVertex(HashMap<Vector3f, Float> weights) {
 
-            if (vertices == null) {
+            if (weights == null) {
 
-                return baseVertex;
+                return baseVertex.clone();
             }
 
-            Vector returnVertex = Vector.IDENTITY_VECTOR;
-            double weightSum = 0.0;
+            float[] weightSum = { 0f };
+            Vector3f vSum = new Vector3f();
 
-            for (Map.Entry<Vector, Double> vertexEntry : vertices.entrySet()) {
+            weights.forEach((v, w) -> {
 
-                returnVertex = returnVertex.add(vertexEntry.getKey().multiply(vertexEntry.getValue()));
+                if (w == 0) {
 
-                weightSum += vertexEntry.getValue();
+                    return;
+                }
+
+                vSum.addLocal(v.mult(w));
+                weightSum[0] += w;
+            });
+
+            if (weightSum[0] == 0.0f) {
+
+                return baseVertex.clone();
             }
 
-            if (weightSum == 0) {
-
-                return baseVertex;
-            }
-
-            return returnVertex.multiply(1.0 / weightSum);
+            return vSum.divideLocal(weightSum[0]);
         }
     }
 
@@ -543,8 +547,8 @@ public final class ModelAttributes extends AssetAttributes {
      * <code>Bone</code>: A class representing a polygon layout of a
      * <code>ModelAttributes</code> instance.
      */
-    public static final record Bone(ImmutableList<String> tags, ImmutableMap<Integer, Double> vertexWeights,
-            Vector pivotPoint, ImmutableMap<String, Bone> bones) {
+    public static final record Bone(ImmutableList<String> tags, ImmutableMap<Integer, Float> vertexWeights,
+            Vector3f pivotPoint, ImmutableMap<String, Bone> bones) {
 
         /**
          * <code>String</code>: The regular expression used to ensure all vertex indices
@@ -587,7 +591,7 @@ public final class ModelAttributes extends AssetAttributes {
                 tags = new ImmutableList<>();
             }
 
-            HashMap<Integer, Double> vertexWeightsMap = new HashMap<>();
+            HashMap<Integer, Float> vertexWeightsMap = new HashMap<>();
 
             TracedEntry<TracedDictionary> vertexWeightsEntry = modelJson.getAsDict("vertexWeights", true);
             if (vertexWeightsEntry.containsValue()) {
@@ -608,18 +612,18 @@ public final class ModelAttributes extends AssetAttributes {
                         throw new KeyNameException(vertexWeightsJson, vertexKey);
                     }
 
-                    TracedEntry<Double> chanceEntry = vertexWeightsJson.getAsDouble(vertexKey, false, null,
+                    TracedEntry<Float> weightEntry = vertexWeightsJson.getAsFloat(vertexKey, false, null,
                             num -> num > 0);
-                    double weight = chanceEntry.getValue();
+                    float weight = weightEntry.getValue();
 
                     vertexWeightsMap.put(vertexIndex, weight);
                 }
             }
 
-            ImmutableMap<Integer, Double> vertexWeights = new ImmutableMap<>(vertexWeightsMap);
+            ImmutableMap<Integer, Float> vertexWeights = new ImmutableMap<>(vertexWeightsMap);
 
-            TracedEntry<Vector> pivotPointEntry = modelJson.getAsVector("pivotPoint", false, 3);
-            Vector pivotPoint = pivotPointEntry.getValue();
+            TracedEntry<Vector3f> pivotPointEntry = modelJson.getAsVector3f("pivotPoint", false);
+            Vector3f pivotPoint = pivotPointEntry.getValue();
 
             HashMap<String, Bone> bonesMap = new HashMap<>();
             TracedEntry<TracedDictionary> bonesEntry = modelJson.getAsDict("bones", true);
@@ -660,9 +664,9 @@ public final class ModelAttributes extends AssetAttributes {
              * 
              * @param bone       <code>String</code>: The reference name of the bone.
              * @param boneActor  <code>BoneActor</code>: The bone actor applied.
-             * @param pivotPoint <code>Vector</code>: The pivot point to center around.
+             * @param pivotPoint <code>Vector3f</code>: The pivot point to center around.
              */
-            public void accept(String bone, BoneActor boneActor, Vector pivotPoint);
+            public void accept(String bone, BoneActor boneActor, Vector3f pivotPoint);
         }
 
         /**
@@ -670,24 +674,24 @@ public final class ModelAttributes extends AssetAttributes {
          * 
          * @param boneActors <code>List&lt;BoneActorSet&gt;</code>: The bone actors used
          *                   to model the bones of this <code>Bone</code> instance.
-         * @return <code>Map&lt;Integer, Map&lt;Vector, Double&gt;&gt;</code>: The
+         * @return <code>Map&lt;Integer, HashMap&lt;Vector, Float&gt;&gt;</code>: The
          *         retrieved vertex weights of this <code>Bone</code> instance.
          */
-        public final Map<Integer, Map<Vector, Double>> computeVertexWeights(BoneActorSet boneActors,
+        public final HashMap<Integer, HashMap<Vector3f, Float>> computeVertexWeights(BoneActorSet boneActors,
                 BoneActor boneActor, ImmutableList<WeightedVertex> vertices, BoneConsumer operator) {
 
-            Map<Integer, Map<Vector, Double>> boneVertices = new HashMap<>();
+            HashMap<Integer, HashMap<Vector3f, Float>> boneVertices = new HashMap<>();
 
-            for (Map.Entry<Integer, Double> vertexWeightEntry : vertexWeights.entrySet()) {
-
-                HashMap<Vector, Double> vertexWeight = new HashMap<>();
+            // Operate on the vertices.
+            for (Map.Entry<Integer, Float> vertexWeightEntry : vertexWeights.entrySet()) {
 
                 int index = vertexWeightEntry.getKey();
-                vertexWeight.put(vertices.get(index).baseVertex, vertexWeightEntry.getValue());
-
-                boneVertices.put(index, vertexWeight);
+                HashMap<Vector3f, Float> vertexMap = new HashMap<>(1);
+                vertexMap.put(new Vector3f(vertices.get(index).baseVertex), vertexWeightEntry.getValue());
+                boneVertices.put(index, vertexMap);
             }
 
+            // Operate on each recursive bone.
             for (Map.Entry<String, Bone> boneEntry : bones.entrySet()) {
 
                 String boneName = boneEntry.getKey();
@@ -698,21 +702,33 @@ public final class ModelAttributes extends AssetAttributes {
 
                 Bone bone = boneEntry.getValue();
 
-                for (Map.Entry<Integer, Map<Vector, Double>> boneVerticesEntry : bone
+                // Operate on the vertices of each recursive bone.
+                for (Map.Entry<Integer, HashMap<Vector3f, Float>> boneVertexEntry : bone
                         .computeVertexWeights(boneActors, boneActors.getBoneActor(boneName), vertices, operator)
                         .entrySet()) {
 
-                    int index = boneVerticesEntry.getKey();
-                    boneVertices.computeIfAbsent(index, _ -> new HashMap<>()).putAll(boneVerticesEntry.getValue());
+                    int index = boneVertexEntry.getKey();
+                    HashMap<Vector3f, Float> newVertexMap = boneVertexEntry.getValue();
+                    boneVertices.compute(index, (key, vertexMap) -> {
+
+                        if (vertexMap == null) {
+
+                            return newVertexMap;
+                        }
+
+                        vertexMap.putAll(newVertexMap);
+                        return vertexMap;
+                    });
                 }
             }
 
-            if (boneActor == null || boneActor == BoneActor.DEFAULT) {
+            if (boneActor == BoneActor.DEFAULT) {
 
                 return boneVertices;
             }
 
-            return boneActor.apply(boneVertices, pivotPoint);
+            boneActor.apply(boneVertices, pivotPoint);
+            return boneVertices;
         }
     }
 }

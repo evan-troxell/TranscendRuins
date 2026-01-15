@@ -75,11 +75,6 @@ public class LoggedException extends Exception {
     private final String errorCode;
 
     /**
-     * <code>Date</code>: The time at which this exception occurred.
-     */
-    private final Date time;
-
-    /**
      * Creates a new instance of the <code>LoggedException</code> exception.
      * 
      * @param path      <code>TracedPath</code>: The path to the exception.
@@ -91,7 +86,6 @@ public class LoggedException extends Exception {
         this.path = path;
         this.message = message;
         this.errorCode = errorCode;
-        time = new Date(System.currentTimeMillis());
 
         print();
     }
@@ -104,32 +98,32 @@ public class LoggedException extends Exception {
      */
     private void print() {
 
-        String timeString = new SimpleDateFormat("HH:mm:ss").format(time);
-        String errorMessage = "[" + errorCode + "] >>> ";
-        errorMessage += path;
+        StringBuilder errorMessage = new StringBuilder("[");
+        errorMessage.append(errorCode);
+        errorMessage.append("] >>> ");
+        errorMessage.append(path);
+        errorMessage.append(" | ");
+        errorMessage.append(message);
 
-        errorMessage += " | " + timeString + " | ";
-        errorMessage += message;
-
-        write(errorMessage);
+        write(errorMessage.toString());
     }
 
     /**
      * Records an error message to the logs directory.
      * 
-     * @param message <code>String</code>: The message to record to the file.
+     * @param errorMessage <code>String</code>: The message to record to the file.
      */
-    private static void write(String message) {
+    private static void write(String errorMessage) {
 
-        String logs = LOG_PATH.retrieve() + "\n\n\n" + message;
+        String logs = LOG_PATH.retrieve() + "\n\n\n" + errorMessage;
         try {
 
             LOG_PATH.writeTo(logs);
-            System.out.println(message);
+            System.out.println(errorMessage);
         } catch (IOException e) {
 
             System.out.println(e);
-            System.out.println("INTERNAL EXCEPTION: \"" + message + "\" COULD NOT BE LOGGED");
+            System.out.println("INTERNAL EXCEPTION: \"" + errorMessage + "\" COULD NOT BE LOGGED");
         }
 
         System.out.println("\n\n");

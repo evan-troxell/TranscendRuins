@@ -60,9 +60,9 @@ public final class ItemAttributes extends ModelAssetAttributes {
         return attack;
     }
 
-    private final Double detectionRange;
+    private final Float detectionRange;
 
-    public final Double getDetectionRange() {
+    public final Float getDetectionRange() {
 
         return detectionRange;
     }
@@ -92,7 +92,7 @@ public final class ItemAttributes extends ModelAssetAttributes {
 
         attack = AttackSchema.createAttack(json, isBase);
 
-        TracedEntry<Double> detectionRangeEntry = json.getAsDouble("detectionRange", true, null);
+        TracedEntry<Float> detectionRangeEntry = json.getAsFloat("detectionRange", true, null);
         detectionRange = detectionRangeEntry.getValue();
     }
 }

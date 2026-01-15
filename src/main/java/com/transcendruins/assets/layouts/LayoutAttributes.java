@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.AssetType;
 import static com.transcendruins.assets.AssetType.ELEMENT;
 import static com.transcendruins.assets.AssetType.ENTITY;
@@ -41,7 +42,6 @@ import com.transcendruins.assets.modelassets.elements.ElementInstance;
 import com.transcendruins.assets.modelassets.entities.EntityContext;
 import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
@@ -309,7 +309,7 @@ public final class LayoutAttributes extends AssetAttributes {
 
         private final AssetPresets presets;
 
-        private final Vector tileOffset;
+        private final Vector3f tileOffset;
 
         private final ContinuousRange heading;
 
@@ -324,8 +324,8 @@ public final class LayoutAttributes extends AssetAttributes {
             String typeKey = type.name().toLowerCase();
             presets = getDefinition(json, typeKey, type);
 
-            TracedEntry<Vector> tileOffsetEntry = json.getAsVector("tileOffset", true, 3, null, null);
-            tileOffset = tileOffsetEntry.containsValue() ? tileOffsetEntry.getValue() : Vector.IDENTITY_VECTOR;
+            TracedEntry<Vector3f> tileOffsetEntry = json.getAsVector3f("tileOffset", true);
+            tileOffset = tileOffsetEntry.containsValue() ? tileOffsetEntry.getValue() : Vector3f.ZERO;
 
             heading = ContinuousRange.createRange(json, "heading", true, 0, num -> 0 <= num && num < 360);
 
@@ -386,7 +386,7 @@ public final class LayoutAttributes extends AssetAttributes {
                 EntityContext context = new EntityContext(presets, location);
                 EntityInstance entity = context.instantiate();
 
-                double degrees = heading.get(random.next());
+                float degrees = (float) heading.get(random.next());
                 entity.rotate(degrees);
 
                 entity.setPosition(0, 0);

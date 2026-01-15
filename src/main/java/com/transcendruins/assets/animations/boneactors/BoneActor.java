@@ -19,9 +19,9 @@ package com.transcendruins.assets.animations.boneactors;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.transcendruins.geometry.Matrix;
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 
 /**
  * <code>BoneActor</code>: A class representing the transformations to apply to
@@ -33,13 +33,12 @@ public final class BoneActor {
      * <code>BoneActor</code>: A bone actor which performs no translation, rotation,
      * or scaling on a bone.
      */
-    public static final BoneActor DEFAULT = new BoneActor(Vector.IDENTITY_VECTOR, Quaternion.IDENTITY_QUATERNION,
-            Matrix.IDENTITY_3X3);
+    public static final BoneActor DEFAULT = new BoneActor(null, null, null);
 
     /**
-     * <code>Vector</code>: The vector to translate bones by.
+     * <code>Vector3f</code>: The vector to translate bones by.
      */
-    private final Vector position;
+    private final Vector3f position;
 
     /**
      * <code>Quaternion</code>: The quaternion to rotate bones by.
@@ -47,18 +46,18 @@ public final class BoneActor {
     private final Quaternion rotation;
 
     /**
-     * <code>Matrix</code>: The matrix to scale bones by.
+     * <code>Matrix3f</code>: The matrix to scale bones by.
      */
-    private final Matrix scale;
+    private final Matrix3f scale;
 
     /**
      * Creates a new instance of the <code>BoneActor</code> class.
      * 
-     * @param position <code>Vector</code>: The vector to translate bones by.
+     * @param position <code>Vector3f</code>: The vector to translate bones by.
      * @param rotation <code>Quaternion</code>: The quaternion to rotate bones by.
-     * @param scale    <code>Matrix</code>: The matrix to scale bones by.
+     * @param scale    <code>Matrix3f</code>: The matrix to scale bones by.
      */
-    public BoneActor(Vector position, Quaternion rotation, Matrix scale) {
+    public BoneActor(Vector3f position, Quaternion rotation, Matrix3f scale) {
 
         this.position = position;
         this.rotation = rotation;
@@ -80,65 +79,68 @@ public final class BoneActor {
             return boneActor;
         }
 
-        return new BoneActor(position == Vector.IDENTITY_VECTOR ? boneActor.position : boneActor.position.add(position),
-                rotation == Quaternion.IDENTITY_QUATERNION ? boneActor.rotation : boneActor.rotation.multiply(rotation),
-                scale == Matrix.IDENTITY_3X3 ? boneActor.scale : boneActor.scale.multiply(scale));
+        return new BoneActor(
+                boneActor.position == null ? position
+                        : position == null ? boneActor.position : boneActor.position.add(position),
+                boneActor.rotation == null ? rotation
+                        : rotation == null ? boneActor.rotation : boneActor.rotation.mult(rotation),
+                boneActor.scale == null ? scale : scale == null ? boneActor.scale : boneActor.scale.mult(scale));
     }
 
     /**
      * Applies the transformations of this <code>BoneActor</code> instance to a
-     * vector about a specific pivot point.
+     * vector about a specific pivot point. This <b>will</b> mutate the input
+     * vector.
      * 
-     * @param vector     <code>Vector</code>: The vector to apply the
+     * @param vector     <code>Vector3f</code>: The vector to apply the
      *                   transformations to.
-     * @param pivotPoint <code>Vector</code>: The pivot point to operate about.
-     * 
-     * @return <code>Vector</code>: The resulting vector.
+     * @param pivotPoint <code>Vector3f</code>: The pivot point to operate about.
      */
-    public final Vector transform(Vector vector, Vector pivotPoint) {
+    public final void transform(Vector3f vector, Vector3f pivotPoint) {
 
-        if (this == DEFAULT) {
+        vector.subtractLocal(pivotPoint);
+        if (scale != null) {
 
-            return vector;
+            scale.multLocal(vector);
         }
 
-        return vector.subtract(pivotPoint).multiply(scale).rotate(rotation).add(position).add(pivotPoint);
+        if (rotation != null) {
+
+            rotation.multLocal(vector);
+        }
+
+        if (position != null) {
+
+            vector.addLocal(position);
+        }
+        vector.addLocal(pivotPoint);
     }
 
     /**
      * Applies this <code>BoneActor</code> instance to a set of vertices.
      * 
-     * @param vertices   <code>Map&lt;Integer, Map&lt;Vector, Double&gt;&gt;</code>:
+     * @param vertices   <code>HashMap&lt;Integer, HashMap&lt;Vector3f, Float&gt;&gt;</code>:
      *                   The vertices to apply this <code>BoneActor</code> instance
      *                   to.
-     * @param pivotPoint <code>Vector</code>: The origin about which to perform all
-     *                   relevant transformations.
-     * @return <code>Map&lt;Integer, Map&lt;Vector, Double&gt;&gt;</code>: The
-     *         transformed vertices.
+     * @param pivotPoint <code>Vector3f</code>: The origin about which to perform
+     *                   all relevant transformations.
      */
-    public final Map<Integer, Map<Vector, Double>> apply(Map<Integer, Map<Vector, Double>> vertices,
-            Vector pivotPoint) {
+    public final void apply(HashMap<Integer, HashMap<Vector3f, Float>> vertices, Vector3f pivotPoint) {
+
+        if (this == DEFAULT) {
+
+            return;
+        }
 
         // If the bone actor does not exist, a new set should still be created - create
         // a default bone actor used only to copy over vertices.
-        HashMap<Integer, Map<Vector, Double>> modifiedVertices = new HashMap<>();
 
-        for (Map.Entry<Integer, Map<Vector, Double>> boneWeightsEntry : vertices.entrySet()) {
+        for (Map.Entry<Integer, HashMap<Vector3f, Float>> boneWeightsEntry : vertices.entrySet()) {
 
-            int index = boneWeightsEntry.getKey();
-            HashMap<Vector, Double> verticesMap = new HashMap<>();
+            for (Vector3f vertex : boneWeightsEntry.getValue().keySet()) {
 
-            for (Map.Entry<Vector, Double> vertexEntry : boneWeightsEntry.getValue().entrySet()) {
-
-                double weight = vertexEntry.getValue();
-                Vector vertex = transform(vertexEntry.getKey(), pivotPoint);
-
-                verticesMap.put(vertex, weight);
+                transform(vertex, pivotPoint);
             }
-
-            modifiedVertices.put(index, verticesMap);
         }
-
-        return modifiedVertices;
     }
 }

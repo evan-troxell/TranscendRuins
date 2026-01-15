@@ -12,9 +12,9 @@ public final class AttackInstance extends Instance {
         return damage;
     }
 
-    private double range;
+    private float range;
 
-    public final double getRange() {
+    public final float getRange() {
 
         return range;
     }
@@ -39,7 +39,7 @@ public final class AttackInstance extends Instance {
         AttackSchema attributes = (AttackSchema) attributeSet;
 
         damage = calculateAttribute(attributes.getDamage(), damage, attributes, 0);
-        range = calculateAttribute(attributes.getRange(), range, attributes, 0.0);
+        range = calculateAttribute(attributes.getRange(), range, attributes, 0.0f);
         speed = calculateAttribute(attributes.getSpeed(), speed, attributes, -1.0);
         cooldown = calculateAttribute(attributes.getCooldown(), cooldown, attributes, 0.0);
     }

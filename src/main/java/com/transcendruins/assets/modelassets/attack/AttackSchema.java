@@ -16,9 +16,9 @@ public final class AttackSchema extends Attributes {
         return damage;
     }
 
-    private final Double range;
+    private final Float range;
 
-    public final Double getRange() {
+    public final Float getRange() {
 
         return range;
     }
@@ -37,7 +37,7 @@ public final class AttackSchema extends Attributes {
         return cooldown;
     }
 
-    public AttackSchema(Integer damage, Double range, Double speed, Double cooldown, boolean isBase) {
+    public AttackSchema(Integer damage, Float range, Double speed, Double cooldown, boolean isBase) {
 
         super(isBase);
         this.damage = damage;
@@ -51,8 +51,8 @@ public final class AttackSchema extends Attributes {
         TracedEntry<Integer> damageEntry = json.getAsInteger("damage", true, null, num -> num >= 0);
         Integer damage = damageEntry.getValue();
 
-        TracedEntry<Double> attackRangeEntry = json.getAsDouble("attackRange", true, null, num -> num >= 0);
-        Double attackRange = attackRangeEntry.getValue();
+        TracedEntry<Float> attackRangeEntry = json.getAsFloat("attackRange", true, null, num -> num >= 0);
+        Float attackRange = attackRangeEntry.getValue();
 
         TracedEntry<Double> attackSpeedEntry = json.getAsDouble("attackSpeed", true, null, num -> num > 0 || num == -1);
         Double attackSpeed = attackSpeedEntry.getValue();

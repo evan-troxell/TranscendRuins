@@ -21,6 +21,11 @@ public final record MaterialData(BufferedImage image, int textureWidth, int text
         return getMaterialBit(5);
     }
 
+    public final boolean backfaceCulling() {
+
+        return getMaterialBit(6);
+    }
+
     public Material createMaterial(AssetManager assetManager) {
 
         boolean lit = getMaterialBit(0);
@@ -75,11 +80,9 @@ public final record MaterialData(BufferedImage image, int textureWidth, int text
             material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
         }
 
-        // Backface culling
-        if (!getMaterialBit(6)) {
-
-            material.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
-        }
+        // Disable backface culling. To enable backface culling, duplicate each face
+        // with reversed normals to properly account for lighting artifact.
+        material.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Back);
 
         return material;
     }

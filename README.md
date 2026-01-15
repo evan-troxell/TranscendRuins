@@ -335,10 +335,10 @@ Exception logs are output in the `Transcend Ruins Library` folder that is automa
          Log 12:34:56
 ----------------------------------------
 
-[Property Exception -> Model Reference Without Definition Exception] >>> assets/packs/content/vanilla [1, 0, 0].contentpack/element/crate.json | 17:27:47 | JSON parsing exception at field [attributes, model] : Model TranscendRuins:cube is referenced but cannot be traced.
+[Property Exception -> Model Reference Without Definition Exception] >>> assets/packs/content/vanilla [1, 0, 0].contentpack/element/crate.json | JSON parsing exception at field [attributes, model] : Model TranscendRuins:cube is referenced but cannot be traced.
 
 
-[Property Exception -> Missing Property Exception] >>> assets/packs/content/vanilla [1, 0, 0].contentpack/entity/player.json | 17:27:47 | JSON parsing exception at field [attributes -> texture] : Property "texture" is undefined.
+[Property Exception -> Missing Property Exception] >>> assets/packs/content/vanilla [1, 0, 0].contentpack/entity/player.json | JSON parsing exception at field [attributes -> texture] : Property "texture" is undefined.
 ```
 
 ## Development Goals
@@ -374,9 +374,6 @@ transcendruins/
  │   │   ├─ App.java
  │   │   ├─ utilities/
  │   │   │   └─ ... # exceptions, file handling, immutable collections, json parsing, metadata, random, selection methods, sound
- │   │   │
- │   │   ├─ geometry/
- │   │   │   └─ ... # Matrix, Quaternion, Vector
  │   │   │
  │   │   ├─ rendering/
  │   │   │   └─ ... # RenderInstance, RenderPacket, render buffers

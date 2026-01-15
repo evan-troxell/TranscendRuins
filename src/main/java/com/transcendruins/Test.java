@@ -51,7 +51,7 @@ public class Test extends SimpleApplication implements ActionListener, AnalogLis
 
     private boolean mouseDown = false;
 
-    private final float mouseSensitivity = 1.5f;
+    private final float mouseSensitivity = 2.25f;
     private float pitch = 0.1f * FastMath.PI;
     private float yaw = 0.1725f * FastMath.PI;
 
@@ -178,7 +178,7 @@ public class Test extends SimpleApplication implements ActionListener, AnalogLis
         rootNode.addLight(sun);
 
         AmbientLight ambient = new AmbientLight();
-        ambient.setColor(ColorRGBA.White.mult(0.125f)); // adjust intensity
+        ambient.setColor(ColorRGBA.White.mult(0.22f)); // adjust intensity
         rootNode.addLight(ambient);
 
         cam.setLocation(new Vector3f(30 * 1.8f, 40, 42 * 1.8f));
@@ -367,7 +367,7 @@ public class Test extends SimpleApplication implements ActionListener, AnalogLis
         case "Backward" -> {
 
             positionMoved = true;
-            direction.addLocal(straight.mult(-1));
+            direction.addLocal(straight.negate());
         }
         case "Left" -> {
 
@@ -377,7 +377,7 @@ public class Test extends SimpleApplication implements ActionListener, AnalogLis
         case "Right" -> {
 
             positionMoved = true;
-            direction.addLocal(left.mult(-1));
+            direction.addLocal(left.negate());
         }
 
         case "CamRight" -> {
@@ -434,14 +434,12 @@ public class Test extends SimpleApplication implements ActionListener, AnalogLis
 
             direction.y = 0;
 
-            direction.normalizeLocal();
             walkDirection.addLocal(direction);
         }
 
         if (camMoved) {
 
-            // pitch = FastMath.clamp(pitch, -0.4f * FastMath.HALF_PI + 0.001f, 0.4f *
-            // FastMath.HALF_PI - 0.001f);
+            pitch = FastMath.clamp(pitch, -0.4f * FastMath.HALF_PI + 0.001f, 0.4f * FastMath.HALF_PI - 0.001f);
 
             Quaternion qYaw = new Quaternion().fromAngleAxis(yaw, Vector3f.UNIT_Y);
             Quaternion qPitch = new Quaternion().fromAngleAxis(pitch, Vector3f.UNIT_X);
@@ -463,11 +461,12 @@ public class Test extends SimpleApplication implements ActionListener, AnalogLis
 
         float change = 0.0015f;
 
-        yaw += change;
+        // yaw += change;
         Quaternion qYaw = new Quaternion().fromAngleAxis(yaw, Vector3f.UNIT_Y);
         Quaternion qPitch = new Quaternion().fromAngleAxis(pitch, Vector3f.UNIT_X);
         cam.setRotation(new Quaternion(0, 1, 0, 0).mult(qYaw).mult(qPitch));
-        cam.setLocation(new Vector3f(12 + 90 * (float) Math.sin(yaw), 40, 12 + 90 * (float) Math.cos(yaw)));
+        // cam.setLocation(new Vector3f(12 + 90 * (float) Math.sin(yaw), 40, 12 + 90 *
+        // (float) Math.cos(yaw)));
     }
 
     public static final Texture2D toTexture(BufferedImage awtImage) {

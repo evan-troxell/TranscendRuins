@@ -16,8 +16,9 @@
 
 package com.transcendruins.assets.animations.interpolation;
 
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.animations.AnimationAttributes.KeyFrame;
-import com.transcendruins.geometry.Quaternion;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 
@@ -25,22 +26,22 @@ public final class RotationFrame extends RotationModifier {
 
     private final Interpolation interpolation;
 
-    private final double animationLength;
+    private final float animationLength;
 
-    public RotationFrame(TracedDictionary json, double timestamp, double animationLength) throws LoggedException {
+    public RotationFrame(TracedDictionary json, float timestamp, float animationLength) throws LoggedException {
 
         super(json);
         interpolation = Interpolation.createInterpolation(json, "interpolation", timestamp);
         this.animationLength = animationLength;
     }
 
-    public RotationModifier interpolate(RotationFrame next, double t) {
+    public RotationModifier interpolate(RotationFrame next, float t) {
 
-        double inter = Interpolation.getInter(interpolation, next.interpolation, t, animationLength);
+        float inter = Interpolation.getInter(interpolation, next.interpolation, t, animationLength);
 
-        double angle = Interpolation.lerp(getAngle(), next.getAngle(), inter);
+        float angle = Interpolation.lerp(getAngle(), next.getAngle(), inter);
 
-        com.transcendruins.geometry.Vector axis = Interpolation.slerp(getAxis(), next.getAxis(), inter);
+        Vector3f axis = Interpolation.slerp(getAxis(), next.getAxis(), inter);
 
         return new RotationModifier(angle, axis);
     }
@@ -50,10 +51,10 @@ public final class RotationFrame extends RotationModifier {
      * 
      * @param lastFrame <code>KeyFrame</code>: The last frame to interpolate at.
      * @param nextFrame <code>KeyFrame</code>: The next frame to interpolate at.
-     * @param timestamp <code>double</code>: The timestamp to interpolate at.
+     * @param timestamp <code>float</code>: The timestamp to interpolate at.
      * @return <code>Quaternion</code>: The resulting rotation modifier.
      */
-    public static Quaternion interpolate(KeyFrame lastFrame, KeyFrame nextFrame, double timestamp) {
+    public static Quaternion interpolate(KeyFrame lastFrame, KeyFrame nextFrame, float timestamp) {
 
         RotationFrame last = lastFrame == null ? null : lastFrame.getRotation(KeyFrame.LAST);
         RotationFrame next = nextFrame == null ? null : nextFrame.getRotation(KeyFrame.NEXT);
@@ -73,6 +74,6 @@ public final class RotationFrame extends RotationModifier {
             return last.getTransform();
         }
 
-        return Quaternion.IDENTITY_QUATERNION;
+        return Quaternion.IDENTITY;
     }
 }

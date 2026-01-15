@@ -18,7 +18,8 @@ package com.transcendruins.assets.animations.interpolation;
 
 import java.util.List;
 
-import com.transcendruins.geometry.Vector;
+import com.jme3.math.FastMath;
+import com.jme3.math.Vector3f;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.json.TracedCollection;
@@ -32,18 +33,18 @@ import com.transcendruins.utilities.json.TracedEntry;
 public abstract class Interpolation {
 
     /**
-     * <code>double</code>: The timestamp of this <code>Interpolation</code>
+     * <code>float</code>: The timestamp of this <code>Interpolation</code>
      * instance.
      */
-    private final double timestamp;
+    private final float timestamp;
 
     /**
      * Retrieves the timestamp of this <code>Interpolation</code> instance.
      * 
-     * @return <code>double</code>: The <code>timestamp</code> field of this
+     * @return <code>float</code>: The <code>timestamp</code> field of this
      *         <code>Interpolation</code> instance.
      */
-    public final double getTimestamp() {
+    public final float getTimestamp() {
 
         return timestamp;
     }
@@ -53,11 +54,11 @@ public abstract class Interpolation {
      * 
      * @param json      <code>TracedCollection</code>: The collection to parse from.
      * @param key       <code>Object</code>: The key to retrieve.
-     * @param timestamp <code>double</code>: The timestamp to interpolate at.
+     * @param timestamp <code>float</code>: The timestamp to interpolate at.
      * @return <code>Interpolation</code>: The resulting interpolation.
      * @throws LoggedException Thrown if the collection could not be parsed.
      */
-    public static final Interpolation createInterpolation(TracedCollection collection, Object key, double timestamp)
+    public static final Interpolation createInterpolation(TracedCollection collection, Object key, float timestamp)
             throws LoggedException {
 
         TracedEntry<String> typeEntry = collection.get(key, List.of(
@@ -90,10 +91,10 @@ public abstract class Interpolation {
     /**
      * Creates a new instance of the <code>Interpolation</code> class.
      * 
-     * @param timestamp <code>double</code>: The timestamp of this
+     * @param timestamp <code>float</code>: The timestamp of this
      *                  <code>Interpolation</code> instance in seconds.
      */
-    public Interpolation(double timestamp) {
+    public Interpolation(float timestamp) {
 
         this.timestamp = timestamp;
     }
@@ -101,11 +102,11 @@ public abstract class Interpolation {
     /**
      * Retrieves the value of this <code>Interpolation</code> at a given timestamp.
      * 
-     * @param timestamp <code>double</code>: The timestamp to compute at.
-     * @return <code>double</code>: The resulting value between <code>0.0</code> and
+     * @param timestamp <code>float</code>: The timestamp to compute at.
+     * @return <code>float</code>: The resulting value between <code>0.0</code> and
      *         <code>1.0</code>.
      */
-    protected abstract double getValue(double timestamp);
+    protected abstract float getValue(float timestamp);
 
     /**
      * <code>StepInterpolation</code>: A class representing an interpolation method
@@ -116,17 +117,17 @@ public abstract class Interpolation {
         /**
          * Creates a new instance of the <code>StepInterpolation</code> class.
          * 
-         * @param timestamp <code>double</code>: The timestamp to interpolate at.
+         * @param timestamp <code>float</code>: The timestamp to interpolate at.
          */
-        public StepInterpolation(double timestamp) {
+        public StepInterpolation(float timestamp) {
 
             super(timestamp);
         }
 
         @Override
-        protected double getValue(double timestamp) {
+        protected float getValue(float timestamp) {
 
-            return 0.0;
+            return 0.0f;
         }
     }
 
@@ -139,15 +140,15 @@ public abstract class Interpolation {
         /**
          * Creates a new instance of the <code>LinearInterpolation</code> class.
          * 
-         * @param timestamp <code>double</code>: The timestamp to interpolate at.
+         * @param timestamp <code>float</code>: The timestamp to interpolate at.
          */
-        public LinearInterpolation(double timestamp) {
+        public LinearInterpolation(float timestamp) {
 
             super(timestamp);
         }
 
         @Override
-        protected double getValue(double timestamp) {
+        protected float getValue(float timestamp) {
 
             return timestamp;
         }
@@ -161,42 +162,42 @@ public abstract class Interpolation {
     public static final class EaseInterpolation extends Interpolation {
 
         /**
-         * <code>double</code>: Approximately the greatest slope to change by at the
+         * <code>float</code>: Approximately the greatest slope to change by at the
          * beginning or ending timestamp. The slope will approach this value as the
          * gradient grows towards positive or negative infinity without bounds, but will
          * approach <code>1.0</code> as this value approaches <code>0.0</code>.
          */
-        private final double gradient;
+        private final float gradient;
 
         /**
          * Create a new instance of the <code>EaseInterpolation</code> class.
          * 
          * @param collection <code>TracedCollection</code>: The collection to parse.
          * @param key        <code>Object</code>: The key to retrieve.
-         * @param timestamp  <code>double</code>: The timestamp to interpolate at.
+         * @param timestamp  <code>float</code>: The timestamp to interpolate at.
          * @param easeIn     <code>boolean</code>: Whether or not to ease in. A
          *                   <code>false</code> value will multiply the gradient by
          *                   <code>-1.0</code>.
          * @throws LoggedException Thrown if the collection could not be parsed.
          */
-        public EaseInterpolation(TracedCollection collection, Object key, double timestamp, boolean easeIn)
+        public EaseInterpolation(TracedCollection collection, Object key, float timestamp, boolean easeIn)
                 throws LoggedException {
 
             super(timestamp);
 
             gradient = collection.get(key, List.of(
 
-                    collection.stringCase(_ -> 2.0), collection.dictCase(entry -> {
+                    collection.stringCase(_ -> 2.0f), collection.dictCase(entry -> {
 
                         TracedDictionary json = entry.getValue();
-                        TracedEntry<Double> gradientEntry = json.getAsDouble("gradient", true, 2.0,
+                        TracedEntry<Float> gradientEntry = json.getAsFloat("gradient", true, 2.0f,
                                 num -> 0.0 <= num && num <= 10.0);
                         return gradientEntry.getValue();
                     }))) * (easeIn ? 1 : -1);
         }
 
         @Override
-        protected double getValue(double timestamp) {
+        protected float getValue(float timestamp) {
 
             // Use a linear approximation for very small gradients.
             if (Math.abs(gradient) <= 10e-6) {
@@ -204,8 +205,8 @@ public abstract class Interpolation {
                 return timestamp;
             }
 
-            double exp = Math.exp(gradient);
-            return (Math.pow(exp, timestamp) - 1) / (exp - 1);
+            float exp = FastMath.exp(gradient);
+            return (FastMath.pow(exp, timestamp) - 1) / (exp - 1);
         }
     }
 
@@ -218,38 +219,38 @@ public abstract class Interpolation {
     public static final class EaseInOutInterpolation extends Interpolation {
 
         /**
-         * <code>double</code>: Approximately the greatest slope to change by at
+         * <code>float</code>: Approximately the greatest slope to change by at
          * beginning and end or in the middle timestamp. The slope will approach this
          * value as the gradient grows towards positive or negative infinity without
          * bounds, but will approach <code>1.0</code> as this value approaches
          * <code>0.0</code>.
          */
-        private final double gradient;
+        private final float gradient;
 
         /**
          * Create a new instance of the <code>EaseInOutInterpolation</code> class.
          * 
          * @param collection  <code>TracedCollection</code>: The collection to parse.
          * @param key         <code>Object</code>: The key to retrieve.
-         * @param timestamp   <code>double</code>: The timestamp to interpolate at.
+         * @param timestamp   <code>float</code>: The timestamp to interpolate at.
          * @param forwardEase <code>boolean</code>: Whether or not to ease forward. A
          *                    <code>false</code> value will multiply the gradient by
          *                    <code>-1.0</code>.
          * @throws LoggedException Thrown if the collection could not be parsed.
          */
-        public EaseInOutInterpolation(TracedCollection collection, Object key, double timestamp, boolean forwardEase)
+        public EaseInOutInterpolation(TracedCollection collection, Object key, float timestamp, boolean forwardEase)
                 throws LoggedException {
             super(timestamp);
 
             gradient = collection.get(key, List.of(
 
-                    collection.stringCase(_ -> 2.0),
+                    collection.stringCase(_ -> 2.0f),
 
                     collection.dictCase(entry -> {
 
                         TracedDictionary json = entry.getValue();
 
-                        TracedEntry<Double> gradientEntry = json.getAsDouble("gradient", true, 2.0,
+                        TracedEntry<Float> gradientEntry = json.getAsFloat("gradient", true, 2.0f,
 
                                 num -> 0.0 <= num && num <= 10.0);
                         return gradientEntry.getValue();
@@ -257,22 +258,22 @@ public abstract class Interpolation {
         }
 
         @Override
-        protected double getValue(double timestamp) {
+        protected float getValue(float timestamp) {
 
             // Use a linear approximation for very small timestamps.
             if (Math.abs(gradient) <= 10e-6) {
                 return timestamp;
             }
 
-            double exp = Math.exp(gradient);
-            double t = timestamp * 2;
+            float exp = FastMath.exp(gradient);
+            float t = timestamp * 2;
 
             if (t < 1) {
 
-                return 0.5 * (Math.pow(exp, t) - 1) / (exp - 1);
+                return 0.5f * (FastMath.pow(exp, t) - 1) / (exp - 1);
             } else {
 
-                return 0.5 * (2 - (Math.pow(exp, 2 - t) - 1) / (exp - 1));
+                return 0.5f * (2 - (FastMath.pow(exp, 2 - t) - 1) / (exp - 1));
             }
         }
     }
@@ -284,17 +285,17 @@ public abstract class Interpolation {
      *                        the interpolation method) to use.
      * @param nextInterp      <code>Interpolation</code>: The second keyframe to
      *                        use.
-     * @param timestamp       <code>double</code>: The timestamp to interpolate at.
-     * @param animationLength <code>double</code>: The total length of the
-     *                        animation, used to downscale the timestamp.
-     * @return <code>double</code>: The interpolation value as a number between
+     * @param timestamp       <code>float</code>: The timestamp to interpolate at.
+     * @param animationLength <code>float</code>: The total length of the animation,
+     *                        used to downscale the timestamp.
+     * @return <code>float</code>: The interpolation value as a number between
      *         <code>0.0</code> and <code>1.0</code>.
      */
-    protected static final double getInter(Interpolation lastInterp, Interpolation nextInterp, double timestamp,
-            double animationLength) {
+    protected static final float getInter(Interpolation lastInterp, Interpolation nextInterp, float timestamp,
+            float animationLength) {
 
-        double last = lastInterp.timestamp;
-        double next = nextInterp.timestamp;
+        float last = lastInterp.timestamp;
+        float next = nextInterp.timestamp;
 
         if (next < last) {
 
@@ -307,7 +308,7 @@ public abstract class Interpolation {
             }
         }
 
-        double length = next - last;
+        float length = next - last;
         timestamp -= last;
 
         if (timestamp == 0 || length == 0) {
@@ -320,19 +321,19 @@ public abstract class Interpolation {
             return 1;
         }
 
-        return lastInterp.getValue(Math.clamp(timestamp / length, 0.0, 1.0));
+        return lastInterp.getValue(FastMath.clamp(timestamp / length, 0, 1));
     }
 
     /**
      * Linearly interpolates between a beginning and end value at an intermediate
      * timestamp.
      * 
-     * @param start <code>double</code>: The start value to use.
-     * @param end   <code>double</code>: The end value to use.
-     * @param inter <code>double</code>: The intermediate timestamp to use.
-     * @return <code>double</code>: The interpolated value.
+     * @param start <code>float</code>: The start value to use.
+     * @param end   <code>float</code>: The end value to use.
+     * @param inter <code>float</code>: The intermediate timestamp to use.
+     * @return <code>float</code>: The interpolated value.
      */
-    public static double lerp(double start, double end, double inter) {
+    public static float lerp(float start, float end, float inter) {
 
         return (1 - inter) * start + inter * end;
     }
@@ -341,44 +342,44 @@ public abstract class Interpolation {
      * Linearly interpolates between a beginning and end vector at an intermediate
      * timestamp.
      * 
-     * @param start <code>Vector</code>: The start vector to use.
-     * @param end   <code>Vector</code>: The end vector to use.
-     * @param inter <code>double</code>: The intermediate timestamp to use.
-     * @return <code>Vector</code>: The interpolated vector.
+     * @param start <code>Vector3f</code>: The start vector to use.
+     * @param end   <code>Vector3f</code>: The end vector to use.
+     * @param inter <code>float</code>: The intermediate timestamp to use.
+     * @return <code>Vector3f</code>: The interpolated vector.
      */
-    public static Vector lerp(Vector start, Vector end, double inter) {
+    public static Vector3f lerp(Vector3f start, Vector3f end, float inter) {
 
-        return start.multiply(1 - inter).add(end.multiply(inter));
+        return start.mult(1 - inter).add(end.mult(inter));
     }
 
     /**
      * Spherically linearly interpolates between a beginning and end vector at an
      * intermediate timestamp.
      * 
-     * @param start <code>Vector</code>: The start vector to use.
-     * @param end   <code>Vector</code>: The end vector to use.
-     * @param inter <code>double</code>: The intermediate timestamp to use.
-     * @return <code>Vector</code>: The interpolated vector.
+     * @param start <code>Vector3f</code>: The start vector to use.
+     * @param end   <code>Vector3f</code>: The end vector to use.
+     * @param inter <code>float</code>: The intermediate timestamp to use.
+     * @return <code>Vector3f</code>: The interpolated vector.
      */
-    public static Vector slerp(Vector start, Vector end, double inter) {
+    public static Vector3f slerp(Vector3f start, Vector3f end, float inter) {
 
-        double v1Mag = start.magnitude();
-        double v2Mag = end.magnitude();
+        float v1Mag = start.length();
+        float v2Mag = end.length();
 
         if (v1Mag == 0.0 || v2Mag == 0.0) {
 
-            return Vector.IDENTITY_VECTOR;
+            return Vector3f.ZERO;
         }
 
-        start = start.multiply(1.0 / v1Mag);
-        end = end.multiply(1.0 / v2Mag);
+        start = start.mult(1 / v1Mag);
+        end = end.mult(1 / v2Mag);
 
-        double cosO = start.dot(end);
+        float cosO = start.dot(end);
 
-        double o = (cosO < -1) ? Math.PI : ((cosO > 1) ? -Math.PI : Math.acos(cosO));
-        double sinO = Math.sin(o);
+        float o = (cosO < -1) ? FastMath.PI : ((cosO > 1) ? -FastMath.PI : FastMath.acos(cosO));
+        float sinO = FastMath.sin(o);
 
         return (sinO == 0) ? start
-                : start.multiply(Math.sin(o * (1 - inter)) / sinO).add(end.multiply(Math.sin(o * inter) / sinO));
+                : start.mult(FastMath.sin(o * (1 - inter)) / sinO).add(end.mult(FastMath.sin(o * inter) / sinO));
     }
 }

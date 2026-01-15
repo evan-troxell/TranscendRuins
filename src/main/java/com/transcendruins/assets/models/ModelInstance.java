@@ -23,12 +23,12 @@ import java.util.Map;
 import java.util.Set;
 
 import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelAttributes.WeightedVertex;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.renderbuffer.LightData;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -113,7 +113,7 @@ public final class ModelInstance extends AssetInstance {
         return allBones.containsKey(bone);
     }
 
-    public final Vector getPivotPoint(String bone) {
+    public final Vector3f getPivotPoint(String bone) {
 
         return allBones.get(bone).pivotPoint();
     }

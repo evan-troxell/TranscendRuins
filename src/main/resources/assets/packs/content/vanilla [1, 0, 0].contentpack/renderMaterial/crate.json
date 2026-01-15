@@ -4,9 +4,9 @@
     },
     "attributes": {
         "lit": true,
-
-        "diffuse": "#884411",
-        "ambient": "#FFFFFF",
-        "shininess": 1
+        "backfaceCulling": false,
+        "diffuse": "#C9B491",
+        "ambient": "#9E8165",
+        "shininess": 32
     }
 }

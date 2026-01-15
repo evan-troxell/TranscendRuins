@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.layouts.placement.GenerationPlacement;
 import com.transcendruins.assets.layouts.placement.GenerationShapeInstance;
 import com.transcendruins.assets.layouts.placement.PlacementArea;
@@ -36,7 +37,6 @@ import com.transcendruins.assets.modelassets.elements.ElementInstance;
 import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionInstance;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.rendering.renderbuffer.RenderBuffer;
 import com.transcendruins.utilities.metadata.Identifier;
@@ -688,7 +688,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
         HashSet<PrimaryAssetInstance> assets = new HashSet<>();
 
         EntityInstance playerEntity = player.getEntity();
-        Vector position = playerEntity.getPosition();
+        Vector3f position = playerEntity.getPosition();
         double x = position.getX();
         double y = position.getY();
 
@@ -735,7 +735,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
                     continue;
                 }
 
-                Vector displacement = interactionOption.getPosition(assetOption.getRotation(),
+                Vector3f displacement = interactionOption.getPosition(assetOption.getRotation(),
                         assetOption.getPosition().subtract(position));
                 double newDist_sqr = displacement.dot(displacement);
 
@@ -768,7 +768,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
             return null;
         }
 
-        Vector position = entity.getPosition();
+        Vector3f position = entity.getPosition();
 
         double sqr_r = range * range * World.UNIT_TILE * World.UNIT_TILE;
 
@@ -785,7 +785,7 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
 
         for (EntityInstance assetOption : assets) {
 
-            Vector displacement = assetOption.getPosition().subtract(position);
+            Vector3f displacement = assetOption.getPosition().subtract(position);
             double newDist_sqr = displacement.dot(displacement);
 
             if (newDist_sqr <= sqr_r && newDist_sqr < distance_sqr) {

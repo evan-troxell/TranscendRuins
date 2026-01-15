@@ -4,6 +4,8 @@ import java.awt.Point;
 import java.util.List;
 import java.util.Set;
 
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.AssetEvent;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
@@ -14,8 +16,6 @@ import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInte
 import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionSchema.InventoryAssetInteractionSchema;
 import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionSchema.PassagewayAssetInteractionSchema;
 import com.transcendruins.assets.scripts.TRScript;
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.world.AreaGrid;
@@ -25,11 +25,11 @@ import com.transcendruins.world.World;
 
 public abstract class AssetInteractionInstance {
 
-    private final Vector position;
+    private final Vector3f position;
 
-    public final Vector getPosition(Quaternion rotation, Vector offset) {
+    public final Vector3f getPosition(Quaternion rotation, Vector3f offset) {
 
-        return position.rotate(rotation).add(offset);
+        return rotation.mult(position).add(offset);
     }
 
     private final double duration;

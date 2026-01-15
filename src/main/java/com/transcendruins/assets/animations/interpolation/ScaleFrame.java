@@ -16,8 +16,9 @@
 
 package com.transcendruins.assets.animations.interpolation;
 
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.animations.AnimationAttributes.KeyFrame;
-import com.transcendruins.geometry.Matrix;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 
@@ -25,24 +26,23 @@ public final class ScaleFrame extends ScaleModifier {
 
     private final Interpolation interpolation;
 
-    private final double animationLength;
+    private final float animationLength;
 
-    public ScaleFrame(TracedDictionary json, double timestamp, double animationLength) throws LoggedException {
+    public ScaleFrame(TracedDictionary json, float timestamp, float animationLength) throws LoggedException {
 
         super(json);
         interpolation = Interpolation.createInterpolation(json, "interpolation", timestamp);
         this.animationLength = animationLength;
     }
 
-    public ScaleModifier interpolate(ScaleFrame next, double t) {
+    public ScaleModifier interpolate(ScaleFrame next, float t) {
 
-        double inter = Interpolation.getInter(interpolation, next.interpolation, t, animationLength);
+        float inter = Interpolation.getInter(interpolation, next.interpolation, t, animationLength);
 
-        com.transcendruins.geometry.Vector scale = Interpolation.lerp(getScale(), next.getScale(), inter);
+        Vector3f scale = Interpolation.lerp(getScale(), next.getScale(), inter);
 
-        double rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
-        com.transcendruins.geometry.Vector rotationAxis = Interpolation.slerp(getRotation().getAxis(),
-                next.getRotation().getAxis(), inter);
+        float rotationAngle = Interpolation.lerp(getRotation().getAngle(), next.getRotation().getAngle(), inter);
+        Vector3f rotationAxis = Interpolation.slerp(getRotation().getAxis(), next.getRotation().getAxis(), inter);
 
         return new ScaleModifier(scale, new RotationModifier(rotationAngle, rotationAxis));
     }
@@ -52,10 +52,10 @@ public final class ScaleFrame extends ScaleModifier {
      * 
      * @param lastFrame <code>KeyFrame</code>: The last frame to interpolate at.
      * @param nextFrame <code>KeyFrame</code>: The next frame to interpolate at.
-     * @param timestamp <code>double</code>: The timestamp to interpolate at.
-     * @return <code>Matrix</code>: The resulting scale modifier.
+     * @param timestamp <code>float</code>: The timestamp to interpolate at.
+     * @return <code>Matrix3f</code>: The resulting scale modifier.
      */
-    public static Matrix interpolate(KeyFrame lastFrame, KeyFrame nextFrame, double timestamp) {
+    public static Matrix3f interpolate(KeyFrame lastFrame, KeyFrame nextFrame, float timestamp) {
 
         ScaleFrame last = lastFrame == null ? null : lastFrame.getScale(KeyFrame.LAST);
         ScaleFrame next = nextFrame == null ? null : nextFrame.getScale(KeyFrame.NEXT);
@@ -75,6 +75,6 @@ public final class ScaleFrame extends ScaleModifier {
             return last.getTransform();
         }
 
-        return Matrix.IDENTITY_3X3;
+        return Matrix3f.IDENTITY;
     }
 }

@@ -16,10 +16,12 @@
 
 package com.transcendruins.assets.modelassets.items;
 
-import java.util.Map;
+import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
@@ -29,8 +31,6 @@ import com.transcendruins.assets.modelassets.attack.AttackInstance;
 import com.transcendruins.assets.modelassets.attack.AttackSchema;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelInstance;
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
 import com.transcendruins.rendering.renderbuffer.RenderBuffer;
 
 /**
@@ -39,15 +39,15 @@ import com.transcendruins.rendering.renderbuffer.RenderBuffer;
 public final class ItemInstance extends ModelAssetInstance {
 
     @Override
-    public final Vector getPosition() {
+    public final Vector3f getPosition() {
 
-        return Vector.IDENTITY_VECTOR;
+        return Vector3f.ZERO;
     }
 
     @Override
     public final Quaternion getRotation() {
 
-        return Quaternion.IDENTITY_QUATERNION;
+        return Quaternion.IDENTITY;
     }
 
     /**
@@ -129,7 +129,7 @@ public final class ItemInstance extends ModelAssetInstance {
     }
 
     @Override
-    protected final RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector position,
+    protected final RenderBuffer getParentPolygons(ModelInstance model, BoneActorSet boneActors, Vector3f position,
             Quaternion rotation) {
 
         // Under normal circumstances, this should not be possible.
@@ -140,15 +140,15 @@ public final class ItemInstance extends ModelAssetInstance {
     protected final RenderBuffer getChildPolygons(ModelInstance model, BoneActorSet boneActors,
             ModelAssetInstance parent, String attachment) {
 
-        Vector position = model.getPivotPoint(attachment);
+        Vector3f position = model.getPivotPoint(attachment);
         boneActors = new BoneActorSet(boneActors, parent.getBoneActors());
 
         Bone root = model.getRoot();
 
-        Map<Integer, Map<Vector, Double>> vertices = root.computeVertexWeights(boneActors, BoneActor.DEFAULT,
+        HashMap<Integer, HashMap<Vector3f, Float>> vertices = root.computeVertexWeights(boneActors, BoneActor.DEFAULT,
                 model.getVertices(), null);
 
-        RenderBuffer render = generatePolygons(vertices, position, Quaternion.IDENTITY_QUATERNION, root.pivotPoint());
+        RenderBuffer render = generatePolygons(vertices, position, Quaternion.IDENTITY, root.pivotPoint());
 
         return render;
     }
@@ -160,9 +160,9 @@ public final class ItemInstance extends ModelAssetInstance {
         return attack;
     }
 
-    private Double detectionRange;
+    private Float detectionRange;
 
-    public final Double getDetectionRange() {
+    public final Float getDetectionRange() {
 
         return detectionRange;
     }

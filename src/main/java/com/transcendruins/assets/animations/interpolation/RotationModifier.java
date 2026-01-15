@@ -16,8 +16,9 @@
 
 package com.transcendruins.assets.animations.interpolation;
 
-import com.transcendruins.geometry.Quaternion;
-import com.transcendruins.geometry.Vector;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.NumberBoundsException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.MissingPropertyException;
@@ -32,37 +33,37 @@ import com.transcendruins.utilities.json.TracedEntry;
 sealed public class RotationModifier permits RotationFrame {
 
     /**
-     * <code>double</code>: The angle of rotation of this
+     * <code>float</code>: The angle of rotation of this
      * <code>RotationModifier</code> instance.
      */
-    private final double angle;
+    private final float angle;
 
     /**
      * Retrieves the angle of rotation of this <code>RotationModifier</code>
      * instance.
      * 
-     * @return <code>double</code>: The <code>angle</code> field of this
+     * @return <code>float</code>: The <code>angle</code> field of this
      *         <code>RotationModifier</code> instance.
      */
-    public double getAngle() {
+    public float getAngle() {
 
         return angle;
     }
 
     /**
-     * <code>Vector</code>: The axis of rotation of this
+     * <code>Vector3f</code>: The axis of rotation of this
      * <code>RotationModifier</code> instance.
      */
-    private final Vector axis;
+    private final Vector3f axis;
 
     /**
      * Retrieves the axis of rotation of this <code>RotationModifier</code>
      * instance.
      * 
-     * @return <code>Vector</code>: The <code>axis</code> field of this
+     * @return <code>Vector3f</code>: The <code>axis</code> field of this
      *         <code>RotationModifier</code> instance.
      */
-    public Vector getAxis() {
+    public Vector3f getAxis() {
 
         return axis;
     }
@@ -80,20 +81,26 @@ sealed public class RotationModifier permits RotationFrame {
 
         if (json.containsKey("angle")) {
 
-            TracedEntry<Double> angleEntry = json.getAsDouble("angle", false, null);
-            angle = Math.toRadians(angleEntry.getValue());
+            TracedEntry<Float> angleEntry = json.getAsFloat("angle", false, null);
+            angle = FastMath.DEG_TO_RAD * angleEntry.getValue();
 
-            TracedEntry<Double> axisHeadingEntry = json.getAsDouble("axisHeading", true, 0.0);
-            double axisHeading = Math.toRadians(axisHeadingEntry.getValue());
+            TracedEntry<Float> axisHeadingEntry = json.getAsFloat("axisHeading", true, 0.0f);
+            float axisHeading = FastMath.DEG_TO_RAD * axisHeadingEntry.getValue();
 
-            TracedEntry<Double> axisPitchEntry = json.getAsDouble("axisPitch", true, 0.0);
-            double axisPitch = Math.toRadians(axisPitchEntry.getValue());
+            TracedEntry<Float> axisPitchEntry = json.getAsFloat("axisPitch", true, 0.0f);
+            float axisPitch = FastMath.DEG_TO_RAD * axisPitchEntry.getValue();
 
-            axis = Vector.fromUnitSphere(axisHeading, axisPitch);
+            float sinPitch = FastMath.sin(axisPitch);
+
+            float x = sinPitch * FastMath.cos(axisHeading);
+            float y = FastMath.cos(axisPitch);
+            float z = sinPitch * FastMath.sin(axisHeading);
+
+            axis = new Vector3f(x, y, z);
         } else {
 
             angle = 0;
-            axis = Vector.fromUnitSphere(0, 0);
+            axis = null;
         }
     }
 
@@ -103,18 +110,18 @@ sealed public class RotationModifier permits RotationFrame {
     public RotationModifier() {
 
         angle = 0;
-        axis = Vector.IDENTITY_VECTOR;
+        axis = null;
     }
 
     /**
      * Creates a new instance of the <code>RotationModifier</code> class.
      * 
-     * @param angle <code>double</code>: The angle of rotation of this
+     * @param angle <code>float</code>: The angle of rotation of this
      *              <code>RotationModifier</code> instance.
-     * @param axis  <code>Vector</code>: The axis of rotation of this
+     * @param axis  <code>Vector3f</code>: The axis of rotation of this
      *              <code>RotationModifier</code> instance.
      */
-    public RotationModifier(double angle, Vector axis) {
+    public RotationModifier(float angle, Vector3f axis) {
 
         this.angle = angle;
         this.axis = axis;
@@ -125,8 +132,13 @@ sealed public class RotationModifier permits RotationFrame {
      * 
      * @return <code>Quaternion</code>: The transformation quaternion.
      */
-    public Quaternion getTransform() {
+    public final Quaternion getTransform() {
 
-        return Quaternion.fromEulerRotation(angle, axis);
+        if (angle == 0 || axis == null) {
+
+            return Quaternion.IDENTITY;
+        }
+
+        return new Quaternion().fromAngleAxis(angle, axis);
     }
 }

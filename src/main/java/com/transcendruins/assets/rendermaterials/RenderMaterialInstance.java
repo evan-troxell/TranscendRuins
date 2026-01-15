@@ -50,14 +50,14 @@ public final class RenderMaterialInstance extends AssetInstance {
 
     private boolean transparent;
 
-    private boolean hasBackfaceCulling;
+    private boolean backfaceCulling;
 
     private int materialBitMask;
 
     private int createMaterialBitMask() {
 
         int mask = 0;
-        boolean[] bits = { lit, diffuses, hasAmbient, hasSpecular, hasSpecularMap, transparent, hasBackfaceCulling };
+        boolean[] bits = { lit, diffuses, hasAmbient, hasSpecular, hasSpecularMap, transparent, backfaceCulling };
 
         for (int i = 0; i < bits.length; i++) {
 
@@ -125,9 +125,8 @@ public final class RenderMaterialInstance extends AssetInstance {
         transparent = calculateAttribute(attributes.getTransparent(), transparent, attributes, false);
         setProperty("transparent", transparent);
 
-        hasBackfaceCulling = calculateAttribute(attributes.getHasBackfaceCulling(), hasBackfaceCulling, attributes,
-                false);
-        setProperty("hasBackfaceCulling", hasBackfaceCulling);
+        backfaceCulling = calculateAttribute(attributes.getBackfaceCulling(), backfaceCulling, attributes, true);
+        setProperty("backfaceCulling", backfaceCulling);
 
         materialBitMask = createMaterialBitMask();
         setProperty("materialBitMask", materialBitMask);
