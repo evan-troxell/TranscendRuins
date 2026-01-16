@@ -17,16 +17,19 @@
 package com.transcendruins.assets.layouts;
 
 import java.awt.Dimension;
+import java.util.function.Function;
 
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.layouts.LayoutAttributes.GenerationLayout;
 import com.transcendruins.assets.layouts.placement.GenerationPlacement;
 import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.utilities.selection.WeightedRoll;
 import com.transcendruins.world.AreaGrid;
+import com.transcendruins.world.World;
 
 /**
  * <code>LayoutInstance</code>: A class representing a generated layout
@@ -100,5 +103,16 @@ public final class LayoutInstance extends AssetInstance {
 
     @Override
     protected final void onUpdate(double time) {
+    }
+
+    @Override
+    public final LayoutInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        LayoutInstance asset = (LayoutInstance) super.clone(contextualize, world);
+
+        asset.spawn = spawn;
+        asset.generation = generation;
+
+        return asset;
     }
 }

@@ -2,15 +2,7 @@
     "metadata": {
         "identifier": "TranscendRuins:crate"
     },
-
-
-
-
-
-
-    
     "attributes": {
-
         "type": "sequence",
         "count": 3,
         "components": [
@@ -29,44 +21,5 @@
                 "item": "TranscendRuins:ironHatchet"
             }
         ]
-
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -22,27 +22,32 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.assets.schema.AssetAttributes;
 import com.transcendruins.assets.catalogue.locations.GlobalLocationInstance;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
+import com.transcendruins.assets.modelassets.items.ItemContext;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryContents;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySchema;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.rendering.renderbuffer.RenderBuffer;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.world.AreaGrid;
+import com.transcendruins.world.World;
 
 /**
  * <code>PrimaryAsset</code>: A class representing an <code>AssetInstance</code>
@@ -431,4 +436,52 @@ public abstract class PrimaryAssetInstance extends ModelAssetInstance {
      * @param time <code>double</code>: The time since the world was created.
      */
     protected abstract void onPrimaryAssetUpdate(double time);
+
+    @Override
+    public PrimaryAssetInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        PrimaryAssetInstance asset = (PrimaryAssetInstance) super.clone(contextualize, world);
+
+        asset.location = location;
+
+        HashSet<String> namedSlots = inventory.getNamedSlots();
+        asset.inventory.resize(namedSlots);
+        for (String named : namedSlots) {
+
+            InventorySlotInstance newSlot = asset.inventory.getSlot(named);
+            InventorySlotInstance oldSlot = inventory.getSlot(named);
+
+            if (newSlot == null || oldSlot == null) {
+
+                continue;
+            }
+
+            newSlot.setItem(oldSlot.getItem().clone(presets -> new ItemContext(presets, world, 1), world));
+        }
+
+        int gridSlots = inventory.getGridSize();
+        asset.inventory.resize(gridSlots);
+        for (int i = 0; i < gridSlots; i++) {
+
+            InventorySlotInstance newSlot = asset.inventory.getSlot(i);
+            InventorySlotInstance oldSlot = inventory.getSlot(i);
+
+            if (newSlot == null || oldSlot == null) {
+
+                continue;
+            }
+
+            newSlot.setItem(oldSlot.getItem().clone(presets -> new ItemContext(presets, world, 1), world));
+        }
+
+        asset.inventoryUi = inventoryUi;
+        asset.privateInventoryUi = privateInventoryUi;
+        asset.inventoryContents = inventoryContents;
+        asset.interaction = interaction;
+
+        asset.interactionCache.clear();
+        asset.interactionCache.putAll(interactionCache);
+
+        return asset;
+    }
 }

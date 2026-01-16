@@ -689,8 +689,8 @@ public final class AreaGrid implements PlacementArea, RenderInstance {
 
         EntityInstance playerEntity = player.getEntity();
         Vector3f position = playerEntity.getPosition();
-        double x = position.getX();
-        double y = position.getY();
+        double x = position.getX() / World.UNIT_TILE;
+        double y = position.getY() / World.UNIT_TILE;
 
         double range = player.getInteractionDetectionRange();
         if (range < 0) {

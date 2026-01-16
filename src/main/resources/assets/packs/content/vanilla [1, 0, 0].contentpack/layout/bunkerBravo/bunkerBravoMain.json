@@ -3,10 +3,10 @@
         "identifier": "TranscendRuins:bunkerBravoMain"
     },
     "attributes": {
-
         "definitions": {
             "layouts": {},
             "elements": {
+                "crate": "TranscendRuins:crate",
                 "entranceStairwell": {
                     "identifier": "TranscendRuins:stairwell",
                     "properties": {
@@ -22,13 +22,29 @@
                 "player": "TranscendRuins:player"
             }
         },
-
-        "type": "entity",
-        "entity": "player",
-        "connectionX": {
-            "type": "entity",
-            "entity": "player",
-            "connection": "test"
-        }
+        "type": "distributed",
+        "iterationType": "sequential",
+        "width": 5,
+        "length": 5,
+        "components": [
+            {
+                "component": {
+                    "type": "element",
+                    "element": "crate",
+                    "placement": {
+                        "center": {
+                            "type": "absolute",
+                            "x": 1,
+                            "z": 1
+                        }
+                    },
+                    "connectionX": {
+                        "type": "entity",
+                        "entity": "player",
+                        "connection": "test"
+                    }
+                }
+            }
+        ]
     }
 }

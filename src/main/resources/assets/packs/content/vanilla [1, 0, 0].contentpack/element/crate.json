@@ -26,35 +26,16 @@
                 }
             }
         },
-
         "inventoryContents": {
             "grid": {
                 "lootTable": "TranscendRuins:crate",
                 "chance": 100,
                 "shuffle": true
             },
-            "named": {
-            }
+            "named": {}
         },
-
         "interaction": {
             "type": "inventory"
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

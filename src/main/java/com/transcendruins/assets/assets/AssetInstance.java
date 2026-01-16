@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.swing.ImageIcon;
 
@@ -320,15 +321,18 @@ public abstract class AssetInstance extends Instance {
         if (isInitialized
                 && (removePermutations.isEmpty() || Collections.disjoint(appliedPermutations, removePermutations))) {
 
-            for (String permutationKey : addPermutations) {
+            if (!addPermutations.isEmpty()) {
 
-                AssetAttributes permutation = assetSchema.getPermutation(permutationKey);
-                applyAttributes(permutation);
+                for (String permutationKey : addPermutations) {
+
+                    AssetAttributes permutation = assetSchema.getPermutation(permutationKey);
+                    applyAttributes(permutation);
+                }
+
+                // Update the applied permutations.
+                appliedPermutations.removeAll(addPermutations);
+                appliedPermutations.addAll(addPermutations);
             }
-
-            // Update the applied permutations.
-            appliedPermutations.removeAll(addPermutations);
-            appliedPermutations.addAll(addPermutations);
 
             // Clear the permutation updates.
             addPermutations.clear();
@@ -445,5 +449,18 @@ public abstract class AssetInstance extends Instance {
         }
 
         return this == obj;
+    }
+
+    protected AssetInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        AssetInstance asset = contextualize.apply(assetPresets).instantiate();
+        asset.addPermutations.clear();
+        asset.removePermutations.clear();
+
+        asset.appliedPermutations.clear();
+        asset.appliedPermutations.addAll(appliedPermutations);
+        asset.updateAttributes();
+
+        return asset;
     }
 }

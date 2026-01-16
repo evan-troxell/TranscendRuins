@@ -17,12 +17,15 @@
 package com.transcendruins.assets.rendermaterials;
 
 import java.awt.image.BufferedImage;
+import java.util.function.Function;
 
 import com.jme3.math.ColorRGBA;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.rendering.renderbuffer.MaterialData;
+import com.transcendruins.world.World;
 
 /**
  * <code>RenderMaterialInstance</code>: A class representing a generated render
@@ -140,5 +143,29 @@ public final class RenderMaterialInstance extends AssetInstance {
 
         return new MaterialData(texture, textureWidth, textureHeight, materialBitMask, diffuse, ambient, shininess,
                 specular, specularMap);
+    }
+
+    @Override
+    public final RenderMaterialInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize,
+            World world) {
+
+        RenderMaterialInstance asset = (RenderMaterialInstance) super.clone(contextualize, world);
+
+        asset.lit = lit;
+        asset.diffuses = diffuses;
+        asset.diffuse = diffuse;
+        asset.hasAmbient = hasAmbient;
+        asset.ambient = ambient;
+        asset.shininess = shininess;
+        asset.hasSpecularMap = hasSpecularMap;
+        asset.specular = specular;
+        asset.hasSpecular = hasSpecular;
+        asset.specularMapPath = specularMapPath;
+        asset.specularMap = specularMap;
+        asset.transparent = transparent;
+        asset.backfaceCulling = backfaceCulling;
+        asset.materialBitMask = materialBitMask;
+
+        return asset;
     }
 }

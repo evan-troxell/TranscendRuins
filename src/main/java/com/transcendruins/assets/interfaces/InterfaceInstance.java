@@ -36,8 +36,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
@@ -2356,6 +2358,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private final InventoryComponentInstance secondaryUi;
 
         private InventorySlotInstance selectedSlot;
+        // private final ArrayList<Dragge> //todo FINISH
         private long prevClick = -1;
 
         private final ArrayList<ItemTransfer> transfers = new ArrayList<>();
@@ -2511,6 +2514,13 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         }
 
         private boolean primaryInventorySelected = true;
+        private boolean actionComplete = false;
+        private boolean draggable = false;
+
+        private ItemInstance draggedItem;
+        private int dragCount;
+
+        private final ArrayList<InventorySlotInstance> dragged = new ArrayList<>();
 
         @Override
         public void onComponentClick(int mouseX, int mouseY, TRScript value, long time) {
@@ -2553,25 +2563,15 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                 selectedSlot = newSlot;
                 primaryInventorySelected = newPrimaryInventorySelected;
-
-                if (newPrimaryInventorySelected) {
-
-                    primaryUi.setSelectedSlot(selectedSlot);
-                    secondaryUi.setSelectedSlot(selectedSlot);
-                } else {
-
-                    primaryUi.setSelectedSlot(selectedSlot);
-                    secondaryUi.setSelectedSlot(selectedSlot);
-                }
+                primaryUi.setSelectedSlot(selectedSlot);
+                secondaryUi.setSelectedSlot(selectedSlot);
 
                 return;
             }
 
             if (!selectedSlot.containsItem()) {
 
-                selectedSlot = null;
-                primaryUi.setSelectedSlot(selectedSlot);
-                secondaryUi.setSelectedSlot(selectedSlot);
+                actionComplete = true;
                 return;
             }
 
@@ -2585,42 +2585,102 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 if (!newSlot.isAcceptedType(firstItem)
                         || secondItem != null && !selectedSlot.isAcceptedType(secondItem)) {
 
-                    selectedSlot = null;
-                } else {
+                    if (firstItem != null) {
 
-                    // If the first item can be swapped, register the transfer.
-                    if (secondItem == null || secondItem.isLikeAsset(firstItem)
-                            && secondItem.getStackSize() < secondItem.getMaxStackSize()) {
-
-                        ImageIcon firstItemIcon = firstItem.getIcon();
-                        addTransfer(time, selectedSlot, primaryInventorySelected, newSlot, newPrimaryInventorySelected,
-                                firstItemIcon);
+                        draggable = true;
+                        draggedItem = firstItem;
+                        dragCount = draggedItem.getStackSize();
+                        dragged.add(selectedSlot);
                     }
-
-                    // If the second item is different, register the transfer.
-                    if (secondItem != null && !secondItem.isLikeAsset(firstItem)) {
-
-                        ImageIcon secondItemIcon = secondItem.getIcon();
-                        addTransfer(time, newSlot, newPrimaryInventorySelected, selectedSlot, primaryInventorySelected,
-                                secondItemIcon);
-                    }
-
-                    selectedSlot.transfer(newSlot);
-
-                    selectedSlot = null;
+                    actionComplete = true;
+                    return;
                 }
 
-                primaryUi.setSelectedSlot(selectedSlot);
-                secondaryUi.setSelectedSlot(selectedSlot);
+                // If the first item can be swapped, register the transfer.
+                if (secondItem == null || secondItem.isLikeAsset(firstItem)
+                        && secondItem.getStackSize() < secondItem.getMaxStackSize()) {
 
+                    ImageIcon firstItemIcon = firstItem.getIcon();
+                    addTransfer(time, selectedSlot, primaryInventorySelected, newSlot, newPrimaryInventorySelected,
+                            firstItemIcon);
+                }
+
+                // If the second item is different, register the transfer.
+                if (secondItem != null && !secondItem.isLikeAsset(firstItem)) {
+
+                    ImageIcon secondItemIcon = secondItem.getIcon();
+                    addTransfer(time, newSlot, newPrimaryInventorySelected, selectedSlot, primaryInventorySelected,
+                            secondItemIcon);
+                }
+
+                ItemInstance remainderItem = newSlot.putItem(firstItem);
+                selectedSlot.setItem(remainderItem);
+
+                if (newSlot.getItem() != secondItem) {
+
+                    selectedSlot = newSlot;
+                    primaryInventorySelected = newPrimaryInventorySelected;
+                    primaryUi.setSelectedSlot(selectedSlot);
+                    secondaryUi.setSelectedSlot(selectedSlot);
+                }
+
+                if (firstItem != null) {
+
+                    draggable = true;
+                    draggedItem = firstItem;
+                    dragCount = draggedItem.getStackSize();
+                    dragged.add(selectedSlot);
+                }
+
+                actionComplete = true;
                 return;
             }
 
-            // Attempt to add the inventory slot to the other inventory.
+            // Attempt to add the inventory slot to the other inventory or collect all
+            // duplicate items into the same slot.
             if (dt < 500) {
 
                 ItemInstance item = selectedSlot.getItem();
                 ImageIcon itemIcon = item.getIcon();
+
+                if (selectedSlot == newSlot && (!item.atCapacity())) {
+
+                    LinkedHashSet<InventorySlotInstance> slots = new LinkedHashSet<>();
+
+                    if (newPrimaryInventorySelected) {
+
+                        slots.addAll(primaryUi.getSlots(item));
+                        slots.addAll(secondaryUi.getSlots(item));
+                    } else {
+
+                        slots.addAll(secondaryUi.getSlots(item));
+                        slots.addAll(primaryUi.getSlots(item));
+
+                    }
+
+                    // Ensure the selected slot is not operated on.
+                    slots.remove(selectedSlot);
+
+                    if (!slots.isEmpty()) {
+
+                        for (InventorySlotInstance otherSlot : slots) {
+
+                            if (selectedSlot.getItem().atCapacity()) {
+
+                                break;
+                            }
+
+                            addTransfer(time, otherSlot, otherSlot.getParent() == primaryInventory, selectedSlot,
+                                    primaryInventorySelected, itemIcon);
+
+                            ItemInstance remainderItem = selectedSlot.putItem(otherSlot.getItem());
+                            otherSlot.setItem(remainderItem);
+                        }
+
+                        actionComplete = true;
+                        return;
+                    }
+                }
 
                 InventoryComponentInstance transferInventory = newPrimaryInventorySelected ? secondaryUi : primaryUi;
 
@@ -2657,12 +2717,70 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 selectedSlot.setItem(leftover);
             }
 
-            selectedSlot = null;
+            actionComplete = true;
+        }
 
-            primaryUi.setSelectedSlot(selectedSlot);
-            secondaryUi.setSelectedSlot(selectedSlot);
+        @Override
+        public final boolean onPress(int mouseX, int mouseY) {
 
-            // Remove the selection.
+            if (draggable && dragged.size() < dragCount) {
+
+                InventorySlotInstance draggedSlot = null;
+                if (primaryUi.contains(mouseX, mouseY)) {
+
+                    draggedSlot = primaryUi.getSlotAt(mouseX - primaryUi.getContentOffsetX() - primaryUi.getX(),
+                            mouseY - primaryUi.getContentOffsetY() - primaryUi.getY());
+                } else if (secondaryUi.contains(mouseX, mouseY)) {
+
+                    draggedSlot = secondaryUi.getSlotAt(mouseX - secondaryUi.getContentOffsetX() - secondaryUi.getX(),
+                            mouseY - secondaryUi.getContentOffsetY() - secondaryUi.getY());
+                }
+
+                if (draggedSlot != null && draggedSlot.isEmpty() && draggedSlot.isAcceptedType(draggedItem)) {
+
+                    draggedSlot.setItem(draggedItem.duplicate());
+                    dragged.add(draggedSlot);
+
+                    selectedSlot = draggedSlot;
+                    primaryUi.setSelectedSlot(draggedSlot);
+                    secondaryUi.setSelectedSlot(draggedSlot);
+
+                    int draggedSlots = dragged.size();
+
+                    int perSlot = dragCount / draggedSlots;
+                    int leftover = dragCount % draggedSlots;
+
+                    for (int i = 0; i < leftover; i++) {
+
+                        dragged.get(i).getItem().setStackSize(perSlot + 1);
+                    }
+
+                    for (int i = leftover; i < draggedSlots; i++) {
+
+                        dragged.get(i).getItem().setStackSize(perSlot);
+                    }
+                }
+            }
+
+            return super.onPress(mouseX, mouseY);
+        }
+
+        @Override
+        public final void onComponentRelease(int mouseX, int mouseY, TRScript value, long time) {
+
+            dragged.clear();
+            draggable = false;
+            dragCount = 0;
+
+            if (actionComplete) {
+
+                actionComplete = false;
+
+                selectedSlot = null;
+
+                primaryUi.setSelectedSlot(selectedSlot);
+                secondaryUi.setSelectedSlot(selectedSlot);
+            }
         }
     }
 
@@ -2720,6 +2838,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             }
 
             return null;
+        }
+
+        public final List<InventorySlotInstance> getSlots(ItemInstance item) {
+
+            return slots.keySet().stream().filter(slot -> slot.containsItem(item)).toList();
         }
 
         private final HashMap<String, ImageIcon> slotIcons = new HashMap<>();
@@ -3015,5 +3138,15 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
     public boolean getPointerCapture() {
 
         return false;
+    }
+
+    @Override
+    public final InterfaceInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        InterfaceInstance asset = (InterfaceInstance) super.clone(contextualize, world);
+        // Note: there is absolutely NO feasible way to clone a user interface. This is
+        // the best you'll get. Good luck with whatever requires you to clone this bad
+        // boy!
+        return asset;
     }
 }

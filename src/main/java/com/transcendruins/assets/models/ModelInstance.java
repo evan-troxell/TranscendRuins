@@ -21,17 +21,20 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelAttributes.WeightedVertex;
 import com.transcendruins.rendering.renderbuffer.LightData;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
+import com.transcendruins.world.World;
 
 /**
  * <code>ModelInstance</code>: A class representing a generated model instance.
@@ -255,5 +258,28 @@ public final class ModelInstance extends AssetInstance {
     @Override
     protected final void onUpdate(double time) {
 
+    }
+
+    @Override
+    public final ModelInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        ModelInstance asset = (ModelInstance) super.clone(contextualize, world);
+
+        asset.textureWidth = textureWidth;
+        asset.textureHeight = textureHeight;
+        asset.root = root;
+        asset.allBones = allBones;
+        asset.vertices = vertices;
+        asset.uvs = uvs;
+        asset.polygons = polygons;
+        asset.lights = lights;
+
+        asset.disableByBone.clear();
+        asset.disableByBone.addAll(disableByBone);
+
+        asset.disableByTag.clear();
+        asset.disableByTag.addAll(disableByTag);
+
+        return asset;
     }
 }

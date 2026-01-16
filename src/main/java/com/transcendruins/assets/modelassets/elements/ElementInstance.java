@@ -23,11 +23,13 @@ import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.function.Function;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetAttributes;
@@ -155,11 +157,13 @@ public final class ElementInstance extends PrimaryAssetInstance {
         return new Rectangle(tileX, tileZ, rotatedTileWidth, rotatedTileLength);
     }
 
+    private AreaGrid area;
     private ImmutableSet<AreaTile> tiles = new ImmutableSet<>();
 
     @Override
     public final void updateArea(AreaGrid area) {
 
+        this.area = area;
         AreaTile[] areaTiles = getArea(area);
         setTiles(Arrays.stream(areaTiles).toList());
     }
@@ -229,7 +233,7 @@ public final class ElementInstance extends PrimaryAssetInstance {
     public final Vector3f getPosition() {
 
         float x = (position.x + rotatedTileWidth / 2.0f) * World.UNIT_TILE;
-        float y = tileOffset.getY(); // TODO adjust for tile height
+        float y = tileOffset.y; // TODO adjust for tile height
         float z = (position.y + rotatedTileLength / 2.0f) * World.UNIT_TILE;
 
         if (tileOffset != Vector3f.ZERO) {
@@ -238,26 +242,26 @@ public final class ElementInstance extends PrimaryAssetInstance {
 
             case World.EAST -> {
 
-                x += tileOffset.getX();
-                z += tileOffset.getZ();
+                x += tileOffset.x;
+                z += tileOffset.z;
             }
 
             case World.NORTH -> {
 
-                x -= tileOffset.getZ();
-                z += tileOffset.getX();
+                x -= tileOffset.z;
+                z += tileOffset.x;
             }
 
             case World.WEST -> {
 
-                x -= tileOffset.getX();
-                z -= tileOffset.getZ();
+                x -= tileOffset.x;
+                z -= tileOffset.z;
             }
 
             case World.SOUTH -> {
 
-                x += tileOffset.getZ();
-                z -= tileOffset.getX();
+                x += tileOffset.z;
+                z -= tileOffset.x;
             }
             }
         }
@@ -332,5 +336,22 @@ public final class ElementInstance extends PrimaryAssetInstance {
 
     @Override
     protected final void onPrimaryAssetUpdate(double time) {
+    }
+
+    @Override
+    public final ElementInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        ElementInstance asset = (ElementInstance) super.clone(contextualize, world);
+
+        asset.tileWidth = tileWidth;
+        asset.tileLength = tileLength;
+        asset.position.setLocation(position);
+        asset.rotatedTileWidth = rotatedTileWidth;
+        asset.rotatedTileLength = rotatedTileLength;
+        asset.heading = heading;
+
+        area.addElement(asset, area.getTag(this));
+
+        return asset;
     }
 }

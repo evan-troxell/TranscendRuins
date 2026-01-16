@@ -17,6 +17,7 @@
 package com.transcendruins.assets.modelassets.entities;
 
 import java.awt.Rectangle;
+import java.util.function.Function;
 
 import javax.swing.ImageIcon;
 
@@ -24,6 +25,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.modelassets.attack.AttackInstance;
 import com.transcendruins.assets.modelassets.attack.AttackSchema;
 import com.transcendruins.assets.modelassets.entities.EntityAttributes.FloatDimension;
@@ -31,6 +33,7 @@ import com.transcendruins.assets.modelassets.items.ItemInstance;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetAttributes;
 import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
+import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.world.AreaGrid;
 import com.transcendruins.world.World;
 import com.transcendruins.world.calls.AttackCall;
@@ -418,5 +421,26 @@ public final class EntityInstance extends PrimaryAssetInstance {
     protected void onPrimaryAssetUpdate(double time) {
 
         updateAttack(time);
+    }
+
+    @Override
+    public final EntityInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        EntityInstance asset = (EntityInstance) super.clone(contextualize, world);
+
+        asset.tileWidth = tileWidth;
+        asset.tileLength = tileLength;
+        asset.position = new Vector3f(position);
+        asset.rotatedTileWidth = rotatedTileWidth;
+        asset.rotatedTileLength = rotatedTileLength;
+        asset.heading = heading;
+
+        InventorySlotInstance mainhandSlot = asset.getInventory().getSlot(InventoryInstance.MAINHAND);
+        asset.mainhandItem = mainhandSlot == null ? null : mainhandSlot.getItem();
+        asset.detectionRange = detectionRange;
+        asset.mapIconPath = mapIconPath;
+        asset.mapIcon = mapIcon;
+
+        return asset;
     }
 }

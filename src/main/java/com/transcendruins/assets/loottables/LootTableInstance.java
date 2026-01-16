@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.transcendruins.assets.Attributes;
@@ -36,6 +37,7 @@ import com.transcendruins.utilities.immutable.ImmutableMap;
 import com.transcendruins.utilities.random.DeterministicRandom;
 import com.transcendruins.utilities.selection.DiscreteRange;
 import com.transcendruins.utilities.selection.SelectionType;
+import com.transcendruins.world.World;
 
 public final class LootTableInstance extends AssetInstance {
 
@@ -278,5 +280,16 @@ public final class LootTableInstance extends AssetInstance {
 
             return items;
         }
+    }
+
+    @Override
+    public final LootTableInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        LootTableInstance asset = (LootTableInstance) super.clone(contextualize, world);
+
+        asset.loot = loot;
+        asset.items = items;
+
+        return asset;
     }
 }

@@ -16,9 +16,13 @@
 
 package com.transcendruins.assets.recipes;
 
+import java.util.function.Function;
+
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.world.World;
 
 /**
  * <code>RecipeInstance</code>: A class representing a generated recipe
@@ -49,5 +53,13 @@ public final class RecipeInstance extends AssetInstance {
 
     @Override
     protected void onUpdate(double time) {
+    }
+
+    @Override
+    public final RecipeInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        RecipeInstance asset = (RecipeInstance) super.clone(contextualize, world);
+
+        return asset;
     }
 }

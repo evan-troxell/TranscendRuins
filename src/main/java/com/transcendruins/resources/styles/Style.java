@@ -431,11 +431,7 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
             case "triggerPhase" -> triggerPhase = TriggerPhase.createTriggerPhase(json, property);
 
-            case "pointerCapture" -> {
-
-                TracedEntry<Boolean> pointerCaptureEntry = json.getAsBoolean(property, false, null);
-                pointerCapture = pointerCaptureEntry.getValue();
-            }
+            case "pointerCapture" -> createBoolean(json, property);
             }
         }
 

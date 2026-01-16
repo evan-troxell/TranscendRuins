@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Function;
 
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -28,6 +29,7 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.models.ModelAttributes.WeightedVertex;
 import com.transcendruins.assets.models.ModelContext;
 import com.transcendruins.assets.models.ModelInstance;
@@ -39,6 +41,7 @@ import com.transcendruins.rendering.RenderInstance;
 import com.transcendruins.rendering.renderbuffer.LightData;
 import com.transcendruins.rendering.renderbuffer.RenderBuffer;
 import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.world.World;
 
 /**
  * <code>ModelAssetInstance</code>: A class representing an
@@ -300,4 +303,23 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
      *         <code>ModelAssetInstance</code> instance.
      */
     public abstract Quaternion getRotation();
+
+    @Override
+    protected ModelAssetInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        ModelAssetInstance asset = (ModelAssetInstance) super.clone(contextualize, world);
+        asset.texturePath = texturePath;
+        asset.texture = texture;
+
+        asset.model = model.clone(presets -> new ModelContext(presets, world, asset), world);
+        asset.renderMaterial = renderMaterial.clone(presets -> new RenderMaterialContext(presets, world, asset), world);
+
+        asset.stateController = stateController == null ? null
+                : (StateControllerInstance) stateController
+                        .clone(presets -> new StateControllerContext(presets, world, asset), world);
+
+        asset.categories = categories;
+
+        return asset;
+    }
 }

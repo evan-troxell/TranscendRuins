@@ -17,6 +17,7 @@
 package com.transcendruins.assets.modelassets.items;
 
 import java.util.HashMap;
+import java.util.function.Function;
 
 import javax.swing.ImageIcon;
 
@@ -25,6 +26,7 @@ import com.jme3.math.Vector3f;
 import com.transcendruins.assets.animations.boneactors.BoneActor;
 import com.transcendruins.assets.animations.boneactors.BoneActorSet;
 import com.transcendruins.assets.assets.AssetContext;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
 import com.transcendruins.assets.modelassets.attack.AttackInstance;
@@ -32,6 +34,7 @@ import com.transcendruins.assets.modelassets.attack.AttackSchema;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelInstance;
 import com.transcendruins.rendering.renderbuffer.RenderBuffer;
+import com.transcendruins.world.World;
 
 /**
  * <code>ItemInstance</code>: A class representing a generated item instance.
@@ -247,5 +250,27 @@ public final class ItemInstance extends ModelAssetInstance {
 
         item.setStackSize(difference);
         return item;
+    }
+
+    public final ItemInstance duplicate() {
+
+        World world = getWorld();
+        ItemInstance item = clone(presets -> new ItemContext(presets, world, stackSize), world);
+
+        return item;
+    }
+
+    @Override
+    public final ItemInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        ItemInstance asset = (ItemInstance) super.clone(contextualize, world);
+
+        asset.maxStackSize = maxStackSize;
+        asset.stackSize = stackSize;
+        asset.icon = icon;
+        asset.iconPath = iconPath;
+        asset.detectionRange = detectionRange;
+
+        return asset;
     }
 }

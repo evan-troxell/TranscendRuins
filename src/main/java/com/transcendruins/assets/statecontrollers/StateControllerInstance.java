@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.animations.AnimationContext;
@@ -32,6 +33,7 @@ import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.assets.statecontrollers.StateControllerAttributes.AnimationStateSchema;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
+import com.transcendruins.world.World;
 
 /**
  * <code>StateControllerInstance</code>: A class representing a generated
@@ -225,5 +227,28 @@ public final class StateControllerInstance extends AssetInstance {
 
         // Compile animations into a single set.
         return new BoneActorSet(boneActors);
+    }
+
+    @Override
+    public final StateControllerInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize,
+            World world) {
+
+        StateControllerInstance asset = (StateControllerInstance) super.clone(contextualize, world);
+
+        asset.states = states;
+        asset.defaultState = defaultState;
+        asset.state = state;
+        asset.timeOfCreation = timeOfCreation;
+        asset.timeLength = timeLength;
+
+        asset.animations.clear();
+        asset.animations.addAll(animations.stream()
+                .map(anim -> anim.clone(presets -> new AnimationContext(presets, world, asset), world)).toList());
+
+        asset.transitions.clear();
+        asset.transitions.putAll(transitions);
+
+        return asset;
+
     }
 }

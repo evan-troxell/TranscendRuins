@@ -28,6 +28,11 @@ public final class InventorySlotInstance extends Instance {
 
     private final InventoryInstance parent;
 
+    public final InventoryInstance getParent() {
+
+        return parent;
+    }
+
     private final String name;
 
     public final String getName() {
@@ -92,9 +97,10 @@ public final class InventorySlotInstance extends Instance {
             return false;
         }
 
-        transfer(other);
+        ItemInstance remainderItem = other.putItem(item);
+        setItem(remainderItem);
 
-        return item == newItem;
+        return getItem() == newItem;
     }
 
     public final ItemInstance putItem(ItemInstance item) {

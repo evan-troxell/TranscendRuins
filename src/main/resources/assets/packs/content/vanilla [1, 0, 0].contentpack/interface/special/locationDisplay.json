@@ -19,7 +19,7 @@
                     "color": "rgb(64, 64, 64)",
                     "style": "solid"
                 },
-                "backgroundColor": "rgb(160, 160, 160, 128)",
+                "backgroundColor": "rgb(160, 160, 160, 192)",
                 "gapHeight": 50,
                 "paddingHorizontal": 20,
                 "paddingVertical": 20

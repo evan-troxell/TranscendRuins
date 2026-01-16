@@ -18,6 +18,7 @@ package com.transcendruins.assets.animations;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.function.Function;
 
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
@@ -31,8 +32,10 @@ import com.transcendruins.assets.animations.interpolation.RotationFrame;
 import com.transcendruins.assets.animations.interpolation.ScaleFrame;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
+import com.transcendruins.assets.assets.AssetPresets;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
+import com.transcendruins.world.World;
 
 /**
  * <code>AnimationInstance</code>: A class representing a generated animation
@@ -287,5 +290,24 @@ public final class AnimationInstance extends AssetInstance {
         }
 
         return higherIndex;
+    }
+
+    @Override
+    public final AnimationInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
+
+        AnimationInstance asset = (AnimationInstance) super.clone(contextualize, world);
+
+        asset.playbackSpeed = playbackSpeed;
+        asset.startingTimestamp = startingTimestamp;
+        asset.reversed = reversed;
+        asset.length = length;
+        asset.holdOnFinish = holdOnFinish;
+        asset.loopOnFinish = loopOnFinish;
+        asset.cycleOnFinish = cycleOnFinish;
+        asset.keyframes = keyframes;
+        asset.bones = bones;
+        asset.timestampsSorted = timestampsSorted;
+
+        return asset;
     }
 }
