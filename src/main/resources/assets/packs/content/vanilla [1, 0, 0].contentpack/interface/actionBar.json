@@ -1,6 +1,8 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:actionBar"
+        "identifier": "TranscendRuins:actionBar",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "style": {
@@ -100,7 +102,7 @@
                         ],
                         "icon": {
                             "type": "inventorySlot",
-                            "slot": "mainhand",
+                            "inventorySlot": "mainhand",
                             "icon": "interface.actionBar.attack"
                         }
                     },
@@ -129,7 +131,7 @@
                         ],
                         "icon": {
                             "type": "inventorySlot",
-                            "slot": "offhand"
+                            "inventorySlot": "offhand"
                         }
                     },
                     "count": 1,

@@ -32,16 +32,16 @@ public abstract class AssetInteractionInstance {
         return rotation.mult(position).add(offset);
     }
 
-    private final double duration;
+    private final long duration;
 
-    public final double getDuration() {
+    public final long getDuration() {
 
         return duration;
     }
 
-    private final double cooldown;
+    private final long cooldown;
 
-    public final double getCooldown() {
+    public final long getCooldown() {
 
         return cooldown;
     }

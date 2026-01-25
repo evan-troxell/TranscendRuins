@@ -200,16 +200,25 @@ public final class InventorySlotInstance extends Instance {
         return containsItem(item) && this.item.getStackSize() < this.item.getMaxStackSize();
     }
 
-    public final boolean canAddEmpty(ItemInstance item) {
-
-        return isEmpty() && isAcceptedType(item);
-    }
-
     private String modelAttachment;
 
     public final String getModelAttachment() {
 
         return modelAttachment;
+    }
+
+    private boolean lockAdd;
+
+    public final boolean getLockAdd() {
+
+        return lockAdd;
+    }
+
+    private boolean lockRemove;
+
+    public final boolean getLockRemove() {
+
+        return lockRemove;
     }
 
     public InventorySlotInstance(InventoryInstance parent, int index) {
@@ -231,5 +240,8 @@ public final class InventorySlotInstance extends Instance {
 
         acceptedTypes = calculateAttribute(attributes.getAcceptedTypes(), acceptedTypes, attributes, null);
         modelAttachment = calculateAttribute(attributes.getModelAttachment(), modelAttachment, attributes, null);
+
+        lockAdd = calculateAttribute(attributes.getLockAdd(), lockAdd, attributes, false);
+        lockRemove = calculateAttribute(attributes.getLockRemove(), lockRemove, attributes, false);
     }
 }

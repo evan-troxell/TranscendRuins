@@ -1,6 +1,8 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:crate.open"
+        "identifier": "TranscendRuins:crate.open",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "length": 10,

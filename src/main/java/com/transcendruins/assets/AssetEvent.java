@@ -153,11 +153,12 @@ public final class AssetEvent {
      */
     public AssetEvent(TracedDictionary json) throws LoggedException {
 
-        conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
+        TracedEntry<TracedArray> conditionsEntry = json.getAsArray("conditions", true);
+        if (conditionsEntry.containsValue()) {
 
             ArrayList<TRScript> conditionsList = new ArrayList<>();
 
-            TracedArray conditionsJson = entry.getValue();
+            TracedArray conditionsJson = conditionsEntry.getValue();
             for (int i : conditionsJson) {
 
                 TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
@@ -165,61 +166,65 @@ public final class AssetEvent {
                 conditionsList.add(condition);
             }
 
-            return new ImmutableList<>(conditionsList);
-        }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+            conditions = new ImmutableList<>(conditionsList);
+        } else {
 
-            TRScript condition = entry.getValue();
-            return new ImmutableList<>(condition);
-        })));
-
-        ArrayList<TracedEntry<String>> addList = new ArrayList<>();
-        ArrayList<TracedEntry<String>> removeList = new ArrayList<>();
+            conditions = new ImmutableList<>();
+        }
 
         TracedEntry<TracedDictionary> permutationsEntry = json.getAsDict("permutations", true);
         if (permutationsEntry.containsValue()) {
 
             TracedDictionary permutationsJson = permutationsEntry.getValue();
+            add = permutationsJson.get("add", List.of(
 
-            TracedEntry<TracedArray> addEntry = permutationsJson.getAsArray("add", true);
-            if (addEntry.containsValue()) {
+                    json.stringCase(entry -> new ImmutableList<>(entry)), json.arrayCase(entry -> {
 
-                TracedArray addJson = addEntry.getValue();
-                for (int i : addJson) {
+                        TracedArray addJson = entry.getValue();
 
-                    TracedEntry<String> permutationEntry = addJson.getAsString(i, false, null);
-                    addList.add(permutationEntry);
-                }
-            }
+                        ArrayList<TracedEntry<String>> addList = new ArrayList<>();
+                        for (int i : addJson) {
 
-            TracedEntry<TracedArray> removeEntry = permutationsJson.getAsArray("remove", true);
-            if (removeEntry.containsValue()) {
+                            addList.add(addJson.getAsString(i, false, null));
+                        }
 
-                TracedArray removeJson = removeEntry.getValue();
-                for (int i : removeJson) {
+                        return new ImmutableList<>(addList);
+                    }), json.nullCase(_ -> new ImmutableList<>())));
 
-                    TracedEntry<String> permutationEntry = removeJson.getAsString(i, false, null);
-                    removeList.add(permutationEntry);
-                }
-            }
+            remove = permutationsJson.get("remove", List.of(
+
+                    json.stringCase(entry -> new ImmutableList<>(entry)), json.arrayCase(entry -> {
+
+                        TracedArray removeJson = entry.getValue();
+
+                        ArrayList<TracedEntry<String>> removeList = new ArrayList<>();
+                        for (int i : removeJson) {
+
+                            removeList.add(removeJson.getAsString(i, false, null));
+                        }
+
+                        return new ImmutableList<>(removeList);
+                    }), json.nullCase(_ -> new ImmutableList<>())));
+        } else {
+
+            add = new ImmutableList<>();
+            remove = new ImmutableList<>();
         }
 
-        add = new ImmutableList<>(addList);
-        remove = new ImmutableList<>(removeList);
+        run = json.get("run", List.of(
 
-        ArrayList<TracedEntry<String>> runList = new ArrayList<>();
+                json.stringCase(entry -> new ImmutableList<>(entry)), json.arrayCase(entry -> {
 
-        TracedEntry<TracedArray> runEntry = json.getAsArray("run", true);
-        if (runEntry.containsValue()) {
+                    TracedArray runJson = entry.getValue();
 
-            TracedArray runJson = runEntry.getValue();
+                    ArrayList<TracedEntry<String>> runList = new ArrayList<>();
+                    for (int i : runJson) {
 
-            for (int i : runJson) {
+                        runList.add(runJson.getAsString(i, false, null));
+                    }
 
-                runList.add(runJson.getAsString(i, false, null));
-            }
-        }
-
-        run = new ImmutableList<>(runList);
+                    return new ImmutableList<>(runList);
+                }), json.nullCase(_ -> new ImmutableList<>())));
 
         HashMap<String, Object> setMap = new HashMap<>();
 

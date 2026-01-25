@@ -1,0 +1,100 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:forge",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "model": "TranscendRuins:cube",
+        "renderMaterial": "TranscendRuins:crate",
+        "texture": "element.forge",
+        "inventory": {
+            "id": "elementForgeInventory",
+            "ui": {
+                "grid": {
+                    "id": "elementForgeGridSlot",
+                    "rows": 2,
+                    "cols": 2
+                },
+                "named": {
+                    "fuel": {
+                        "id": "elementForgeFuelSlot",
+                        "classes": [
+                            "fuelSlot"
+                        ],
+                        "slotIcon": "interface.inventory.fuelSlotUnlit",
+                        "selectedSlotIcon": "interface.inventory.fuelSlotUnlitSelected",
+                        "slotIconFilled": "interface.inventory.fuelSlot",
+                        "selectedSlotIconFilled": "interface.inventory.fuelSlotSelected"
+                    },
+                    "output": {
+                        "id": "elementForgeOutputSlot",
+                        "classes": [
+                            "outputSlot"
+                        ]
+                    }
+                },
+                "fuelBar": {
+                    "id": "elementForgeFuelBar"
+                },
+                "header": {
+                    "type": "text",
+                    "id": "elementForgeHeader",
+                    "classes": [
+                        "header"
+                    ],
+                    "text": "element.inventory.forge"
+                },
+                "body": {
+                    "type": "container",
+                    "id": "elementForgeBody",
+                    "classes": [
+                        "body"
+                    ],
+                    "components": [
+                        {
+                            "type": "icon",
+                            "id": "elementForgeOutputArrow",
+                            "icon": "interface.inventory.outputArrowSmall"
+                        }
+                    ]
+                },
+                "footer": {
+                    "type": "text",
+                    "id": "elementForgeFooter",
+                    "classes": [
+                        "footer"
+                    ],
+                    "text": "footer"
+                }
+            },
+            "grid": {
+                "slots": 4
+            },
+            "named": {
+                "fuel": {
+                    "acceptedTypes": [
+                        "fuel"
+                    ]
+                },
+                "output": {
+                    "lockAdd": true
+                }
+            }
+        },
+        "crafting": {
+            "category": "forge",
+            "input": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "output": "output",
+            "fuel": "fuel"
+        },
+        "interaction": {
+            "type": "inventory"
+        }
+    }
+}

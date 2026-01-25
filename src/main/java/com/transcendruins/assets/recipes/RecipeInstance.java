@@ -22,6 +22,9 @@ import com.transcendruins.assets.Attributes;
 import com.transcendruins.assets.assets.AssetContext;
 import com.transcendruins.assets.assets.AssetInstance;
 import com.transcendruins.assets.assets.AssetPresets;
+import com.transcendruins.utilities.immutable.ImmutableList;
+import com.transcendruins.utilities.immutable.ImmutableMap;
+import com.transcendruins.utilities.metadata.Identifier;
 import com.transcendruins.world.World;
 
 /**
@@ -29,6 +32,41 @@ import com.transcendruins.world.World;
  * instance.
  */
 public final class RecipeInstance extends AssetInstance {
+
+    private ImmutableMap<AssetPresets, Integer> input;
+
+    public final ImmutableMap<AssetPresets, Integer> getInput() {
+
+        return input;
+    }
+
+    private ImmutableMap<Identifier, ImmutableList<Integer>> inputCounts;
+
+    public final ImmutableMap<Identifier, ImmutableList<Integer>> getInputCounts() {
+
+        return inputCounts;
+    }
+
+    private AssetPresets output;
+
+    public final AssetPresets getOutput() {
+
+        return output;
+    }
+
+    private int outputCount;
+
+    public final int getOutputCount() {
+
+        return outputCount;
+    }
+
+    private long duration;
+
+    public final long getDuration() {
+
+        return duration;
+    }
 
     /**
      * Creates a new instance of the <code>RecipeInstance</code> class.
@@ -49,6 +87,14 @@ public final class RecipeInstance extends AssetInstance {
     public void applyAttributes(Attributes attributeSet) {
 
         RecipeAttributes attributes = (RecipeAttributes) attributeSet;
+
+        input = calculateAttribute(attributes.getInput(), input);
+        inputCounts = calculateAttribute(attributes.getInputCounts(), inputCounts);
+
+        output = calculateAttribute(attributes.getOutput(), output);
+        outputCount = calculateAttribute(attributes.getOutputCount(), outputCount);
+
+        duration = calculateAttribute(attributes.getDuration(), duration, attributes, 0l);
     }
 
     @Override
@@ -59,6 +105,12 @@ public final class RecipeInstance extends AssetInstance {
     public final RecipeInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
 
         RecipeInstance asset = (RecipeInstance) super.clone(contextualize, world);
+
+        asset.input = input;
+        asset.inputCounts = inputCounts;
+        asset.output = output;
+        asset.outputCount = outputCount;
+        asset.duration = duration;
 
         return asset;
     }

@@ -354,10 +354,10 @@ public final class GlobalLocationInstance extends PropertyHolder {
     }
 
     /**
-     * <code>double</code>: The total duration of time spent inside the location
-     * since the last reset, in minutes.
+     * <code>long</code>: The total duration of time spent inside the location since
+     * the last reset, in milliseconds.
      */
-    private double resetOffsetCounter = 0.0;
+    private long resetOffsetCounter = 0;
 
     /**
      * <code>boolean</code>: Whether or not this code>GlobalLocationInstance</code>
@@ -402,7 +402,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
         // If the location is active and has not reached the reset duration, do not
         // regenerate.
-        if (active && (reset.getDuration() == -1 || getMinutesUntilReset(now) > 0)) {
+        if (active && (reset.getDuration() == -1 || getDurationUntilReset(now) > 0)) {
 
             return false;
         }
@@ -473,7 +473,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
         if (players.isEmpty()) {
 
             ZonedDateTime now = ZonedDateTime.now();
-            resetOffsetCounter += minutesBetween(prevEntranceTimestamp, now);
+            resetOffsetCounter += durationBetween(prevEntranceTimestamp, now);
 
             prevEntranceTimestamp = null;
         }
@@ -552,15 +552,15 @@ public final class GlobalLocationInstance extends PropertyHolder {
     }
 
     /**
-     * Determines the length in minutes until the reset countdown will end.
+     * Determines the duration in millicseconds until the reset countdown will end.
      * 
      * @param now <code>ZonedDateTime</code>: The current moment in time.
-     * @return <code>double</code>: The duration in minutes.
+     * @return <code>long</code>: The duration in milliseconds.
      */
-    public final double getMinutesUntilReset(ZonedDateTime now) {
+    public final long getDurationUntilReset(ZonedDateTime now) {
 
-        double minutes = minutesBetween(locationResetTimestamp, now);
-        return reset.getDuration() - minutes + resetOffsetCounter;
+        long ms = durationBetween(locationResetTimestamp, now);
+        return reset.getDuration() - ms + resetOffsetCounter;
     }
 
     /**
@@ -582,28 +582,28 @@ public final class GlobalLocationInstance extends PropertyHolder {
 
         if (!players.isEmpty()) {
 
-            double minutes = reset.getDuration() + resetOffsetCounter + minutesBetween(prevEntranceTimestamp, now)
-                    - minutesBetween(locationResetTimestamp, now);
+            long ms = reset.getDuration() + resetOffsetCounter + durationBetween(prevEntranceTimestamp, now)
+                    - durationBetween(locationResetTimestamp, now);
 
-            return formatMinutes(minutes);
+            return formatDuration(ms);
         }
 
-        double remaining = getMinutesUntilReset(now);
+        long remaining = getDurationUntilReset(now);
         if (remaining < 0) {
 
             return null;
         }
 
-        return formatMinutes(remaining);
+        return formatDuration(remaining);
     }
 
     /**
-     * Determines the length in minutes until the location will end.
+     * Determines the duration in milliseconds until the location will end.
      * 
      * @param now <code>ZonedDateTime</code>: The current moment in time.
-     * @return <code>double</code>: The duration in minutes.
+     * @return <code>long</code>: The duration in milliseconds.
      */
-    public final double getMinutesUntilEnd(ZonedDateTime now) {
+    public final long getDurationUntilEnd(ZonedDateTime now) {
 
         ZonedDateTime start = duration.getStartTimestamp();
         if (start == null) {
@@ -611,9 +611,9 @@ public final class GlobalLocationInstance extends PropertyHolder {
             start = locationCreatedTimestamp;
         }
 
-        double minutes = minutesBetween(start, now);
+        long ms = durationBetween(start, now);
 
-        return duration.getDuration() - minutes;
+        return duration.getDuration() - ms;
     }
 
     /**
@@ -630,8 +630,8 @@ public final class GlobalLocationInstance extends PropertyHolder {
             return null;
         }
 
-        double remaining = getMinutesUntilEnd(now);
-        return formatMinutes(remaining);
+        long remaining = getDurationUntilEnd(now);
+        return formatDuration(remaining);
     }
 
     /**
@@ -723,7 +723,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
             return true;
         }
 
-        return duration.getDuration() != -1 && getMinutesUntilEnd(now) <= 0;
+        return duration.getDuration() != -1 && getDurationUntilEnd(now) <= 0;
     }
 
     /**
@@ -740,45 +740,46 @@ public final class GlobalLocationInstance extends PropertyHolder {
     }
 
     /**
-     * Formats the time (in minutes) between 2 date times.
+     * Formats the time (in milliseconds) between 2 date times.
      * 
      * @param start <code>ZonedDateTime</code>: The start time of the duration.
      * @param end   <code>ZonedDateTime</code>: The end time of the duration.
-     * @return <code>double</code>: The absolute value of the duration in minutes.
+     * @return <code>long</code>: The absolute value of the duration in
+     *         milliseconds.
      */
-    private double minutesBetween(ZonedDateTime start, ZonedDateTime end) {
+    private long durationBetween(ZonedDateTime start, ZonedDateTime end) {
 
-        return Duration.between(start, end).abs().toMillis() / 60000.0;
+        return Duration.between(start, end).abs().toMillis();
     }
 
     /**
-     * Formats a length of time (in minutes) to a string.
+     * Formats a length of time (in millisconds) to a string.
      * 
-     * @param minutes <code>double</code>: The length in minutes to format.
+     * @param ms <code>long</code>: The length in milliseconds to format.
      * @return <code>String</code>: The resulting format as H:MM:SS or MM:SS, or
      *         <code>null</code> if the length is negative.
      */
-    private String formatMinutes(double minutes) {
+    private String formatDuration(long ms) {
 
-        if (minutes < 0.0) {
+        if (ms < 0) {
 
             return null;
         }
 
-        int hoursTemp = (int) (minutes / 60);
-        minutes %= 60.0;
+        int hours = (int) (ms / 3_600_000);
+        ms %= 3_600_000;
 
-        int minutesTemp = (int) minutes;
-        minutes %= 1.0;
+        int minutes = (int) (ms / 60_000);
+        ms %= 60_000;
 
-        int secondsTemp = (int) (minutes * 60);
+        int seconds = (int) (ms / 1_000);
 
-        if (hoursTemp > 0) {
+        if (hours > 0) {
 
-            return "%d:%02d:%02d".formatted(hoursTemp, minutesTemp, secondsTemp);
+            return "%d:%02d:%02d".formatted(hours, minutes, seconds);
         } else {
 
-            return "%02d:%02d".formatted(minutesTemp, secondsTemp);
+            return "%02d:%02d".formatted(minutes, seconds);
         }
     }
 

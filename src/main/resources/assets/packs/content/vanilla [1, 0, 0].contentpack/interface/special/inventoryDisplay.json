@@ -1,17 +1,21 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:inventoryDisplay"
+        "identifier": "TranscendRuins:inventoryDisplay",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "style": {
             "#inventoryDisplayList": {
+                "height": "100%",
                 "listDirection": "horizontal",
-                "backgroundColor": "rgb(64, 64, 64, 128)"
+                "backgroundColor": "#444B"
             },
             "inventoryDisplay": {
                 "gap": 40,
                 "width": "fitContent",
                 "x": "50% - 50",
+                "height": "100% - 10px",
                 "origin": [
                     "50%",
                     0
@@ -21,37 +25,174 @@
             },
             "inventory": {
                 "width": "fitContent",
-                "height": "fitContent",
+                "height": "auto",
                 "iconFit": "contain",
-                "color": "rgb(255, 255, 255)",
+                "color": "#FFFFFF",
+                "textAlign": "center",
+                "fontSize": 18,
+                "lineHeight": 1.15
+            },
+            "inventorySlot": {
+                "width": 80,
+                "height": 20,
+                "color": "#FFFFFF",
                 "textAlign": "right",
+                "fontSize": 20,
+                "lineHeight": 1.25,
                 "gap": 5,
-                "fontSize": 16,
-                "lineHeight": 1.4
+                "iconFit": "cover"
+            },
+            ".fuelSlot": {
+                "marginTop": "13.3%"
+            },
+            "fuelBar": {
+                "x": "10%",
+                "y": "86.7% - 2px",
+                "width": "80% - 2px",
+                "height": "6.7%",
+                "origin": [
+                    0,
+                    "100%"
+                ],
+                "color": "#FF5522CC",
+                "backgroundColor": "#666666CC",
+                "border": {
+                    "style": "solid",
+                    "width": 2,
+                    "color": "#444444"
+                },
+                "borderRadius": 2
+            },
+            ".header": {
+                "x": 24,
+                "width": "fitContent",
+                "height": "fitContent",
+                "paddingLeft": 8,
+                "paddingRight": 16,
+                "marginVertical": 2,
+                "textAlign": "left",
+                "fontSize": 20,
+                "lineHeight": 1.4,
+                "backgroundColor": "#4098A0"
+            },
+            ".body": {
+                "width": "100%",
+                "height": "100%",
+                "backgroundColor": "#3338"
+            },
+            ".footer": {
+                "width": "100%",
+                "textAlign": "center"
             },
             "#inventoryDisplayExitButton": {
                 "width": 100,
                 "height": "100%",
                 "fontSize": 28,
-                "backgroundColor": "rgb(64, 64, 64, 128)",
-                "color": "rgb(160, 160, 160)"
+                "backgroundColor": "#3338",
+                "color": "#AAA"
             },
             "#inventoryDisplayExitButtonList": {
                 "gap": 10
             },
             "#inventoryDisplayExitButton:hover": {
-                "backgroundColor": "rgb(32, 32, 32, 128)"
+                "backgroundColor": "#2228"
             },
             "#inventoryDisplayExitButton:active": {
-                "backgroundColor": "rgb(64, 64, 64, 192)"
+                "backgroundColor": "#222C"
             },
             "#inventoryDisplayExitButtonX": {
-                "x": "50",
-                "y": "50",
+                "x": 50,
+                "y": 50,
                 "width": 50,
                 "height": 50,
                 "origin": "50%",
                 "iconFit": "contain"
+            },
+            "#entityPlayerMainhandSlot": {},
+            "#entityPlayerOffhandSlot": {
+                "y": 95
+            },
+            "#entityPlayerBackpackSlot": {
+                "y": 285
+            },
+            "#entityPlayerCapSlot": {
+                "x": 95
+            },
+            "#entityPlayerTopSlot": {
+                "x": 95,
+                "y": 95
+            },
+            "#entityPlayerPantsSlot": {
+                "x": 95,
+                "y": 190
+            },
+            "#entityPlayerBootsSlot": {
+                "x": 95,
+                "y": 285
+            },
+            "#elementWorkbenchGridSlot": {
+                "x": 20,
+                "y": 30,
+                "width": 100,
+                "height": 100,
+                "gap": 8,
+                "fontSize": 25
+            },
+            "#elementWorkbenchOutputSlot": {
+                "x": 285,
+                "y": 83,
+                "width": 100,
+                "height": 100,
+                "gap": 10,
+                "fontSize": 25
+            },
+            "#elementWorkbenchBody": {
+                "width": 405,
+                "height": 270
+            },
+            "#elementHearthGridSlot": {
+                "x": 20,
+                "y": 30
+            },
+            "#elementHearthFuelSlot": {
+                "x": 65,
+                "y": 215
+            },
+            "#elementHearthOutputSlot": {
+                "x": 260,
+                "y": 75
+            },
+            "#elementHearthBody": {
+                "width": 360,
+                "height": 360
+            },
+            "#elementForgeGridSlot": {
+                "x": 20,
+                "y": 30
+            },
+            "#elementForgeFuelSlot": {
+                "x": 63,
+                "y": 210
+            },
+            "#elementForgeOutputSlot": {
+                "x": 240,
+                "y": 60,
+                "width": 100,
+                "height": 100,
+                "fontSize": 25
+            },
+            "#elementForgeBody": {
+                "width": 360,
+                "height": 360
+            },
+            "#elementForgeOutputArrow": {
+                "x": 215,
+                "y": 112.5,
+                "origin": [
+                    "50%",
+                    "50%"
+                ],
+                "iconFit": 20
             }
         },
         "body": {

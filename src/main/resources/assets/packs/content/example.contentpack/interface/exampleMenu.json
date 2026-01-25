@@ -1,6 +1,8 @@
 {
     "metadata": {
-        "identifier": "Example:exampleMenu"
+        "identifier": "Example:exampleMenu",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "style": {},

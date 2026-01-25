@@ -31,7 +31,6 @@ import com.transcendruins.resources.styles.Style;
 import com.transcendruins.resources.styles.Style.Size;
 import com.transcendruins.resources.styles.StyleSet;
 import com.transcendruins.utilities.exceptions.LoggedException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.immutable.ImmutableList;
 import com.transcendruins.utilities.immutable.ImmutableMap;
@@ -67,10 +66,11 @@ public final class InterfaceAttributes extends AssetAttributes {
     public static final String INTERFACE = "interface";
 
     // Special component types.
-    public static final String GLOBAL_MAP = "globalMap";
+    public static final String GLOBAL_MAP_DISPLAY = "globalMapDisplay";
     public static final String LOCATION_DISPLAY = "locationDisplay";
     public static final String INVENTORY_DISPLAY = "inventoryDisplay";
     public static final String INVENTORY = "inventory";
+    public static final String INVENTORY_SLOT = "inventorySlot";
 
     /**
      * <code>StyleSet</code>: The style set of this <code>InterfaceAttributes</code>
@@ -187,7 +187,7 @@ public final class InterfaceAttributes extends AssetAttributes {
 
         // case CRAFTING -> new CraftingComponentSchema(json);
 
-        case GLOBAL_MAP -> new GlobalMapComponentSchema(json, dependencyAdder);
+        case GLOBAL_MAP_DISPLAY -> new GlobalMapComponentSchema(json, dependencyAdder);
 
         case LOCATION_DISPLAY -> new LocationDisplayComponentSchema(json, dependencyAdder);
 
@@ -315,21 +315,6 @@ public final class InterfaceAttributes extends AssetAttributes {
         public final ImmutableList<ComponentSchema> getChildren() {
 
             return new ImmutableList<>(children);
-        }
-
-        /**
-         * Creates a new instance of the <code>ComponentSchema</code> class from a
-         * string literal.
-         * 
-         * @param script <code>TRScript</code>: The script value to use.
-         */
-        public ComponentSchema(TRScript script) {
-
-            type = STRING;
-            id = null;
-            classes = new ImmutableSet<>();
-            style = Style.STRING_STYLE;
-            value = script;
         }
 
         /**
@@ -471,8 +456,9 @@ public final class InterfaceAttributes extends AssetAttributes {
                 TracedEntry<TRScript> iconEntry = json.getAsScript("icon", true);
                 TRScript icon = iconEntry.getValue();
 
-                yield json.get("slot", List.of(json.intCase(entry -> new GridSlotIconType(entry.getValue(), icon)),
-                        json.stringCase(entry -> new NamedSlotIconType(entry.getValue(), icon))));
+                yield json.get("inventorySlot",
+                        List.of(json.intCase(entry -> new GridSlotIconType(entry.getValue(), icon)),
+                                json.stringCase(entry -> new NamedSlotIconType(entry.getValue(), icon))));
             }
 
             default -> throw new UnexpectedValueException(typeEntry);
@@ -737,7 +723,7 @@ public final class InterfaceAttributes extends AssetAttributes {
         public GlobalMapComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
                 throws LoggedException {
 
-            super(json, GLOBAL_MAP);
+            super(json, GLOBAL_MAP_DISPLAY);
 
             TracedEntry<TracedDictionary> componentsEntry = json.getAsDict("components", false);
             TracedDictionary componentsJson = componentsEntry.getValue();
@@ -805,8 +791,8 @@ public final class InterfaceAttributes extends AssetAttributes {
             return grid;
         }
 
-        public static final record GridDisplay(int x, int y, int width, int height, int start, String slotIcon,
-                String selectedSlotIcon) {
+        public static final record GridDisplay(int cols, int rows, int start, String slotIcon, String selectedSlotIcon,
+                String slotIconFilled, String selectedSlotIconFilled, ChildStyle style) {
         }
 
         private final ImmutableMap<String, NamedDisplay> named;
@@ -816,14 +802,61 @@ public final class InterfaceAttributes extends AssetAttributes {
             return named;
         }
 
-        public static final record NamedDisplay(int x, int y, String slotIcon, String selectedSlotIcon) {
+        public static final record NamedDisplay(String slotIcon, String selectedSlotIcon, String slotIconFilled,
+                String selectedSlotIconFilled, ChildStyle style) {
         }
 
-        private final Size slotSize;
+        private final float outputOpacity;
 
-        public final Size getSlotSize() {
+        public final float getOutputOpacity() {
 
-            return slotSize;
+            return outputOpacity;
+        }
+
+        private final ChildStyle fuelBar;
+
+        public final ChildStyle getFuelBar() {
+
+            return fuelBar;
+        }
+
+        public static final record ChildStyle(Style style, String type, String id, ImmutableSet<String> classes) {
+
+            public static final ChildStyle getChildStyle(TracedCollection collection, Object key, ChildStyle ifNull,
+                    String type) throws LoggedException {
+
+                TracedEntry<TracedDictionary> entry = collection.getAsDict(key, true);
+                if (entry.containsValue()) {
+
+                    TracedDictionary json = entry.getValue();
+                    return createChildStyle(json, type);
+                }
+
+                return ifNull;
+            }
+
+            public static final ChildStyle createChildStyle(TracedDictionary json, String type) throws LoggedException {
+
+                Style childStyle = Style.createStyle(json, "style");
+
+                TracedEntry<String> slotIdEntry = json.getAsString("id", true, null);
+                String slotId = slotIdEntry.getValue();
+
+                TracedEntry<TracedArray> slotClassesEntry = json.getAsArray("classes", true);
+                HashSet<String> slotClasses = new HashSet<>();
+                if (slotClassesEntry.containsValue()) {
+
+                    TracedArray slotClassesJson = slotClassesEntry.getValue();
+                    for (int i : slotClassesJson) {
+
+                        TracedEntry<String> slotClassEntry = slotClassesJson.getAsString(i, false, null);
+                        String slotClass = slotClassEntry.getValue();
+                        slotClasses.add(slotClass);
+                    }
+                }
+
+                return new ChildStyle(childStyle, type, slotId, new ImmutableSet<>(slotClasses));
+            }
         }
 
         public InventoryComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
@@ -831,24 +864,17 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             super(json, INVENTORY);
 
-            if (json.containsKey("header")) {
-
-                addChild(createComponent(json, "header", dependencyAdder));
-            }
+            addChild(json.containsKey("header") ? createComponent(json, "header", dependencyAdder) : null);
+            addChild(json.containsKey("body") ? createComponent(json, "body", dependencyAdder) : null);
+            addChild(json.containsKey("footer") ? createComponent(json, "footer", dependencyAdder) : null);
 
             grid = json.get("grid", List.of(json.dictCase(slotsEntry -> {
                 TracedDictionary slotsJson = slotsEntry.getValue();
 
-                TracedEntry<Integer> xEntry = slotsJson.getAsInteger("x", false, null, x -> x >= 0);
-                int x = xEntry.getValue();
-
-                TracedEntry<Integer> yEntry = slotsJson.getAsInteger("y", false, null, y -> y >= 0);
-                int y = yEntry.getValue();
-
-                TracedEntry<Integer> colsEntry = slotsJson.getAsInteger("cols", false, null, cols -> cols > 0);
+                TracedEntry<Integer> colsEntry = slotsJson.getAsInteger("cols", true, 1, cols -> cols > 0);
                 int width = colsEntry.getValue();
 
-                TracedEntry<Integer> rowsEntry = slotsJson.getAsInteger("rows", false, null, rows -> rows > 0);
+                TracedEntry<Integer> rowsEntry = slotsJson.getAsInteger("rows", true, 1, rows -> rows > 0);
                 int height = rowsEntry.getValue();
 
                 TracedEntry<Integer> startEntry = slotsJson.getAsInteger("start", true, 0, rows -> rows >= 0);
@@ -860,7 +886,17 @@ public final class InterfaceAttributes extends AssetAttributes {
                 TracedEntry<String> selectedSlotIconEntry = slotsJson.getAsString("selectedSlotIcon", true, null);
                 String selectedSlotIcon = selectedSlotIconEntry.getValue();
 
-                return new ImmutableList<>(new GridDisplay(x, y, width, height, start, slotIcon, selectedSlotIcon));
+                TracedEntry<String> slotIconFilledEntry = slotsJson.getAsString("slotIconFilled", true, null);
+                String slotIconFilled = slotIconFilledEntry.getValue();
+
+                TracedEntry<String> selectedSlotIconFilledEntry = slotsJson.getAsString("selectedSlotIconFilled", true,
+                        null);
+                String selectedSlotIconFilled = selectedSlotIconFilledEntry.getValue();
+
+                ChildStyle style = ChildStyle.createChildStyle(slotsJson, INVENTORY_SLOT);
+
+                return new ImmutableList<>(new GridDisplay(width, height, start, slotIcon, selectedSlotIcon,
+                        slotIconFilled, selectedSlotIconFilled, style));
             }), json.arrayCase(entry -> {
 
                 ArrayList<GridDisplay> gridList = new ArrayList<>();
@@ -871,19 +907,13 @@ public final class InterfaceAttributes extends AssetAttributes {
                     TracedEntry<TracedDictionary> slotsEntry = gridJson.getAsDict(i, false);
                     TracedDictionary slotsJson = slotsEntry.getValue();
 
-                    TracedEntry<Integer> xEntry = slotsJson.getAsInteger("x", false, null, x -> x >= 0);
-                    int x = xEntry.getValue();
+                    TracedEntry<Integer> colsEntry = slotsJson.getAsInteger("cols", true, 1, cols -> cols > 0);
+                    int cols = colsEntry.getValue();
 
-                    TracedEntry<Integer> yEntry = slotsJson.getAsInteger("y", false, null, y -> y >= 0);
-                    int y = yEntry.getValue();
+                    TracedEntry<Integer> rowsEntry = slotsJson.getAsInteger("rows", true, 1, rows -> rows > 0);
+                    int rows = rowsEntry.getValue();
 
-                    TracedEntry<Integer> colsEntry = slotsJson.getAsInteger("cols", false, null, cols -> cols > 0);
-                    int width = colsEntry.getValue();
-
-                    TracedEntry<Integer> rowsEntry = slotsJson.getAsInteger("rows", false, null, rows -> rows > 0);
-                    int height = rowsEntry.getValue();
-
-                    TracedEntry<Integer> startEntry = slotsJson.getAsInteger("start", true, 0, rows -> rows >= 0);
+                    TracedEntry<Integer> startEntry = slotsJson.getAsInteger("start", true, 0, start -> start >= 0);
                     int start = startEntry.getValue();
 
                     TracedEntry<String> slotIconEntry = slotsJson.getAsString("slotIcon", true, null);
@@ -892,7 +922,17 @@ public final class InterfaceAttributes extends AssetAttributes {
                     TracedEntry<String> selectedSlotIconEntry = slotsJson.getAsString("selectedSlotIcon", true, null);
                     String selectedSlotIcon = selectedSlotIconEntry.getValue();
 
-                    gridList.add(new GridDisplay(x, y, width, height, start, slotIcon, selectedSlotIcon));
+                    TracedEntry<String> slotIconFilledEntry = slotsJson.getAsString("slotIconFilled", true, null);
+                    String slotIconFilled = slotIconFilledEntry.getValue();
+
+                    TracedEntry<String> selectedSlotIconFilledEntry = slotsJson.getAsString("selectedSlotIconFilled",
+                            true, null);
+                    String selectedSlotIconFilled = selectedSlotIconFilledEntry.getValue();
+
+                    ChildStyle style = ChildStyle.createChildStyle(slotsJson, INVENTORY_SLOT);
+
+                    gridList.add(new GridDisplay(cols, rows, start, slotIcon, selectedSlotIcon, slotIconFilled,
+                            selectedSlotIconFilled, style));
                 }
 
                 return new ImmutableList<>(gridList);
@@ -907,30 +947,9 @@ public final class InterfaceAttributes extends AssetAttributes {
                 TracedDictionary namedJson = namedEntry.getValue();
                 for (String name : namedJson) {
 
-                    NamedDisplay namedSlot = namedJson.get(name, List.of(namedJson.arrayCase(entry -> {
-
-                        TracedArray pointJson = entry.getValue();
-                        if (pointJson.size() != 2) {
-
-                            throw new CollectionSizeException(entry, pointJson);
-                        }
-
-                        TracedEntry<Integer> xEntry = pointJson.getAsInteger(0, false, null, x -> x >= 0);
-                        int x = xEntry.getValue();
-
-                        TracedEntry<Integer> yEntry = pointJson.getAsInteger(1, false, null, y -> y >= 0);
-                        int y = yEntry.getValue();
-
-                        return new NamedDisplay(x, y, null, null);
-                    }), namedJson.dictCase(entry -> {
+                    NamedDisplay namedSlot = namedJson.get(name, List.of(namedJson.dictCase(entry -> {
 
                         TracedDictionary pointJson = entry.getValue();
-
-                        TracedEntry<Integer> xEntry = pointJson.getAsInteger("x", false, null, x -> x >= 0);
-                        int x = xEntry.getValue();
-
-                        TracedEntry<Integer> yEntry = pointJson.getAsInteger("y", false, null, y -> y >= 0);
-                        int y = yEntry.getValue();
 
                         TracedEntry<String> slotIconEntry = pointJson.getAsString("slotIcon", true, null);
                         String slotIcon = slotIconEntry.getValue();
@@ -939,7 +958,17 @@ public final class InterfaceAttributes extends AssetAttributes {
                                 null);
                         String selectedSlotIcon = selectedSlotIconEntry.getValue();
 
-                        return new NamedDisplay(x, y, slotIcon, selectedSlotIcon);
+                        TracedEntry<String> slotIconFilledEntry = pointJson.getAsString("slotIconFilled", true, null);
+                        String slotIconFilled = slotIconFilledEntry.getValue();
+
+                        TracedEntry<String> selectedSlotIconFilledEntry = pointJson
+                                .getAsString("selectedSlotIconFilled", true, null);
+                        String selectedSlotIconFilled = selectedSlotIconFilledEntry.getValue();
+
+                        ChildStyle style = ChildStyle.createChildStyle(pointJson, INVENTORY_SLOT);
+
+                        return new NamedDisplay(slotIcon, selectedSlotIcon, slotIconFilled, selectedSlotIconFilled,
+                                style);
                     })));
 
                     namedMap.put(name, namedSlot);
@@ -948,7 +977,11 @@ public final class InterfaceAttributes extends AssetAttributes {
 
             named = new ImmutableMap<>(namedMap);
 
-            slotSize = Size.createSize(json, "slotSize");
+            TracedEntry<Float> outputOpacityEntry = json.getAsFloat("outputOpacity", true, 0.5f,
+                    num -> 0.0 <= num && num <= 1.0);
+            outputOpacity = outputOpacityEntry.getValue();
+
+            fuelBar = ChildStyle.getChildStyle(json, "fuelBar", null, "fuelBar");
         }
     }
 }

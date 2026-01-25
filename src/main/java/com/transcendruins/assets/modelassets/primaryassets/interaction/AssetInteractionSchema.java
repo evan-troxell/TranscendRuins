@@ -28,16 +28,16 @@ public abstract class AssetInteractionSchema {
         return position;
     }
 
-    private final double duration;
+    private final long duration;
 
-    public final double getDuration() {
+    public final long getDuration() {
 
         return duration;
     }
 
-    private final double cooldown;
+    private final long cooldown;
 
-    public final double getCooldown() {
+    public final long getCooldown() {
 
         return cooldown;
     }
@@ -59,8 +59,8 @@ public abstract class AssetInteractionSchema {
     private AssetInteractionSchema() {
 
         position = Vector3f.ZERO;
-        duration = 0.0;
-        cooldown = 0.0;
+        duration = 0;
+        cooldown = 0;
         conditions = new ImmutableList<>();
         event = new ImmutableList<>();
     }
@@ -76,17 +76,18 @@ public abstract class AssetInteractionSchema {
             position = Vector3f.ZERO;
         }
 
-        TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, 0.0, num -> 0.0 <= num);
+        TracedEntry<Long> durationEntry = json.getAsDuration("duration", true, 0l, false);
         duration = durationEntry.getValue();
 
-        TracedEntry<Double> cooldownEntry = json.getAsDouble("cooldown", true, 0.0, num -> 0.0 <= num);
+        TracedEntry<Long> cooldownEntry = json.getAsDuration("cooldown", true, 0l, false);
         cooldown = cooldownEntry.getValue();
 
-        conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
+        TracedEntry<TracedArray> conditionsEntry = json.getAsArray("conditions", true);
+        if (conditionsEntry.containsValue()) {
 
             ArrayList<TRScript> conditionsList = new ArrayList<>();
 
-            TracedArray conditionsJson = entry.getValue();
+            TracedArray conditionsJson = conditionsEntry.getValue();
             for (int i : conditionsJson) {
 
                 TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
@@ -94,12 +95,11 @@ public abstract class AssetInteractionSchema {
                 conditionsList.add(condition);
             }
 
-            return new ImmutableList<>(conditionsList);
-        }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+            conditions = new ImmutableList<>(conditionsList);
+        } else {
 
-            TRScript condition = entry.getValue();
-            return new ImmutableList<>(condition);
-        })));
+            conditions = new ImmutableList<>();
+        }
 
         event = json.get("event", List.of(json.arrayCase(entry -> {
 

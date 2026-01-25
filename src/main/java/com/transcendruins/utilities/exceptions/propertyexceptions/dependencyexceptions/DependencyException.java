@@ -119,7 +119,7 @@ public final class DependencyException extends PropertyException {
      * Checks the format of a dependency and labels it accordingly.
      * 
      * @param dependency <code>PackDependency</code>: The dependency to check.
-     * @return <code>String</code>: The <code>dependency</code> perameter in the
+     * @return <code>String</code>: The <code>dependency</code> parameter in the
      *         following string representation: <br>
      *         "<code>Dependency namespace:identifier</code>" <br>
      *         <b>OR</b> <br>

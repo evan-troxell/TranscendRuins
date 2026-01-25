@@ -84,6 +84,11 @@ public abstract class ModelAssetInstance extends AssetInstance implements Render
      */
     private RenderMaterialInstance renderMaterial;
 
+    public RenderMaterialInstance getRenderMaterial() {
+
+        return renderMaterial;
+    }
+
     /**
      * <code>StateControllerInstance</code>: The animation controller of this
      * <code>ModelAssetInstance</code> instance.

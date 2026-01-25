@@ -36,26 +36,26 @@ public final class LocationReset {
      */
     public LocationReset() {
 
-        duration = -1.0;
+        duration = -1;
 
         displayCountdown = false;
     }
 
     /**
-     * <code>double</code>: The duration of this <code>LocationReset</code>
-     * instance, in minutes. This value is guaranteed to be greater than or equal to
-     * 0.0, except for values of -1 which represent no countdown.
+     * <code>long</code>: The duration of this <code>LocationReset</code> instance
+     * in milliseconds. This value is guaranteed to be greater than or equal to 0,
+     * except for values of -1 which represent no countdown.
      */
-    private final double duration;
+    private final long duration;
 
     /**
-     * Retrieves the duration of this <code>LocationReset</code> instance, in
-     * minutes.
+     * Retrieves the duration of this <code>LocationReset</code> instance in
+     * milliseconds.
      *
-     * @return <code>double</code>: The <code>duration</code> field of this
+     * @return <code>long</code>: The <code>duration</code> field of this
      *         <code>LocationReset</code> instance.
      */
-    public double getDuration() {
+    public long getDuration() {
 
         return duration;
     }
@@ -88,7 +88,7 @@ public final class LocationReset {
      */
     public LocationReset(TracedDictionary json) throws LoggedException {
 
-        TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, 0.0, num -> num >= 0 || num == -1);
+        TracedEntry<Long> durationEntry = json.getAsDuration("duration", true, 0l, true);
         duration = durationEntry.getValue();
 
         TracedEntry<Boolean> displayCountdownEntry = json.getAsBoolean("displayCountdown", true, true);

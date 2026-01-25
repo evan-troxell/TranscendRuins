@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.jme3.math.ColorRGBA;
@@ -624,7 +626,7 @@ public abstract class TracedCollection {
     /**
      * Retrieves a field from this <code>TracedCollection</code> instance,
      * optionally checking for a <code>null</code> case or an invalid class. Returns
-     * the value of the <code>ifNull</code> perameter if the retrieved value in this
+     * the value of the <code>ifNull</code> parameter if the retrieved value in this
      * collection is <code>null</code>.
      * 
      * @param key             <code>Object</code>: The key whose entry to retrieve
@@ -639,7 +641,7 @@ public abstract class TracedCollection {
      * @return <code>TracedEntry&lt;?&gt;</code>: The field retrieved from this
      *         <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
-     *                                  the <code>nullCaseAllowed</code> perameter
+     *                                  the <code>nullCaseAllowed</code> parameter
      *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is of an
      *                                  invalid type.
@@ -683,7 +685,7 @@ public abstract class TracedCollection {
      * @return <code>TracedEntry&lt;TracedDictionary&gt;</code>: The dictionary
      *         retrieved from this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
-     *                                  the <code>nullCaseAllowed</code> perameter
+     *                                  the <code>nullCaseAllowed</code> parameter
      *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  <code>JSONObject</code> class.
@@ -708,7 +710,7 @@ public abstract class TracedCollection {
      * @return <code>TracedEntry&lt;TracedArray&gt;</code>: The array retrieved from
      *         this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
-     *                                  the <code>nullCaseAllowed</code> perameter
+     *                                  the <code>nullCaseAllowed</code> parameter
      *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  <code>JSONArray</code> class.
@@ -719,7 +721,12 @@ public abstract class TracedCollection {
         // Retrieves the value associated with the key.
         TracedEntry<?> entry = get(key, nullCaseAllowed, null, JSONType.ARRAY);
 
-        return entry.cast(entry.containsValue() ? new TracedArray(entry) : null);
+        if (entry.getValue() instanceof List<?> list) {
+
+            return entry.cast(new TracedArray(list, entry.getPathway()));
+        }
+
+        return entry.cast(null);
     }
 
     public final TracedEntry<TracedCollection> getAsCollection(Object key, boolean nullCaseAllowed)
@@ -747,7 +754,7 @@ public abstract class TracedCollection {
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  <code>JSONArray</code> class.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
-     *                                  the <code>nullCaseAllowed</code> perameter
+     *                                  the <code>nullCaseAllowed</code> parameter
      *                                  is <code>false</code>.
      * @throws CollectionSizeException  Thrown if the retrieved array does not have
      *                                  a length of <code>dimensions</code>.
@@ -759,7 +766,7 @@ public abstract class TracedCollection {
         // Retrieves the value associated with the key.
         TracedEntry<TracedArray> entry = getAsArray(key, nullCaseAllowed);
 
-        // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
+        // If the retrieved value is null, the 'nullCaseAllowed' parameter must be true,
         // and thus a null entry may be returned.
         if (!entry.containsValue()) {
 
@@ -799,7 +806,7 @@ public abstract class TracedCollection {
      * @return <code>TracedEntry&lt;Boolean&gt;</code>: The boolean retrieved from
      *         this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
-     *                                  the <code>nullCaseAllowed</code> perameter
+     *                                  the <code>nullCaseAllowed</code> parameter
      *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  <code>Boolean</code> class.
@@ -810,7 +817,7 @@ public abstract class TracedCollection {
         // Retrieves the value associated with the key.
         TracedEntry<?> entry = get(key, nullCaseAllowed, ifNull, JSONType.BOOLEAN);
 
-        // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
+        // If the retrieved value is null, the 'nullCaseAllowed' parameter must be true,
         // and thus a null entry may be returned.
         if (!entry.containsValue()) {
 
@@ -834,7 +841,7 @@ public abstract class TracedCollection {
      * @return <code>TracedEntry&lt;String&gt;</code>: The string retrieved from
      *         this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
-     *                                  the <code>nullCaseAllowed</code> perameter
+     *                                  the <code>nullCaseAllowed</code> parameter
      *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  <code>String</code> class.
@@ -845,7 +852,7 @@ public abstract class TracedCollection {
         // Retrieves the value associated with the key.
         TracedEntry<?> entry = get(key, nullCaseAllowed, ifNull, JSONType.STRING);
 
-        // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
+        // If the retrieved value is null, the 'nullCaseAllowed' parameter must be true,
         // and thus a null entry may be returned.
         if (!entry.containsValue()) {
 
@@ -866,7 +873,7 @@ public abstract class TracedCollection {
      * @return <code>TracedEntry&lt;ZonedDateTime&gt;</code>: The date retrieved
      *         from this <code>TracedCollection</code> instance.
      * @throws MissingPropertyException Thrown if the retrieved field is missing and
-     *                                  the <code>nullCaseAllowed</code> perameter
+     *                                  the <code>nullCaseAllowed</code> parameter
      *                                  is <code>false</code>.
      * @throws PropertyTypeException    Thrown if the retrieved field is not of the
      *                                  expected type.
@@ -892,6 +899,86 @@ public abstract class TracedCollection {
 
             throw new UnexpectedValueException(entry);
         }
+    }
+
+    /**
+     * Retrieves a field from this <code>TracedCollection</code> instance and parses
+     * it into a duration of time.
+     * 
+     * @param key             <code>Object</code>: The key whose entry to retrieve
+     *                        in this <code>TracedCollection</code> instance.
+     * @param nullCaseAllowed <code>boolean</code>: Whether or not a
+     *                        <code>null</code> case should cause an exception.
+     * @return <code>TracedEntry&lt;Long&gt;</code>: The duration of time retrieved
+     *         from this <code>TracedCollection</code> instance.
+     * @throws MissingPropertyException Thrown if the retrieved duration is missing
+     *                                  and the <code>nullCaseAllowed</code>
+     *                                  parameter is <code>false</code>.
+     * @throws PropertyTypeException    Thrown if the retrieved field is not of the
+     *                                  expected type.
+     * @throws UnexpectedValueException Thrown if the retrieved field is not a valid
+     *                                  duration.
+     * @throws LoggedException          Thrown if any other exception is raised
+     *                                  while processing the duration.
+     */
+    public final TracedEntry<Long> getAsDuration(Object key, boolean nullCaseAllowed, Long ifNull,
+            boolean allowNoDuration)
+            throws MissingPropertyException, PropertyTypeException, UnexpectedValueException, LoggedException {
+
+        ArrayList<TypeCase<?, TracedEntry<Long>>> cases = new ArrayList<>();
+
+        cases.add(longCase(entry -> entry, num -> num > 0 || num == -1 && allowNoDuration));
+
+        cases.add(stringCase(entry -> {
+
+            if (!entry.containsValue()) {
+
+                return entry.cast(ifNull);
+            }
+
+            String duration = entry.getValue();
+            if (duration.isBlank()) {
+
+                throw new UnexpectedValueException(entry);
+            }
+
+            final Pattern TOKEN = Pattern.compile("(\\d+)(ms|[dhms])");
+            Matcher matcher = TOKEN.matcher(duration);
+
+            long durationMs = 0l;
+            int consumed = 0;
+
+            while (matcher.find()) {
+                long value = Long.parseLong(matcher.group(1));
+                String unit = matcher.group(2);
+
+                durationMs += value * switch (unit) {
+                case "d" -> 86_400_000l;
+                case "h" -> 3_600_000l;
+                case "m" -> 60_000l;
+                case "s" -> 1_000l;
+                case "ms" -> 1l;
+                default -> throw new UnexpectedValueException(entry);
+                };
+
+                consumed += matcher.group().length();
+            }
+
+            // Ensure the entire string was valid.
+            if (consumed != duration.length()) {
+
+                throw new UnexpectedValueException(entry);
+            }
+
+            return entry.cast(durationMs);
+        }));
+
+        if (nullCaseAllowed) {
+
+            cases.add(nullCase(entry -> entry.cast(ifNull)));
+        }
+
+        return get(key, cases);
     }
 
     public final <T extends Number> TracedEntry<T> getAsNumber(Object key, boolean nullCaseAllowed, T ifNull,
@@ -1336,7 +1423,7 @@ public abstract class TracedCollection {
         // Retrieves the string value associated with the key.
         TracedEntry<String> entry = getAsString(key, nullCaseAllowed, null);
 
-        // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
+        // If the retrieved value is null, the 'nullCaseAllowed' parameter must be true,
         // and thus a null entry may be returned.
         if (!entry.containsValue()) {
 
@@ -1376,7 +1463,7 @@ public abstract class TracedCollection {
         TracedEntry<TracedArray> entry = getAsArray(key, nullCaseAllowed);
         TracedArray array = entry.getValue();
 
-        // If the retrieved value is null, the 'nullCaseAllowed' perameter must be true,
+        // If the retrieved value is null, the 'nullCaseAllowed' parameter must be true,
         // and thus a null entry may be returned.
         if (!entry.containsValue()) {
 

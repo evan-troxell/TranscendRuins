@@ -1,20 +1,21 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:stairwell"
+        "identifier": "TranscendRuins:stairwell",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "modelX": "TranscendRuins:stairwell",
         "stateControllerX": "TranscendRuins:stairwell",
         "renderMaterialX": "TranscendRuins:opaque",
         "textureX": "element.stairwell",
-        "model": "TranscendRuins:crate",
+        "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",
         "texture": "element.crate",
         "mapColor": "#8B4513",
         "inventory": {
             "ui": {
-                "slotSize": "80px",
                 "grid": {
                     "x": 0,
                     "y": 0,

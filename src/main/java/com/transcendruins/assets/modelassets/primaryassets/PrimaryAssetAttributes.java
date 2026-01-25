@@ -22,6 +22,7 @@ import java.util.List;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
+import com.transcendruins.assets.modelassets.primaryassets.crafting.CraftingSchema;
 import com.transcendruins.assets.modelassets.primaryassets.interaction.AssetInteractionSchema;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryContents;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySchema;
@@ -75,6 +76,13 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
     public final InventoryContents getInventoryContents() {
 
         return inventoryContents;
+    }
+
+    private final CraftingSchema crafting;
+
+    public final CraftingSchema getCrafting() {
+
+        return crafting;
     }
 
     private final ImmutableList<AssetInteractionSchema> interaction;
@@ -143,6 +151,16 @@ public abstract class PrimaryAssetAttributes extends ModelAssetAttributes {
         } else {
 
             inventoryContents = null;
+        }
+
+        TracedEntry<TracedDictionary> craftingEntry = json.getAsDict("crafting", true);
+        if (craftingEntry.containsValue()) {
+
+            TracedDictionary craftingJson = craftingEntry.getValue();
+            crafting = new CraftingSchema(craftingJson);
+        } else {
+
+            crafting = null;
         }
 
         interaction = json.get("interaction", List.of(json.dictCase(entry -> {

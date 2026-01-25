@@ -1,12 +1,17 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:bunkerBravoMain"
+        "identifier": "TranscendRuins:bunkerBravoMain",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "definitions": {
             "layouts": {},
             "elements": {
                 "crate": "TranscendRuins:crate",
+                "workbench": "TranscendRuins:workbench",
+                "hearth": "TranscendRuins:hearth",
+                "forge": "TranscendRuins:forge",
                 "entranceStairwell": {
                     "identifier": "TranscendRuins:stairwell",
                     "properties": {
@@ -30,7 +35,7 @@
             {
                 "component": {
                     "type": "element",
-                    "element": "crate",
+                    "element": "forge",
                     "placement": {
                         "center": {
                             "type": "absolute",

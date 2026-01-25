@@ -228,16 +228,10 @@ public final class World extends PropertyHolder {
         ImmutableMap<String, AssetPresets> categoryMap = recipes.get(category);
         for (String recipe : categoryMap.keySet()) {
 
-            recipeMap.put(recipe, createRecipe(categoryMap.get(recipe)));
+            recipeMap.put(recipe, new RecipeContext(categoryMap.get(recipe), world).instantiate());
         }
 
         return recipeMap;
-    }
-
-    private RecipeInstance createRecipe(AssetPresets presets) {
-
-        RecipeContext context = new RecipeContext(presets, world, null);
-        return context.instantiate();
     }
 
     /**

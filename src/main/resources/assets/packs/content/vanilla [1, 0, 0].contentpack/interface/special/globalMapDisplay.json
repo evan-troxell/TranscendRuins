@@ -1,10 +1,12 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:globalMap"
+        "identifier": "TranscendRuins:globalMapDisplay",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "style": {
-            "globalMap": {
+            "globalMapDisplay": {
                 "iconFit": "contain",
                 "background": {
                     "color": "rgb(220, 208, 162)",
@@ -63,8 +65,8 @@
             }
         },
         "body": {
-            "type": "globalMap",
-            "id": "globalMap",
+            "type": "globalMapDisplay",
+            "id": "globalMapDisplay",
             "components": {
                 "enterButton": {
                     "type": "button",

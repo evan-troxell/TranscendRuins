@@ -1,1 +1,6 @@
-{}
+{
+    "icon": {
+        "width": "fitContent",
+        "height": "fitContent"
+    }
+}

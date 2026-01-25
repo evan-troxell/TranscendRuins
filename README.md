@@ -79,7 +79,9 @@ This distinction enables:
 ```
 {
     "metadata": {
-        "identifier": "Transcendruins:pineDoor"
+        "identifier": "Transcendruins:pineDoor",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "texture": "pineDoor",
@@ -164,7 +166,6 @@ This allows expressive styling while preventing invalid property application (e.
 
 ```
 {
-
     "panel > button": {
         "background": "#AAAAAA"
     },
@@ -200,7 +201,9 @@ This enables procedural yet structured generation, particularly useful for citie
 ```
 {
   "metadata": {
-    "identifier": "TranscendRuns:campfireCircle"
+    "identifier": "TranscendRuns:campfireCircle",
+    "author": "Evan Troxell",
+    "license": "Apache 2.0"
   },
   "attributes": {
     "width": 40,
@@ -294,12 +297,10 @@ This system is used heavily during:
 Logged exception types include:
 
 - File:
-
   - Missing Path
   - File Format
 
 - Reference:
-
   - Missing Property
   - Reference Without Definition
   - Property Type
@@ -307,20 +308,17 @@ Logged exception types include:
   - Unexpected Value
 
 - Identifier:
-
   - Duplicate Identifier
   - Identifier Format
   - Version Bounds Exception
 
 - Dependency:
-
   - Ambiguous Dependency
   - Unresolved Dependency
   - Duplicate Dependency
   - Version Hierarchy
 
 - Miscellaneous:
-
   - Collection Size
   - Number Bounds
 

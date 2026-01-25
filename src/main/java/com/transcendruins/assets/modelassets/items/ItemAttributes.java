@@ -67,6 +67,13 @@ public final class ItemAttributes extends ModelAssetAttributes {
         return detectionRange;
     }
 
+    private final Long fuelDuration;
+
+    public final Long getFuelDuration() {
+
+        return fuelDuration;
+    }
+
     /**
      * Compiles this <code>ItemAttributes</code> instance into a completed instance.
      * 
@@ -94,5 +101,8 @@ public final class ItemAttributes extends ModelAssetAttributes {
 
         TracedEntry<Float> detectionRangeEntry = json.getAsFloat("detectionRange", true, null);
         detectionRange = detectionRangeEntry.getValue();
+
+        TracedEntry<Long> fuelDurationEntry = json.getAsDuration("fuelDuration", true, null, false);
+        fuelDuration = fuelDurationEntry.getValue();
     }
 }

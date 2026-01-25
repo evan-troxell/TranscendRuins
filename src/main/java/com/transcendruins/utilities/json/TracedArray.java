@@ -16,12 +16,10 @@
 
 package com.transcendruins.utilities.json;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 
-import com.transcendruins.utilities.files.TracedPath;
+import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyExceptionPathway;
 
 /**
  * <code>TracedArray</code>: A class representing an array whose
@@ -30,22 +28,10 @@ import com.transcendruins.utilities.files.TracedPath;
 public final class TracedArray extends TracedCollection implements Iterable<Integer> {
 
     /**
-     * <code>List&lt;Object&gt;</code>: The stored JSON array information which this
+     * <code>List&lt;?&gt;</code>: The stored JSON array information which this
      * </code>TracedArray</code> draws from.
      */
-    private final List<Object> array;
-
-    /**
-     * Creates a new instance of the <code>TracedArray</code> class.
-     * 
-     * @param array <code>TracedEntry&lt;?&gt;</code>: The array to assign to this
-     *              value.
-     */
-    public TracedArray(TracedEntry<?> array) {
-
-        super(array.getPathway());
-        this.array = (List<Object>) array.getValue();
-    }
+    private final List<?> array;
 
     /**
      * Creates a new instance of the <code>TracedArray</code> class, tracing another
@@ -53,72 +39,66 @@ public final class TracedArray extends TracedCollection implements Iterable<Inte
      * 
      * @param dictionary <code>List&lt;Object&gt;</code>: The array to assign to
      *                   this value.
-     * @param path       <code>TracedPath</code>: The path to trace from.
+     * @param path       <code>PropertyExceptionPathway</code>: The path to trace
+     *                   from.
      */
-    public TracedArray(List<Object> array, TracedPath path) {
+    public TracedArray(List<?> array, PropertyExceptionPathway path) {
 
         super(path);
         this.array = array;
     }
 
     @Override
-    public Object getValue(Object key) {
+    public final Object getValue(Object key) {
 
         return (0 <= (int) key && (int) key < array.size()) ? array.get((int) key) : null;
     }
 
     @Override
-    public boolean containsKey(Object key) {
+    public final boolean containsKey(Object key) {
 
         return getValue(key) != null;
     }
 
     @Override
-    public boolean containsValue(Object value) {
+    public final boolean containsValue(Object value) {
 
         return array.contains(value);
     }
 
     @Override
-    public int size() {
+    public final int size() {
 
         return array.size();
     }
 
     @Override
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
 
         return array.isEmpty();
     }
 
-    /**
-     * Retrieves an array containing all numerical indices stored in this
-     * <code>TracedArray</code> instance.
-     * 
-     * @return <code>List&lt;Integer&gt;</code>: All indices in this
-     *         <code>TracedArray</code> instance.
-     */
-    public List<Integer> getIndices() {
-
-        int n = size();
-        ArrayList<Integer> indices = new ArrayList<>(n);
-
-        for (int i = 0; i < n; i++) {
-
-            indices.add(i);
-        }
-
-        return indices;
-    }
-
-    public Stream<Integer> stream() {
-
-        return getIndices().stream();
-    }
-
     @Override
-    public Iterator<Integer> iterator() {
+    public final Iterator<Integer> iterator() {
 
-        return getIndices().iterator();
+        int size = size();
+
+        return new Iterator<Integer>() {
+
+            private int i = 0;
+
+            @Override
+            public boolean hasNext() {
+
+                return i < size;
+            }
+
+            @Override
+            public Integer next() {
+
+                return i++;
+            }
+
+        };
     }
 }

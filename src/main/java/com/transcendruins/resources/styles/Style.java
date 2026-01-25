@@ -18,7 +18,10 @@ package com.transcendruins.resources.styles;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -61,15 +64,6 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             null, null, null, null, null, null);
-
-    /**
-     * <code>Style</code>: A style which represents default string literal UI
-     * components.
-     */
-    public static final Style STRING_STYLE = new Style(null, null, Size.FIT_CONTENT, Size.FIT_CONTENT, null, null, null,
-            TRANSPARENT, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-            null, null, null, null, null, null, null, null, null, Display.FLEX, null, null);
 
     /**
      * Creates a new instance of the <code>Style</code> class.
@@ -569,6 +563,28 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
         return parseVal(styles, getter, sub);
     }
 
+    public final int getFontSize(int parentFontSize) {
+
+        return fontSize.getSize(parentFontSize, 8);
+    }
+
+    public final int getLineHeight(int fontSize) {
+
+        return lineHeight.getSize(fontSize, fontSize);
+    }
+
+    public final Font createFont(int fontSize) {
+
+        return new Font(fontFamily, fontStyle | fontWeight, fontSize);
+    }
+
+    public final FontMetrics createFontMetrics(Font font) {
+
+        BufferedImage fontImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = fontImage.createGraphics();
+        return g2d.getFontMetrics(font);
+    }
+
     /**
      * Parses a boolean from a collection.
      * 
@@ -846,6 +862,30 @@ public final record Style(Size x, Size y, Size width, Size height, Size minWidth
 
                     collection.stringCase(Size::createStringSize), collection.doubleCase(Size::createDoubleSize),
                     collection.nullCase(_ -> ifNull)));
+        }
+
+        @Override
+        public final String toString() {
+
+            int pct = getSize(100, 0) - getSize(0, 0);
+            int px = getSize(0, 0);
+
+            if (pct == 0 && px == 0) {
+
+                return "0px";
+            }
+
+            if (px == 0) {
+
+                return pct + "pct";
+            }
+
+            if (pct == 0) {
+
+                return px + "px";
+            }
+
+            return px + "px + " + pct + "pct";
         }
     }
 

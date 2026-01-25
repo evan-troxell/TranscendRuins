@@ -1,0 +1,20 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:chunkToIronBar",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "duration": "2m",
+        "input": [
+            {
+                "item": "TranscendRuins:ironChunk",
+                "count": 5
+            }
+        ],
+        "output": {
+            "item": "TranscendRuins:ironBar",
+            "count": 2
+        }
+    }
+}

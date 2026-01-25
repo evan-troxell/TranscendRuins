@@ -1,28 +1,51 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:playerPreload"
+        "identifier": "TranscendRuins:playerPreload",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
-        "type": "selection",
-        "count": 3,
+        "type": "sequential",
         "components": [
             {
                 "type": "item",
-                "item": "TranscendRuins:rope",
-                "count": {
-                    "min": 5,
-                    "max": 8
-                },
-                "limit": 2
+                "item": "TranscendRuins:pinePlank",
+                "count": 15
             },
             {
                 "type": "item",
-                "item": "TranscendRuins:cloth",
-                "count": {
-                    "min": 11,
-                    "max": 17
-                },
-                "limit": 2
+                "item": "TranscendRuins:ductTape",
+                "count": 15
+            },
+            {
+                "type": "item",
+                "item": "TranscendRuins:ironBar",
+                "count": 12
+            },
+            {
+                "type": "item",
+                "item": "TranscendRuins:steelScrap",
+                "count": 4
+            },
+            {
+                "type": "item",
+                "item": "TranscendRuins:nails",
+                "count": 9
+            },
+            {
+                "type": "item",
+                "item": "TranscendRuins:pinePlank",
+                "count": 20
+            },
+            {
+                "type": "item",
+                "item": "TranscendRuins:ironChunk",
+                "count": 15
+            },
+            {
+                "type": "item",
+                "item": "TranscendRuins:ironScrap",
+                "count": 8
             }
         ]
     }

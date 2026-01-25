@@ -1,6 +1,8 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:crate"
+        "identifier": "TranscendRuins:crate",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "model": "TranscendRuins:crate",
@@ -9,12 +11,19 @@
         "texture": "element.crate",
         "inventory": {
             "ui": {
-                "slotSize": "80px",
                 "grid": {
                     "x": 0,
                     "y": 0,
                     "rows": 3,
                     "cols": 3
+                },
+                "header": {
+                    "type": "text",
+                    "id": "elementCrateHeader",
+                    "classes": [
+                        "header"
+                    ],
+                    "text": "element.inventory.crate"
                 }
             },
             "grid": {

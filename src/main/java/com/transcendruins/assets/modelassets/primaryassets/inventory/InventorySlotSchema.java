@@ -17,7 +17,6 @@
 package com.transcendruins.assets.modelassets.primaryassets.inventory;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.transcendruins.assets.Attributes;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -44,43 +43,62 @@ public final class InventorySlotSchema extends Attributes {
         return modelAttachment;
     }
 
+    public final Boolean lockAdd;
+
+    public final Boolean getLockAdd() {
+
+        return lockAdd;
+    }
+
+    public final Boolean lockRemove;
+
+    public final Boolean getLockRemove() {
+
+        return lockRemove;
+    }
+
     private InventorySlotSchema(boolean isBase) {
 
         super(isBase);
 
         acceptedTypes = null;
         modelAttachment = null;
+
+        lockAdd = null;
+        lockRemove = null;
     }
 
     public InventorySlotSchema(TracedDictionary json, boolean isBase) throws LoggedException {
 
         super(isBase);
 
-        acceptedTypes = json.get("acceptedTypes", List.of(
+        TracedEntry<TracedArray> acceptedTypesEntry = json.getAsArray("acceptedTypes", true);
+        if (acceptedTypesEntry.containsValue()) {
 
-                json.arrayCase(entry -> {
+            ArrayList<String> acceptedTypesList = new ArrayList<>();
 
-                    ArrayList<String> acceptedTypesList = new ArrayList<>();
+            TracedArray acceptedTypesJson = acceptedTypesEntry.getValue();
+            for (int i : acceptedTypesJson) {
 
-                    TracedArray acceptedTypesJson = entry.getValue();
-                    for (int i : acceptedTypesJson) {
+                TracedEntry<String> acceptedTypeEntry = acceptedTypesJson.getAsString(i, false, null);
+                String acceptedType = acceptedTypeEntry.getValue();
 
-                        TracedEntry<String> acceptedTypeEntry = acceptedTypesJson.getAsString(i, false, null);
-                        String acceptedType = acceptedTypeEntry.getValue();
+                acceptedTypesList.add(acceptedType);
+            }
 
-                        acceptedTypesList.add(acceptedType);
-                    }
+            acceptedTypes = new ImmutableList<>(acceptedTypesList);
+        } else {
 
-                    return new ImmutableList<>(acceptedTypesList);
-                }),
-
-                json.stringCase(entry -> {
-
-                    String acceptedType = entry.getValue();
-                    return new ImmutableList<>(acceptedType);
-                }), json.nullCase(_ -> null)));
+            acceptedTypes = null;
+        }
 
         TracedEntry<String> modelAttachmentEntry = json.getAsString("modelAttachment", true, null);
         modelAttachment = modelAttachmentEntry.getValue();
+
+        TracedEntry<Boolean> lockAddEntry = json.getAsBoolean("lockAdd", true, null);
+        lockAdd = lockAddEntry.getValue();
+
+        TracedEntry<Boolean> lockRemoveEntry = json.getAsBoolean("lockRemove", true, null);
+        lockRemove = lockRemoveEntry.getValue();
     }
 }

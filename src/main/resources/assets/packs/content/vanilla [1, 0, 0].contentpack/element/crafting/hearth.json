@@ -1,0 +1,87 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:hearth",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "model": "TranscendRuins:cube",
+        "renderMaterial": "TranscendRuins:crate",
+        "texture": "element.hearth",
+        "inventory": {
+            "ui": {
+                "id": "elementHearthInventory",
+                "grid": {
+                    "id": "elementHearthGridSlot"
+                },
+                "named": {
+                    "fuel": {
+                        "id": "elementHearthFuelSlot",
+                        "classes": [
+                            "fuelSlot"
+                        ],
+                        "slotIcon": "interface.inventory.fuelSlotUnlit",
+                        "selectedSlotIcon": "interface.inventory.fuelSlotUnlitSelected",
+                        "slotIconFilled": "interface.inventory.fuelSlot",
+                        "selectedSlotIconFilled": "interface.inventory.fuelSlotSelected"
+                    },
+                    "output": {
+                        "id": "elementHearthOutputSlot",
+                        "classes": [
+                            "outputSlot"
+                        ]
+                    }
+                },
+                "fuelBar": {
+                    "id": "elementHearthFuelBar"
+                },
+                "header": {
+                    "type": "text",
+                    "id": "elementHearthHeader",
+                    "classes": [
+                        "header"
+                    ],
+                    "text": "element.inventory.hearth"
+                },
+                "body": {
+                    "type": "container",
+                    "id": "elementHearthBody",
+                    "classes": [
+                        "body"
+                    ],
+                    "components": []
+                },
+                "footer": {
+                    "type": "text",
+                    "id": "elementHearthFooter",
+                    "classes": [
+                        "footer"
+                    ],
+                    "text": "footer"
+                }
+            },
+            "grid": {
+                "slots": 1
+            },
+            "named": {
+                "fuel": {
+                    "acceptedTypes": [
+                        "fuel"
+                    ]
+                },
+                "output": {
+                    "lockAdd": true
+                }
+            }
+        },
+        "crafting": {
+            "category": "hearth",
+            "input": 0,
+            "output": "output",
+            "fuel": "fuel"
+        },
+        "interaction": {
+            "type": "inventory"
+        }
+    }
+}

@@ -1,9 +1,11 @@
 {
     "metadata": {
-        "identifier": "Example:torch"
+        "identifier": "Example:torch",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
-        "model": "TranscendRuins:crate",
+        "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",
         "texture": "element.crate",

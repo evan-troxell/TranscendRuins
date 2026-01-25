@@ -187,87 +187,77 @@ public final class LootTableAttributes extends AssetAttributes {
             items = null;
         }
 
-        TracedEntry<TracedArray> disableByComponentIdEntry = json.getAsArray("disableByComponentId", true);
-        if (disableByComponentIdEntry.containsValue()) {
+        disableByComponentId = json.get("disableByComponentId", List.of(
 
-            TracedArray disableByComponentIdJson = disableByComponentIdEntry.getValue();
-            ArrayList<String> disableByComponentIdList = new ArrayList<>();
+                json.stringCase(entry -> new ImmutableList<>(entry.getValue())), json.arrayCase(entry -> {
 
-            for (int i : disableByComponentIdJson) {
+                    TracedArray disableByComponentIdJson = entry.getValue();
+                    ArrayList<String> disableByComponentIdList = new ArrayList<>();
 
-                TracedEntry<String> disableIdEntry = disableByComponentIdJson.getAsString(i, false, null);
-                String disableId = disableIdEntry.getValue();
+                    for (int i : disableByComponentIdJson) {
 
-                disableByComponentIdList.add(disableId);
-            }
+                        TracedEntry<String> disableIdEntry = disableByComponentIdJson.getAsString(i, false, null);
+                        String disableId = disableIdEntry.getValue();
 
-            disableByComponentId = new ImmutableList<>(disableByComponentIdList);
-        } else {
+                        disableByComponentIdList.add(disableId);
+                    }
 
-            disableByComponentId = null;
-        }
+                    return new ImmutableList<>(disableByComponentIdList);
+                }), json.nullCase(_ -> null)));
 
-        TracedEntry<TracedArray> enableByComponentIdEntry = json.getAsArray("enableByComponentId", true);
-        if (enableByComponentIdEntry.containsValue()) {
+        enableByComponentId = json.get("enableByComponentId", List.of(
 
-            TracedArray enableByComponentIdJson = enableByComponentIdEntry.getValue();
-            ArrayList<String> enableByComponentIdList = new ArrayList<>();
+                json.stringCase(entry -> new ImmutableList<>(entry.getValue())), json.arrayCase(entry -> {
 
-            for (int i : enableByComponentIdJson) {
+                    TracedArray enableByComponentIdJson = entry.getValue();
+                    ArrayList<String> enableByComponentIdList = new ArrayList<>();
 
-                TracedEntry<String> enableIdEntry = enableByComponentIdJson.getAsString(i, false, null);
-                String enableId = enableIdEntry.getValue();
+                    for (int i : enableByComponentIdJson) {
 
-                enableByComponentIdList.add(enableId);
-            }
+                        TracedEntry<String> enableIdEntry = enableByComponentIdJson.getAsString(i, false, null);
+                        String enableId = enableIdEntry.getValue();
 
-            enableByComponentId = new ImmutableList<>(enableByComponentIdList);
-        } else {
+                        enableByComponentIdList.add(enableId);
+                    }
 
-            enableByComponentId = null;
-        }
+                    return new ImmutableList<>(enableByComponentIdList);
+                }), json.nullCase(_ -> null)));
 
-        TracedEntry<TracedArray> disableByComponentTagsEntry = json.getAsArray("disableByComponentTags", true);
+        disableByComponentTag = json.get("disableByComponentTag", List.of(
 
-        if (disableByComponentTagsEntry.containsValue()) {
+                json.stringCase(entry -> new ImmutableList<>(entry.getValue())), json.arrayCase(entry -> {
 
-            TracedArray disableByComponentTagsJson = disableByComponentTagsEntry.getValue();
-            ArrayList<String> disableByComponentTagsList = new ArrayList<>();
+                    TracedArray disableByComponentTagJson = entry.getValue();
+                    ArrayList<String> disableByComponentTagList = new ArrayList<>();
 
-            for (int i : disableByComponentTagsJson) {
+                    for (int i : disableByComponentTagJson) {
 
-                TracedEntry<String> disableTagEntry = disableByComponentTagsJson.getAsString(i, false, null);
-                String disableTag = disableTagEntry.getValue();
+                        TracedEntry<String> disableTagEntry = disableByComponentTagJson.getAsString(i, false, null);
+                        String disableTag = disableTagEntry.getValue();
 
-                disableByComponentTagsList.add(disableTag);
-            }
+                        disableByComponentTagList.add(disableTag);
+                    }
 
-            disableByComponentTag = new ImmutableList<>(disableByComponentTagsList);
-        } else {
+                    return new ImmutableList<>(disableByComponentTagList);
+                }), json.nullCase(_ -> null)));
 
-            disableByComponentTag = null;
-        }
+        enableByComponentTag = json.get("enableByComponentTag", List.of(
 
-        TracedEntry<TracedArray> enableByComponentTagsEntry = json.getAsArray("enableByComponentTags", true);
+                json.stringCase(entry -> new ImmutableList<>(entry.getValue())), json.arrayCase(entry -> {
 
-        if (enableByComponentTagsEntry.containsValue()) {
+                    TracedArray enableByComponentTagJson = entry.getValue();
+                    ArrayList<String> enableByComponentTagList = new ArrayList<>();
 
-            TracedArray enableByComponentTagsJson = enableByComponentTagsEntry.getValue();
-            ArrayList<String> enableByComponentTagsList = new ArrayList<>();
+                    for (int i : enableByComponentTagJson) {
 
-            for (int i : enableByComponentTagsJson) {
+                        TracedEntry<String> enableTagEntry = enableByComponentTagJson.getAsString(i, false, null);
+                        String enableTag = enableTagEntry.getValue();
 
-                TracedEntry<String> enableTagEntry = enableByComponentTagsJson.getAsString(i, false, null);
-                String enableTag = enableTagEntry.getValue();
+                        enableByComponentTagList.add(enableTag);
+                    }
 
-                enableByComponentTagsList.add(enableTag);
-            }
-
-            enableByComponentTag = new ImmutableList<>(enableByComponentTagsList);
-        } else {
-
-            enableByComponentTag = null;
-        }
+                    return new ImmutableList<>(enableByComponentTagList);
+                }), json.nullCase(_ -> null)));
     }
 
     /**
@@ -427,11 +417,12 @@ public final class LootTableAttributes extends AssetAttributes {
                 componentTags = new ImmutableList<>();
             }
 
-            conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
+            TracedEntry<TracedArray> conditionsEntry = json.getAsArray("conditions", true);
+            if (conditionsEntry.containsValue()) {
 
                 ArrayList<TRScript> conditionsList = new ArrayList<>();
 
-                TracedArray conditionsJson = entry.getValue();
+                TracedArray conditionsJson = conditionsEntry.getValue();
                 for (int i : conditionsJson) {
 
                     TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
@@ -439,12 +430,11 @@ public final class LootTableAttributes extends AssetAttributes {
                     conditionsList.add(condition);
                 }
 
-                return new ImmutableList<>(conditionsList);
-            }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+                conditions = new ImmutableList<>(conditionsList);
+            } else {
 
-                TRScript condition = entry.getValue();
-                return new ImmutableList<>(condition);
-            })));
+                conditions = new ImmutableList<>();
+            }
 
             TracedEntry<Double> chanceEntry = json.getAsDouble("chance", true, 100.0, num -> num > 0);
             chance = chanceEntry.getValue();

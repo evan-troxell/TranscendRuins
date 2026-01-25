@@ -1,16 +1,16 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:cloth"
+        "identifier": "TranscendRuins:steelScrap",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.cloth.texture",
-        "model": {
-            "identifier": "TranscendRuins:crate"
-        },
+        "texture": "item.steelScrapTexture",
+        "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",
         "stackSize": 20,
-        "icon": "item.cloth.icon",
+        "icon": "item.steelScrap",
         "categories": [
             "material"
         ]

@@ -1,14 +1,16 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:rope"
+        "identifier": "TranscendRuins:ironBar",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.rope.texture",
-        "model": "TranscendRuins:crate",
+        "texture": "item.ironBarTexture",
+        "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",
         "stackSize": 20,
-        "icon": "item.rope.icon",
+        "icon": "item.ironBar",
         "categories": [
             "material"
         ]

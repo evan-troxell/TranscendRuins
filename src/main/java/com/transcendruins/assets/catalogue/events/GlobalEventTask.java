@@ -232,11 +232,12 @@ public final class GlobalEventTask {
             counterTarget = 0.0;
         }
 
-        conditions = json.get("conditions", List.of(json.arrayCase(entry -> {
+        TracedEntry<TracedArray> conditionsEntry = json.getAsArray("conditions", true);
+        if (conditionsEntry.containsValue()) {
 
             ArrayList<TRScript> conditionsList = new ArrayList<>();
 
-            TracedArray conditionsJson = entry.getValue();
+            TracedArray conditionsJson = conditionsEntry.getValue();
             for (int i : conditionsJson) {
 
                 TracedEntry<TRScript> conditionEntry = conditionsJson.getAsScript(i, false);
@@ -244,11 +245,10 @@ public final class GlobalEventTask {
                 conditionsList.add(condition);
             }
 
-            return new ImmutableList<>(conditionsList);
-        }), json.nullCase(_ -> new ImmutableList<>()), json.scriptCase(entry -> {
+            conditions = new ImmutableList<>(conditionsList);
+        } else {
 
-            TRScript condition = entry.getValue();
-            return new ImmutableList<>(condition);
-        })));
+            conditions = new ImmutableList<>();
+        }
     }
 }

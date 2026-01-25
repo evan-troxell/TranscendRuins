@@ -35,12 +35,10 @@ public final class RecipeContext extends AssetContext {
      *                instance.
      * @param world   <code>World</code>: The world copy of this
      *                <code>RecipeContext</code> instance.
-     * @param parent  <code>AssetInstance</code>: The parent to assign to this
-     *                <code>RecipeContext</code> instance.
      */
-    public RecipeContext(AssetPresets presets, World world, AssetInstance parent) {
+    public RecipeContext(AssetPresets presets, World world) {
 
-        super(presets, world, parent);
+        super(presets, world, null);
     }
 
     @Override

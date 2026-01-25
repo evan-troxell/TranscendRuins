@@ -71,17 +71,17 @@ public final class GlobalEventSchema {
     private final ImmutableList<LocalEvent> localEvents;
 
     /**
-     * <code>double</code>: The duration, in minutes, of this
+     * <code>long</code>: The duration, in milliseconds, of this
      * <code>GlobalEventSchema</code> instance. A value of -1.0 indicates an
      * unlimited duration.
      */
-    private final double duration;
+    private final long duration;
 
     /**
-     * <code>double</code>: The cooldown, in minutes, of this
+     * <code>long</code>: The cooldown, in milliseconds, of this
      * <code>GlobalEventSchema</code> instance.
      */
-    private final double cooldown;
+    private final long cooldown;
 
     /**
      * <code>int</code>: The number of tasks required by this
@@ -96,17 +96,17 @@ public final class GlobalEventSchema {
     private final int tasksActive;
 
     /**
-     * <code>double</code>: The maximum duration, in minutes, of each task for this
-     * <code>GlobalEventSchema</code> instance. A value of -1.0 indicates an
+     * <code>long</code>: The maximum duration, in milliseconds, of each task for
+     * this <code>GlobalEventSchema</code> instance. A value of -1.0 indicates an
      * unlimited duration.
      */
-    private final double taskDuration;
+    private final long taskDuration;
 
     /**
-     * <code>double</code>: The cooldown, in minutes, of each task for this
+     * <code>long</code>: The cooldown, in milliseconds, of each task for this
      * <code>GlobalEventSchema</code> instance.
      */
-    private final double taskCooldown;
+    private final long taskCooldown;
 
     /**
      * <code>WeightedRoll&lt;GlobalEventTask&gt;</code>: The tasks which are
@@ -275,11 +275,11 @@ public final class GlobalEventSchema {
 
         // The duration should be positive unless it is -1.0, which represents an
         // unlimited duration.
-        TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, -1.0, num -> num >= 0.0 || num == -1.0);
+        TracedEntry<Long> durationEntry = json.getAsDuration("duration", true, -1l, true);
         duration = durationEntry.getValue();
 
         // The cooldown should be greater than or equal to 0.0.
-        TracedEntry<Double> cooldownEntry = json.getAsDouble("cooldown", true, 0.0, num -> num >= 0.0);
+        TracedEntry<Long> cooldownEntry = json.getAsDuration("cooldown", true, 0l, false);
         cooldown = cooldownEntry.getValue();
 
         TracedEntry<TracedDictionary> tasksEntry = json.getAsDict("tasks", true);
@@ -299,12 +299,11 @@ public final class GlobalEventSchema {
 
             // The task duration should be positive unless it is -1.0, which represents an
             // unlimited duration.
-            TracedEntry<Double> taskDurationEntry = tasksJson.getAsDouble("duration", true, -1.0,
-                    num -> num >= 0.0 || num == -1.0);
+            TracedEntry<Long> taskDurationEntry = tasksJson.getAsDuration("duration", true, -1l, true);
             taskDuration = taskDurationEntry.getValue();
 
             // The task cooldown should be greater than or equal to 0.0.
-            TracedEntry<Double> taskCooldownEntry = tasksJson.getAsDouble("cooldown", true, 0.0, num -> num >= 0.0);
+            TracedEntry<Long> taskCooldownEntry = tasksJson.getAsDuration("cooldown", true, 0l, false);
             taskCooldown = taskCooldownEntry.getValue();
 
             // Process the tasks as a weighted roll.
@@ -322,8 +321,8 @@ public final class GlobalEventSchema {
 
             tasksRequired = 0;
             tasksActive = 0;
-            taskDuration = -1.0;
-            taskCooldown = 0.0;
+            taskDuration = -1;
+            taskCooldown = 0;
             tasks = null;
         }
 

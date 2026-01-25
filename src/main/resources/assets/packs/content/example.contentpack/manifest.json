@@ -11,7 +11,7 @@
         "displayIcon": "displayIcon.png",
         "description": "An example pack for Transcend Ruins.",
         "website": "https://example.com",
-        "license": "MIT"
+        "license": "Apache 2.0"
     },
     "dependencies": [
         {

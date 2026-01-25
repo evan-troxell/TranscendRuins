@@ -1,0 +1,20 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:pinePlank",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "texture": "item.pinePlankTexture",
+        "model": "TranscendRuins:cube",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "stackSize": 20,
+        "icon": "item.pinePlank",
+        "categories": [
+            "material",
+            "fuel"
+        ],
+        "fuelDuration": "90s"
+    }
+}

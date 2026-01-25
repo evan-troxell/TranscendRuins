@@ -1,6 +1,8 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:transparent"
+        "identifier": "TranscendRuins:transparent",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "opaque": false,

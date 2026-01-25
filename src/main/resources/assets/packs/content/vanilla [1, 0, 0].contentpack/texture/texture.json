@@ -1,13 +1,10 @@
 {
     "transcendRuins": "transcendRuins.png",
-
     "global.globalMap": "global/globalMap.png",
-
     "global.pin.safe": "global/pin/safe.png",
     "global.pin.moderate": "global/pin/moderate.png",
     "global.pin.difficult": "global/pin/difficult.png",
     "global.pin.player": "global/pin/player.png",
-
     "global.terrain.mountain1": "global/terrain/mountain1.png",
     "global.terrain.mountain2": "global/terrain/mountain2.png",
     "global.terrain.mountain3": "global/terrain/mountain3.png",
@@ -21,59 +18,72 @@
     "global.terrain.mountain11": "global/terrain/mountain11.png",
     "global.terrain.mountain12": "global/terrain/mountain12.png",
     "global.terrain.mountain13": "global/terrain/mountain13.png",
-
     "location.pineMedium": "location/pineMedium.png",
     "location.bunkerAlfa": "location/bunkerAlfa.png",
     "location.bunkerBravo": "location/bunkerBravo.png",
-
     "interface.utilityBar.backpack": "interface/utilityBar/backpack.png",
     "interface.utilityBar.backpackDark": "interface/utilityBar/backpackDark.png",
-
     "interface.actionBar.interact": "interface/actionBar/interact.png",
     "interface.actionBar.attack": "interface/actionBar/attack.png",
-
     "interface.inventory.slot": "interface/inventory/slot.png",
     "interface.inventory.slotSelected": "interface/inventory/slotSelected.png",
-
-    "interface.inventory.bootsSlot": "interface/inventory/bootsSlot.png",
-    "interface.inventory.bootsSlotSelected": "interface/inventory/bootsSlotSelected.png",
-
-    "interface.inventory.pantsSlot": "interface/inventory/pantsSlot.png",
-    "interface.inventory.pantsSlotSelected": "interface/inventory/pantsSlotSelected.png",
-
-    "interface.inventory.topSlot": "interface/inventory/topSlot.png",
-    "interface.inventory.topSlotSelected": "interface/inventory/topSlotSelected.png",
-
-    "interface.inventory.capSlot": "interface/inventory/capSlot.png",
-    "interface.inventory.capSlotSelected": "interface/inventory/capSlotSelected.png",
-
-    "interface.inventory.mainhandSlot": "interface/inventory/mainhandSlot.png",
-    "interface.inventory.mainhandSlotSelected": "interface/inventory/mainhandSlotSelected.png",
-
-    "interface.inventory.offhandSlot": "interface/inventory/offhandSlot.png",
-    "interface.inventory.offhandSlotSelected": "interface/inventory/offhandSlotSelected.png",
-
-    "interface.inventory.backpackSlot": "interface/inventory/backpackSlot.png",
-    "interface.inventory.backpackSlotSelected": "interface/inventory/backpackSlotSelected.png",
-
+    "interface.inventory.fuelSlot": "interface/inventory/crafting/fuelSlot.png",
+    "interface.inventory.fuelSlotSelected": "interface/inventory/crafting/fuelSlotSelected.png",
+    "interface.inventory.fuelSlotUnlit": "interface/inventory/crafting/fuelSlotUnlit.png",
+    "interface.inventory.fuelSlotUnlitSelected": "interface/inventory/crafting/fuelSlotUnlitSelected.png",
+    "interface.inventory.fuelSlotLit": "interface/inventory/crafting/fuelSlotLit.png",
+    "interface.inventory.fuelSlotLitSelected": "interface/inventory/crafting/fuelSlotLitSelected.png",
+    "interface.inventory.outputArrowSmall": "interface/inventory/crafting/outputArrowSmall.png",
+    "interface.inventory.outputArrowMedium": "interface/inventory/crafting/outputArrowMedium.png",
+    "interface.inventory.outputArrowLarge": "interface/inventory/crafting/outputArrowLarge.png",
+    "interface.inventory.bootsSlot": "interface/inventory/player/bootsSlot.png",
+    "interface.inventory.bootsSlotSelected": "interface/inventory/player/bootsSlotSelected.png",
+    "interface.inventory.pantsSlot": "interface/inventory/player/pantsSlot.png",
+    "interface.inventory.pantsSlotSelected": "interface/inventory/player/pantsSlotSelected.png",
+    "interface.inventory.topSlot": "interface/inventory/player/topSlot.png",
+    "interface.inventory.topSlotSelected": "interface/inventory/player/topSlotSelected.png",
+    "interface.inventory.capSlot": "interface/inventory/player/capSlot.png",
+    "interface.inventory.capSlotSelected": "interface/inventory/player/capSlotSelected.png",
+    "interface.inventory.mainhandSlot": "interface/inventory/player/mainhandSlot.png",
+    "interface.inventory.mainhandSlotSelected": "interface/inventory/player/mainhandSlotSelected.png",
+    "interface.inventory.offhandSlot": "interface/inventory/player/offhandSlot.png",
+    "interface.inventory.offhandSlotSelected": "interface/inventory/player/offhandSlotSelected.png",
+    "interface.inventory.backpackSlot": "interface/inventory/player/backpackSlot.png",
+    "interface.inventory.backpackSlotSelected": "interface/inventory/player/backpackSlotSelected.png",
     "interface.inventory.x": "interface/inventory/x.png",
-    
-    "element.box": "/element/box.png",
-    "element.crate": "/element/box.png",
+    "element.crate": "element/crate.png",
     "element.barrel": {
-        "/element/barrel/barrel1.png": 10.0,
-        "/element/barrel/barrel2.png": 5.0,
-        "/element/barrel/barrel3.png": 2.5
+        "element/barrel/barrel1.png": 10.0,
+        "element/barrel/barrel2.png": 5.0,
+        "element/barrel/barrel3.png": 2.5
     },
-    "item.ironPickaxe.icon": "item/tool/ironPickaxe/icon.png",
-    "item.ironPickaxe.texture": "item/tool/ironPickaxe/texture.png",
-
-    "item.ironHatchet.icon": "item/tool/ironHatchet/icon.png",
-    "item.ironHatchet.texture": "item/tool/ironHatchet/texture.png",
-
-    "item.cloth.icon": "item/material/cloth/icon.png",
-    "item.cloth.texture": "item/material/cloth/texture.png",
-
-    "item.rope.icon": "item/material/rope/icon.png",
-    "item.rope.texture": "item/material/rope/texture.png"
+    "element.workbench": "element/crafting/workbench.png",
+    "element.hearth": "element/crafting/hearth.png",
+    "element.forge": "element/crafting/forge.png",
+    "item.cloth": "item/material/cloth.png",
+    "item.clothTexture": "item/material/clothTexture.png",
+    "item.rope": "item/material/rope.png",
+    "item.ropeTexture": "item/material/ropeTexture.png",
+    "item.ironChunk": "item/material/ironChunk.png",
+    "item.ironChunkTexture": "item/material/ironChunkTexture.png",
+    "item.ironScrap": "item/material/ironScrap.png",
+    "item.ironScrapTexture": "item/material/ironScrapTexture.png",
+    "item.ironBar": "item/material/ironBar.png",
+    "item.ironBarTexture": "item/material/ironBarTexture.png",
+    "item.aluminumWire": "item/material/aluminumWire.png",
+    "item.aluminumWireTexture": "item/material/aluminumWireTexture.png",
+    "item.steelScrap": "item/material/steelScrap.png",
+    "item.steelScrapTexture": "item/material/steelScrapTexture.png",
+    "item.steelBar": "item/material/steelBar.png",
+    "item.steelBarTexture": "item/material/steelBarTexture.png",
+    "item.nails": "item/material/nails.png",
+    "item.nailsTexture": "item/material/nailsTexture.png",
+    "item.pinePlank": "item/material/pinePlank.png",
+    "item.pinePlankTexture": "item/material/pinePlankTexture.png",
+    "item.ductTape": "item/material/ductTape.png",
+    "item.ductTapeTexture": "item/material/ductTapeTexture.png",
+    "item.ironPickaxe": "item/tool/ironPickaxe.png",
+    "item.ironPickaxeTexture": "item/tool/ironPickaxeTexture.png",
+    "item.ironHatchet": "item/tool/ironHatchet.png",
+    "item.ironHatchetTexture": "item/tool/ironHatchetTexture.png"
 }

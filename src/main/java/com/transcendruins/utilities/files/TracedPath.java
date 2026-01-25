@@ -490,8 +490,9 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
                 BufferedReader reader = new BufferedReader(inputStreamReader)) {
 
             return reader.lines().collect(Collectors.joining("\n"));
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
 
+            System.out.println("STRING ERROR: " + fileName);
             return null;
         }
     }
@@ -524,8 +525,9 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
 
             ImageIcon image = new ImageIcon(ImageIO.read(inputStream));
             return (image.getIconWidth() > 0 && image.getIconHeight() > 0) ? image : null;
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
 
+            System.out.println("IMAGE ERROR: " + fileName);
             return null;
         }
     }
@@ -553,8 +555,9 @@ public abstract sealed class TracedPath permits InternalPath, ExternalPath {
         try {
 
             return new StoredSound(this);
-        } catch (UnsupportedAudioFileException | IOException e) {
+        } catch (UnsupportedAudioFileException | IOException | NullPointerException e) {
 
+            System.out.println("AUDIO ERROR: " + fileName);
             return null;
         }
     }

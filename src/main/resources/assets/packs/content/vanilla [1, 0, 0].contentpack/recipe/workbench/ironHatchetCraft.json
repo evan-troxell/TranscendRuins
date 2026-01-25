@@ -1,0 +1,31 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:ironHatchet",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "duration": "5s",
+        "input": [
+            {
+                "item": "TranscendRuins:pinePlank",
+                "count": 5
+            },
+            {
+                "item": "TranscendRuins:ductTape",
+                "count": 5
+            },
+            {
+                "item": "TranscendRuins:ironBar",
+                "count": 4
+            },
+            {
+                "item": "TranscendRuins:nails",
+                "count": 3
+            }
+        ],
+        "output": {
+            "item": "TranscendRuins:ironHatchet"
+        }
+    }
+}

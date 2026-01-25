@@ -116,7 +116,7 @@ public final class Identifier {
      *                     representing the version of this <code>Identifier</code>
      *                     instance.
      * @throws IdentifierFormatException Thrown if the <code>identifier</code>
-     *                                   perameter is in an improper format.
+     *                                   parameter is in an improper format.
      */
     private Identifier(TracedEntry<String> entry, TracedEntry<Version> versionEntry) throws IdentifierFormatException {
 
@@ -144,7 +144,7 @@ public final class Identifier {
      * @return <code>Identifier</code>: The generated <code>Identifier</code>
      *         instance.
      * @throws IdentifierFormatException Thrown if the <code>identifier</code>
-     *                                   perameter is in an improper format.
+     *                                   parameter is in an improper format.
      */
     public static Identifier createIdentifier(TracedEntry<String> entry, TracedEntry<Version> version)
             throws IdentifierFormatException {

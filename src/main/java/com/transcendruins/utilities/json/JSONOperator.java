@@ -29,6 +29,7 @@ import org.json.simple.parser.ParseException;
 
 import com.transcendruins.utilities.exceptions.fileexceptions.FileFormatException;
 import com.transcendruins.utilities.exceptions.fileexceptions.MissingPathException;
+import com.transcendruins.utilities.exceptions.propertyexceptions.PropertyExceptionPathway;
 import com.transcendruins.utilities.files.ExternalPath;
 import com.transcendruins.utilities.files.TracedPath;
 
@@ -122,9 +123,9 @@ public final class JSONOperator {
         }
         try {
 
-            if (parseJSON(jsonString) instanceof List json) {
+            if (parseJSON(jsonString) instanceof List<?> json) {
 
-                return new TracedArray(json, path);
+                return new TracedArray(json, new PropertyExceptionPathway(path));
             }
 
             throw new ParseException(ParseException.ERROR_UNEXPECTED_EXCEPTION);

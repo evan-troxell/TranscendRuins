@@ -18,6 +18,7 @@ package com.transcendruins.assets.models;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.jme3.math.Vector2f;
@@ -268,7 +269,7 @@ public final class ModelAttributes extends AssetAttributes {
      * @param schema <code>AssetSchema</code>: The schema which created this
      *               <code>ModelAttributes</code> instance.
      * @param json   <code>TracedDictionary</code>: The schema JSON used to compile
-     *               this <code>json</code> perameter.
+     *               this <code>json</code> parameter.
      * @param isBase <code>boolean</code>: Whether or not this
      *               <code>ModelAttributes</code> instance is the base attribute set
      *               of a <code>ModelAttributes</code> instance.
@@ -357,7 +358,7 @@ public final class ModelAttributes extends AssetAttributes {
                 }
 
                 // For each vertex of the triangle, retrieve the appropriate vertex from the
-                // vertices perameter.
+                // vertices parameter.
                 for (int i = 0; i < polygonJson.size(); i++) {
 
                     TracedEntry<Integer> vertexIndexEntry = polygonJson.getAsInteger(i, false, null,
@@ -398,87 +399,77 @@ public final class ModelAttributes extends AssetAttributes {
             allBones = null;
         }
 
-        TracedEntry<TracedArray> disableByBoneEntry = json.getAsArray("disableByBone", true);
-        if (disableByBoneEntry.containsValue()) {
+        disableByBone = json.get("disableByBone", List.of(
 
-            ArrayList<String> disableByBoneList = new ArrayList<>();
+                json.stringCase(entry -> new ImmutableList<>(entry.getValue())), json.arrayCase(entry -> {
 
-            TracedArray disableByBoneJson = disableByBoneEntry.getValue();
-            for (int i : disableByBoneJson) {
+                    TracedArray disableByBoneJson = entry.getValue();
+                    ArrayList<String> disableByBoneList = new ArrayList<>();
 
-                TracedEntry<String> hideBoneEntry = disableByBoneJson.getAsString(i, false, null);
-                String hideBone = hideBoneEntry.getValue();
+                    for (int i : disableByBoneJson) {
 
-                disableByBoneList.add(hideBone);
+                        TracedEntry<String> disableBoneEntry = disableByBoneJson.getAsString(i, false, null);
+                        String disableBone = disableBoneEntry.getValue();
 
-            }
+                        disableByBoneList.add(disableBone);
+                    }
 
-            disableByBone = new ImmutableList<>(disableByBoneList);
-        } else {
+                    return new ImmutableList<>(disableByBoneList);
+                }), json.nullCase(_ -> null)));
 
-            disableByBone = null;
-        }
+        enableByBone = json.get("enableByBone", List.of(
 
-        TracedEntry<TracedArray> enableByBoneEntry = json.getAsArray("enableByBone", true);
-        if (enableByBoneEntry.containsValue()) {
+                json.stringCase(entry -> new ImmutableList<>(entry.getValue())), json.arrayCase(entry -> {
 
-            ArrayList<String> enableByBoneList = new ArrayList<>();
+                    TracedArray enableByBoneJson = entry.getValue();
+                    ArrayList<String> enableByBoneList = new ArrayList<>();
 
-            TracedArray enableByBoneJson = enableByBoneEntry.getValue();
-            for (int i : enableByBoneJson) {
+                    for (int i : enableByBoneJson) {
 
-                TracedEntry<String> showBoneEntry = enableByBoneJson.getAsString(i, false, null);
-                String showBone = showBoneEntry.getValue();
+                        TracedEntry<String> enableBoneEntry = enableByBoneJson.getAsString(i, false, null);
+                        String enableBone = enableBoneEntry.getValue();
 
-                enableByBoneList.add(showBone);
+                        enableByBoneList.add(enableBone);
+                    }
 
-            }
+                    return new ImmutableList<>(enableByBoneList);
+                }), json.nullCase(_ -> null)));
 
-            enableByBone = new ImmutableList<>(enableByBoneList);
-        } else {
+        disableByTag = json.get("disableByTag", List.of(
 
-            enableByBone = null;
-        }
+                json.stringCase(entry -> new ImmutableList<>(entry.getValue())), json.arrayCase(entry -> {
 
-        TracedEntry<TracedArray> disableByTagEntry = json.getAsArray("disableByTag", true);
-        if (disableByTagEntry.containsValue()) {
+                    TracedArray disableByTagJson = entry.getValue();
+                    ArrayList<String> disableByTagList = new ArrayList<>();
 
-            ArrayList<String> disableByTagList = new ArrayList<>();
+                    for (int i : disableByTagJson) {
 
-            TracedArray disableByTagJson = disableByTagEntry.getValue();
-            for (int i : disableByTagJson) {
+                        TracedEntry<String> disableTagEntry = disableByTagJson.getAsString(i, false, null);
+                        String disableTag = disableTagEntry.getValue();
 
-                TracedEntry<String> hideTagEntry = disableByTagJson.getAsString(i, false, null);
-                String hideTag = hideTagEntry.getValue();
+                        disableByTagList.add(disableTag);
+                    }
 
-                disableByTagList.add(hideTag);
-            }
+                    return new ImmutableList<>(disableByTagList);
+                }), json.nullCase(_ -> null)));
 
-            disableByTag = new ImmutableList<>(disableByTagList);
-        } else {
+        enableByTag = json.get("enableByTag", List.of(
 
-            disableByTag = null;
-        }
+                json.stringCase(entry -> new ImmutableList<>(entry.getValue())), json.arrayCase(entry -> {
 
-        TracedEntry<TracedArray> enableByTagEntry = json.getAsArray("enableByTag", true);
-        if (enableByTagEntry.containsValue()) {
+                    TracedArray enableByTagJson = entry.getValue();
+                    ArrayList<String> enableByTagList = new ArrayList<>();
 
-            ArrayList<String> enableByTagList = new ArrayList<>();
+                    for (int i : enableByTagJson) {
 
-            TracedArray enableByTagJson = enableByTagEntry.getValue();
-            for (int i : enableByTagJson) {
+                        TracedEntry<String> enableTagEntry = enableByTagJson.getAsString(i, false, null);
+                        String enableTag = enableTagEntry.getValue();
 
-                TracedEntry<String> showTagEntry = enableByTagJson.getAsString(i, false, null);
-                String showTag = showTagEntry.getValue();
+                        enableByTagList.add(enableTag);
+                    }
 
-                enableByTagList.add(showTag);
-            }
-
-            enableByTag = new ImmutableList<>(enableByTagList);
-        } else {
-
-            enableByTag = null;
-        }
+                    return new ImmutableList<>(enableByTagList);
+                }), json.nullCase(_ -> null)));
     }
 
     /**

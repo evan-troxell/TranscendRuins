@@ -1,0 +1,19 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:ironPickaxe",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "texture": "item.ironPickaxeTexture",
+        "model": "TranscendRuins:cube",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "stackSize": 1,
+        "icon": "item.ironPickaxe",
+        "categories": [
+            "tool",
+            "weapon"
+        ]
+    }
+}

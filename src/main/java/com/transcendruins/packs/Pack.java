@@ -17,13 +17,11 @@
 package com.transcendruins.packs;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.ImageIcon;
 
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.exceptions.fileexceptions.MissingPathException;
-import com.transcendruins.utilities.exceptions.propertyexceptions.CollectionSizeException;
 import com.transcendruins.utilities.exceptions.propertyexceptions.referenceexceptions.UnexpectedValueException;
 import com.transcendruins.utilities.files.TracedPath;
 import com.transcendruins.utilities.immutable.ImmutableList;
@@ -203,34 +201,26 @@ public abstract class Pack {
         TracedEntry<String> descriptionEntry = metadataJson.getAsString("description", true, "[DESCRIPTION UNLISTED]");
         description = descriptionEntry.getValue();
 
-        authors = metadataJson.get("author", List.of(metadataJson.stringCase(entry -> {
+        ArrayList<String> authorsList = new ArrayList<>();
 
-            String author = entry.getValue();
-            return new ImmutableList<>(author);
-        }),
+        TracedEntry<String> authorEntry = metadataJson.getAsString("author", true, null);
+        if (authorEntry.containsValue()) {
 
-                metadataJson.arrayCase(entry -> {
+            authorsList.add(authorEntry.getValue());
+        }
 
-                    ArrayList<String> authorsList = new ArrayList<>();
+        TracedEntry<TracedArray> authorsEntry = metadataJson.getAsArray("authors", authorEntry.containsValue());
+        if (authorsEntry.containsValue()) {
 
-                    TracedArray authorsJson = entry.getValue();
-                    if (authorsJson.isEmpty()) {
+            TracedArray authorsJson = authorsEntry.getValue();
+            for (int i : authorsJson) {
 
-                        throw new CollectionSizeException(entry, authorsJson);
-                    }
+                TracedEntry<String> entry = authorsJson.getAsString(i, false, null);
+                authorsList.add(entry.getValue());
+            }
+        }
 
-                    for (int i : authorsJson) {
-
-                        TracedEntry<String> authorEntry = authorsJson.getAsString(i, false, null);
-
-                        String author = authorEntry.getValue();
-                        authorsList.add(author);
-                    }
-
-                    return new ImmutableList<>(authorsList);
-                }),
-
-                metadataJson.nullCase(_ -> new ImmutableList<>())));
+        authors = new ImmutableList<>(authorsList);
 
         TracedEntry<String> displayIconEntry = metadataJson.getAsString("displayIcon", true, "displayIcon.png");
         TracedPath displayIconPath = root.extend(displayIconEntry.getValue());

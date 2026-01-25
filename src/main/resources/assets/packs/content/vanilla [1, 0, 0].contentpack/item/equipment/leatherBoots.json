@@ -1,0 +1,19 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:leatherBoots",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "texture": "item.leatherBootsTexture",
+        "model": "TranscendRuins:cube",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "stackSize": 1,
+        "icon": "item.leatherBoots",
+        "categories": [
+            "equipment",
+            "boots"
+        ]
+    }
+}

@@ -1,6 +1,8 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:gameDescription"
+        "identifier": "TranscendRuins:gameDescription",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "style": {

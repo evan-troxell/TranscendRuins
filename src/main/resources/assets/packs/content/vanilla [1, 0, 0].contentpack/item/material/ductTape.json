@@ -1,0 +1,18 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:ductTape",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "texture": "item.ductTapeTexture",
+        "model": "TranscendRuins:cube",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "stackSize": 20,
+        "icon": "item.ductTape",
+        "categories": [
+            "material"
+        ]
+    }
+}

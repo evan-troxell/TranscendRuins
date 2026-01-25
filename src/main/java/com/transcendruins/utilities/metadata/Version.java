@@ -60,11 +60,11 @@ public final class Version {
      * @param entry <code>TracedEntry&lt;TracedArray&gt;</code>: The entry from
      *              which to create this <code>Version</code> instance.
      * @throws CollectionSizeException  Thrown if the length of the
-     *                                  <code>version</code> perameter is not 3.
+     *                                  <code>version</code> parameter is not 3.
      * @throws MissingPropertyException Thrown if any of the indices of the
-     *                                  <code>version</code> perameter are missing.
+     *                                  <code>version</code> parameter are missing.
      * @throws PropertyTypeException    Thrown if any of the indices of the
-     *                                  <code>version</code> perameter are not of
+     *                                  <code>version</code> parameter are not of
      *                                  the <code>Long</code> class.
      * @throws NumberBoundsException    Thrown if any vector value in this
      *                                  <code>Version</code> instance is negative.
@@ -94,11 +94,11 @@ public final class Version {
      *              which to create this <code>Version</code> instance.
      * @return <code>Version</code>: The generated <code>Version</code> instance.
      * @throws CollectionSizeException  Thrown if the length of the
-     *                                  <code>version</code> perameter is not 3.
+     *                                  <code>version</code> parameter is not 3.
      * @throws MissingPropertyException Thrown if any of the indices of the
-     *                                  <code>version</code> perameter are missing.
+     *                                  <code>version</code> parameter are missing.
      * @throws PropertyTypeException    Thrown if any of the indices of the
-     *                                  <code>version</code> perameter are not of
+     *                                  <code>version</code> parameter are not of
      *                                  the <code>Long</code> class.
      * @throws VersionBoundsException   Thrown if any vector value in this
      *                                  <code>Version</code> instance is negative.

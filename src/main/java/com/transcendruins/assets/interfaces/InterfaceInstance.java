@@ -16,8 +16,10 @@
 
 package com.transcendruins.assets.interfaces;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -39,7 +41,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
@@ -58,6 +62,7 @@ import com.transcendruins.assets.interfaces.InterfaceAttributes.IconComponentSch
 import com.transcendruins.assets.interfaces.InterfaceAttributes.IconType;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InterfaceComponentSchema;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema;
+import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema.ChildStyle;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema.GridDisplay;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryComponentSchema.NamedDisplay;
 import com.transcendruins.assets.interfaces.InterfaceAttributes.InventoryDisplayComponentSchema;
@@ -69,6 +74,9 @@ import com.transcendruins.assets.interfaces.InterfaceInstance.GlobalMapComponent
 import com.transcendruins.assets.interfaces.map.LocationRender;
 import com.transcendruins.assets.interfaces.map.TerrainRender;
 import com.transcendruins.assets.modelassets.items.ItemInstance;
+import com.transcendruins.assets.modelassets.primaryassets.PrimaryAssetInstance;
+import com.transcendruins.assets.modelassets.primaryassets.crafting.CraftingSchema;
+import com.transcendruins.assets.modelassets.primaryassets.crafting.CraftingSchema.SlotReference;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventoryInstance;
 import com.transcendruins.assets.modelassets.primaryassets.inventory.InventorySlotInstance;
 import com.transcendruins.assets.scripts.TRScript;
@@ -255,7 +263,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         protected final void addChild(ComponentSchema schema, DeterministicRandom random) {
 
-            ComponentInstance child = createComponent(schema, this, random);
+            ComponentInstance child = schema != null ? createComponent(schema, this, random) : null;
             children.add(child);
         }
 
@@ -273,7 +281,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public List<UIComponent> getChildren() {
 
-            return new ArrayList<>(children);
+            return children.stream().filter(Objects::nonNull).collect(Collectors.toCollection(ArrayList::new));
         }
 
         private final String type;
@@ -281,6 +289,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private final String id;
 
         private final Style style;
+
+        public final Style getStyle() {
+
+            return style;
+        }
 
         public final Style getStyle(Style parentStyle) {
 
@@ -325,7 +338,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 @Override
                 public final List<ComponentProperties> getChildren() {
 
-                    return children.stream().map(ComponentInstance::getProperties).toList();
+                    return children.stream().filter(Objects::nonNull).map(ComponentInstance::getProperties).toList();
                 }
             };
         }
@@ -345,7 +358,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         protected int x, y, minWidth, width, minHeight, height, borderLeft, borderRight, borderTop, borderBottom,
                 marginLeft, marginRight, marginTop, marginBottom, rxTL, ryTL, rxTR, ryTR, rxBL, ryBL, rxBR, ryBR,
-                paddingLeft, paddingRight, paddingTop, paddingBottom, fontSize, lineHeight, gapWidth, gapHeight;
+                paddingLeft, paddingRight, paddingTop, paddingBottom, parentFontSize, fontSize, gapWidth, gapHeight;
 
         private SizeDimensions origin;
 
@@ -353,6 +366,9 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private String backgroundIconPath = null;
         private ImageIcon backgroundIcon = null;
+
+        private Overflow overflowX = null;
+        private Overflow overflowY = null;
 
         private Boolean propagateEvents;
 
@@ -404,23 +420,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private int maxScrollY = 0;
 
         /**
-         * Resizes this <code>ComponentInstance</code> to a new set of dimensions. This
-         * should be used when resizing a component to account for the size of children.
-         * 
-         * @param width  <code>int</code>: The width of the content of this
-         *               <code>ComponentInstance</code>, which is equal to the width
-         *               minus the horizontal padding.
-         * @param height <code>int</code>: The height of the content ofthis
-         *               <code>ComponentInstance</code>, which is equal to the height
-         *               minus the vertical padding.
-         */
-        protected final void resize(int width, int height) {
-
-            this.width = width;
-            this.height = height;
-        }
-
-        /**
          * Retrieves the total width of this <code>ComponentInstance</code> instance.
          * 
          * @return <code>int</code>: The width of this <code>ComponentInstance</code>
@@ -441,16 +440,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             return height + paddingTop + paddingBottom + marginTop + marginBottom + (borderTop + borderBottom);
         }
-
-        private Font font = null;
-        private FontMetrics fm = null;
-
-        private TextAlign textAlign = null;
-        private WhiteSpace whiteSpace = null;
-        private OverflowWrap overflowWrap = null;
-        private TextOverflow textOverflow = null;
-        private Overflow overflowX = null;
-        private Overflow overflowY = null;
 
         private final long randomComponentId;
 
@@ -504,7 +493,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             y = style.y().getSize(parentHeight, 0);
 
             // Calculate the width.
-            minWidth = style.minWidth().getSize(parentWidth, 0);
+            minWidth = style.minWidth().getSize(parentWidth, 1);
             width = style.width().getSize(parentWidth, minWidth);
 
             // Calculate the horizontal margins.
@@ -533,7 +522,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             paddingRight = style.paddingRight().getSize(parentWidth, 0);
 
             // Calculate the height.
-            minHeight = style.minHeight().getSize(parentHeight, 0);
+            minHeight = style.minHeight().getSize(parentHeight, 1);
             height = style.height().getSize(parentHeight, minHeight);
 
             // Calculate the vertical margins.
@@ -580,27 +569,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             rxBR = rBR.width().getSize(boxWidth, 0);
             ryBR = rBR.height().getSize(boxHeight, 0);
 
-            // The font size should be based on the parent font size and have a minimum of
-            // 8px.
-            fontSize = style.fontSize().getSize(parentFontSize, 8);
-
-            // The line height should be based on the font size and be at least as large as
-            // the font.
-            lineHeight = style.lineHeight().getSize(fontSize, fontSize);
-
-            textAlign = style.textAlign();
-
             origin = style.origin();
 
-            // Create the font.
-            font = new Font(style.fontFamily(), style.fontStyle() | style.fontWeight(), fontSize);
-            BufferedImage fontImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = fontImage.createGraphics();
-            fm = g2d.getFontMetrics(font);
+            this.parentFontSize = parentFontSize;
+            fontSize = style.getFontSize(parentFontSize);
 
-            whiteSpace = style.whiteSpace();
-            overflowWrap = style.overflowWrap();
-            textOverflow = style.textOverflow();
             overflowX = style.overflowX();
             overflowY = style.overflowY();
 
@@ -665,7 +638,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             childBounds.clear();
             for (ComponentInstance child : children) {
 
-                Rectangle childBound = child.renderBounds(width, height, fontSize, s);
+                Rectangle childBound = child != null ? child.renderBounds(width, height, fontSize, s) : null;
                 childBounds.add(childBound);
             }
 
@@ -708,6 +681,16 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 width *= widthFactor;
                 height *= heightFactor;
 
+                if (s.width() == Size.AUTO && x + getTotalWidth() < targetWidth) {
+
+                    width += targetWidth - getTotalWidth() - x;
+                }
+
+                if (s.height() == Size.AUTO && y + getTotalHeight() < targetHeight) {
+
+                    height += targetHeight - getTotalHeight() - y;
+                }
+
                 contentSize = rescaleContent(width, height, s, children);
                 fitContent();
 
@@ -747,7 +730,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                     paddingBottom *= heightFactor;
                     marginBottom *= heightFactor;
                 }
-
             } else {
 
                 contentSize = rescaleContent(width, height, s, children);
@@ -819,8 +801,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             ArrayList<ImageClip> childrenRenders = new ArrayList<>();
             for (ComponentInstance child : children) {
 
-                BufferedImage childRender = child.render();
-                childrenRenders.add(new ImageClip(child.x, child.y, childRender));
+                childrenRenders.add(child == null ? null : new ImageClip(child.x, child.y, child.render()));
             }
 
             BufferedImage content = null;
@@ -848,78 +829,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             // Adjust the origin to the top left corner of the component.
             g2d.translate(marginLeft, marginTop);
 
-            Graphics2D g2 = (Graphics2D) g2d.create();
-
-            // Find the exact center of the component.
             int internalWidth = width + paddingLeft + paddingRight;
             int internalHeight = height + paddingTop + paddingBottom;
-
-            int centerX = internalWidth / 2 + borderLeft;
-            int centerY = internalHeight / 2 + borderTop;
-
-            // Start the border.
-            BorderStyle borderRightStyle = s.borderRightStyle();
-            Color borderRightColor = s.borderRightColor();
-
-            // Draw the right side.
-            if (borderRightStyle != BorderStyle.NONE && borderRight > 0) {
-
-                g2.setColor(borderRightColor);
-                g2.setStroke(new BasicStroke(borderRight * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-                Shape right = createSide(centerX, centerY, internalWidth, internalHeight, rxTR, ryTR, rxBR, ryBR);
-                g2.draw(right);
-            }
-
-            g2.rotate(Math.PI / 2, centerX, centerY);
-
-            BorderStyle borderBottomStyle = s.borderBottomStyle();
-            Color borderBottomColor = s.borderBottomColor();
-
-            // Draw the bottom side.
-            if (borderBottomStyle != BorderStyle.NONE && borderBottom > 0) {
-
-                g2.setColor(borderBottomColor);
-                g2.setStroke(new BasicStroke(borderBottom * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-                Shape bottom = createSide(centerX, centerY, internalHeight, internalWidth, ryBR, rxBR, ryBL, rxBL);
-                g2.draw(bottom);
-            }
-
-            g2.rotate(Math.PI / 2, centerX, centerY);
-
-            BorderStyle borderLeftStyle = s.borderLeftStyle();
-            Color borderLeftColor = s.borderLeftColor();
-
-            // Draw the left side.
-            if (borderLeftStyle != BorderStyle.NONE && borderLeft > 0) {
-
-                g2.setColor(borderLeftColor);
-                g2.setStroke(new BasicStroke(borderLeft * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-                Shape left = createSide(centerX, centerY, internalWidth, internalHeight, rxBL, ryBL, rxTL, ryTL);
-                g2.draw(left);
-            }
-
-            g2.rotate(Math.PI / 2, centerX, centerY);
-
-            BorderStyle borderTopStyle = s.borderTopStyle();
-            Color borderTopColor = s.borderTopColor();
-
-            // Draw the top side.
-            if (borderTopStyle != BorderStyle.NONE && borderTop > 0) {
-
-                g2.setColor(borderTopColor);
-                g2.setStroke(new BasicStroke(borderTop * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-                Shape top = createSide(centerX, centerY, internalHeight, internalWidth, ryTL, rxTL, ryTR, rxTR);
-                g2.draw(top);
-            }
-
-            // End the border.
-            g2.dispose();
+            drawBorders(g2d, s, internalWidth, internalHeight, borderTop, borderBottom, borderLeft, borderRight, rxTR,
+                    ryTR, rxTL, ryTL, rxBL, ryBL, rxBR, ryBR);
 
             g2d.translate(borderLeft, borderTop);
-
-            // Draw the content after the border and the remaining half of the padding.
-            int contentX = paddingLeft;
-            int contentY = paddingTop;
 
             // Creates the content bounds.
             Shape contentBounds = createBounds(width + paddingLeft + paddingRight, height + paddingTop + paddingBottom,
@@ -947,8 +862,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             drawBackground(g2d, backgroundColor, backgroundIcon, backgroundSize, contentBounds);
 
             if (content != null) {
-
-                g2d.drawImage(content, contentX - scrollX, contentY - scrollY, null);
+                // Draw the content after the border and the remaining half of the padding.
+                g2d.drawImage(content, paddingLeft - scrollX, paddingTop - scrollY, null);
             }
 
             g2d.dispose();
@@ -956,8 +871,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return component;
         }
 
-        private Shape createBounds(int width, int height, int rxTR, int ryTR, int rxTL, int ryTL, int rxBL, int ryBL,
-                int rxBR, int ryBR) {
+        protected static Shape createBounds(int width, int height, int rxTR, int ryTR, int rxTL, int ryTL, int rxBL,
+                int ryBL, int rxBR, int ryBR) {
 
             Path2D path = new Path2D.Double();
 
@@ -985,7 +900,77 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return path;
         }
 
-        private Shape createSide(int centerX, int centerY, int width, int height, int wT, int hT, int wB, int hB) {
+        protected static void drawBorders(Graphics2D g2d, Style s, int width, int height, int borderTop,
+                int borderBottom, int borderLeft, int borderRight, int rxTR, int ryTR, int rxTL, int ryTL, int rxBL,
+                int ryBL, int rxBR, int ryBR) {
+
+            g2d = (Graphics2D) g2d.create();
+
+            // Find the exact center of the component.
+            int centerX = width / 2 + borderLeft;
+            int centerY = height / 2 + borderTop;
+
+            // Start the border.
+            BorderStyle borderRightStyle = s.borderRightStyle();
+            Color borderRightColor = s.borderRightColor();
+
+            // Draw the right side.
+            if (borderRightStyle != BorderStyle.NONE && borderRight > 0) {
+
+                g2d.setColor(borderRightColor);
+                g2d.setStroke(new BasicStroke(borderRight * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+                Shape right = createSide(centerX, centerY, width, height, rxTR, ryTR, rxBR, ryBR);
+                g2d.draw(right);
+            }
+
+            g2d.rotate(Math.PI / 2, centerX, centerY);
+
+            BorderStyle borderBottomStyle = s.borderBottomStyle();
+            Color borderBottomColor = s.borderBottomColor();
+
+            // Draw the bottom side.
+            if (borderBottomStyle != BorderStyle.NONE && borderBottom > 0) {
+
+                g2d.setColor(borderBottomColor);
+                g2d.setStroke(new BasicStroke(borderBottom * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+                Shape bottom = createSide(centerX, centerY, height, width, ryBR, rxBR, ryBL, rxBL);
+                g2d.draw(bottom);
+            }
+
+            g2d.rotate(Math.PI / 2, centerX, centerY);
+
+            BorderStyle borderLeftStyle = s.borderLeftStyle();
+            Color borderLeftColor = s.borderLeftColor();
+
+            // Draw the left side.
+            if (borderLeftStyle != BorderStyle.NONE && borderLeft > 0) {
+
+                g2d.setColor(borderLeftColor);
+                g2d.setStroke(new BasicStroke(borderLeft * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+                Shape left = createSide(centerX, centerY, width, height, rxBL, ryBL, rxTL, ryTL);
+                g2d.draw(left);
+            }
+
+            g2d.rotate(Math.PI / 2, centerX, centerY);
+
+            BorderStyle borderTopStyle = s.borderTopStyle();
+            Color borderTopColor = s.borderTopColor();
+
+            // Draw the top side.
+            if (borderTopStyle != BorderStyle.NONE && borderTop > 0) {
+
+                g2d.setColor(borderTopColor);
+                g2d.setStroke(new BasicStroke(borderTop * 2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+                Shape top = createSide(centerX, centerY, height, width, ryTL, rxTL, ryTR, rxTR);
+                g2d.draw(top);
+            }
+
+            // End the border.
+            g2d.dispose();
+        }
+
+        private static Shape createSide(int centerX, int centerY, int width, int height, int wT, int hT, int wB,
+                int hB) {
 
             int startX = centerX + width / 2;
             int startY = centerY + (hT - hB) / 2;
@@ -1027,13 +1012,13 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             }
         }
 
-        protected final void drawImage(Graphics2D g2d, BufferedImage image, int x, int y) {
+        protected static final void drawImage(Graphics2D g2d, BufferedImage image, int x, int y) {
 
             g2d.drawImage(image, x, y, null);
         }
 
-        protected final void drawImage(Graphics2D g2d, BufferedImage image, int x, int y, int centerX, int centerY,
-                double angle) {
+        protected static final void drawImage(Graphics2D g2d, BufferedImage image, int x, int y, int centerX,
+                int centerY, double angle) {
 
             AffineTransform old = g2d.getTransform();
             AffineTransform tx = new AffineTransform();
@@ -1046,7 +1031,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             g2d.setTransform(old);
         }
 
-        protected final void drawIcon(Graphics2D g2d, ImageIcon icon, int x, int y, int width, int height,
+        protected static final void drawIcon(Graphics2D g2d, ImageIcon icon, int x, int y, int width, int height,
                 IconSize size) {
 
             int iconWidth = icon.getIconWidth();
@@ -1063,16 +1048,23 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             g2d.drawImage(icon.getImage(), x, y, backgroundWidth, backgroundHeight, null);
         }
 
-        protected final void drawText(Graphics2D g2d, String text, int x, int y, int width, Color color) {
+        protected static final void drawText(Graphics2D g2d, String text, int x, int y, int width, Style style,
+                int fontSize) {
 
-            g2d.setColor(color);
+            g2d.setColor(style.color());
+
+            int lineHeight = style.getLineHeight(fontSize);
+
+            Font font = style.createFont(fontSize);
             g2d.setFont(font);
+
+            FontMetrics fm = style.createFontMetrics(font);
 
             Stream<String> initLines = Stream.of(text.split("\n"));
 
-            List<String> lines = (whiteSpace == WhiteSpace.NOWRAP ? initLines
-                    : initLines.flatMap(line -> wrapText(line, fm, width - x).stream()))
-                            .map(line -> textOverflow(fm, line, width - x)).toList();
+            List<String> lines = (style.whiteSpace() == WhiteSpace.NOWRAP ? initLines
+                    : initLines.flatMap(line -> wrapText(line, fm, width - x, style).stream()))
+                            .map(line -> textOverflow(fm, line, width - x, style)).toList();
 
             for (int i = 0; i < lines.size(); i++) {
 
@@ -1080,21 +1072,21 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 int lineWidth = fm.stringWidth(text);
 
                 // Handle the left align case.
-                if (textAlign == TextAlign.LEFT || lineWidth > width) {
+                if (style.textAlign() == TextAlign.LEFT || lineWidth > width) {
 
                     g2d.drawString(text, x, y + fontSize + lineHeight * i);
                     continue;
                 }
 
                 // Handle the right align case.
-                if (textAlign == TextAlign.RIGHT) {
+                if (style.textAlign() == TextAlign.RIGHT) {
 
                     g2d.drawString(text, x + width - lineWidth, y + fontSize + lineHeight * i);
                     continue;
                 }
 
                 // Handle the center align case.
-                if (textAlign == TextAlign.CENTER) {
+                if (style.textAlign() == TextAlign.CENTER) {
 
                     g2d.drawString(text, x + (width - lineWidth) / 2, y + fontSize + lineHeight * i);
                     continue;
@@ -1126,7 +1118,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             }
         }
 
-        protected final Dimension calculateIconSize(ImageIcon icon, int x, int y, IconSize size) {
+        protected static final Dimension calculateIconSize(ImageIcon icon, int width, int height, IconSize size) {
 
             int iconWidth = icon.getIconWidth();
             int iconHeight = icon.getIconHeight();
@@ -1142,20 +1134,25 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return new Dimension(backgroundWidth, backgroundHeight);
         }
 
-        protected final Dimension calculateTextSize(String text, int x, int y, int width) {
+        protected static final Dimension calculateTextSize(String text, int width, Style style, int fontSize) {
+
+            int lineHeight = style.getLineHeight(fontSize);
+
+            Font font = style.createFont(fontSize);
+            FontMetrics fm = style.createFontMetrics(font);
 
             String[] initLines = text.split("\n");
-            List<String> lines = whiteSpace == WhiteSpace.NOWRAP ? List.of(initLines)
-                    : Stream.of(initLines).flatMap(line -> wrapText(line, fm, width - x).stream()).toList();
+            List<String> lines = style.whiteSpace() == WhiteSpace.NOWRAP ? List.of(initLines)
+                    : Stream.of(initLines).flatMap(line -> wrapText(line, fm, width, style).stream()).toList();
             int lineWidth = 0;
 
             for (int i = 0; i < lines.size(); i++) {
 
-                text = textOverflow(fm, lines.get(i), width - x);
+                text = textOverflow(fm, lines.get(i), width, style);
                 lineWidth = Math.max(lineWidth, fm.stringWidth(text));
             }
 
-            if (textAlign != TextAlign.LEFT) {
+            if (style.textAlign() != TextAlign.LEFT) {
 
                 return new Dimension(width, lineHeight * lines.size());
             }
@@ -1163,7 +1160,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return new Dimension(lineWidth, lineHeight * lines.size());
         }
 
-        private ArrayList<String> wrapText(String text, FontMetrics fm, int maxWidth) {
+        private static ArrayList<String> wrapText(String text, FontMetrics fm, int maxWidth, Style style) {
 
             ArrayList<String> lines = new ArrayList<>();
             String line = "";
@@ -1207,7 +1204,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                         lineStart = prevBreak + 1;
                         prevBreak = -1;
                         line = text.substring(lineStart, i + 1);
-                    } else if (overflowWrap == OverflowWrap.BREAK_WORD) {
+                    } else if (style.overflowWrap() == OverflowWrap.BREAK_WORD) {
 
                         String prevLine = text.substring(lineStart, i);
                         lines.add(prevLine);
@@ -1228,11 +1225,11 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return lines;
         }
 
-        private String textOverflow(FontMetrics fm, String line, int maxWidth) {
+        private static String textOverflow(FontMetrics fm, String line, int maxWidth, Style style) {
 
-            if (textOverflow != TextOverflow.CLIP && fm.stringWidth(line) > maxWidth) {
+            if (style.textOverflow() != TextOverflow.CLIP && fm.stringWidth(line) > maxWidth) {
 
-                String overflow = textOverflow.overflow();
+                String overflow = style.textOverflow().overflow();
 
                 while (line.length() > 1) {
 
@@ -1346,12 +1343,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public final void updateContent(double time) {
 
-            updateContent(time, children);
-        }
-
-        public final void updateContent(double time, List<ComponentInstance> children) {
-
-            children.forEach(child -> child.updateContent(time));
+            children.stream().filter(Objects::nonNull).forEach(child -> child.updateContent(time));
         }
     }
 
@@ -1380,7 +1372,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
             stringVal = getWorld().getText(text.evaluateString(InterfaceInstance.this));
-            Dimension textSize = calculateTextSize(stringVal, 0, 0, width);
+            Dimension textSize = calculateTextSize(stringVal, width, style, fontSize);
             return new Dimension(textSize.width, textSize.height);
         }
 
@@ -1388,14 +1380,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         public Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
                 List<ComponentInstance> children) {
 
-            Dimension textSize = calculateTextSize(stringVal, 0, 0, width);
+            Dimension textSize = calculateTextSize(stringVal, width, style, fontSize);
             return new Dimension(textSize.width, textSize.height);
         }
 
         @Override
         public final void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            drawText(g2d, stringVal, 0, 0, width, style.color());
+            drawText(g2d, stringVal, 0, 0, width, style, fontSize);
         }
     }
 
@@ -1461,7 +1453,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 return new Dimension();
             }
 
-            return calculateIconSize(icon, 0, 0, style.iconFit());
+            return calculateIconSize(icon, width, height, style.iconFit());
         }
 
         @Override
@@ -1473,7 +1465,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 return new Dimension();
             }
 
-            return calculateIconSize(icon, 0, 0, style.iconFit());
+            return calculateIconSize(icon, width, height, style.iconFit());
         }
 
         @Override
@@ -2019,7 +2011,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                     scale = 1 / (H + 0.35 - h);
 
-                    Dimension pinDim = calculateIconSize(pin, 0, 0, pinSize);
+                    Dimension pinDim = calculateIconSize(pin, width, height, pinSize);
                     int pinW = pinDim.width;
                     int pinH = pinDim.height;
 
@@ -2140,7 +2132,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 String endCounter = location.getEndCounter(now);
                 if (endCounter != null) {
 
-                    Dimension endCounterSize = calculateTextSize(endCounter, 0, 0, width);
+                    Dimension endCounterSize = calculateTextSize(endCounter, width, style, fontSize);
 
                     int endCounterX = boundsCenterX - endCounterSize.width / 2;
                     int endCounterY = top - endCounterSize.height - gapHeight;
@@ -2149,7 +2141,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                     g2d.fillRect(endCounterX - 5, endCounterY - 2, endCounterSize.width + 10,
                             endCounterSize.height + 4);
 
-                    drawText(g2d, endCounter, endCounterX, endCounterY, width, style.color());
+                    drawText(g2d, endCounter, endCounterX, endCounterY, width, style, fontSize);
 
                     top = endCounterY - 2;
                 }
@@ -2157,14 +2149,14 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 String resetCounter = location.getResetCounter(now);
                 if (resetCounter != null) {
 
-                    Dimension resetCounterSize = calculateTextSize(resetCounter, 0, 0, width);
+                    Dimension resetCounterSize = calculateTextSize(resetCounter, width, style, fontSize);
 
                     int resetCounterX = boundsCenterX - resetCounterSize.width / 2;
                     int resetCounterY = top - resetCounterSize.height - gapHeight;
                     top = resetCounterY;
 
                     String resetLabel = getWorld().getText("global.resetLabel");
-                    Dimension resetLabelSize = calculateTextSize(resetLabel, 0, 0, width);
+                    Dimension resetLabelSize = calculateTextSize(resetLabel, width, style, fontSize);
 
                     int resetLabelX = boundsCenterX - resetLabelSize.width / 2;
                     int resetLabelY = top - resetLabelSize.height;
@@ -2174,8 +2166,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                             Math.max(resetCounterSize.width, resetLabelSize.width) + 70,
                             resetCounterSize.height + resetLabelSize.height + 4);
 
-                    drawText(g2d, resetCounter, resetCounterX, resetCounterY, width, style.color());
-                    drawText(g2d, resetLabel, resetLabelX, resetLabelY, width, style.color());
+                    drawText(g2d, resetCounter, resetCounterX, resetCounterY, width, style, fontSize);
+                    drawText(g2d, resetLabel, resetLabelX, resetLabelY, width, style, fontSize);
                 }
             }
 
@@ -2387,8 +2379,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 return false;
             }
 
-            Point p1 = new Point(first.x, first.y);
-            Point p2 = new Point(second.x, second.y);
+            Point p1 = new Point(first.position.x + first.itemOffset.x, first.position.y + first.itemOffset.y);
+            Point p2 = new Point(second.position.x + second.itemOffset.x, second.position.y + second.itemOffset.y);
 
             p1.x += firstUi.getX() + firstUi.getContentOffsetX();
             p1.y += firstUi.getY() + firstUi.getContentOffsetY();
@@ -2396,7 +2388,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             p2.x += secondUi.getX() + secondUi.getContentOffsetX();
             p2.y += secondUi.getY() + secondUi.getContentOffsetY();
 
-            int slotWidth = firstUi.slotWidth;
             ImageIcon item = transfer.item();
 
             long dt = time - transfer.time();
@@ -2420,7 +2411,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 slotY = p1.y + (int) ((p2.y - p1.y) * dt * speed / distance);
             }
 
-            drawIcon(g2d, item, slotX, slotY, slotWidth, slotWidth, Style.IconSize.CONTAIN);
+            drawIcon(g2d, item, slotX, slotY, first.iconDimensions.width, first.iconDimensions.height,
+                    Style.IconSize.CONTAIN);
 
             return !end;
         }
@@ -2518,7 +2510,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         private boolean draggable = false;
 
         private ItemInstance draggedItem;
-        private int dragCount;
 
         private final ArrayList<InventorySlotInstance> dragged = new ArrayList<>();
 
@@ -2548,9 +2539,12 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 }
             }
 
-            // If the player didn't click on a slot, do nothing.
+            // If the player didn't click on a slot, remove the current selection.
             if (newSlot == null) {
 
+                selectedSlot = null;
+                primaryUi.setSelectedSlot(selectedSlot);
+                secondaryUi.setSelectedSlot(selectedSlot);
                 return;
             }
 
@@ -2569,17 +2563,20 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 return;
             }
 
-            if (!selectedSlot.containsItem()) {
-
-                actionComplete = true;
-                return;
-            }
-
             // If the new slot is not the same as the old slot, attempt to swap.
             if (newSlot != selectedSlot) {
 
                 ItemInstance firstItem = selectedSlot.getItem();
                 ItemInstance secondItem = newSlot.getItem();
+
+                // If the items cannot be swapped, do nothing.
+                if (newSlot.getLockAdd() || selectedSlot.getLockRemove()
+                        || secondItem != null && !secondItem.isLikeAsset(firstItem)
+                                && (selectedSlot.getLockAdd() || newSlot.getLockRemove())) {
+
+                    actionComplete = true;
+                    return;
+                }
 
                 // If the items cannot be swapped, do nothing.
                 if (!newSlot.isAcceptedType(firstItem)
@@ -2589,7 +2586,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                         draggable = true;
                         draggedItem = firstItem;
-                        dragCount = draggedItem.getStackSize();
                         dragged.add(selectedSlot);
                     }
                     actionComplete = true;
@@ -2613,6 +2609,7 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                             secondItemIcon);
                 }
 
+                // Swap the items.
                 ItemInstance remainderItem = newSlot.putItem(firstItem);
                 selectedSlot.setItem(remainderItem);
 
@@ -2628,7 +2625,6 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                     draggable = true;
                     draggedItem = firstItem;
-                    dragCount = draggedItem.getStackSize();
                     dragged.add(selectedSlot);
                 }
 
@@ -2641,9 +2637,15 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             if (dt < 500) {
 
                 ItemInstance item = selectedSlot.getItem();
+                if (item == null) {
+
+                    actionComplete = true;
+                    return;
+                }
                 ImageIcon itemIcon = item.getIcon();
 
-                if (selectedSlot == newSlot && (!item.atCapacity())) {
+                // Attempt to collect all duplicate items into the same slot.
+                if (!item.atCapacity() && !selectedSlot.getLockAdd()) {
 
                     LinkedHashSet<InventorySlotInstance> slots = new LinkedHashSet<>();
 
@@ -2661,31 +2663,47 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                     // Ensure the selected slot is not operated on.
                     slots.remove(selectedSlot);
 
-                    if (!slots.isEmpty()) {
+                    boolean changed = false;
 
-                        for (InventorySlotInstance otherSlot : slots) {
+                    for (InventorySlotInstance otherSlot : slots) {
 
-                            if (selectedSlot.getItem().atCapacity()) {
+                        if (selectedSlot.getItem().atCapacity()) {
 
-                                break;
-                            }
-
-                            addTransfer(time, otherSlot, otherSlot.getParent() == primaryInventory, selectedSlot,
-                                    primaryInventorySelected, itemIcon);
-
-                            ItemInstance remainderItem = selectedSlot.putItem(otherSlot.getItem());
-                            otherSlot.setItem(remainderItem);
+                            break;
                         }
+
+                        if (otherSlot.getLockRemove()) {
+
+                            continue;
+                        }
+
+                        addTransfer(time, otherSlot, otherSlot.getParent() == primaryInventory, selectedSlot,
+                                primaryInventorySelected, itemIcon);
+
+                        ItemInstance remainderItem = selectedSlot.putItem(otherSlot.getItem());
+                        otherSlot.setItem(remainderItem);
+
+                        changed = true;
+                    }
+
+                    if (changed) {
 
                         actionComplete = true;
                         return;
                     }
                 }
 
+                // Attempt to transfer the item to the other inventory.
+                if (selectedSlot.getLockRemove()) {
+
+                    actionComplete = true;
+                    return;
+                }
+
                 InventoryComponentInstance transferInventory = newPrimaryInventorySelected ? secondaryUi : primaryUi;
 
                 List<InventorySlotInstance> matches = transferInventory.slots.sequencedKeySet().stream()
-                        .filter(slot -> slot.canAddLike(item)).toList();
+                        .filter(slot -> slot.canAddLike(item) && !slot.getLockAdd()).toList();
 
                 ItemInstance leftover = item;
                 for (InventorySlotInstance slot : matches) {
@@ -2701,8 +2719,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
                 if (leftover != null) {
 
-                    matches = transferInventory.slots.sequencedKeySet().stream().filter(slot -> slot.canAddEmpty(item))
-                            .toList();
+                    matches = transferInventory.slots.sequencedKeySet().stream()
+                            .filter(slot -> slot.isEmpty() && slot.isAcceptedType(item) && !slot.getLockAdd()).toList();
                     for (InventorySlotInstance slot : matches) {
 
                         addTransfer(time, selectedSlot, newPrimaryInventorySelected, slot, !newPrimaryInventorySelected,
@@ -2723,6 +2741,13 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
         @Override
         public final boolean onPress(int mouseX, int mouseY) {
 
+            // Clear out any slots that have been mutated.
+            dragged.removeIf(slot -> slot.isEmpty() || !slot.getItem().isLikeAsset(draggedItem));
+
+            // Recalculate the number of items that can be dragged.
+            int dragCount = dragged.stream().map(InventorySlotInstance::getItem).mapToInt(ItemInstance::getStackSize)
+                    .sum();
+
             if (draggable && dragged.size() < dragCount) {
 
                 InventorySlotInstance draggedSlot = null;
@@ -2736,7 +2761,8 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                             mouseY - secondaryUi.getContentOffsetY() - secondaryUi.getY());
                 }
 
-                if (draggedSlot != null && draggedSlot.isEmpty() && draggedSlot.isAcceptedType(draggedItem)) {
+                if (draggedSlot != null && draggedSlot.isEmpty() && draggedSlot.isAcceptedType(draggedItem)
+                        && !draggedSlot.getLockAdd()) {
 
                     draggedSlot.setItem(draggedItem.duplicate());
                     dragged.add(draggedSlot);
@@ -2770,12 +2796,10 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             dragged.clear();
             draggable = false;
-            dragCount = 0;
 
             if (actionComplete) {
 
                 actionComplete = false;
-
                 selectedSlot = null;
 
                 primaryUi.setSelectedSlot(selectedSlot);
@@ -2792,27 +2816,53 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
         private final ImmutableMap<String, NamedDisplay> named;
 
-        private final Size slotSize;
-        private int slotWidth;
-
         private int gridSize;
 
         private final HashSet<String> namedOverlap = new HashSet<>();
 
         private final LinkedHashMap<InventorySlotInstance, SlotDisplay> slots = new LinkedHashMap<>();
 
-        public final class SlotDisplay {
+        public final record SlotDisplay(Point position, ImageIcon slotIcon, ImageIcon selectedSlotIcon,
+                ImageIcon slotIconFilled, ImageIcon selectedSlotIconFilled, Point itemOffset, Dimension iconDimensions,
+                int slotWidth, int slotHeight, Style style) {
+        }
 
-            private int x, y;
-            private final ImageIcon slotIcon, selectedSlotIcon;
+        private final float outputOpacity;
 
-            private SlotDisplay(int x, int y, ImageIcon slotIcon, ImageIcon selectedSlotIcon) {
+        private final ChildStyle fuelBar;
 
-                this.x = x;
-                this.y = y;
-                this.slotIcon = slotIcon;
-                this.selectedSlotIcon = selectedSlotIcon;
-            }
+        private Style fuelBarStyle;
+
+        public final ComponentProperties createChildProperties(ComponentProperties parentProperties, ChildStyle style) {
+
+            return new ComponentProperties(style.type(), style.id(), style.classes(), new HashSet<>()) {
+
+                @Override
+                public final ComponentProperties getParent() {
+
+                    return parentProperties;
+                }
+
+                @Override
+                public final List<ComponentProperties> getChildren() {
+
+                    return List.of();
+                }
+            };
+        }
+
+        public final Style createChildStyle(ComponentProperties parentProperties, ChildStyle style) {
+
+            ComponentProperties properties = createChildProperties(parentProperties, style);
+
+            // The base styles should be supplemented by packs.
+            ArrayList<Style> evaluatedSlotStyles = new ArrayList<>(getWorld().getStyle().getStyle(properties));
+
+            // The next level should be file-specific styles.
+            evaluatedSlotStyles.addAll(styles.getStyle(properties));
+            evaluatedSlotStyles.add(style.style());
+
+            return Style.createStyle(evaluatedSlotStyles, getStyle());
         }
 
         private int maxSlotWidth;
@@ -2829,9 +2879,19 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
 
             for (InventorySlotInstance slot : slots.reversed().sequencedKeySet()) {
 
-                SlotDisplay p = slots.get(slot);
+                SlotDisplay slotDisplay = slots.get(slot);
 
-                if (p.x <= mouseX && mouseX < p.x + slotWidth && p.y <= mouseY && mouseY < p.y + slotWidth) {
+                boolean slotSelected = slot == selectedSlot;
+                ImageIcon slotIcon = slotSelected ? slotDisplay.selectedSlotIcon : slotDisplay.slotIcon;
+                if (slotIcon == null) {
+
+                    slotIcon = slotSelected ? defaultSelectedSlotIcon : defaultSlotIcon;
+                }
+
+                if (slotDisplay.position.x <= mouseX
+                        && mouseX < slotDisplay.position.x + slotDisplay.iconDimensions.width
+                        && slotDisplay.position.y <= mouseY
+                        && mouseY < slotDisplay.position.y + slotDisplay.iconDimensions.height) {
 
                     return slot;
                 }
@@ -2857,45 +2917,101 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
             return slotIcons.computeIfAbsent(icon, path -> world.getTexture(path, random));
         }
 
+        private final ImageIcon defaultSlotIcon;
+        private final ImageIcon defaultSelectedSlotIcon;
+
+        private String fuelBarBackgroundIconPath = null;
+        private ImageIcon fuelBarBackgroundIcon = null;
+
         public InventoryComponentInstance(InventoryComponentSchema schema, ComponentInstance componentParent,
                 DeterministicRandom random, InventoryInstance inventory) {
 
             super(schema, componentParent, true, random);
 
             this.inventory = inventory;
-            slotSize = schema.getSlotSize();
 
             grid = schema.getGrid();
             named = schema.getNamed();
+
+            outputOpacity = schema.getOutputOpacity();
+            fuelBar = schema.getFuelBar();
+
+            World world = getWorld();
+            defaultSlotIcon = getSlotIcon(world, DataConstants.INVENTORY_SLOT_ICON, getRandomComponentId());
+            defaultSelectedSlotIcon = getSlotIcon(world, DataConstants.INVENTORY_SLOT_SELECTED_ICON,
+                    getRandomComponentId());
         }
 
         @Override
         public final Dimension calculateContentSize(Style style, List<Rectangle> children) {
 
-            int headerWidth = 0;
-            int headerHeight = 0;
-            if (!children.isEmpty()) {
-
-                Rectangle header = children.getFirst();
-                headerWidth = header.x + header.width;
-                headerHeight = header.y + header.height + gapHeight;
-            }
-
-            gridSize = inventory.getGridSize();
-            slots.clear();
-
-            slotWidth = slotSize.getSize(width, 0);
+            ComponentProperties parentProperties = getProperties();
 
             DeterministicRandom random = new DeterministicRandom(getRandomComponentId());
             World world = getWorld();
 
+            ImageIcon defaultSlotIcon = getSlotIcon(world, DataConstants.INVENTORY_SLOT_ICON, getRandomComponentId());
+
+            slots.clear();
+
+            namedOverlap.clear();
+            namedOverlap.addAll(named.keySet());
+            namedOverlap.retainAll(inventory.getNamedSlots());
+
+            for (String slotName : namedOverlap) {
+
+                NamedDisplay namedSlot = named.get(slotName);
+                Style namedSlotStyle = createChildStyle(parentProperties, namedSlot.style());
+
+                int namedX = namedSlotStyle.x().getSize(width, 0);
+                int namedY = namedSlotStyle.y().getSize(height, 0);
+
+                int slotWidth = namedSlotStyle.width().getSize(width, 1);
+                int slotHeight = namedSlotStyle.height().getSize(height, 1);
+
+                String slotIconPath = namedSlot.slotIcon();
+                ImageIcon slotIcon = getSlotIcon(world, slotIconPath, random.next());
+
+                String selectedSlotIconPath = namedSlot.selectedSlotIcon();
+                ImageIcon selectedSlotIcon = getSlotIcon(world, selectedSlotIconPath, random.next());
+
+                String slotIconFilledPath = namedSlot.slotIconFilled();
+                ImageIcon slotIconFilled = getSlotIcon(world, slotIconFilledPath, random.next());
+
+                String selectedSlotIconFilledPath = namedSlot.selectedSlotIconFilled();
+                ImageIcon selectedSlotIconFilled = getSlotIcon(world, selectedSlotIconFilledPath, random.next());
+
+                IconSize iconSize = namedSlotStyle.iconFit();
+                Dimension iconDimensions = calculateIconSize(slotIcon == null ? defaultSlotIcon : slotIcon, slotWidth,
+                        slotHeight, iconSize);
+
+                int itemOffsetX = namedSlotStyle.marginLeft().getSize(iconDimensions.width, 0);
+                int itemOffsetY = namedSlotStyle.marginTop().getSize(iconDimensions.height, 0);
+
+                maxSlotWidth = Math.max(maxSlotWidth, namedX + iconDimensions.width);
+                maxSlotHeight = Math.max(maxSlotHeight, namedY + iconDimensions.height);
+
+                slots.put(inventory.getSlot(slotName),
+                        new SlotDisplay(new Point(namedX, namedY), slotIcon, selectedSlotIcon, slotIconFilled,
+                                selectedSlotIconFilled, new Point(itemOffsetX, itemOffsetY), iconDimensions, slotWidth,
+                                slotHeight, namedSlotStyle));
+            }
+
+            gridSize = inventory.getGridSize();
+
             for (GridDisplay gridSlots : grid) {
 
-                int gridX = gridSlots.x();
-                int gridY = gridSlots.y();
-                int gridWidth = gridSlots.width();
-                int gridHeight = gridSlots.height();
+                int gridWidth = gridSlots.cols();
+                int gridHeight = gridSlots.rows();
                 int start = gridSlots.start();
+
+                Style gridSlotStyle = createChildStyle(parentProperties, gridSlots.style());
+
+                int gridX = gridSlotStyle.x().getSize(width, 0);
+                int gridY = gridSlotStyle.y().getSize(height, 0);
+
+                int slotWidth = gridSlotStyle.width().getSize(width, 1);
+                int slotHeight = gridSlotStyle.height().getSize(height, 1);
 
                 String slotIconPath = gridSlots.slotIcon();
                 ImageIcon slotIcon = getSlotIcon(world, slotIconPath, random.next());
@@ -2903,122 +3019,596 @@ public final class InterfaceInstance extends AssetInstance implements UIComponen
                 String selectedSlotIconPath = gridSlots.selectedSlotIcon();
                 ImageIcon selectedSlotIcon = getSlotIcon(world, selectedSlotIconPath, random.next());
 
+                String slotIconFilledPath = gridSlots.slotIconFilled();
+                ImageIcon slotIconFilled = getSlotIcon(world, slotIconFilledPath, random.next());
+
+                String selectedSlotIconFilledPath = gridSlots.selectedSlotIconFilled();
+                ImageIcon selectedSlotIconFilled = getSlotIcon(world, selectedSlotIconFilledPath, random.next());
+
+                IconSize iconSize = gridSlotStyle.iconFit();
+                Dimension iconDimensions = calculateIconSize(slotIcon == null ? defaultSlotIcon : slotIcon, slotWidth,
+                        slotHeight, iconSize);
+
+                int itemOffsetX = gridSlotStyle.marginLeft().getSize(iconDimensions.width, 0);
+                int itemOffsetY = gridSlotStyle.marginTop().getSize(iconDimensions.height, 0);
+
+                int slotGapWidth = gridSlotStyle.gapWidth().getSize(iconDimensions.width, 0);
+                int slotGapHeight = gridSlotStyle.gapHeight().getSize(iconDimensions.height, 0);
+
                 int displayGridWidth = ((gridSize - start) < gridWidth ? gridSize : gridWidth);
                 int displayGridHeight = Math.min(gridHeight, (int) Math.ceil((double) (gridSize - start) / gridWidth));
 
                 maxSlotWidth = Math.max(maxSlotWidth,
-                        gridX + slotWidth * displayGridWidth + gapWidth * (displayGridWidth - 1));
+                        gridX + iconDimensions.width * displayGridWidth + slotGapWidth * (displayGridWidth - 1));
                 maxSlotHeight = Math.max(maxSlotHeight,
-                        gridY + slotWidth * displayGridHeight + gapHeight * (displayGridHeight - 1));
+                        gridY + iconDimensions.height * displayGridHeight + slotGapHeight * (displayGridHeight - 1));
 
                 for (int i = 0; i < gridSize - start && i < gridWidth * gridHeight; i++) {
 
                     int slotX = (i % gridWidth);
                     int slotY = (i / gridWidth);
 
-                    slots.put(inventory.getSlot(i + start), new SlotDisplay(gridX + slotX * (slotWidth + gapWidth),
-                            gridY + slotY * (slotWidth + gapHeight), slotIcon, selectedSlotIcon));
+                    slots.put(inventory.getSlot(i + start), new SlotDisplay(
+                            new Point(gridX + slotX * (iconDimensions.width + slotGapWidth),
+                                    gridY + slotY * (iconDimensions.height + slotGapHeight)),
+                            slotIcon, selectedSlotIcon, slotIconFilled, selectedSlotIconFilled,
+                            new Point(itemOffsetX, itemOffsetY), iconDimensions, slotWidth, slotHeight, gridSlotStyle));
                 }
             }
 
-            namedOverlap.clear();
-            namedOverlap.addAll(named.keySet());
-            namedOverlap.retainAll(inventory.getNamedSlots());
+            if (fuelBar != null) {
 
-            for (String namedSlot : namedOverlap) {
-
-                NamedDisplay p = named.get(namedSlot);
-                int namedX = p.x();
-                int namedY = p.y();
-
-                String slotIconPath = p.slotIcon();
-                ImageIcon slotIcon = getSlotIcon(world, slotIconPath, random.next());
-
-                String selectedSlotIconPath = p.selectedSlotIcon();
-                ImageIcon selectedSlotIcon = getSlotIcon(world, selectedSlotIconPath, random.next());
-
-                maxSlotWidth = Math.max(maxSlotWidth, namedX + slotWidth);
-                maxSlotHeight = Math.max(maxSlotHeight, namedY + slotWidth);
-
-                slots.put(inventory.getSlot(namedSlot), new SlotDisplay(namedX, namedY, slotIcon, selectedSlotIcon));
+                fuelBarStyle = createChildStyle(parentProperties, fuelBar);
             }
 
-            return new Dimension(Math.max(headerWidth, maxSlotWidth), headerHeight + maxSlotHeight);
+            int maxBodyWidth = maxSlotWidth;
+            int maxBodyHeight = maxSlotHeight;
+
+            Rectangle body = children.get(1);
+            if (body != null) {
+
+                maxBodyWidth = Math.max(maxBodyWidth, body.x + body.width);
+                maxBodyHeight = Math.max(maxBodyHeight, body.y + body.height);
+            }
+
+            return new Dimension(maxBodyWidth, maxBodyHeight);
         }
 
         @Override
         public final Dimension rescaleContent(int targetWidth, int targetHeight, Style style,
                 List<ComponentInstance> children) {
 
-            int headerWidth = 0;
-            int headerHeight = 0;
-            if (!children.isEmpty()) {
+            ComponentInstance header = children.get(0);
+            ComponentInstance body = children.get(1);
+            ComponentInstance footer = children.get(2);
 
-                ComponentInstance header = children.getFirst();
-                Rectangle headerBounds = header.rescale(targetWidth, targetHeight - gapHeight - maxSlotHeight);
-                headerWidth = headerBounds.x + headerBounds.width;
-                headerHeight = headerBounds.y + headerBounds.height;
+            boolean bodyOverflows = false;
+            int bodyHeight = 0;
+            int maxWidth = maxSlotWidth;
 
-                // The gap height should be resized between 0 and the current gap height.
-                gapHeight = Math.clamp(targetHeight - maxSlotHeight - headerHeight, 0, gapHeight);
-                headerHeight += gapHeight;
+            int gaps = 0;
+            if (header != null) {
+
+                gaps++;
             }
 
-            if (headerHeight > 0) {
+            if (footer != null) {
 
-                for (SlotDisplay slot : slots.values()) {
+                gaps++;
+            }
 
-                    slot.y += headerHeight;
+            if (body != null) {
+
+                bodyHeight = body.getTotalHeight() + body.y;
+
+                if (bodyHeight > maxSlotHeight) {
+
+                    double partial = 1;
+                    if (displayMode == Display.FLEX) {
+
+                        double sum = bodyHeight;
+                        if (header != null) {
+
+                            sum += header.getTotalHeight() + header.y;
+                            sum += gapHeight;
+                        }
+
+                        if (footer != null) {
+
+                            sum += footer.getTotalHeight() + footer.y;
+                            sum += gapHeight;
+                        }
+
+                        if (targetHeight - maxSlotHeight < sum) {
+
+                            partial = (targetHeight - maxSlotHeight) / sum;
+                        }
+
+                        Rectangle bodySize = body.rescale(targetWidth, (int) (bodyHeight * partial));
+                        maxWidth = Math.max(maxWidth, bodySize.x + bodySize.width);
+
+                        int newBodyHeight = bodySize.y + bodySize.height;
+                        bodyOverflows = newBodyHeight > maxSlotHeight;
+                    }
+                } else {
+
+                    Rectangle bodySize = body.rescale(targetWidth, maxSlotHeight);
+                    maxWidth = Math.max(maxWidth, bodySize.x + bodySize.width);
                 }
             }
 
-            return new Dimension(Math.max(headerWidth, maxSlotWidth), headerHeight + maxSlotHeight);
+            if (!bodyOverflows) {
+
+                double partial = 1;
+                if (displayMode == Display.FLEX) {
+
+                    double sum = 0.0;
+                    if (header != null) {
+
+                        sum += header.getTotalHeight() + header.y;
+                        sum += gapHeight;
+                    }
+
+                    if (footer != null) {
+
+                        sum += footer.getTotalHeight() + footer.y;
+                        sum += gapHeight;
+                    }
+
+                    if (targetHeight - maxSlotHeight < sum) {
+
+                        partial = (targetHeight - maxSlotHeight) / sum;
+                    }
+                }
+
+                int maxHeight = 0;
+
+                if (header != null) {
+
+                    Rectangle headerSize = header.rescale(targetWidth,
+                            (int) ((header.y + header.getTotalHeight()) * partial));
+
+                    maxWidth = Math.max(maxWidth, headerSize.x + headerSize.width);
+                    maxHeight += headerSize.y + headerSize.height;
+                }
+
+                if (body != null) {
+
+                    body.y += maxHeight;
+                }
+
+                maxHeight += maxSlotHeight;
+
+                if (footer != null) {
+
+                    Rectangle footerSize = footer.rescale(targetWidth,
+                            (int) ((footer.y + footer.getTotalHeight()) * partial));
+
+                    maxWidth = Math.max(maxWidth, footerSize.x + footerSize.width);
+
+                    footer.y += maxHeight;
+                    maxHeight += footerSize.y + footerSize.height;
+                }
+
+                if (displayMode == Display.FLEX) {
+
+                    if (gaps > 0) {
+
+                        gapHeight = Math.min(gapHeight, (targetHeight - maxHeight) / gaps);
+
+                        if (gapHeight < 0) {
+
+                            gapHeight = 0;
+                        }
+                    } else {
+
+                        gapHeight = 0;
+                    }
+
+                    maxHeight += gaps * gapHeight;
+                }
+
+                if (header != null) {
+
+                    if (body != null) {
+
+                        body.y += gapHeight;
+                    }
+
+                    int headerOffset = header.y + header.getTotalHeight() + gapHeight;
+                    for (SlotDisplay slot : slots.values()) {
+
+                        slot.position.y += headerOffset;
+                    }
+
+                    if (footer != null) {
+
+                        footer.y += 2 * gapHeight;
+                    }
+                } else if (footer != null) {
+
+                    footer.y += maxHeight;
+                }
+
+                return new Dimension(maxWidth, maxHeight);
+            }
+
+            double partial = 1;
+            if (displayMode == Display.FLEX) {
+
+                double sum = bodyHeight;
+                if (header != null) {
+
+                    sum += header.getTotalHeight() + header.y;
+                    sum += gapHeight;
+                }
+
+                if (footer != null) {
+
+                    sum += footer.getTotalHeight() + footer.y;
+                    sum += gapHeight;
+                }
+
+                if (targetHeight < sum) {
+
+                    partial = targetHeight / sum;
+                }
+            }
+
+            int maxHeight = 0;
+
+            if (header != null) {
+
+                Rectangle childSize = header.rescale(targetWidth,
+                        (int) ((header.y + header.getTotalHeight()) * partial));
+
+                maxWidth = Math.max(maxWidth, childSize.x + childSize.width);
+                maxHeight += childSize.y + childSize.height;
+            }
+
+            body.y += maxHeight;
+            maxHeight += bodyHeight;
+
+            if (footer != null) {
+
+                Rectangle childSize = footer.rescale(targetWidth,
+                        (int) ((footer.y + footer.getTotalHeight()) * partial));
+
+                maxWidth = Math.max(maxWidth, childSize.x + childSize.width);
+
+                footer.y += maxHeight;
+                maxHeight += childSize.y + childSize.height;
+            }
+
+            if (displayMode == Display.FLEX) {
+
+                if (gaps > 0) {
+
+                    gapHeight = Math.min(gapHeight, (targetHeight - maxHeight) / gaps);
+
+                    if (gapHeight < 0) {
+
+                        gapHeight = 0;
+                    }
+                } else {
+
+                    gapHeight = 0;
+                }
+
+                maxHeight += gaps * gapHeight;
+            }
+
+            if (header != null) {
+
+                body.y += gapHeight;
+
+                int headerHeight = header.y + header.getTotalHeight();
+                for (SlotDisplay slot : slots.values()) {
+
+                    slot.position.y += headerHeight;
+                }
+
+                if (footer != null) {
+
+                    footer.y += 2 * gapHeight;
+                }
+            } else if (footer != null) {
+
+                footer.y += maxHeight;
+            }
+
+            return new Dimension(maxWidth, maxHeight);
         }
 
         @Override
         public void createContent(Graphics2D g2d, Style style, List<ImageClip> children) {
 
-            if (!children.isEmpty()) {
+            ImageClip header = children.get(0);
+            if (header != null) {
 
-                ImageClip header = children.getFirst();
                 BufferedImage headerImage = header.image();
                 drawImage(g2d, headerImage, header.x(), header.y());
             }
 
-            IconSize slotFit = Style.IconSize.CONTAIN;
+            ImageClip body = children.get(1);
+            if (body != null) {
+
+                BufferedImage bodyImage = body.image();
+                drawImage(g2d, bodyImage, body.x(), body.y());
+            }
+
+            ImageClip footer = children.get(2);
+            if (footer != null) {
+
+                BufferedImage footerImage = footer.image();
+                drawImage(g2d, footerImage, footer.x(), footer.y());
+            }
+
+            IconSize itemFit = Style.IconSize.CONTAIN;
 
             World world = getWorld();
-            ImageIcon defaultSlotIcon = getSlotIcon(world, DataConstants.INVENTORY_SLOT_ICON, getRandomComponentId());
-            ImageIcon defaultSelectedSlotIcon = getSlotIcon(world, DataConstants.INVENTORY_SLOT_SELECTED_ICON,
-                    getRandomComponentId());
+
+            ItemInstance craftingOutput = null;
+            long recipeRemaining = -1;
+            double fuelRemaining = -1.0;
+
+            PrimaryAssetInstance parent = inventory.getInventoryParent();
+            CraftingSchema crafting = parent.getCrafting();
+
+            if (crafting != null) {
+
+                craftingOutput = parent.getRecipeOutput(world);
+
+                long time = System.currentTimeMillis();
+                recipeRemaining = parent.getRecipeRemaining(time);
+                fuelRemaining = parent.getFuelRemaining(time);
+            }
 
             for (InventorySlotInstance slot : slots.sequencedKeySet()) {
 
-                SlotDisplay p = slots.get(slot);
+                SlotDisplay slotDisplay = slots.get(slot);
+                Style slotStyle = slotDisplay.style();
+                int slotFontSize = slotStyle.getFontSize(fontSize);
+                int slotLineHeight = slotStyle.getLineHeight(slotFontSize);
+
                 ItemInstance item = slot.getItem();
 
                 boolean slotSelected = slot == selectedSlot;
-                ImageIcon slotIcon = slotSelected ? p.selectedSlotIcon : p.slotIcon;
-                if (slotIcon == null || item != null) {
+                ImageIcon slotIcon;
+
+                if (item == null) {
+
+                    slotIcon = slotSelected ? slotDisplay.selectedSlotIcon : slotDisplay.slotIcon;
+                } else {
+
+                    slotIcon = slotSelected ? slotDisplay.selectedSlotIconFilled : slotDisplay.slotIconFilled;
+                }
+
+                if (slotIcon == null) {
 
                     slotIcon = slotSelected ? defaultSelectedSlotIcon : defaultSlotIcon;
                 }
 
-                drawIcon(g2d, slotIcon, p.x, p.y, slotWidth, slotWidth, slotFit);
+                drawIcon(g2d, slotIcon, slotDisplay.position.x, slotDisplay.position.y, slotDisplay.slotWidth,
+                        slotDisplay.slotHeight, slotStyle.iconFit());
 
                 if (item == null) {
 
                     continue;
                 }
 
-                drawIcon(g2d, item.getIcon(), p.x, p.y, slotWidth, slotWidth, slotFit);
+                drawIcon(g2d, item.getIcon(), slotDisplay.position.x + slotDisplay.itemOffset.x,
+                        slotDisplay.position.y + slotDisplay.itemOffset.y, slotDisplay.iconDimensions.width,
+                        slotDisplay.iconDimensions.height, itemFit);
 
                 int stackSize = item.getStackSize();
                 if (stackSize > 1) {
 
-                    drawText(g2d, String.valueOf(stackSize), p.x, p.y + slotWidth - lineHeight,
-                            slotWidth + fontSize - lineHeight, style.color());
+                    drawText(g2d, String.valueOf(stackSize), slotDisplay.position.x + slotDisplay.itemOffset.x,
+                            slotDisplay.position.y + slotDisplay.itemOffset.y
+                                    + Math.min(slotDisplay.iconDimensions.width, slotDisplay.iconDimensions.height)
+                                    - Math.max(slotFontSize, slotLineHeight),
+                            slotDisplay.iconDimensions.width - Math.max(0, slotLineHeight - slotFontSize), slotStyle,
+                            slotFontSize);
                 }
+            }
+
+            if (crafting != null) {
+
+                InventorySlotInstance outputSlot = crafting.getOutput().apply(inventory);
+                if (outputSlot != null && slots.containsKey(outputSlot)) {
+
+                    SlotDisplay slotDisplay = slots.get(outputSlot);
+                    Style slotStyle = slotDisplay.style();
+                    int slotFontSize = slotStyle.getFontSize(fontSize);
+                    int slotLineHeight = slotStyle.getLineHeight(slotFontSize);
+
+                    if (outputSlot.isEmpty() && craftingOutput != null) {
+
+                        Composite oldComposite = g2d.getComposite();
+                        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1 - outputOpacity));
+
+                        drawIcon(g2d, craftingOutput.getIcon(), slotDisplay.position.x + slotDisplay.itemOffset.x,
+                                slotDisplay.position.y + slotDisplay.itemOffset.y, slotDisplay.iconDimensions.width,
+                                slotDisplay.iconDimensions.height, itemFit);
+
+                        int stackSize = craftingOutput.getStackSize();
+                        if (stackSize > 1) {
+
+                            drawText(g2d, String.valueOf(stackSize), slotDisplay.position.x + slotDisplay.itemOffset.x,
+                                    slotDisplay.position.y + slotDisplay.itemOffset.y
+                                            + Math.min(slotDisplay.iconDimensions.width,
+                                                    slotDisplay.iconDimensions.height)
+                                            - Math.max(slotFontSize, slotLineHeight),
+                                    slotDisplay.iconDimensions.width - Math.max(0, slotLineHeight - slotFontSize),
+                                    slotStyle, slotFontSize);
+                        }
+
+                        g2d.setComposite(oldComposite);
+                    }
+
+                    if (recipeRemaining != -1) {
+
+                        int seconds = (int) Math.ceilDiv(recipeRemaining, 1000l);
+
+                        int hours = (int) (seconds / 3600);
+                        seconds %= 3_600;
+
+                        int minutes = (int) (seconds / 60);
+                        seconds %= 60;
+
+                        String duration = hours > 0 ? "%d:%02d:%02d".formatted(hours, minutes, seconds)
+                                : "%02d:%02d".formatted(minutes, seconds);
+
+                        drawText(g2d, duration, slotDisplay.position.x,
+                                slotDisplay.position.y + slotDisplay.iconDimensions.height
+                                        + Math.max(0, style.getLineHeight(fontSize) - fontSize),
+                                slotDisplay.iconDimensions.width, style, style.getFontSize(fontSize));
+                    }
+                }
+
+                SlotReference fuelReference = crafting.getFuel();
+                InventorySlotInstance fuelSlot = fuelReference == null ? null : fuelReference.apply(inventory);
+                if (fuelSlot != null && fuelBarStyle != null) {
+
+                    SlotDisplay slotDisplay = slots.get(fuelSlot);
+                    Style slotStyle = slotDisplay.style();
+                    int slotFontSize = slotStyle.getFontSize(fontSize);
+                    int slotLineHeight = slotStyle.getLineHeight(slotFontSize);
+
+                    int slotWidth = slotDisplay.iconDimensions.width;
+                    int slotHeight = slotDisplay.iconDimensions.height;
+
+                    int fuelBarX = fuelBarStyle.x().getSize(slotWidth, 0);
+                    int fuelBarY = fuelBarStyle.y().getSize(slotHeight, 0);
+
+                    int fuelBarWidth = fuelBarStyle.width().getSize(slotWidth, 1);
+                    int fuelBarHeight = fuelBarStyle.height().getSize(slotHeight, 1);
+
+                    int fuelBarBorderTop = 0;
+                    if (fuelBarStyle.borderTopStyle() != BorderStyle.NONE) {
+
+                        fuelBarBorderTop = fuelBarStyle.borderTopWidth().getSize(slotHeight, 0);
+                    }
+
+                    int fuelBarBorderBottom = 0;
+                    if (fuelBarStyle.borderBottomStyle() != BorderStyle.NONE) {
+
+                        fuelBarBorderBottom = fuelBarStyle.borderBottomWidth().getSize(slotHeight, 0);
+                    }
+
+                    int fuelBarBorderLeft = 0;
+                    if (fuelBarStyle.borderLeftStyle() != BorderStyle.NONE) {
+
+                        fuelBarBorderLeft = fuelBarStyle.borderLeftWidth().getSize(slotWidth, 0);
+                    }
+
+                    int fuelBarBorderRight = 0;
+                    if (fuelBarStyle.borderRightStyle() != BorderStyle.NONE) {
+
+                        fuelBarBorderRight = fuelBarStyle.borderRightWidth().getSize(slotWidth, 0);
+                    }
+
+                    SizeDimensions rTL = fuelBarStyle.rTL();
+                    int fuelBarRxTL = rTL.width().getSize(fuelBarWidth, 0);
+                    int fuelBarRyTL = rTL.height().getSize(fuelBarHeight, 0);
+
+                    SizeDimensions rTR = fuelBarStyle.rTR();
+                    int fuelBarRxTR = rTR.width().getSize(fuelBarWidth, 0);
+                    int fuelBarRyTR = rTR.height().getSize(fuelBarHeight, 0);
+
+                    SizeDimensions rBL = fuelBarStyle.rBL();
+                    int fuelBarRxBL = rBL.width().getSize(fuelBarWidth, 0);
+                    int fuelBarRyBL = rBL.height().getSize(fuelBarHeight, 0);
+
+                    SizeDimensions rBR = fuelBarStyle.rBR();
+                    int fuelBarRxBR = rBR.width().getSize(fuelBarWidth, 0);
+                    int fuelBarRyBR = rBR.height().getSize(fuelBarHeight, 0);
+
+                    // If the top radii exceed the width, adjust them so they fit.
+                    if (fuelBarRxTR + fuelBarRxTL > fuelBarWidth) {
+
+                        double partial = (double) fuelBarWidth / (fuelBarRxTR + fuelBarRxTL);
+
+                        fuelBarRxTR *= partial;
+                        fuelBarRxTL *= partial;
+                    }
+
+                    // If the bottom radii exceed the width, adjust them so they fit.
+                    if (fuelBarRxBR + fuelBarRxBL > fuelBarWidth) {
+
+                        double partial = (double) fuelBarWidth / (fuelBarRxBR + fuelBarRxBL);
+
+                        fuelBarRxBR *= partial;
+                        fuelBarRxBL *= partial;
+                    }
+
+                    // If the left radii exceed the height, adjust them so they fit.
+                    if (fuelBarRyBL + fuelBarRyTL > fuelBarHeight) {
+
+                        double partial = (double) fuelBarHeight / (fuelBarRyBL + fuelBarRyTL);
+
+                        fuelBarRyBL *= partial;
+                        fuelBarRyTL *= partial;
+                    }
+
+                    // If the right radii exceed the height, adjust them so they fit.
+                    if (fuelBarRyBR + fuelBarRyTR > fuelBarHeight) {
+
+                        double partial = (double) fuelBarHeight / (fuelBarRyBR + fuelBarRyTR);
+
+                        fuelBarRyBR *= partial;
+                        fuelBarRyTR *= partial;
+                    }
+
+                    // Process the background color and image.
+                    Color fuelBarBackgroundColor = fuelBarStyle.backgroundColor();
+                    String newfuelBarBackgroundIconPath = fuelBarStyle.backgroundIcon();
+
+                    // If the background icon has changed, recompute it.
+                    if (newfuelBarBackgroundIconPath != null && (fuelBarBackgroundIconPath == null
+                            || !fuelBarBackgroundIconPath.equals(newfuelBarBackgroundIconPath))) {
+
+                        fuelBarBackgroundIcon = getWorld().getTexture(newfuelBarBackgroundIconPath,
+                                getRandomComponentId());
+                    } else if (newfuelBarBackgroundIconPath == null) {
+
+                        fuelBarBackgroundIcon = null;
+                    }
+                    fuelBarBackgroundIconPath = newfuelBarBackgroundIconPath;
+
+                    IconSize fuelBarBackgroundSize = fuelBarStyle.backgroundSize();
+
+                    // Shape fuelBarBounds = createBounds();
+                    Graphics2D g2 = (Graphics2D) g2d.create();
+                    g2.translate(slotDisplay.position.x + fuelBarX, slotDisplay.position.y + fuelBarY);
+
+                    drawBorders(g2, fuelBarStyle, fuelBarWidth, fuelBarHeight, fuelBarBorderTop, fuelBarBorderBottom,
+                            fuelBarBorderLeft, fuelBarBorderRight, fuelBarRxTR, fuelBarRyTR, fuelBarRxTL, fuelBarRyTL,
+                            fuelBarRxBL, fuelBarRyBL, fuelBarRxBR, fuelBarRyBR);
+
+                    g2.translate(fuelBarBorderLeft, fuelBarBorderTop);
+
+                    Shape fuelBarBounds = createBounds(fuelBarWidth, fuelBarHeight, fuelBarRxTR, fuelBarRyTR,
+                            fuelBarRxTL, fuelBarRyTL, fuelBarRxBL, fuelBarRyBL, fuelBarRxBR, fuelBarRyBR);
+                    g2.clip(fuelBarBounds);
+
+                    drawBackground(g2, fuelBarBackgroundColor, fuelBarBackgroundIcon, fuelBarBackgroundSize,
+                            fuelBarBounds);
+
+                    // TODO FINISH FUEL BAR
+
+                    if (fuelRemaining > 0) {
+
+                        g2.setColor(fuelBarStyle.color());
+                        g2.fillRect(0, 0, (int) (fuelBarWidth * fuelRemaining), fuelBarHeight);
+
+                    }
+
+                    g2.dispose();
+
+                }
+
             }
         }
     }

@@ -1,6 +1,8 @@
 {
     "metadata": {
-        "identifier": "Example:exampleOverlay"
+        "identifier": "Example:exampleOverlay",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "style": {

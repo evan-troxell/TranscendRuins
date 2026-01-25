@@ -1,0 +1,75 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:workbench",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "model": "TranscendRuins:cube",
+        "renderMaterial": "TranscendRuins:crate",
+        "texture": "element.workbench",
+        "inventory": {
+            "ui": {
+                "id": "elementWorkbenchInventory",
+                "grid": {
+                    "id": "elementWorkbenchGridSlot",
+                    "rows": 2,
+                    "cols": 2
+                },
+                "named": {
+                    "output": {
+                        "id": "elementWorkbenchOutputSlot",
+                        "classes": [
+                            "outputSlot"
+                        ]
+                    }
+                },
+                "header": {
+                    "type": "text",
+                    "id": "elementWorkbenchHeader",
+                    "classes": [
+                        "header"
+                    ],
+                    "text": "element.inventory.workbench"
+                },
+                "body": {
+                    "type": "container",
+                    "id": "elementWorkbenchBody",
+                    "classes": [
+                        "body"
+                    ],
+                    "components": []
+                },
+                "footer": {
+                    "type": "text",
+                    "id": "elementWorkbenchFooter",
+                    "classes": [
+                        "footer"
+                    ],
+                    "text": "footer"
+                }
+            },
+            "grid": {
+                "slots": 4
+            },
+            "named": {
+                "output": {
+                    "lockAdd": true
+                }
+            }
+        },
+        "crafting": {
+            "category": "workbench",
+            "input": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "output": "output"
+        },
+        "interaction": {
+            "type": "inventory"
+        }
+    }
+}

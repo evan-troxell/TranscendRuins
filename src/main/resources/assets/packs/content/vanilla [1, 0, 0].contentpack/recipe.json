@@ -1,16 +1,21 @@
 {
-    "hearth": {
-        "oreToIron": "TranscendRuins:oreToIron",
-        "scrapToIron": "TranscendRuins:scrapToIron",
-
-        "oreToAluminum": "TranscendRuins:oreToAluminum",
-        "scrapToAluminum": "TranscendRuins:scrapToAluminum",
-
-        "oreToCopper": "TranscendRuins:oreToCopper",
-        "scrapToCopper": "TranscendRuins:scrapToCopper"
+    "workbench": {
+        "ironHatchet": "TranscendRuins:ironHatchet"
     },
-
+    "hearth": {
+        "chunkToIronBar": "TranscendRuins:chunkToIronBar",
+        "scrapToIronBar": "TranscendRuins:scrapToIronBar"
+    },
+    "hearthX": {
+        "chunkToAluminumBar": "TranscendRuins:chunkToAluminumBar",
+        "scrapToAluminumBar": "TranscendRuins:scrapToAluminumBar",
+        "chunkToCopperBar": "TranscendRuins:chunkToCopperBar",
+        "scrapToCopperBar": "TranscendRuins:scrapToCopperBar"
+    },
     "forge": {
-        "ironToSteel": "TranscendRuins:ironToSteel"
+        "scrapToSteelBar": "TranscendRuins:scrapToSteelBar"
+    },
+    "forgeX": {
+        "ironToSteelBar": "TranscendRuins:ironToSteelBar"
     }
 }

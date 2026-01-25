@@ -1,6 +1,8 @@
 {
     "metadata": {
-        "identifier": "Example:exampleLayout"
+        "identifier": "Example:exampleLayout",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "width": 59,

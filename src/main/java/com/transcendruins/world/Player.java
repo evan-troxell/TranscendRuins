@@ -905,12 +905,12 @@ public final class Player {
 
         System.out.println("INTERACT TIME: " + (time - interactStart));
 
-        double duration = interactInstance.getDuration();
-        double cooldown = interactInstance.getCooldown();
+        long duration = interactInstance.getDuration();
+        long cooldown = interactInstance.getCooldown();
 
         // If the attack has not been inflicted yet, check if the duration has
         // concluded.
-        if (!interacted && interactStart + duration <= time) {
+        if (!interacted && interactStart + duration / 1000 <= time) {
 
             System.out.println("INTERACT FINISHED");
 
@@ -919,7 +919,7 @@ public final class Player {
         }
 
         // Check if the duration and end cooldown has concluded to end the attack.
-        if (interactStart + (duration + cooldown) <= time) {
+        if (interactStart + (duration + cooldown) / 1000 <= time) {
 
             System.out.println("INTERACT RESET");
             interactStart = -1;

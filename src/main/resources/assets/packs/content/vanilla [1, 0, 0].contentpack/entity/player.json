@@ -1,65 +1,65 @@
 {
     "metadata": {
-        "identifier": "TranscendRuins:player"
+        "identifier": "TranscendRuins:player",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
     },
     "attributes": {
         "texture": "element.crate",
-        "model": "TranscendRuins:crate",
+        "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:crate",
         "mapIcon": "entity.playerMapIcon",
         "inventory": {
             "privateUi": {
-                "slotSize": "80px",
                 "grid": {
-                    "x": 0,
-                    "y": 0,
+                    "id": "entityPlayerGridSlot",
                     "rows": 3,
                     "cols": 5
+                },
+                "header": {
+                    "type": "text",
+                    "id": "entityPlayerPrivateHeader",
+                    "classes": [
+                        "header"
+                    ],
+                    "text": "entity.inventory.player"
                 }
             },
             "ui": {
-                "slotSize": "80px",
                 "named": {
                     "mainhand": {
-                        "x": 0,
-                        "y": 0,
+                        "id": "entityPlayerMainhandSlot",
                         "slotIcon": "interface.inventory.mainhandSlot",
                         "selectedSlotIcon": "interface.inventory.mainhandSlotSelected"
                     },
                     "offhand": {
-                        "x": 0,
-                        "y": 95,
+                        "id": "entityPlayerOffhandSlot",
                         "slotIcon": "interface.inventory.offhandSlot",
                         "selectedSlotIcon": "interface.inventory.offhandSlotSelected"
                     },
                     "backpack": {
-                        "x": 0,
-                        "y": 285,
+                        "id": "entityPlayerBackpackSlot",
                         "slotIcon": "interface.inventory.backpackSlot",
                         "selectedSlotIcon": "interface.inventory.backpackSlotSelected"
                     },
                     "cap": {
-                        "x": 95,
-                        "y": 0,
+                        "id": "entityPlayerCapSlot",
                         "slotIcon": "interface.inventory.capSlot",
                         "selectedSlotIcon": "interface.inventory.capSlotSelected"
                     },
                     "top": {
-                        "x": 95,
-                        "y": 95,
+                        "id": "entityPlayerTopSlot",
                         "slotIcon": "interface.inventory.topSlot",
                         "selectedSlotIcon": "interface.inventory.topSlotSelected"
                     },
                     "pants": {
-                        "x": 95,
-                        "y": 190,
+                        "id": "entityPlayerPantsSlot",
                         "slotIcon": "interface.inventory.pantsSlot",
                         "selectedSlotIcon": "interface.inventory.pantsSlotSelected"
                     },
                     "boots": {
-                        "x": 95,
-                        "y": 285,
+                        "id": "entityPlayerBootsSlot",
                         "slotIcon": "interface.inventory.bootsSlot",
                         "selectedSlotIcon": "interface.inventory.bootsSlotSelected"
                     }

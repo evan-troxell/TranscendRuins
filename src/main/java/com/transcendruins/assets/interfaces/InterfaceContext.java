@@ -111,8 +111,8 @@ public final class InterfaceContext extends AssetContext {
     public static final InterfaceContext createGlobalMapContext(World world, AssetInstance parent, long playerId,
             double centerX, double centerY) {
 
-        InterfaceContext context = new InterfaceContext(DataConstants.GLOBAL_MAP_IDENTIFIER, world, parent, playerId,
-                null);
+        InterfaceContext context = new InterfaceContext(DataConstants.GLOBAL_MAP_DISPLAY_IDENTIFIER, world, parent,
+                playerId, null);
         context.componentValues = List.of(centerX, centerY);
 
         return context;

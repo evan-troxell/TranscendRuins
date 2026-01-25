@@ -1,0 +1,18 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:ironChunk",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "texture": "item.ironChunkTexture",
+        "model": "TranscendRuins:cube",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "stackSize": 20,
+        "icon": "item.ironChunk",
+        "categories": [
+            "material"
+        ]
+    }
+}

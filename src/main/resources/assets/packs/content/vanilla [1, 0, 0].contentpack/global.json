@@ -76,7 +76,7 @@
             },
             "primary": "main",
             "reset": {
-                "duration": 2880
+                "duration": "48h"
             },
             "duration": {
                 "duration": -1,
@@ -98,7 +98,7 @@
             },
             "primary": "main",
             "reset": {
-                "duration": 2880
+                "duration": "48h"
             },
             "duration": {
                 "duration": -1,
@@ -222,13 +222,13 @@
                     }
                 ]
             },
-            "duration": 1440,
-            "cooldown": 120,
+            "duration": "24h",
+            "cooldown": "2h",
             "tasks": {
                 "required": 15,
                 "active": 3,
-                "duration": 1440,
-                "cooldown": 120,
+                "duration": "24h",
+                "cooldown": "2h",
                 "tasks": [
                     {
                         "name": "event.example.task1",

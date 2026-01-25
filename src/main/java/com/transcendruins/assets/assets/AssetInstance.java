@@ -451,6 +451,12 @@ public abstract class AssetInstance extends Instance {
         return this == obj;
     }
 
+    @Override
+    public final String toString() {
+
+        return identifier.toString();
+    }
+
     protected AssetInstance clone(Function<AssetPresets, ? extends AssetContext> contextualize, World world) {
 
         AssetInstance asset = contextualize.apply(assetPresets).instantiate();

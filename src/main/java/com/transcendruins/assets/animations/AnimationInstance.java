@@ -269,7 +269,7 @@ public final class AnimationInstance extends AssetInstance {
      * @return <code>int</code>: The index of the first timestamp greater than the
      *         <code>timestamp</code> field If the index is the length of the
      *         timestamps list, then there are no timestamps greater than the
-     *         <code>timestamp</code> perameter.
+     *         <code>timestamp</code> parameter.
      */
     private int findTimestampIndex(float timestamp) {
 

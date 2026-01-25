@@ -226,7 +226,7 @@ public final class PackDependency {
      *                    <code>PackDependency</code> instance.
      * @return <code>HashSet&lt;Identifier&gt;</code>: The set of compatible
      *         <code>Identifier</code> instances from the <code>identifiers</code>
-     *         perameter.
+     *         parameter.
      */
     public HashSet<Identifier> getCompatible(Collection<Identifier> identifiers) {
 
@@ -296,7 +296,7 @@ public final class PackDependency {
      *                    <code>PackDependency</code> instance.
      * @return <code>HashSet&lt;Identifier&gt;</code>: The set of overlapping
      *         <code>Identifier</code> instances from the <code>identifiers</code>
-     *         perameter.
+     *         parameter.
      */
     public HashSet<Identifier> getMatches(Collection<Identifier> identifiers) {
 
@@ -308,8 +308,8 @@ public final class PackDependency {
 
     /**
      * Tests whether or not another <code>PackDependency</code> instance version
-     * bounds (or version perameter) matches with this <code>PackDependency</code>
-     * instance version bounds (or version perameter).
+     * bounds (or version parameter) matches with this <code>PackDependency</code>
+     * instance version bounds (or version parameter).
      * 
      * @param dependency     <code>PackDependency</code>: The dependency to compare.
      * @param ignoreVersions <code>boolean</code>: Whether or not the versions of

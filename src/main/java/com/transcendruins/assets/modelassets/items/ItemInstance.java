@@ -175,6 +175,13 @@ public final class ItemInstance extends ModelAssetInstance {
         return true; // TODO add intact code
     }
 
+    private long fuelDuration;
+
+    public final long getFuelDuration() {
+
+        return fuelDuration;
+    }
+
     /**
      * Creates a new instance of the <code>ItemInstance</code> class.
      * 
@@ -212,6 +219,8 @@ public final class ItemInstance extends ModelAssetInstance {
         computeAttribute(attributes.getAttack(), attack::applyAttributes, attributes, AttackSchema.DEFAULT);
 
         detectionRange = calculateAttribute(attributes.getDetectionRange(), detectionRange, attributes, null);
+
+        fuelDuration = calculateAttribute(attributes.getFuelDuration(), fuelDuration, attributes, 0l);
     }
 
     @Override

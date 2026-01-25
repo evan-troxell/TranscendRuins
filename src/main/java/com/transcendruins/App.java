@@ -58,7 +58,7 @@ public final class App {
     public static final Object TIMER = new Object();
 
     /**
-     * Says hello to the world.
+     * Says hello to the world. sys
      * 
      * @param args <code>String[]</code> The arguments of the program.
      */
@@ -71,6 +71,8 @@ public final class App {
         // new Test().start();
 
         PackProcessor packProcessor = PackProcessor.getProcessor();
+
+        System.out.println("FLAG 1");
         // packProcessor.addRoot();
 
         ContentPack vanillaPack = ContentPack.getPack(DataConstants.VANILLA_IDENTIFIER);
@@ -92,6 +94,7 @@ public final class App {
 
         World.createWorld(packs, resources, seed);
         World world = World.getWorld();
+        System.out.println("FLAG 2");
         world.setLanguage(World.LanguageType.ENGLISH);
 
         // System.out.println(cache);
@@ -248,7 +251,7 @@ public final class App {
         /* UI RENDERING */
         JFrame uiFrame = new JFrame();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        double ratio = 0.4;
+        double ratio = 0;
         Rectangle bounds = new Rectangle((int) (screenSize.width * ratio), 0, (int) (screenSize.width * (1 - ratio)),
                 screenSize.height);
         uiFrame.setBounds(bounds);
@@ -371,6 +374,8 @@ public final class App {
             public void mouseExited(MouseEvent e) {
 
                 world.setMousePosition(playerId, e.getX(), e.getY());
+                mousePos[0] = -1000;
+                mousePos[1] = -1000;
             }
 
         });
@@ -394,7 +399,6 @@ public final class App {
 
                 world.setMousePosition(playerId, e.getX(), e.getY());
             }
-
         });
 
         panel.addMouseWheelListener(e -> {

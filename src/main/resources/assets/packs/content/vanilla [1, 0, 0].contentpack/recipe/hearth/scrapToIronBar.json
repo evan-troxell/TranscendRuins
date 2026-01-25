@@ -1,0 +1,20 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:scrapToIronBar",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "duration": "1m30s",
+        "input": [
+            {
+                "item": "TranscendRuins:ironScrap",
+                "count": 4
+            }
+        ],
+        "output": {
+            "item": "TranscendRuins:ironBar",
+            "count": 1
+        }
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "metadata": {
+        "identifier": "TranscendRuins:rope",
+        "author": "Evan Troxell",
+        "license": "Apache 2.0"
+    },
+    "attributes": {
+        "texture": "item.ropeTexture",
+        "model": "TranscendRuins:cube",
+        "stateController": "TranscendRuins:crate",
+        "renderMaterial": "TranscendRuins:opaque",
+        "stackSize": 20,
+        "icon": "item.rope",
+        "categories": [
+            "material"
+        ]
+    }
+}

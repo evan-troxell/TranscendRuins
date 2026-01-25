@@ -4,12 +4,15 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.Sim;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -36,12 +39,15 @@ import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import com.transcendruins.assets.modelassets.ModelAssetInstance;
+import com.transcendruins.assets.modelassets.entities.EntityInstance;
 import com.transcendruins.packs.PackProcessor;
 import com.transcendruins.packs.content.ContentPack;
 import com.transcendruins.packs.resources.ResourcePack;
 import com.transcendruins.rendering.RenderPacket;
+import com.transcendruins.rendering.renderbuffer.MaterialData;
 import com.transcendruins.utilities.files.DataConstants;
 import com.transcendruins.utilities.metadata.Identifier;
+import com.transcendruins.world.Player;
 import com.transcendruins.world.World;
 
 public class Test extends SimpleApplication implements ActionListener, AnalogListener {
@@ -97,12 +103,13 @@ public class Test extends SimpleApplication implements ActionListener, AnalogLis
         }
 
         world.startHost();
+        world.travel(playerId, "bunkerBravo");
         world.enterLocation(playerId);
 
         AppSettings settings = new AppSettings(true);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        double ratio = 0.4;
+        double ratio = 1;
         Rectangle bounds = new Rectangle((int) (screenSize.width * ratio), 0, (int) (screenSize.width * (1 - ratio)),
                 screenSize.height);
 
@@ -185,7 +192,39 @@ public class Test extends SimpleApplication implements ActionListener, AnalogLis
         // cam.getRotation().multLocal(new Quaternion().fromAngleAxis(3.1415926f / 2,
         // new Vector3f(0, 1, 0)));
 
+        Player player = world.playerFunction(playerId, p -> p);
+        EntityInstance playerEntity = player.getEntity();
+
+        BufferedImage im = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+        randomizeRGBFast(im);
+
+        MaterialData md = playerEntity.getRenderMaterial().createMaterialData(im, 128, 128);
+        Geometry g1 = Sim.createGeometry(20, playerEntity, md, assetManager);
+        System.out.println(g1.getMesh().getTriangleCount());
+        rootNode.attachChild(g1);
+
         updateScene();
+    }
+
+    public static void randomizeRGBFast(BufferedImage img) {
+        if (img.getType() != BufferedImage.TYPE_INT_ARGB && img.getType() != BufferedImage.TYPE_INT_RGB) {
+            throw new IllegalArgumentException("Unsupported image type");
+        }
+
+        int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+        Random rng = new Random();
+
+        boolean hasAlpha = img.getType() == BufferedImage.TYPE_INT_ARGB;
+
+        for (int i = 0; i < pixels.length; i++) {
+            int a = hasAlpha ? (pixels[i] >>> 24) & 0xFF : 0xFF;
+
+            int r = rng.nextInt(256);
+            int g = rng.nextInt(256);
+            int b = rng.nextInt(256);
+
+            pixels[i] = (a << 24) | (r << 16) | (g << 8) | b;
+        }
     }
 
     private void updateScene() {

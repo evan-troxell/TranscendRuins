@@ -28,7 +28,7 @@ public final class DataConstants {
 
         public static final AssetPresets PLAYER_IDENTIFIER;
 
-        public static final AssetPresets GLOBAL_MAP_IDENTIFIER;
+        public static final AssetPresets GLOBAL_MAP_DISPLAY_IDENTIFIER;
 
         public static final AssetPresets LOCATION_DISPLAY_IDENTIFIER;
 
@@ -55,9 +55,9 @@ public final class DataConstants {
                                         false, AssetType.ENTITY);
                         PLAYER_IDENTIFIER = playerIdentifierEntry.getValue();
 
-                        TracedEntry<AssetPresets> globalMapIdentifierEntry = constantsJson
-                                        .getAsPresets("globalMapIdentifier", false, AssetType.INTERFACE);
-                        GLOBAL_MAP_IDENTIFIER = globalMapIdentifierEntry.getValue();
+                        TracedEntry<AssetPresets> globalMapDisplayIdentifierEntry = constantsJson
+                                        .getAsPresets("globalMapDisplayIdentifier", false, AssetType.INTERFACE);
+                        GLOBAL_MAP_DISPLAY_IDENTIFIER = globalMapDisplayIdentifierEntry.getValue();
 
                         TracedEntry<AssetPresets> locationDisplayIdentifierEntry = constantsJson
                                         .getAsPresets("locationDisplayIdentifier", false, AssetType.INTERFACE);

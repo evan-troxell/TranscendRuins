@@ -38,27 +38,27 @@ public final class LocationDuration {
      */
     public LocationDuration() {
 
-        duration = -1.0;
+        duration = -1;
         startTimestamp = null;
         displayCountdown = false;
         endOnExit = false;
     }
 
     /**
-     * <code>double</code>: The duration of this <code>LocationDuration</code>
-     * instance, in minutes. This value is guaranteed to be greater than or equal to
-     * 0.0, except for values of -1 which represent no countdown.
+     * <code>long</code>: The duration of this <code>LocationDuration</code>
+     * instance in milliseconds. This value is guaranteed to be greater than or
+     * equal to 0.0, except for values of -1 which represent no countdown.
      */
-    private final double duration;
+    private final long duration;
 
     /**
-     * Retrieves the duration of this <code>LocationDuration</code> instance, in
-     * minutes.
+     * Retrieves the duration of this <code>LocationDuration</code> instance in
+     * milliseconds.
      *
-     * @return <code>double</code>: The <code>duration</code> field of this
+     * @return <code>long</code>: The <code>duration</code> field of this
      *         <code>LocationDuration</code> instance.
      */
-    public double getDuration() {
+    public final long getDuration() {
 
         return duration;
     }
@@ -76,7 +76,7 @@ public final class LocationDuration {
      * @return <code>ZonedDateTime</code>: The <code>startTimestamp</code> field of
      *         this <code>LocationDuration</code> instance.
      */
-    public ZonedDateTime getStartTimestamp() {
+    public final ZonedDateTime getStartTimestamp() {
 
         return startTimestamp;
     }
@@ -94,7 +94,7 @@ public final class LocationDuration {
      * @return <code>boolean</code>: The <code>displayCountdown</code> field of this
      *         <code>LocationDuration</code> instance.
      */
-    public boolean getDisplayCountdownTimer() {
+    public final boolean getDisplayCountdownTimer() {
 
         return displayCountdown;
     }
@@ -112,7 +112,7 @@ public final class LocationDuration {
      * @return <code>boolean</code>: The <code>endOnExit</code> field of this
      *         <code>LocationDuration</code> instance.
      */
-    public boolean getEndOnExit() {
+    public final boolean getEndOnExit() {
 
         return endOnExit;
     }
@@ -127,7 +127,7 @@ public final class LocationDuration {
      */
     public LocationDuration(TracedDictionary json) throws LoggedException {
 
-        TracedEntry<Double> durationEntry = json.getAsDouble("duration", true, -1.0, num -> num > 0 || num == -1);
+        TracedEntry<Long> durationEntry = json.getAsDuration("duration", true, -1l, true);
         duration = durationEntry.getValue();
 
         TracedEntry<ZonedDateTime> startTimestampEntry = json.getAsTimestamp("startTimestamp", true);
