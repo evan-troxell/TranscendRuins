@@ -19,6 +19,7 @@ package com.transcendruins.assets.modelassets.items;
 import com.transcendruins.assets.assets.schema.AssetSchema;
 import com.transcendruins.assets.modelassets.ModelAssetAttributes;
 import com.transcendruins.assets.modelassets.attack.AttackSchema;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.utilities.exceptions.LoggedException;
 import com.transcendruins.utilities.json.TracedDictionary;
 import com.transcendruins.utilities.json.TracedEntry;
@@ -28,6 +29,41 @@ import com.transcendruins.utilities.json.TracedEntry;
  * <code>ItemSchema</code> instance.
  */
 public final class ItemAttributes extends ModelAssetAttributes {
+
+    /**
+     * <code>TRScript</code>: The name of this
+     * <code>ItemAttributes</code> instance.
+     */
+    private final TRScript name;
+
+    /**
+     * Retrieves the name of this
+     * <code>ItemAttributes</code> instance.
+     * 
+     * @return <code>TRScript</code>: The <code>name</code> field of this
+     *         <code>ItemAttributes</code> instance.
+     */
+    public final TRScript getName() {
+
+        return name;
+    }
+
+    /**
+     * <code>TRScript</code>: The description of this
+     * <code>ItemAttributes</code> instance.
+     */
+    private final TRScript description;
+
+    /**
+     * Retrieves the description of this <code>ItemAttributes</code> instance.
+     * 
+     * @return <code>TRScript</code>: The <code>description</code> field of this
+     *         <code>ItemAttributes</code> instance.
+     */
+    public final TRScript getDescription() {
+
+        return description;
+    }
 
     /**
      * <code>Integer</code>: The stack size of this <code>ItemAttributes</code>
@@ -90,6 +126,12 @@ public final class ItemAttributes extends ModelAssetAttributes {
     public ItemAttributes(AssetSchema schema, TracedDictionary json, boolean isBase) throws LoggedException {
 
         super(schema, json, isBase);
+
+        TracedEntry<TRScript> nameEntry = json.getAsScript("name", !isBase);
+        name = nameEntry.getValue();
+
+        TracedEntry<TRScript> descriptionEntry = json.getAsScript("description", !isBase);
+        description = descriptionEntry.getValue();
 
         TracedEntry<Integer> stackSizeEntry = json.getAsInteger("stackSize", true, null);
         stackSize = stackSizeEntry.getValue();

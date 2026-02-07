@@ -32,10 +32,14 @@ import com.transcendruins.utilities.selection.WeightedRoll;
 
 public final class GlobalLocationSchema {
 
+    /**
+     * <code>TRScript</code>: The name of this
+     * <code>GlobalLocationSchema</code> instance.
+     */
     private final TRScript name;
 
     /**
-     * <code>TRScript</code>: The description of this
+     * Retrieves the name of this
      * <code>GlobalLocationSchema</code> instance.
      * 
      * @return <code>TRScript</code>: The <code>name</code> field of this

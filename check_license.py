@@ -19,7 +19,7 @@ license_header = """/* Copyright 2026 Evan Troxell
 """
 
 # Define the root directory of your project
-root_dir = "/Users/evantroxell/Desktop/TranscendRuins/src/main"
+root_dir = "/Users/evantroxell/Desktop/temp/TranscendRuins"
 
 
 # Function to check if a file contains the license header

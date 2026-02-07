@@ -5,7 +5,9 @@
         "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.pinePlankTexture",
+        "name": "item.pinePlank",
+        "description": "item.pinePlank.description",
+        "texture": "item.pinePlank.texture",
         "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",

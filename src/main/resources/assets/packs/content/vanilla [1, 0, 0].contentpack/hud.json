@@ -10,7 +10,7 @@
         "exampleMenu": "Example:exampleMenu"
     },
     "temp": {
-        "globalMapDescription": "TranscendRuins:globalMapDescription",
-        "gameDescription": "TranscendRuins:gameDescription"
+        "globalMap.description": "TranscendRuins:globalMap.description",
+        "game.description": "TranscendRuins:game.description"
     }
 }

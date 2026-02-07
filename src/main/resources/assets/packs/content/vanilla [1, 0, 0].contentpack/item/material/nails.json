@@ -5,7 +5,9 @@
         "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.nailsTexture",
+        "name": "item.nails",
+        "description": "item.nails.description",
+        "texture": "item.nails.texture",
         "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",

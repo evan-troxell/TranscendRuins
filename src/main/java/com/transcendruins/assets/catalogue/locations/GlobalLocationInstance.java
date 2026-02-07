@@ -82,7 +82,7 @@ public final class GlobalLocationInstance extends PropertyHolder {
     private final TRScript name;
 
     /**
-     * <code>TRScript</code>: Retrieves the name of this
+     * Retrieves the name of this
      * <code>GlobalLocationInstance</code> instance.
      * 
      * @return <code>TRScript</code>: The <code>name</code> field of this

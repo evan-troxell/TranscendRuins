@@ -18,6 +18,7 @@ package com.transcendruins.assets.scripts;
 
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import com.transcendruins.utilities.PropertyHolder;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -75,6 +76,11 @@ public final class TRScript {
         case Float floatVal -> floatVal.doubleValue();
         case null, default -> value;
         };
+    }
+
+    public TRScript(Function<PropertyHolder, Object> expression) {
+
+        this.value = new TRScriptExpression(expression);
     }
 
     /**

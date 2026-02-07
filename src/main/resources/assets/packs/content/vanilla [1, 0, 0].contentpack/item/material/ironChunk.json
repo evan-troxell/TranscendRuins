@@ -5,7 +5,9 @@
         "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.ironChunkTexture",
+        "name": "item.ironChunk",
+        "description": "item.ironChunk.description",
+        "texture": "item.ironChunk.texture",
         "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",

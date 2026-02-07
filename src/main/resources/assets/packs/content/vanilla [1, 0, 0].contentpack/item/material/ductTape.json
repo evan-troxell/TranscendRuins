@@ -5,7 +5,9 @@
         "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.ductTapeTexture",
+        "name": "item.ductTape",
+        "description": "item.ductTape.description",
+        "texture": "item.ductTape.texture",
         "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",

@@ -14,7 +14,7 @@
             "inventoryDisplay": {
                 "gap": 40,
                 "width": "fitContent",
-                "x": "50% - 50",
+                "x": "50% - 50px",
                 "height": "100% - 10px",
                 "origin": [
                     "50%",
@@ -204,7 +204,40 @@
             "components": [
                 {
                     "type": "inventoryDisplay",
-                    "id": "inventoryDisplay"
+                    "itemDisplayList": {
+                        "id": "itemDisplayList",
+                        "style": {
+                            "width": 250,
+                            "marginVertical": 5
+                        },
+                        "itemNameText": {
+                            "type": "text",
+                            "style": {
+                                "width": "100% - 10px",
+                                "paddingHorizontal": 5,
+                                "paddingVertical": 3,
+                                "color": "#FFFFFF",
+                                "backgroundColor": "#4098A0",
+                                "fontSize": 20,
+                                "lineHeight": 1.25
+                            },
+                            "id": "inventoryDisplayItemNameText"
+                        },
+                        "itemDescriptionText": {
+                            "type": "text",
+                            "style": {
+                                "width": "100%",
+                                "paddingHorizontal": 5,
+                                "paddingVertical": 3,
+                                "color": "#FFFFFF",
+                                "backgroundColor": "#4098A0C0",
+                                "fontSize": 16,
+                                "lineHeight": 1.25,
+                                "displayX": "block"
+                            },
+                            "id": "inventoryDisplayItemDescriptionText"
+                        }
+                    }
                 },
                 {
                     "type": "button",

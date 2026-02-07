@@ -775,10 +775,46 @@ public final class InterfaceAttributes extends AssetAttributes {
 
     public static final class InventoryDisplayComponentSchema extends ComponentSchema {
 
+        private final ListComponentSchema itemDisplayList;
+
+        public final ListComponentSchema getItemDisplayList() {
+
+            return itemDisplayList;
+        }
+
+        private final TextComponentSchema itemNameText;
+
+        public final TextComponentSchema getItemNameText() {
+
+            return itemNameText;
+        }
+
+        private final TextComponentSchema itemDescriptionText;
+
+        public final TextComponentSchema getItemDescriptionText() {
+
+            return itemDescriptionText;
+        }
+
         public InventoryDisplayComponentSchema(TracedDictionary json, Consumer<AssetPresets> dependencyAdder)
                 throws LoggedException {
 
             super(json, INVENTORY_DISPLAY);
+
+            TracedEntry<TracedDictionary> itemDisplayListEntry = json.getAsDict("itemDisplayList", false);
+            TracedDictionary itemDisplayListJson = itemDisplayListEntry.getValue();
+
+            itemDisplayList = new ListComponentSchema(itemDisplayListJson, dependencyAdder);
+            TracedEntry<TracedDictionary> itemNameTextEntry = itemDisplayListJson.getAsDict("itemNameText", false);
+            TracedDictionary itemNameTextJson = itemNameTextEntry.getValue();
+
+            itemNameText = new TextComponentSchema(itemNameTextJson);
+
+            TracedEntry<TracedDictionary> itemDescriptionTextEntry = itemDisplayListJson
+                    .getAsDict("itemDescriptionText", false);
+            TracedDictionary itemDescriptionTextJson = itemDescriptionTextEntry.getValue();
+
+            itemDescriptionText = new TextComponentSchema(itemDescriptionTextJson);
         }
     }
 

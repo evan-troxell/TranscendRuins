@@ -5,7 +5,9 @@
         "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.steelBarTexture",
+        "name": "item.steelBar",
+        "description": "item.steelBar.description",
+        "texture": "item.steelBar.texture",
         "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",

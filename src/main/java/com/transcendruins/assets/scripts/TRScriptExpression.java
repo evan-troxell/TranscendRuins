@@ -18,6 +18,7 @@ package com.transcendruins.assets.scripts;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import com.transcendruins.utilities.PropertyHolder;
 import com.transcendruins.utilities.exceptions.LoggedException;
@@ -102,6 +103,11 @@ public final class TRScriptExpression {
                 })));
     }
 
+    public TRScriptExpression(Function<PropertyHolder, Object> evaluate) {
+
+        this.operator = new TRScriptOperator(evaluate);
+        this.args = new ImmutableList<>();
+    }
     /**
      * Evalutes this <code>TRScriptExpression</code> instance.
      * 

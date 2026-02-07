@@ -33,6 +33,7 @@ import com.transcendruins.assets.modelassets.attack.AttackInstance;
 import com.transcendruins.assets.modelassets.attack.AttackSchema;
 import com.transcendruins.assets.models.ModelAttributes.Bone;
 import com.transcendruins.assets.models.ModelInstance;
+import com.transcendruins.assets.scripts.TRScript;
 import com.transcendruins.rendering.renderbuffer.RenderBuffer;
 import com.transcendruins.world.World;
 
@@ -51,6 +52,42 @@ public final class ItemInstance extends ModelAssetInstance {
     public final Quaternion getRotation() {
 
         return Quaternion.IDENTITY;
+    }
+
+    /**
+     * <code>TRScript</code>: The name of this <code>ItemInstance</code>
+     * instance.
+     */
+    private TRScript name;
+
+    /**
+     * Retrieves the name of this
+     * <code>ItemInstance</code> instance.
+     * 
+     * @return <code>TRScript</code>: The <code>name</code> field of this
+     *         <code>ItemInstance</code> instance.
+     */
+    public final TRScript getName() {
+
+        return name;
+    }
+
+    /**
+     * <code>TRScript</code>: The description of this
+     * <code>ItemInstance</code> instance.
+     */
+    private TRScript description;
+
+    /**
+     * Retrieves the description of this <code>ItemInstance</code>
+     * instance.
+     * 
+     * @return <code>TRScript</code>: The <code>description</code> field of this
+     *         <code>ItemInstance</code> instance.
+     */
+    public final TRScript getDescription() {
+
+        return description;
     }
 
     /**
@@ -202,6 +239,9 @@ public final class ItemInstance extends ModelAssetInstance {
     public final void applyModelAssetAttributes(ModelAssetAttributes attributeSet) {
 
         ItemAttributes attributes = (ItemAttributes) attributeSet;
+
+        name = calculateAttribute(attributes.getName(), name);
+        description = calculateAttribute(attributes.getDescription(), description);
 
         // Updates the maxStackSize field.
         maxStackSize = calculateAttribute(attributes.getStackSize(), maxStackSize, attributes, 20);

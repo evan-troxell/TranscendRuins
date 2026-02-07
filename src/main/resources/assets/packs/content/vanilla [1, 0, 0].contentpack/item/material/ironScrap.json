@@ -5,7 +5,9 @@
         "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.ironScrapTexture",
+        "name": "item.ironScrap",
+        "description": "item.ironScrap.description",
+        "texture": "item.ironScrap.texture",
         "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",

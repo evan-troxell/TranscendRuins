@@ -5,7 +5,9 @@
         "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.ironPickaxeTexture",
+        "name": "item.ironPickaxe",
+        "description": "item.ironPickaxe.description",
+        "texture": "item.ironPickaxe.texture",
         "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",

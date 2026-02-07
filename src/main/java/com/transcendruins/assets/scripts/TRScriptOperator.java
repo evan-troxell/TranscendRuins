@@ -59,6 +59,19 @@ public final class TRScriptOperator {
     }
 
     /**
+     * Creates a new instance of the <code>TRScriptOperator</code> class.
+     * 
+     * @param evaluate    <code>(PropertyHolder) -> Object)</code>:
+     *                    The expression by which this <code>TRScriptOperator</code>
+     *                    instance should be evaluated.
+     */
+    public TRScriptOperator(Function<PropertyHolder, Object> evaluate) {
+
+        this.evaluate = (_, asset) -> evaluate.apply(asset);
+        this.invalidArgs = _ -> false;
+    }
+
+    /**
      * Evalutes this <code>TRScriptExpression</code> instance.
      * 
      * @param args  <code>List&lt;TRScript&gt;</code>: The arguments of this

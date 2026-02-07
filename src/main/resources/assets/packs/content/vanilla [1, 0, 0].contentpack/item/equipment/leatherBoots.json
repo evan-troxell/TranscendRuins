@@ -5,7 +5,9 @@
         "license": "Apache 2.0"
     },
     "attributes": {
-        "texture": "item.leatherBootsTexture",
+        "name": "item.leatherBoots",
+        "description": "item.leatherBoots.description",
+        "texture": "item.leatherBoots.texture",
         "model": "TranscendRuins:cube",
         "stateController": "TranscendRuins:crate",
         "renderMaterial": "TranscendRuins:opaque",
